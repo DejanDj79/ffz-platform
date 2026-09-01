@@ -1,0 +1,11 @@
+--- a/src/components/calculator/RiskCalculator.tsx
++++ b/src/components/calculator/RiskCalculator.tsx
+@@ -331,7 +331,7 @@
+             <div className="input-note">
+               <Icon name="shield" />
+               <span>
+-                Using {selectedChallenge.name || selectedChallenge.propFirm}: {selectedChallenge.drawdownMode?.replaceAll("_", " ") ?? "STATIC"} drawdown · max {selectedChallenge.maxMinis ?? "—"} mini / {selectedChallenge.maxMicros ?? "—"} micros.
++                Using {selectedChallenge.name || selectedChallenge.propFirm}: max {selectedChallenge.maxMinis ?? "—"} mini / {selectedChallenge.maxMicros ?? "—"} micros · {selectedChallenge.drawdownMode?.replaceAll("_", " ") ?? "STATIC"} drawdown · daily loss {selectedChallenge.dailyLossLimit > 0 ? money.format(selectedChallenge.dailyLossLimit) : "NO LIMIT"}.
+               </span>
+             </div>
+           )}

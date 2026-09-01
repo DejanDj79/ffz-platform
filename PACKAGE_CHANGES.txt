@@ -1,0 +1,5 @@
+Install:
+
+npm install bcryptjs
+
+No additional dev dependency is required.

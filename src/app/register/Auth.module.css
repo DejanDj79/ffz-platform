@@ -1,0 +1,119 @@
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(48, 208, 248, .08), transparent 28rem),
+    radial-gradient(circle at 85% 85%, rgba(160, 112, 232, .08), transparent 30rem),
+    #050b11;
+  color: #f1f6fa;
+}
+
+.card {
+  width: min(430px, 100%);
+  padding: 28px;
+  border: 1px solid rgba(73, 96, 113, .5);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(13, 24, 33, .96), rgba(7, 15, 22, .98));
+  box-shadow: 0 24px 80px rgba(0,0,0,.34);
+}
+
+.logo {
+  display: block;
+  width: min(240px, 75%);
+  height: auto;
+  margin: 0 auto 24px;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 6px;
+  text-align: center;
+  color: #30d0f8;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .16em;
+}
+
+.card h1 {
+  margin: 0;
+  text-align: center;
+  font-size: 27px;
+}
+
+.intro {
+  margin: 9px 0 23px;
+  text-align: center;
+  color: #7f8d99;
+  font-size: 12px;
+}
+
+.form { display: grid; gap: 15px; }
+
+.field {
+  display: grid;
+  gap: 7px;
+}
+
+.field span {
+  color: #aab6bf;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.field input {
+  width: 100%;
+  height: 42px;
+  border: 1px solid #34434f;
+  border-radius: 8px;
+  outline: none;
+  padding: 0 13px;
+  color: #eff4f8;
+  background: linear-gradient(180deg, #101b24, #0b141c);
+}
+
+.field input:focus {
+  border-color: #30d0f8;
+  box-shadow: 0 0 0 2px rgba(48,208,248,.08);
+}
+
+.submit {
+  height: 44px;
+  margin-top: 3px;
+  border: 1px solid rgba(48,208,248,.5);
+  border-radius: 8px;
+  cursor: pointer;
+  color: #041017;
+  font-weight: 800;
+  letter-spacing: .04em;
+  background: #30d0f8;
+}
+
+.submit:disabled {
+  cursor: wait;
+  opacity: .6;
+}
+
+.error {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(239, 94, 94, .35);
+  border-radius: 7px;
+  color: #ffb4b4;
+  background: rgba(239, 94, 94, .07);
+  font-size: 11px;
+}
+
+.switch {
+  margin: 20px 0 0;
+  text-align: center;
+  color: #758591;
+  font-size: 11px;
+}
+
+.switch a {
+  color: #a070e8;
+  text-decoration: none;
+  font-weight: 700;
+}
