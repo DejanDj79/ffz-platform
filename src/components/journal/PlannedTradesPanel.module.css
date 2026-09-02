@@ -47,7 +47,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: 1fr;
   gap: 12px;
 }
 
@@ -59,12 +59,16 @@
 }
 
 .titleRow,
-.metrics,
 .actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+}
+
+.titleRow > div {
+  display: grid;
+  gap: 3px;
 }
 
 .titleRow strong {
@@ -85,18 +89,42 @@
 }
 
 .metrics {
-  margin: 12px 0;
-  align-items: stretch;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: 15px 0 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .metrics div {
-  flex: 1;
+  min-width: 0;
+  padding: 11px 12px 10px;
   display: grid;
-  gap: 3px;
+  grid-template-rows: auto auto;
+  gap: 5px;
+  text-align: center;
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.metrics div:last-child {
+  border-right: 0;
+}
+
+.metrics span {
+  min-height: 1.1em;
+  color: #63dcff;
+  font-size: 0.68rem;
+  line-height: 1.1;
+  white-space: nowrap;
 }
 
 .metrics b {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 0.92rem;
+  line-height: 1.25;
+  white-space: nowrap;
 }
 
 .actions {
@@ -146,9 +174,40 @@
   padding: 6px 0 2px;
 }
 
-@media (max-width: 700px) {
-  .header,
+@media (max-width: 850px) {
   .metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .metrics div:nth-child(3) {
+    border-right: 0;
+  }
+
+  .metrics div:nth-child(n + 4) {
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+  }
+}
+
+@media (max-width: 560px) {
+  .header,
+  .titleRow {
+    align-items: stretch;
     flex-direction: column;
+  }
+
+  .metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .metrics div:nth-child(3) {
+    border-right: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .metrics div:nth-child(even) {
+    border-right: 0;
+  }
+
+  .metrics div:nth-child(n + 3) {
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
   }
 }
