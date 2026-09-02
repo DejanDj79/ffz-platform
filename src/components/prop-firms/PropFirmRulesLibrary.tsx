@@ -29,6 +29,12 @@ function Rule({ label, value }: { label: string; value: string }) {
 }
 
 function PresetCard({ preset }: { preset: PropFirmRulePreset }) {
+  const billing = preset.evaluationBillingMode === "MONTHLY"
+    ? "Monthly"
+    : preset.evaluationBillingMode === "ONE_TIME"
+      ? "One-time"
+      : "—";
+
   return (
     <article className={styles.card}>
       <header className={styles.cardHeader}>
@@ -46,7 +52,7 @@ function PresetCard({ preset }: { preset: PropFirmRulePreset }) {
         <Rule label="Daily loss" value={moneyValue(preset.dailyLossLimit)} />
         <Rule label="Max minis" value={value(preset.maxMinis)} />
         <Rule label="Max micros" value={value(preset.maxMicros)} />
-        <Rule label="Reset fee" value={moneyValue(preset.resetFee)} />
+        <Rule label="Evaluation fee" value={moneyValue(preset.evaluationFee)} />
       </div>
 
       <details className={styles.details}>
@@ -60,6 +66,8 @@ function PresetCard({ preset }: { preset: PropFirmRulePreset }) {
           <Rule label="First payout cap" value={moneyValue(preset.firstPayoutCap)} />
           <Rule label="Later payout cap" value={moneyValue(preset.laterPayoutCap)} />
           <Rule label="Funded buffer" value={moneyValue(preset.fundedBuffer)} />
+          <Rule label="Evaluation billing" value={billing} />
+          <Rule label="Reset fee" value={moneyValue(preset.resetFee)} />
           <Rule label="Activation fee" value={moneyValue(preset.activationFee)} />
           <Rule label="Monthly fee" value={moneyValue(preset.monthlyFee)} />
           <Rule label="Reactivation fee" value={moneyValue(preset.reactivationFee)} />
