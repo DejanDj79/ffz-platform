@@ -94,7 +94,7 @@ function payout(amount: number, occurredAt = "2026-09-05T20:00:00Z"): LedgerEntr
 }
 
 describe("funded payout readiness", () => {
-  it("becomes payout eligible after the configured days, buffer and consistency gates", () => {
+  it("becomes payout eligible after the calendar wait, buffer and consistency gates", () => {
     const summary = calculateFundedPayoutSummary(
       fundedChallenge(),
       [
@@ -103,9 +103,13 @@ describe("funded payout readiness", () => {
         trade("t3", "2026-09-03T15:00:00Z", 700),
       ],
       [],
+      new Date("2026-09-04T15:01:00Z"),
     );
 
     expect(summary.tradingDays).toBe(3);
+    expect(summary.payoutScheduleMode).toBe("CALENDAR_DAYS_AFTER_FIRST_TRADE");
+    expect(summary.payoutUnlockAt).toBe("2026-09-04T15:00:00.000Z");
+    expect(summary.scheduleOk).toBe(true);
     expect(summary.cycleNetPnl).toBe(2_000);
     expect(summary.consistencyPct).toBe(35);
     expect(summary.consistencyOk).toBe(true);
@@ -113,6 +117,23 @@ describe("funded payout readiness", () => {
     expect(summary.grossPayoutAvailable).toBe(400);
     expect(summary.estimatedTraderPayout).toBe(360);
     expect(summary.eligible).toBe(true);
+  });
+
+  it("does not unlock a calendar-day payout early even with three trading days", () => {
+    const summary = calculateFundedPayoutSummary(
+      fundedChallenge(),
+      [
+        trade("t1", "2026-09-01T15:00:00Z", 600),
+        trade("t2", "2026-09-02T15:00:00Z", 700),
+        trade("t3", "2026-09-03T15:00:00Z", 700),
+      ],
+      [],
+      new Date("2026-09-03T20:00:00Z"),
+    );
+
+    expect(summary.tradingDays).toBe(3);
+    expect(summary.scheduleOk).toBe(false);
+    expect(summary.eligible).toBe(false);
   });
 
   it("uses the later payout cap and post-payout drawdown floor after a linked payout", () => {
@@ -131,6 +152,7 @@ describe("funded payout readiness", () => {
         trade("after-3", "2026-09-10T15:00:00Z", 600),
       ],
       ledger,
+      new Date("2026-09-12T16:00:00Z"),
     );
 
     expect(summary.payoutCount).toBe(1);
