@@ -5,12 +5,23 @@
 /* Journal v2 readability pass: keep the compact HUD layout,
    but make labels and secondary text easier to scan. */
 .journalTypography label > span,
-.journalTypography article > span {
-  font-size: 11px !important;
+.journalTypography article > span,
+.journalTypography [class*="panelHeader"] span,
+.journalTypography [class*="panelTitle"] span,
+.journalTypography [class*="tradeModal"] header span,
+.journalTypography [class*="detail"] span,
+.journalTypography [class*="tradeNarrative"] span,
+.journalTypography [class*="tradeScreenshotsTitle"] > span {
+  font-size: 11.5px !important;
 }
 
-.journalTypography small {
-  font-size: 10.5px !important;
+.journalTypography small,
+.journalTypography [class*="panelHeader"] small,
+.journalTypography [class*="panelTitle"] small,
+.journalTypography [class*="kpiCard"] small,
+.journalTypography [class*="statCard"] small,
+.journalTypography [class*="readoutBody"] small {
+  font-size: 11px !important;
   line-height: 1.45;
 }
 
@@ -18,32 +29,53 @@
 .journalTypography input,
 .journalTypography textarea,
 .journalTypography button {
-  font-size: 11px !important;
+  font-size: 11.5px !important;
 }
 
 .journalTypography th {
-  font-size: 10px !important;
+  font-size: 10.5px !important;
 }
 
 .journalTypography td {
-  font-size: 11px;
+  font-size: 11.5px;
 }
 
 .journalTypography td strong {
+  font-size: 11.5px !important;
+}
+
+.journalTypography [class*="chartLabels"],
+.journalTypography [class*="dailyValue"],
+.journalTypography [class*="dailyColumn"] small {
+  font-size: 10px !important;
+}
+
+.journalTypography [class*="readoutBody"] p,
+.journalTypography [class*="chartEmpty"],
+.journalTypography [class*="tableEmpty"],
+.journalTypography [class*="emptyState"] {
   font-size: 11px !important;
 }
 
 .journalTypography figcaption span {
-  font-size: 9.5px !important;
+  font-size: 10px !important;
+}
+
+/* Journal submenu lives in the shared sidebar, outside the route wrapper. */
+[class*="subNavItem"] {
+  min-height: 34px !important;
+  font-size: 12.5px !important;
 }
 
 @media (max-width: 720px) {
   .journalTypography label > span,
-  .journalTypography article > span {
-    font-size: 10.5px !important;
+  .journalTypography article > span,
+  .journalTypography [class*="panelHeader"] span,
+  .journalTypography [class*="panelTitle"] span {
+    font-size: 11px !important;
   }
 
   .journalTypography small {
-    font-size: 10px !important;
+    font-size: 10.5px !important;
   }
 }
