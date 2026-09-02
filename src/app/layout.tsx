@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import { AppShell } from "@/components/shell/AppShell";
 import "./globals.css";
+import "./ui-tweaks.css";
 
 const poppins = Poppins({
   subsets: ["latin"],
