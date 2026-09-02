@@ -35,50 +35,42 @@ function PresetCard({ preset }: { preset: PropFirmRulePreset }) {
         <div>
           <span className={styles.eyebrow}>BUILT-IN PRESET</span>
           <h2>{preset.propFirm}</h2>
-          <p>{preset.program} · {money.format(preset.accountSize)} account</p>
+          <p>{preset.program} · {money.format(preset.accountSize)}</p>
         </div>
         <span className={styles.verified}>Verified {preset.verifiedAt}</span>
       </header>
 
-      <section className={styles.section}>
-        <h3>Evaluation</h3>
-        <div className={styles.ruleGrid}>
-          <Rule label="Profit target" value={moneyValue(preset.profitTarget)} />
-          <Rule label="Max drawdown" value={moneyValue(preset.maxDrawdown)} />
-          <Rule label="Drawdown mode" value={preset.drawdownMode.replaceAll("_", " ")} />
-          <Rule label="Daily loss limit" value={moneyValue(preset.dailyLossLimit)} />
-          <Rule label="Minimum trading days" value={String(preset.minimumTradingDays)} />
-          <Rule label="Evaluation consistency" value={value(preset.evaluationConsistencyPct, "%")} />
-        </div>
-      </section>
+      <div className={styles.quickRules}>
+        <Rule label="Profit target" value={moneyValue(preset.profitTarget)} />
+        <Rule label="Max drawdown" value={moneyValue(preset.maxDrawdown)} />
+        <Rule label="Daily loss" value={moneyValue(preset.dailyLossLimit)} />
+        <Rule label="Max minis" value={value(preset.maxMinis)} />
+        <Rule label="Max micros" value={value(preset.maxMicros)} />
+        <Rule label="Reset fee" value={moneyValue(preset.resetFee)} />
+      </div>
 
-      <section className={styles.section}>
-        <h3>Position & funded rules</h3>
-        <div className={styles.ruleGrid}>
-          <Rule label="Max minis" value={value(preset.maxMinis)} />
-          <Rule label="Max micros" value={value(preset.maxMicros)} />
+      <details className={styles.details}>
+        <summary>ALL RULES</summary>
+        <div className={styles.detailsGrid}>
+          <Rule label="Drawdown mode" value={preset.drawdownMode.replaceAll("_", " ")} />
+          <Rule label="Minimum days" value={String(preset.minimumTradingDays)} />
+          <Rule label="Evaluation consistency" value={value(preset.evaluationConsistencyPct, "%")} />
           <Rule label="Funded consistency" value={value(preset.fundedConsistencyPct, "%")} />
           <Rule label="Profit split" value={value(preset.profitSplitPct, "%")} />
           <Rule label="First payout cap" value={moneyValue(preset.firstPayoutCap)} />
+          <Rule label="Later payout cap" value={moneyValue(preset.laterPayoutCap)} />
           <Rule label="Funded buffer" value={moneyValue(preset.fundedBuffer)} />
-        </div>
-      </section>
-
-      <section className={styles.section}>
-        <h3>Fees</h3>
-        <div className={styles.ruleGrid}>
-          <Rule label="Reset fee" value={moneyValue(preset.resetFee)} />
           <Rule label="Activation fee" value={moneyValue(preset.activationFee)} />
           <Rule label="Monthly fee" value={moneyValue(preset.monthlyFee)} />
           <Rule label="Reactivation fee" value={moneyValue(preset.reactivationFee)} />
+          <Rule label="News trading" value={preset.newsTradingAllowed ? "Allowed" : "Not allowed"} />
         </div>
-      </section>
-
-      {preset.reviewNote && <p className={styles.notice}>{preset.reviewNote}</p>}
+        {preset.reviewNote && <p className={styles.notice}>{preset.reviewNote}</p>}
+      </details>
 
       <footer className={styles.cardFooter}>
         <Link className={styles.primary} href="/challenges">
-          OPEN IN CHALLENGE SETUP
+          USE PRESET
         </Link>
         <a className={styles.secondary} href={preset.sourceUrl} target="_blank" rel="noreferrer">
           SOURCE
