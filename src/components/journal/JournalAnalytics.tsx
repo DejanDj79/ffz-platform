@@ -10,6 +10,7 @@ import {
 } from "@/lib/journal/analytics";
 import { fetchTrades } from "@/lib/journal/api-client";
 import type { TradeApiModel } from "@/lib/journal/types";
+import { TradingCalendar } from "./TradingCalendar";
 import styles from "./JournalAnalytics.module.css";
 
 const money = new Intl.NumberFormat("en-US", {
@@ -126,42 +127,6 @@ function EquityCurve({
         <strong className={tone(last)}>{signedMoney(last)}</strong>
         <span>{money.format(min)}</span>
       </div>
-    </div>
-  );
-}
-
-function DailyPnl({
-  points,
-}: {
-  points: ReturnType<typeof calculateJournalAnalytics>["dailyPnl"];
-}) {
-  const visible = points.slice(-14);
-
-  if (visible.length === 0) {
-    return <div className={styles.chartEmpty}>No daily P&amp;L yet.</div>;
-  }
-
-  const maxAbs = Math.max(1, ...visible.map((point) => Math.abs(point.pnl)));
-
-  return (
-    <div className={styles.dailyBars}>
-      {visible.map((point) => {
-        const magnitude = Math.max(4, (Math.abs(point.pnl) / maxAbs) * 82);
-        const date = new Date(`${point.date}T12:00:00`);
-
-        return (
-          <div className={styles.dailyColumn} key={point.date} title={`${point.date}: ${signedMoney(point.pnl)} · ${point.trades} trades`}>
-            <span className={styles.dailyValue}>{signedMoney(point.pnl)}</span>
-            <div className={styles.dailyAxis}>
-              <i
-                className={point.pnl >= 0 ? styles.barPositive : styles.barNegative}
-                style={{ height: `${magnitude}%` }}
-              />
-            </div>
-            <small>{date.toLocaleDateString([], { month: "short", day: "numeric" })}</small>
-          </div>
-        );
-      })}
     </div>
   );
 }
@@ -383,11 +348,11 @@ export function JournalAnalytics() {
         <article className={styles.panel}>
           <header className={styles.panelHeader}>
             <div>
-              <span>DAILY P&amp;L</span>
-              <small>Last 14 trading days in the current filter</small>
+              <span>TRADING CALENDAR</span>
+              <small>Daily P&amp;L and trade count by calendar day</small>
             </div>
           </header>
-          <DailyPnl points={analytics.dailyPnl} />
+          <TradingCalendar points={analytics.dailyPnl} />
         </article>
       </section>
 
