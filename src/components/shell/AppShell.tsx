@@ -40,6 +40,7 @@ const NAV_ITEMS: NavItem[] = [
     section: "tracking",
     children: [
       { href: "/journal", label: "Trades" },
+      { href: "/journal/import", label: "CSV Import" },
       { href: "/journal/analytics", label: "Analytics" },
     ],
   },
@@ -82,6 +83,12 @@ const PAGE_META: Array<{
     title: "Challenge Planner",
     subtitle: "Plan, track and protect your prop-firm challenge.",
     icon: "flag",
+  },
+  {
+    match: (pathname) => pathname.startsWith("/journal/import"),
+    title: "CSV Trade Import",
+    subtitle: "Import DeepCharts closed trades into your journal.",
+    icon: "journal",
   },
   {
     match: (pathname) => pathname.startsWith("/journal/analytics"),
