@@ -21,3 +21,18 @@
   height: auto !important;
   min-height: 236px;
 }
+
+/* Keep Recent Activity and Real Money exactly the same height. */
+.dashboardV2 > main > section:nth-of-type(5) {
+  align-items: stretch !important;
+}
+
+.dashboardV2 > main > section:nth-of-type(5) > article {
+  align-self: stretch !important;
+}
+
+@media (max-width: 1260px) {
+  .dashboardV2 > main > section:nth-of-type(5) > article {
+    align-self: start !important;
+  }
+}
