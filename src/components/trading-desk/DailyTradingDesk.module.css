@@ -271,18 +271,23 @@
 .workspace {
   display: grid;
   grid-template-columns: minmax(0, 1.55fr) minmax(330px, .65fr);
+  grid-template-areas:
+    "today challenge"
+    "rules news";
+  grid-template-rows: auto auto;
   gap: 14px;
   align-items: stretch;
 }
 
 .leftColumn,
 .rightColumn {
-  min-width: 0;
-  display: grid;
-  grid-template-rows: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-  align-self: stretch;
+  display: contents;
 }
+
+.leftColumn > .panel:first-child { grid-area: today; }
+.leftColumn > .panel:last-child { grid-area: rules; }
+.rightColumn > .panel:first-child { grid-area: challenge; }
+.rightColumn > .panel:last-child { grid-area: news; }
 
 .panel {
   min-width: 0;
@@ -292,8 +297,8 @@
 }
 
 .compactPanel {
-  height: auto;
-  align-self: start;
+  height: 100%;
+  align-self: stretch;
 }
 
 .panelHeader {
@@ -507,7 +512,7 @@
 }
 
 .newsList {
-  min-height: 100px;
+  min-height: 0;
 }
 
 .newsItem {
@@ -537,10 +542,10 @@
 .newsItem > span { color: #8a9aa4; font-size: 9.5px; font-weight: 800; }
 
 .newsEmpty {
-  min-height: 110px;
+  min-height: 67px;
   display: grid;
   place-items: center;
-  padding: 18px;
+  padding: 12px 18px;
   color: #6f818c;
   font-size: 10.5px;
   text-align: center;
@@ -554,15 +559,17 @@
 @media (max-width: 1120px) {
   .workspace {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "today"
+      "rules"
+      "challenge"
+      "news";
+    grid-template-rows: auto;
     align-items: start;
   }
 
-  .leftColumn,
-  .rightColumn {
-    grid-template-rows: auto;
-  }
-
-  .panel {
+  .panel,
+  .compactPanel {
     height: auto;
   }
 
