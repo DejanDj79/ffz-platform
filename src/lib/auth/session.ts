@@ -3,9 +3,13 @@ import { cookies } from "next/headers";
 import { db } from "@/db/client";
 import { sessions, users } from "@/db/schema";
 import type { AuthUser } from "./types";
+import {
+  PRODUCTION_SESSION_COOKIE_NAME,
+  SESSION_COOKIE_CANDIDATES,
+  sessionCookieName,
+} from "./cookies";
 import { createSessionToken, hashSessionToken } from "./token";
 
-export const SESSION_COOKIE_NAME = "ffz_session";
 const SESSION_DAYS = 30;
 
 function sessionExpiry() {
@@ -26,18 +30,22 @@ export async function createSession(userId: string) {
   });
 
   const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE_NAME, rawToken, {
+  cookieStore.set(sessionCookieName(), rawToken, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
     expires: expiresAt,
+    maxAge: SESSION_DAYS * 24 * 60 * 60,
+    priority: "high",
   });
 }
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
   const cookieStore = await cookies();
-  const rawToken = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+  const rawToken = SESSION_COOKIE_CANDIDATES
+    .map((name) => cookieStore.get(name)?.value)
+    .find(Boolean);
 
   if (!rawToken) return null;
 
@@ -65,19 +73,31 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
 
 export async function destroyCurrentSession() {
   const cookieStore = await cookies();
-  const rawToken = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+  const rawTokens = SESSION_COOKIE_CANDIDATES
+    .map((name) => cookieStore.get(name)?.value)
+    .filter((value): value is string => Boolean(value));
 
-  if (rawToken) {
+  for (const rawToken of rawTokens) {
     await db
       .delete(sessions)
-      .where(eq(sessions.tokenHash, hashSessionToken(rawToken)));
+      .where(
+        eq(
+          sessions.tokenHash,
+          hashSessionToken(rawToken),
+        ),
+      );
   }
 
-  cookieStore.set(SESSION_COOKIE_NAME, "", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    expires: new Date(0),
-  });
+  for (const name of SESSION_COOKIE_CANDIDATES) {
+    cookieStore.set(name, "", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure:
+        name === PRODUCTION_SESSION_COOKIE_NAME,
+      path: "/",
+      expires: new Date(0),
+      maxAge: 0,
+      priority: "high",
+    });
+  }
 }

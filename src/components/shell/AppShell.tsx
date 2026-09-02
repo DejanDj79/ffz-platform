@@ -280,17 +280,17 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div>
               <span className={styles.eyebrow}>FFZ PLATFORM</span>
               <h1>{page.title}</h1>
-              <p>{page.subtitle}</p>
+              {/* <p>{page.subtitle}</p> */}
             </div>
           </div>
 
-          <div className={styles.dataChip}>
+          {/* <div className={styles.dataChip}>
             <span className={styles.dataDot} />
             <span>
               <strong>POSTGRESQL</strong>
               <small>Authenticated account data</small>
             </span>
-          </div>
+          </div> */}
         </header>
 
         {!pathname.startsWith("/economic-calendar") && (

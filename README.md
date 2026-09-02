@@ -1,133 +1,394 @@
-# FFZ Economic Calendar v1.1 — Forex Factory provider
+# FFZ Production Readiness v1.1 — Security & Health
 
-This patch replaces Signal8 with the public Forex Factory weekly JSON calendar
-export.
+This is Production Readiness step 1 of 3.
 
-Why:
+It intentionally does NOT change trading features, layouts, Journal data,
+Ledger data, Challenges, Economic Calendar data or Scoreboard calculations.
 
-```text
-Signal8 Free API key
-        ↓
-Economic Calendar endpoint
-        ↓
-HTTP 403 / TIER_INSUFFICIENT
-```
+## What this patch adds
 
-No Signal8 subscription is needed.
+### 1. Hardened session cookie
 
-New source:
+Development:
 
 ```text
-Forex Factory public weekly JSON export
+ffz_session
 ```
 
-The existing FFZ Calendar UI, PostgreSQL cache, filters, countdown and global
-HIGH-impact alert remain.
-
-## Data available
-
-The feed supplies:
+Production:
 
 ```text
-date/time
-currency
-impact: High / Medium / Low
-title
-forecast
-previous
-actual (when available after release)
+__Host-ffz_session
 ```
 
-Forex Factory also emits non-economic rows such as `Holiday`; FFZ v1.1 ignores
-those because the current UI is specifically an economic-impact calendar.
+Production cookie remains:
 
-## API key
+```text
+HttpOnly
+Secure
+SameSite=Lax
+Path=/
+```
 
-You can remove this from `.env.local`:
+and now also has:
+
+```text
+Priority=High
+Max-Age=30 days
+```
+
+Logout clears both the development and production cookie names.
+
+### 2. Auth rate limiting
+
+Login:
+
+```text
+30 requests / 15 min per IP
+8 failed-ish account attempts / 15 min per IP + email
+```
+
+A successful login clears the account-specific bucket.
+
+Registration:
+
+```text
+5 requests / hour per IP
+```
+
+429 responses include:
+
+```text
+Retry-After
+```
+
+This v1 limiter is deliberately in-process because the planned first production
+deployment is one Next.js instance on one Hetzner server.
+
+If FFZ later runs multiple app replicas, replace this store with Redis or a
+shared database-backed limiter.
+
+### 3. Next.js 16 Proxy page gate
+
+Adds:
+
+```text
+src/proxy.ts
+```
+
+Protected page families include:
+
+```text
+/
+Dashboard
+Risk Calculator
+Challenges
+Journal
+Ledger
+Economic Calendar
+Scoreboard
+```
+
+If there is no session cookie, the request is redirected server-side to:
+
+```text
+/login?next=...
+```
+
+Important:
+
+The Proxy only improves early page gating.
+
+Actual authentication and authorization remain inside the API/routes and
+repositories. Never treat cookie presence in Proxy as the security boundary.
+
+Public OBS routes remain public.
+
+### 4. Security response headers
+
+The Proxy adds:
+
+```text
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(), microphone=(), geolocation=(), browsing-topics=()
+X-Frame-Options: SAMEORIGIN
+```
+
+Production additionally adds:
+
+```text
+Strict-Transport-Security: max-age=31536000
+```
+
+`SAMEORIGIN` is intentional: `/scoreboard` can still preview the OBS overlay in
+a same-origin iframe, while third-party pages cannot frame FFZ.
+
+A full Content-Security-Policy is deliberately deferred until the production
+Nginx/domain stage because it needs to be tested against the complete Next.js
+runtime and any future analytics/email integrations.
+
+### 5. Production environment validation
+
+Production requires:
+
+```text
+DATABASE_URL
+FFZ_UPLOAD_DIR
+AUTH_RATE_LIMIT_SALT
+```
+
+The validator also rejects:
+
+```text
+ffz_dev_password
+```
+
+inside the production database URL.
+
+`FFZ_UPLOAD_DIR` must be absolute.
+
+### 6. Health endpoints
+
+Liveness:
+
+```text
+GET /api/health/live
+```
+
+Expected:
+
+```json
+{
+  "status": "ok",
+  "service": "ffz-platform"
+}
+```
+
+Readiness:
+
+```text
+GET /api/health/ready
+```
+
+Checks:
+
+```text
+production environment
+PostgreSQL connection
+Journal screenshot storage read/write access
+```
+
+A failed readiness check returns:
+
+```text
+HTTP 503
+```
+
+This is what Docker will use later.
+
+### 7. Journal screenshot storage readiness
+
+`image-storage.ts` now exports:
+
+```text
+ensureImageStorageReady()
+```
+
+Production will later mount:
+
+```text
+/app/data/uploads
+```
+
+as a persistent Docker volume.
+
+### 8. User-data isolation audit
+
+See:
+
+```text
+SECURITY_AUDIT.md
+```
+
+The current private repositories are user-scoped.
+
+---
+
+# Install
+
+Checkpoint Economic Calendar first:
 
 ```bash
-SIGNAL8_API_KEY=...
+git status
+git add .
+git commit -m "Add FFZ Economic Calendar"
+git push
 ```
 
-It is no longer used.
-
-## Cache
-
-The existing `economic_calendar_cache` table stays unchanged.
-
-The provider cache key changes from:
+Copy this patch over:
 
 ```text
-signal8-economic:...
+~/WaytrXGroundOps/external/ffz-platform
 ```
 
-to:
+No database schema change is included in this sprint.
 
-```text
-forexfactory-economic:...
-```
-
-so old Signal8 cache rows cannot contaminate the new feed.
-
-No DB migration is required for this provider swap.
-
-## Install
-
-Copy the patch over the current FFZ project, then:
+Run:
 
 ```bash
 npm run test
 npm run dev
 ```
 
-No `db:push` is required for v1.1 if Economic Calendar v1 already created the
-`economic_calendar_cache` table.
+No `db:push` is required.
 
-Open:
+---
 
-```text
-/economic-calendar
+# Development tests
+
+While `npm run dev` is running:
+
+```bash
+curl -i http://localhost:3001/api/health/live
 ```
 
-Expected source indicator:
+Use port 3000 instead if Next is running there.
+
+Expected:
 
 ```text
-FOREX FACTORY
+HTTP 200
 ```
 
-and calendar rows should load immediately.
+Then:
 
-## Files changed
+```bash
+curl -i http://localhost:3001/api/health/ready
+```
+
+In development, the environment validator does not require production-only
+variables.
+
+Expected if PostgreSQL and uploads are working:
 
 ```text
-src/lib/economic-calendar/types.ts
-src/lib/economic-calendar/calendar-utils.ts
-src/lib/economic-calendar/service.ts
-src/app/api/economic-calendar/route.ts
-src/components/economic-calendar/EconomicCalendar.tsx
-src/tests/economic-calendar.test.ts
+HTTP 200
+"status":"ready"
 ```
 
-New:
+Open a private page in an Incognito window:
 
 ```text
-src/lib/economic-calendar/forex-factory-provider.ts
+/dashboard
 ```
 
-The old file:
+Expected:
 
 ```text
-src/lib/economic-calendar/signal8-provider.ts
+redirect to /login?next=/dashboard
 ```
 
-can be deleted after copying this patch.
+Then log in normally and verify:
 
-## Important
+```text
+Dashboard
+Challenges
+Journal
+Journal screenshots
+Ledger
+Economic Calendar
+Scoreboard (creator only)
+```
 
-The public feed is rate limited, so FFZ retains the PostgreSQL cache and only
-refreshes the external source every 15 minutes during the US-market portion of
-the day and every 30 minutes otherwise.
+still behave exactly as before.
 
-For a future public commercial launch, re-check Forex Factory/Fair Economy
-Media's then-current terms for redistribution. The provider is isolated behind
-one adapter so it can be replaced without changing the Calendar UI.
+---
+
+# Rate-limit smoke test
+
+Do NOT intentionally lock yourself out with your real login.
+
+The automated Vitest suite covers the limiter behavior.
+
+A 429 looks like:
+
+```text
+Too many sign-in attempts. Try again later.
+```
+
+The limiter resets automatically after its time window.
+
+Restarting the Next.js process also clears v1 rate-limit buckets.
+
+---
+
+# Production-only env values
+
+A template is included:
+
+```text
+.env.production.example
+```
+
+Later on Hetzner we will create a real secret file, not commit it.
+
+Generate the salt with:
+
+```bash
+openssl rand -hex 32
+```
+
+Example future values:
+
+```text
+DATABASE_URL=postgresql://ffz:<strong-password>@postgres:5432/ffz_platform
+FFZ_UPLOAD_DIR=/app/data/uploads
+AUTH_RATE_LIMIT_SALT=<64-random-hex-characters>
+```
+
+---
+
+# Why no Docker/Nginx yet?
+
+This sprint gives Docker something meaningful to check:
+
+```text
+/api/health/ready
+```
+
+and makes screenshot persistence explicit.
+
+Production Readiness 2/3 will add:
+
+```text
+Dockerfile
+docker-compose production stack
+PostgreSQL private network
+persistent DB volume
+persistent screenshot volume
+Nginx reverse proxy
+HTTPS layout
+production secrets layout
+```
+
+Then Production Readiness 3/3 will finalize:
+
+```text
+Drizzle migration baseline
+backup/restore scripts
+deployment procedure
+rollback/checklist
+```
+
+---
+
+# Git checkpoint
+
+After testing:
+
+```bash
+git add .
+git commit -m "Harden FFZ for production"
+git push
+```

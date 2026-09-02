@@ -7,12 +7,28 @@ import { claimLegacyDevData } from "@/lib/auth/dev-data";
 import { hashPassword } from "@/lib/auth/password";
 import { createSession } from "@/lib/auth/session";
 import { registerSchema } from "@/lib/auth/validation";
+import {
+  consumeRegisterIpLimit,
+  rateLimitResponse,
+} from "@/lib/security/auth-rate-limit";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
-    const input = registerSchema.parse(await request.json());
+    const registerLimit =
+      consumeRegisterIpLimit(request);
+
+    if (!registerLimit.allowed) {
+      return rateLimitResponse(
+        registerLimit,
+        "Too many registration attempts. Try again later.",
+      );
+    }
+
+    const input = registerSchema.parse(
+      await request.json(),
+    );
 
     const existing = await db
       .select({ id: users.id })

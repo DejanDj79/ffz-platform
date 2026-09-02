@@ -6,12 +6,49 @@ import { users } from "@/db/schema";
 import { verifyPassword } from "@/lib/auth/password";
 import { createSession } from "@/lib/auth/session";
 import { loginSchema } from "@/lib/auth/validation";
+import {
+  consumeLoginAccountLimit,
+  consumeLoginIpLimit,
+  loginAccountRateLimitKey,
+  rateLimitResponse,
+} from "@/lib/security/auth-rate-limit";
+import { clearRateLimit } from "@/lib/security/rate-limit";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
-    const input = loginSchema.parse(await request.json());
+    const ipLimit =
+      consumeLoginIpLimit(request);
+
+    if (!ipLimit.allowed) {
+      return rateLimitResponse(
+        ipLimit,
+        "Too many sign-in attempts. Try again later.",
+      );
+    }
+
+    const input = loginSchema.parse(
+      await request.json(),
+    );
+
+    const accountLimitKey =
+      loginAccountRateLimitKey(
+        request,
+        input.email,
+      );
+
+    const accountLimit =
+      consumeLoginAccountLimit(
+        accountLimitKey,
+      );
+
+    if (!accountLimit.allowed) {
+      return rateLimitResponse(
+        accountLimit,
+        "Too many sign-in attempts. Try again later.",
+      );
+    }
 
     const rows = await db
       .select()
@@ -38,6 +75,7 @@ export async function POST(request: Request) {
     }
 
     await createSession(user.id);
+    clearRateLimit(accountLimitKey);
 
     return NextResponse.json({
       data: {

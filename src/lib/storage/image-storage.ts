@@ -1,4 +1,5 @@
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { constants } from "node:fs";
+import { access, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import {
@@ -6,7 +7,7 @@ import {
   type AllowedImageMimeType,
 } from "@/lib/journal/attachments-validation";
 
-function uploadRoot() {
+export function imageUploadRoot() {
   return path.resolve(
     process.env.FFZ_UPLOAD_DIR ??
       path.join(process.cwd(), "data", "uploads"),
@@ -14,7 +15,7 @@ function uploadRoot() {
 }
 
 function resolveStorageKey(storageKey: string) {
-  const root = uploadRoot();
+  const root = imageUploadRoot();
   const fullPath = path.resolve(root, storageKey);
 
   if (
@@ -71,4 +72,20 @@ export async function deleteStoredImage(
       error,
     );
   }
+}
+
+
+export async function ensureImageStorageReady() {
+  const root = imageUploadRoot();
+
+  await mkdir(root, {
+    recursive: true,
+  });
+
+  await access(
+    root,
+    constants.R_OK | constants.W_OK,
+  );
+
+  return root;
 }
