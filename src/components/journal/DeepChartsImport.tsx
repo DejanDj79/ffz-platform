@@ -345,7 +345,7 @@ export function DeepChartsImport() {
                     <tr key={`${row.rowNumber}-${row.rawSymbol}`}>
                       <td>{row.rowNumber}</td>
                       <td><span className={`${styles.status} ${styles[`status${row.status}`]}`}>{row.status}</span></td>
-                      <td>{row.input?.instrument ?? row.rawSymbol || "—"}</td>
+                      <td>{row.input?.instrument ?? (row.rawSymbol || "—")}</td>
                       <td>{row.input?.direction ?? "—"}</td>
                       <td>{row.input?.contracts ?? "—"}</td>
                       <td>{formatDateTime(row.input?.openedAt)}<small>{row.input ? ` @ ${row.input.entryPrice}` : ""}</small></td>
