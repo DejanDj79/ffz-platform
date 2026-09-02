@@ -1,228 +1,140 @@
-# FFZ Backend v1.6 — Real Money Ledger API
+# FFZ Real Money Ledger v1 UI
 
-This sprint adds the backend for the Real Money Ledger.
+This patch adds the first usable Real Money Ledger screen on top of the already-working Ledger API.
 
-It tracks REAL cash movement only.
-
-It does NOT duplicate challenge account P&L or Journal trade P&L.
-
-Examples:
-- challenge purchase
-- reset
-- activation/reactivation
-- platform/data fees
-- real payout received
-- refund
-- other real expense/income
-
-## Database
-
-New table:
+## Replaces
 
 ```text
-ledger_entries
+src/app/ledger/page.tsx
 ```
 
-New enum:
+The old placeholder is removed.
+
+## Adds
 
 ```text
-ledger_entry_type
-  EXPENSE
-  INCOME
+src/components/ledger/RealMoneyLedger.tsx
+src/components/ledger/RealMoneyLedger.module.css
+src/lib/ledger/api-client.ts
+src/lib/ledger/presentation.ts
+src/tests/ledger-presentation.test.ts
 ```
 
-Amounts are always positive integer cents.
-`entryType` determines whether money went out or came in.
+It does NOT replace:
+- App Shell
+- Challenge Planner
+- Risk Calculator
+- Journal
+- Ledger backend routes
+- Ledger database schema
 
-Categories remain a varchar in PostgreSQL so we can add new categories later without changing a DB enum.
+## Features
 
-Current categories:
+New/Edit entry:
+- challenge link
+- Expense / Income
+- category
+- date/time
+- amount
+- currency
+- provider/company
+- description
+- reference
+- notes
 
-```text
-CHALLENGE_FEE
-RESET_FEE
-ACTIVATION_FEE
-REACTIVATION_FEE
-PLATFORM_FEE
-DATA_FEE
-PAYOUT
-REFUND
-OTHER_EXPENSE
-OTHER_INCOME
-```
+History:
+- edit
+- delete
+- refresh
+- type filter
+- category filter
+- challenge filter
 
-An entry can optionally link to:
-- a Challenge
-- a Trading Account
-
-The backend verifies that linked records belong to the authenticated user.
-
-## API
-
-```text
-GET    /api/ledger
-POST   /api/ledger
-
-GET    /api/ledger/:id
-PATCH  /api/ledger/:id
-DELETE /api/ledger/:id
-```
+Summary:
+- Real Money Net
+- Total Paid
+- Total Received
+- Challenge Costs
+- Real Payouts
 
 ## Install
 
-First commit the working Journal UI if needed:
+Copy the patch into the existing project.
 
-```bash
-git status
-git add .
-git commit -m "Add Trade Journal v1 UI"
-git push
-```
+No database change is needed for this UI sprint.
 
-Then copy this patch into the existing project.
-
-The only existing source file intentionally replaced is:
-
-```text
-src/db/schema.ts
-```
-
-Everything under:
-
-```text
-src/lib/ledger/
-src/app/api/ledger/
-```
-
-is new.
-
-Update PostgreSQL:
-
-```bash
-npm run db:push
-```
-
-Do NOT reset the database.
-
-Then:
+Run:
 
 ```bash
 npm run test
 npm run dev
 ```
 
-## Verify empty ledger
-
-While logged in open:
+Open:
 
 ```text
-/api/ledger
+/ledger
 ```
 
-Expected initially:
+## Recommended first test
 
-```json
-{"data":[]}
-```
+You already created API test entries in the previous sprint.
 
-## Create a test expense
+They should immediately appear in the Ledger UI.
 
-Browser DevTools:
-
-```js
-fetch("/api/ledger", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    challengeId: null,
-    tradingAccountId: null,
-
-    entryType: "EXPENSE",
-    category: "CHALLENGE_FEE",
-
-    occurredAt: new Date().toISOString(),
-    amount: 65,
-    currency: "USD",
-
-    provider: "Blue Guardian Futures",
-    description: "Standard 25K challenge",
-    reference: null,
-    notes: "Real Money Ledger API test."
-  })
-}).then(r => r.json()).then(console.log)
-```
-
-Refresh:
+If they are still present, expected summary from the example:
 
 ```text
-/api/ledger
+Expense: -$65
+Income:  +$500
+Net:     +$435
 ```
 
-The $65 expense should be returned from PostgreSQL.
+Try:
 
-## Create a test payout
+1. Edit the $65 Challenge Fee.
+2. Link it to `Standard 25K #1`.
+3. Save and verify it stays linked after refresh.
+4. Add a Reset Fee expense.
+5. Add a Payout income.
+6. Test all filters.
+7. Delete any temporary test entries you no longer want.
 
-```js
-fetch("/api/ledger", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    challengeId: null,
-    tradingAccountId: null,
+## Important product rule
 
-    entryType: "INCOME",
-    category: "PAYOUT",
+This screen is the public-accountability ledger.
 
-    occurredAt: new Date().toISOString(),
-    amount: 500,
-    currency: "USD",
-
-    provider: "Example Prop Firm",
-    description: "First payout test",
-    reference: null,
-    notes: null
-  })
-}).then(r => r.json()).then(console.log)
-```
-
-## Design rule
-
-A Real Money Ledger payout is the amount you actually received.
-
-Example:
+It should answer:
 
 ```text
-Funded account trading P&L:  +$800
-Payout approved:             $500
-Money actually received:     $500
+How much real money have I paid?
+How much real money have I actually received?
+Am I net positive or negative in real cash?
 ```
 
-Journal/Challenge may know about the $800 trading result.
-
-Real Money Ledger records only:
+It should NOT answer:
 
 ```text
-+$500 PAYOUT
+What is my simulated/funded account P&L?
 ```
 
-Likewise, defining a challenge fee in a Prop Firm preset does NOT automatically create a Ledger expense.
+That belongs to Challenges and Journal.
 
-A Ledger expense is created only when real money was actually paid.
+## Git checkpoint
 
-This distinction keeps the channel's future "Real Money Ledger" honest and auditable.
-
-## After confirmation
-
-Commit:
+After confirmation:
 
 ```bash
 git add .
-git commit -m "Add Real Money Ledger backend API"
+git commit -m "Add Real Money Ledger v1 UI"
 git push
 ```
 
-Next sprint:
+## Next sensible step
 
-```text
-Real Money Ledger v1 UI
-```
+Once Journal and Ledger are both working, the next high-value module is the main Dashboard, because it can finally aggregate real backend data from:
+- Challenges
+- Journal
+- Real Money Ledger
+
+Then the Dashboard can become the real FFZ command center rather than a placeholder.
