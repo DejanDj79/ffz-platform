@@ -43,7 +43,7 @@ export function evaluateTradeVerdict({
   }
 
   if (accountType === "PROP") {
-    if (result.drawdownUsagePct != null && result.drawdownUsagePct > 10) {
+    if (result.drawdownUsagePct != null && result.drawdownUsagePct > 5) {
       cautionReasons.push(
         `This setup uses ${result.drawdownUsagePct.toFixed(2)}% of remaining drawdown.`,
       );
