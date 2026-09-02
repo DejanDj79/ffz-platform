@@ -47,6 +47,16 @@ describe("evaluateTradeVerdict", () => {
     expect(verdict.level).toBe("BLOCKED");
   });
 
+  it("warns as soon as challenge health moves above the low-risk band", () => {
+    const verdict = evaluateTradeVerdict({
+      result: result({ drawdownUsagePct: 6, riskLevel: "MODERATE" }),
+      accountType: "PROP",
+    });
+
+    expect(verdict.level).toBe("CAUTION");
+    expect(verdict.reasons.join(" ")).toContain("remaining drawdown");
+  });
+
   it("warns when the setup consumes too much daily loss allowance", () => {
     const verdict = evaluateTradeVerdict({
       result: result({ dailyLossUsagePct: 60 }),
