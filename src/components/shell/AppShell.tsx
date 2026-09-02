@@ -32,7 +32,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/trading-desk", label: "Trading Desk", icon: "desk", section: "workspace" },
   { href: "/economic-calendar", label: "Economic Calendar", icon: "calendar", section: "workspace" },
   { href: "/tools/risk-calculator", label: "Risk Calculator", icon: "calc", section: "workspace" },
-  { href: "/challenges", label: "Challenges", icon: "flag", section: "workspace" },
+  { href: "/challenges", label: "Challenge / Funded", icon: "flag", section: "workspace" },
   {
     href: "/journal",
     label: "Journal",
@@ -80,8 +80,8 @@ const PAGE_META: Array<{
   },
   {
     match: (pathname) => pathname.startsWith("/challenges"),
-    title: "Challenge Planner",
-    subtitle: "Plan, track and protect your prop-firm challenge.",
+    title: "Challenge / Funded",
+    subtitle: "Track evaluation progress, funded protection and payout readiness.",
     icon: "flag",
   },
   {

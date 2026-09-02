@@ -4,6 +4,9 @@ export type PropFirmPresetId =
 
 export type DrawdownMode = "STATIC" | "EOD_TRAILING" | "INTRADAY_TRAILING";
 export type BreachType = "NONE" | "SOFT" | "HARD";
+export type PayoutEligibilityMode =
+  | "TRADING_DAYS"
+  | "CALENDAR_DAYS_AFTER_FIRST_TRADE";
 
 export interface PropFirmRulePreset {
   id: Exclude<PropFirmPresetId, "CUSTOM">;
@@ -26,8 +29,8 @@ export interface PropFirmRulePreset {
 
   /**
    * Offset to use after a funded payout when the firm's payout rules move the
-   * permanent drawdown floor. This is metadata for the future payout/ledger
-   * workflow; it is NOT applied during evaluation.
+   * permanent drawdown floor. This is metadata for the payout/ledger workflow;
+   * it is NOT applied during evaluation.
    */
   postPayoutDrawdownLockFloorOffset?: number | null;
 
@@ -47,6 +50,12 @@ export interface PropFirmRulePreset {
 
   profitSplitPct: number | null;
   payoutEligibleAfterTradingDays: number | null;
+  /**
+   * Some firms mean N distinct trading days; others mean N calendar days after
+   * the first trade in a payout cycle. Keep the numeric field above for preset
+   * compatibility and make the interpretation explicit here.
+   */
+  payoutEligibilityMode?: PayoutEligibilityMode;
   firstPayoutCap: number | null;
   laterPayoutCap: number | null;
   fundedBuffer: number | null;

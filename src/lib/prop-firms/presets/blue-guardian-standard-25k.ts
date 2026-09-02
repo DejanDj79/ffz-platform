@@ -43,6 +43,8 @@ export const BLUE_GUARDIAN_FUTURES_STANDARD_25K: PropFirmRulePreset = {
 
   profitSplitPct: 90,
   payoutEligibleAfterTradingDays: 3,
+  // Current Standard rules describe this as three calendar days after first trade.
+  payoutEligibilityMode: "CALENDAR_DAYS_AFTER_FIRST_TRADE",
   firstPayoutCap: 1_500,
   laterPayoutCap: 2_000,
   fundedBuffer: 1_600,

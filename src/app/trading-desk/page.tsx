@@ -1,5 +1,5 @@
-import { DailyTradingDesk } from "@/components/trading-desk/DailyTradingDesk";
+import { DailyTradingDeskFunded } from "@/components/trading-desk/DailyTradingDeskFunded";
 
 export default function TradingDeskPage() {
-  return <DailyTradingDesk />;
+  return <DailyTradingDeskFunded />;
 }

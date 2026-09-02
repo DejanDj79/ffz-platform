@@ -1,5 +1,9 @@
 import type { Challenge } from "@/lib/challenges/types";
 import { calculateChallengeMetrics } from "@/lib/challenges/calculations";
+import {
+  calculateFundedPayoutSummary,
+  effectiveChallengeAfterPayouts,
+} from "@/lib/challenges/funded";
 import type { TradeApiModel } from "@/lib/journal/types";
 import type { LedgerEntryApiModel } from "@/lib/ledger/types";
 import { calculateJournalStats } from "@/lib/journal/stats";
@@ -20,6 +24,15 @@ export type DashboardChallengeSummary = {
   drawdownFloor: number;
   remainingDailyLoss: number | null;
   health: "SAFE" | "CAUTION" | "DANGER" | null;
+  isFunded: boolean;
+  payoutEligible: boolean;
+  payoutReadinessPct: number;
+  payoutAvailable: number;
+  estimatedPayout: number;
+  payoutDays: number;
+  payoutDaysRequired: number | null;
+  consistencyPct: number | null;
+  consistencyLimitPct: number | null;
 };
 
 export type DashboardPerformanceSummary = {
@@ -173,10 +186,28 @@ export function calculateDashboardSummary(
     drawdownFloor: 0,
     remainingDailyLoss: null,
     health: null,
+    isFunded: false,
+    payoutEligible: false,
+    payoutReadinessPct: 0,
+    payoutAvailable: 0,
+    estimatedPayout: 0,
+    payoutDays: 0,
+    payoutDaysRequired: null,
+    consistencyPct: null,
+    consistencyLimitPct: null,
   };
 
   if (challenge) {
-    const metrics = calculateChallengeMetrics(challenge);
+    const effectiveChallenge = effectiveChallengeAfterPayouts(
+      challenge,
+      ledgerEntries,
+    );
+    const metrics = calculateChallengeMetrics(effectiveChallenge);
+    const funded = calculateFundedPayoutSummary(
+      challenge,
+      trades,
+      ledgerEntries,
+    );
 
     challengeSummary = {
       challenge,
@@ -188,6 +219,15 @@ export function calculateDashboardSummary(
       drawdownFloor: metrics.drawdownFloor,
       remainingDailyLoss: metrics.remainingDailyLoss,
       health: metrics.health,
+      isFunded: funded.isFunded,
+      payoutEligible: funded.eligible,
+      payoutReadinessPct: funded.readinessPct,
+      payoutAvailable: funded.grossPayoutAvailable,
+      estimatedPayout: funded.estimatedTraderPayout,
+      payoutDays: funded.tradingDays,
+      payoutDaysRequired: funded.payoutDaysRequired,
+      consistencyPct: funded.consistencyPct,
+      consistencyLimitPct: funded.consistencyLimitPct,
     };
   }
 
