@@ -1,0 +1,49 @@
+.journalTypography {
+  width: 100%;
+}
+
+/* Journal v2 readability pass: keep the compact HUD layout,
+   but make labels and secondary text easier to scan. */
+.journalTypography label > span,
+.journalTypography article > span {
+  font-size: 11px !important;
+}
+
+.journalTypography small {
+  font-size: 10.5px !important;
+  line-height: 1.45;
+}
+
+.journalTypography select,
+.journalTypography input,
+.journalTypography textarea,
+.journalTypography button {
+  font-size: 11px !important;
+}
+
+.journalTypography th {
+  font-size: 10px !important;
+}
+
+.journalTypography td {
+  font-size: 11px;
+}
+
+.journalTypography td strong {
+  font-size: 11px !important;
+}
+
+.journalTypography figcaption span {
+  font-size: 9.5px !important;
+}
+
+@media (max-width: 720px) {
+  .journalTypography label > span,
+  .journalTypography article > span {
+    font-size: 10.5px !important;
+  }
+
+  .journalTypography small {
+    font-size: 10px !important;
+  }
+}
