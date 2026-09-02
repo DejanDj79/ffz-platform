@@ -14,11 +14,17 @@ type AuthUser = {
   role: "USER" | "CREATOR";
 };
 
+type NavChild = {
+  href: string;
+  label: string;
+};
+
 type NavItem = {
   href: string;
   label: string;
   icon: string;
   section: "workspace" | "tracking";
+  children?: NavChild[];
 };
 
 const NAV_ITEMS: NavItem[] = [
@@ -26,7 +32,16 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/economic-calendar", label: "Economic Calendar", icon: "calendar", section: "workspace" },
   { href: "/tools/risk-calculator", label: "Risk Calculator", icon: "calc", section: "workspace" },
   { href: "/challenges", label: "Challenges", icon: "flag", section: "workspace" },
-  { href: "/journal", label: "Journal", icon: "journal", section: "tracking" },
+  {
+    href: "/journal",
+    label: "Journal",
+    icon: "journal",
+    section: "tracking",
+    children: [
+      { href: "/journal", label: "Trades" },
+      { href: "/journal/analytics", label: "Analytics" },
+    ],
+  },
   { href: "/ledger", label: "Real Money Ledger", icon: "ledger", section: "tracking" },
   { href: "/scoreboard", label: "Scoreboard", icon: "scoreboard", section: "tracking" },
 ];
@@ -60,6 +75,12 @@ const PAGE_META: Array<{
     title: "Challenge Planner",
     subtitle: "Plan, track and protect your prop-firm challenge.",
     icon: "flag",
+  },
+  {
+    match: (pathname) => pathname.startsWith("/journal/analytics"),
+    title: "Journal Analytics",
+    subtitle: "Measure trading performance and find repeatable edges.",
+    icon: "journal",
   },
   {
     match: (pathname) => pathname.startsWith("/journal"),
@@ -114,6 +135,11 @@ function Icon({ name }: { name: string }) {
 
 function isActive(pathname: string, href: string) {
   if (href === "/dashboard") return pathname === "/dashboard" || pathname === "/";
+  return pathname.startsWith(href);
+}
+
+function isSubActive(pathname: string, href: string) {
+  if (href === "/journal") return pathname === "/journal";
   return pathname.startsWith(href);
 }
 
@@ -310,12 +336,33 @@ function NavSection({ title, items, pathname }: { title: string; items: NavItem[
       <div className={styles.navList}>
         {items.map((item) => {
           const active = isActive(pathname, item.href);
+
           return (
-            <Link key={item.href} href={item.href} className={`${styles.navItem} ${active ? styles.active : ""}`}>
-              <span className={styles.navIcon}><Icon name={item.icon} /></span>
-              <span>{item.label}</span>
-              <span className={styles.navChevron}><Icon name="chevron" /></span>
-            </Link>
+            <div key={`${item.section}-${item.href}`} className={styles.navEntry}>
+              <Link href={item.href} className={`${styles.navItem} ${active ? styles.active : ""}`}>
+                <span className={styles.navIcon}><Icon name={item.icon} /></span>
+                <span>{item.label}</span>
+                <span className={styles.navChevron}><Icon name="chevron" /></span>
+              </Link>
+
+              {item.children && (
+                <div className={styles.subNav} aria-label={`${item.label} navigation`}>
+                  {item.children.map((child) => {
+                    const childActive = isSubActive(pathname, child.href);
+
+                    return (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        className={`${styles.subNavItem} ${childActive ? styles.subNavActive : ""}`}
+                      >
+                        {child.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           );
         })}
       </div>
