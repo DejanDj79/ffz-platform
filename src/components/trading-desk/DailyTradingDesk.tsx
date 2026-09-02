@@ -369,7 +369,7 @@ export function DailyTradingDesk() {
             </div>
           </article>
 
-          <article className={styles.panel}>
+          <article className={`${styles.panel} ${styles.compactPanel}`}>
             <header className={styles.panelHeader}>
               <div>
                 <span>PERSONAL RISK RULES</span>
@@ -435,34 +435,30 @@ export function DailyTradingDesk() {
             <header className={styles.panelHeader}>
               <div>
                 <span>USD HIGH-IMPACT NEWS</span>
-                <small>{calendar?.stale ? "Cached feed · provider currently stale" : "Today's Forex Factory events"}</small>
+                <small>{calendar?.stale ? "Cached feed · provider currently stale" : "Next Forex Factory event today"}</small>
               </div>
               {nextHighEvent && <strong className={styles.nextEvent}>{countdownLabel(nextHighEvent.date, now)}</strong>}
             </header>
 
             <div className={styles.newsList}>
               {calendarError && <div className={styles.newsEmpty}>{calendarError}</div>}
-              {!calendarError && highImpactEvents.length === 0 && (
-                <div className={styles.newsEmpty}>{loading ? "Loading economic calendar…" : "No USD high-impact events today."}</div>
+              {!calendarError && !nextHighEvent && (
+                <div className={styles.newsEmpty}>{loading ? "Loading economic calendar…" : "No upcoming USD high-impact events today."}</div>
               )}
 
-              {highImpactEvents.map((event) => {
-                const released = new Date(event.date).getTime() < now.getTime();
-
-                return (
-                  <div className={`${styles.newsItem} ${released ? styles.newsReleased : ""}`} key={event.id}>
-                    <div className={styles.newsTime}>
-                      <strong>{formatTime(event.date, "America/New_York")}</strong>
-                      <small>NY · {formatTime(event.date)} local</small>
-                    </div>
-                    <div className={styles.newsTitle}>
-                      <strong>{event.title}</strong>
-                      <small>Forecast {event.forecast ?? "—"} · Previous {event.previous ?? "—"}</small>
-                    </div>
-                    <span>{released ? "DONE" : countdownLabel(event.date, now)}</span>
+              {nextHighEvent && (
+                <div className={styles.newsItem} key={nextHighEvent.id}>
+                  <div className={styles.newsTime}>
+                    <strong>{formatTime(nextHighEvent.date, "America/New_York")}</strong>
+                    <small>NY · {formatTime(nextHighEvent.date)} local</small>
                   </div>
-                );
-              })}
+                  <div className={styles.newsTitle}>
+                    <strong>{nextHighEvent.title}</strong>
+                    <small>Forecast {nextHighEvent.forecast ?? "—"} · Previous {nextHighEvent.previous ?? "—"}</small>
+                  </div>
+                  <span>{countdownLabel(nextHighEvent.date, now)}</span>
+                </div>
+              )}
             </div>
           </article>
         </div>
