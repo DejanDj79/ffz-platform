@@ -1,4 +1,5 @@
 import { getPropFirmPreset } from "@/lib/prop-firms";
+import type { PayoutEligibilityMode } from "@/lib/prop-firms";
 import type { TradeApiModel } from "@/lib/journal/types";
 import type { LedgerEntryApiModel } from "@/lib/ledger/types";
 import type { Challenge } from "./types";
@@ -9,8 +10,10 @@ export type FundedPayoutSummary = {
   lastPayoutAt: string | null;
   cycleTrades: number;
   tradingDays: number;
-  payoutDaysRequired: number | null;
-  daysOk: boolean;
+  payoutScheduleMode: PayoutEligibilityMode;
+  payoutWaitDays: number | null;
+  payoutUnlockAt: string | null;
+  scheduleOk: boolean;
   cycleNetPnl: number;
   bestDayPnl: number | null;
   consistencyPct: number | null;
@@ -31,6 +34,8 @@ export type FundedPayoutSummary = {
   journalDerivedBalance: number;
 };
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 const roundMoney = (value: number) =>
   Math.round((value + Number.EPSILON) * 100) / 100;
 
@@ -48,7 +53,7 @@ function marketDateKey(value: string) {
     day: "2-digit",
   }).formatToParts(date);
 
-  const get = (type: Intl.DateTimeFormatPartTypes) =>
+  const get = (type: "year" | "month" | "day") =>
     parts.find((part) => part.type === type)?.value ?? "";
 
   return `${get("year")}-${get("month")}-${get("day")}`;
@@ -97,6 +102,7 @@ export function calculateFundedPayoutSummary(
   challenge: Challenge,
   trades: TradeApiModel[],
   ledgerEntries: LedgerEntryApiModel[],
+  now = new Date(),
 ): FundedPayoutSummary {
   const preset = getPropFirmPreset(challenge.rulesPresetId);
   const isFunded =
@@ -125,8 +131,7 @@ export function calculateFundedPayoutSummary(
     );
 
   const cycle = linkedClosedTrades.filter(
-    (trade) =>
-      new Date(trade.closedAt ?? trade.openedAt).getTime() > lastPayoutMs,
+    (trade) => new Date(trade.openedAt).getTime() > lastPayoutMs,
   );
 
   const dailyPnl = new Map<string, number>();
@@ -145,11 +150,25 @@ export function calculateFundedPayoutSummary(
       ? roundPct((bestDayPnl / cycleNetPnl) * 100)
       : null;
 
-  const payoutDaysRequired = preset?.payoutEligibleAfterTradingDays ?? null;
-  const daysOk =
-    payoutDaysRequired == null ||
-    payoutDaysRequired <= 0 ||
-    dailyPnl.size >= payoutDaysRequired;
+  const payoutWaitDays = preset?.payoutEligibleAfterTradingDays ?? null;
+  const payoutScheduleMode: PayoutEligibilityMode =
+    preset?.payoutEligibilityMode ?? "TRADING_DAYS";
+  const firstCycleTrade = cycle[0] ?? null;
+  const payoutUnlockAt =
+    payoutWaitDays != null &&
+    payoutWaitDays > 0 &&
+    firstCycleTrade &&
+    payoutScheduleMode === "CALENDAR_DAYS_AFTER_FIRST_TRADE"
+      ? new Date(
+          new Date(firstCycleTrade.openedAt).getTime() + payoutWaitDays * DAY_MS,
+        ).toISOString()
+      : null;
+  const scheduleOk =
+    payoutWaitDays == null ||
+    payoutWaitDays <= 0 ||
+    (payoutScheduleMode === "CALENDAR_DAYS_AFTER_FIRST_TRADE"
+      ? payoutUnlockAt != null && now.getTime() >= new Date(payoutUnlockAt).getTime()
+      : dailyPnl.size >= payoutWaitDays);
 
   const consistencyLimitPct = preset?.fundedConsistencyPct ?? null;
   const consistencyOk =
@@ -201,13 +220,13 @@ export function calculateFundedPayoutSummary(
     challenge.startingBalance + journalNetPnl - estimatedGrossWithdrawn,
   );
 
-  const gates = [daysOk, consistencyOk, bufferOk];
+  const gates = [scheduleOk, consistencyOk, bufferOk];
   const readinessPct = roundPct(
     (gates.filter(Boolean).length / gates.length) * 100,
   );
   const eligible =
     isFunded &&
-    daysOk &&
+    scheduleOk &&
     consistencyOk &&
     bufferOk &&
     grossPayoutAvailable > 0;
@@ -218,8 +237,10 @@ export function calculateFundedPayoutSummary(
     lastPayoutAt,
     cycleTrades: cycle.length,
     tradingDays: dailyPnl.size,
-    payoutDaysRequired,
-    daysOk,
+    payoutScheduleMode,
+    payoutWaitDays,
+    payoutUnlockAt,
+    scheduleOk,
     cycleNetPnl,
     bestDayPnl,
     consistencyPct,
