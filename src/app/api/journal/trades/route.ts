@@ -7,13 +7,19 @@ import { tradeEditableSchema } from "@/lib/journal/validation";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const user = await getCurrentUser();
     if (!user) {
       return NextResponse.json({ error: "Authentication required." }, { status: 401 });
     }
-    return NextResponse.json({ data: await listTrades(user.id) });
+
+    const { searchParams } = new URL(request.url);
+    const includePlanned = searchParams.get("includePlanned") === "1";
+
+    return NextResponse.json({
+      data: await listTrades(user.id, { includePlanned }),
+    });
   } catch (error) {
     console.error("GET /api/journal/trades failed:", error);
     return NextResponse.json({ error: "Unable to load trades." }, { status: 500 });
