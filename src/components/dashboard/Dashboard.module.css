@@ -466,11 +466,13 @@
   grid-template-columns: minmax(0, 1.55fr) minmax(330px, .65fr);
   gap: 13px;
   margin-bottom: 13px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .chartPanel {
-  align-self: start;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
 }
 
 .panelHeader > strong {
@@ -478,7 +480,9 @@
 }
 
 .chartWrap {
-  height: 236px;
+  flex: 1;
+  min-height: 236px;
+  height: auto;
   position: relative;
   padding: 12px 12px 14px;
 }
@@ -524,7 +528,7 @@
 }
 
 .performancePanel {
-  align-self: start;
+  align-self: stretch;
 }
 
 .performanceStats {
@@ -555,12 +559,17 @@
   display: grid;
   grid-template-columns: minmax(0, 1.55fr) minmax(330px, .65fr);
   gap: 13px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .activityPanel,
 .moneyPanel {
-  align-self: start;
+  align-self: stretch;
+}
+
+.moneyPanel {
+  display: flex;
+  flex-direction: column;
 }
 
 .activityList {
@@ -655,6 +664,7 @@
 }
 
 .moneyBody {
+  flex: 1;
   padding: 18px 16px 16px;
 }
 
