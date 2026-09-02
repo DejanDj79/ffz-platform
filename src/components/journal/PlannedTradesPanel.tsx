@@ -8,7 +8,7 @@ import {
   fetchPlannedTrades,
   updateTradeViaApi,
 } from "@/lib/journal/api-client";
-import { withoutPlannedTradeTag } from "@/lib/journal/planned";
+import { buildStartedTradeUpdate } from "@/lib/journal/planned";
 import type { TradeApiModel } from "@/lib/journal/types";
 import styles from "./PlannedTradesPanel.module.css";
 
@@ -68,16 +68,14 @@ export function PlannedTradesPanel({
     setMessage(null);
 
     try {
-      await updateTradeViaApi(plan.id, {
-        openedAt: new Date().toISOString(),
-        tags: withoutPlannedTradeTag(plan.tags),
-        notes: [
-          plan.notes,
-          `Trade started from FFZ plan at ${new Date().toLocaleString()}.`,
-        ]
-          .filter(Boolean)
-          .join("\n\n"),
-      });
+      const now = new Date();
+      const update = buildStartedTradeUpdate(
+        plan,
+        now.toISOString(),
+        `Trade started from FFZ plan at ${now.toLocaleString()}.`,
+      );
+
+      await updateTradeViaApi(plan.id, update);
 
       setPlans((current) => current.filter((item) => item.id !== plan.id));
       setMessage(`${plan.instrument} plan moved to the live Journal.`);
@@ -137,21 +135,19 @@ export function PlannedTradesPanel({
             return (
               <article className={styles.card} key={plan.id}>
                 <div className={styles.titleRow}>
-                  <strong>{plan.instrument} · {plan.direction}</strong>
+                  <div>
+                    <strong>{plan.instrument} · {plan.direction}</strong>
+                    <small>{challenge || "Personal / no challenge"}</small>
+                  </div>
                   <span className={`${styles.badge} ${verdict === "CAUTION" ? styles.badgeCaution : ""}`}>
                     {verdict}
                   </span>
                 </div>
 
-                <small>{challenge || "Personal / no challenge"}</small>
-
                 <div className={styles.metrics}>
                   <div><span>ENTRY</span><b>{plan.entryPrice}</b></div>
                   <div><span>STOP</span><b>{plan.stopPrice ?? "—"}</b></div>
                   <div><span>TARGET</span><b>{plan.targetPrice ?? "—"}</b></div>
-                </div>
-
-                <div className={styles.metrics}>
                   <div><span>CONTRACTS</span><b>{plan.contracts}</b></div>
                   <div><span>MARKET RISK</span><b>{plan.initialRisk == null ? "—" : money.format(plan.initialRisk)}</b></div>
                 </div>
