@@ -77,8 +77,8 @@ function PresetCard({ preset }: { preset: PropFirmRulePreset }) {
       {preset.reviewNote && <p className={styles.notice}>{preset.reviewNote}</p>}
 
       <footer className={styles.cardFooter}>
-        <Link className={styles.primary} href={`/challenges?new=1&preset=${encodeURIComponent(preset.id)}`}>
-          CREATE CHALLENGE FROM PRESET
+        <Link className={styles.primary} href="/challenges">
+          OPEN IN CHALLENGE SETUP
         </Link>
         <a className={styles.secondary} href={preset.sourceUrl} target="_blank" rel="noreferrer">
           SOURCE
@@ -100,7 +100,7 @@ export function PropFirmRulesLibrary() {
           </p>
         </div>
         <div className={styles.introActions}>
-          <Link className={styles.primary} href="/challenges?new=1&preset=CUSTOM">
+          <Link className={styles.primary} href="/challenges">
             CREATE CUSTOM / MANUAL
           </Link>
           <Link className={styles.secondary} href="/challenges">
@@ -114,11 +114,11 @@ export function PropFirmRulesLibrary() {
           <span className={styles.eyebrow}>CUSTOM RULES</span>
           <h2>Any prop firm, any account plan</h2>
           <p>
-            For a firm or plan that is not in FFZ yet, choose Custom / Manual and enter the prop firm, account size, target, drawdown type, daily loss, contract limits, fees and trading-day rules directly on the challenge.
+            For a firm or plan that is not in FFZ yet, open Challenge Setup, choose Custom / Manual in Rule Preset, then enter the prop firm, account size, target, drawdown type, daily loss, contract limits, fees and trading-day rules directly on that challenge.
           </p>
         </div>
-        <Link className={styles.primary} href="/challenges?new=1&preset=CUSTOM">
-          NEW MANUAL CHALLENGE
+        <Link className={styles.primary} href="/challenges">
+          OPEN MANUAL SETUP
         </Link>
       </section>
 
