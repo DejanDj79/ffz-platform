@@ -1,0 +1,140 @@
+"use client";
+
+import Link from "next/link";
+import { PROP_FIRM_PRESETS } from "@/lib/prop-firms";
+import type { PropFirmRulePreset } from "@/lib/prop-firms";
+import styles from "./PropFirmRulesLibrary.module.css";
+
+const money = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
+});
+
+function value(value: number | null | undefined, suffix = "") {
+  return value == null ? "—" : `${value}${suffix}`;
+}
+
+function moneyValue(value: number | null | undefined) {
+  return value == null ? "—" : money.format(value);
+}
+
+function Rule({ label, value }: { label: string; value: string }) {
+  return (
+    <div className={styles.rule}>
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
+function PresetCard({ preset }: { preset: PropFirmRulePreset }) {
+  return (
+    <article className={styles.card}>
+      <header className={styles.cardHeader}>
+        <div>
+          <span className={styles.eyebrow}>BUILT-IN PRESET</span>
+          <h2>{preset.propFirm}</h2>
+          <p>{preset.program} · {money.format(preset.accountSize)} account</p>
+        </div>
+        <span className={styles.verified}>Verified {preset.verifiedAt}</span>
+      </header>
+
+      <section className={styles.section}>
+        <h3>Evaluation</h3>
+        <div className={styles.ruleGrid}>
+          <Rule label="Profit target" value={moneyValue(preset.profitTarget)} />
+          <Rule label="Max drawdown" value={moneyValue(preset.maxDrawdown)} />
+          <Rule label="Drawdown mode" value={preset.drawdownMode.replaceAll("_", " ")} />
+          <Rule label="Daily loss limit" value={moneyValue(preset.dailyLossLimit)} />
+          <Rule label="Minimum trading days" value={String(preset.minimumTradingDays)} />
+          <Rule label="Evaluation consistency" value={value(preset.evaluationConsistencyPct, "%")} />
+        </div>
+      </section>
+
+      <section className={styles.section}>
+        <h3>Position & funded rules</h3>
+        <div className={styles.ruleGrid}>
+          <Rule label="Max minis" value={value(preset.maxMinis)} />
+          <Rule label="Max micros" value={value(preset.maxMicros)} />
+          <Rule label="Funded consistency" value={value(preset.fundedConsistencyPct, "%")} />
+          <Rule label="Profit split" value={value(preset.profitSplitPct, "%")} />
+          <Rule label="First payout cap" value={moneyValue(preset.firstPayoutCap)} />
+          <Rule label="Funded buffer" value={moneyValue(preset.fundedBuffer)} />
+        </div>
+      </section>
+
+      <section className={styles.section}>
+        <h3>Fees</h3>
+        <div className={styles.ruleGrid}>
+          <Rule label="Reset fee" value={moneyValue(preset.resetFee)} />
+          <Rule label="Activation fee" value={moneyValue(preset.activationFee)} />
+          <Rule label="Monthly fee" value={moneyValue(preset.monthlyFee)} />
+          <Rule label="Reactivation fee" value={moneyValue(preset.reactivationFee)} />
+        </div>
+      </section>
+
+      {preset.reviewNote && <p className={styles.notice}>{preset.reviewNote}</p>}
+
+      <footer className={styles.cardFooter}>
+        <Link className={styles.primary} href={`/challenges?new=1&preset=${encodeURIComponent(preset.id)}`}>
+          CREATE CHALLENGE FROM PRESET
+        </Link>
+        <a className={styles.secondary} href={preset.sourceUrl} target="_blank" rel="noreferrer">
+          SOURCE
+        </a>
+      </footer>
+    </article>
+  );
+}
+
+export function PropFirmRulesLibrary() {
+  return (
+    <main className={styles.page}>
+      <section className={styles.intro}>
+        <div>
+          <span className={styles.eyebrow}>PROP FIRM RULE ENGINE</span>
+          <h1>Rules Library</h1>
+          <p>
+            Use a verified preset when one exists, or create a fully manual challenge. Every challenge keeps its own editable rule values, so a preset never locks you into outdated rules.
+          </p>
+        </div>
+        <div className={styles.introActions}>
+          <Link className={styles.primary} href="/challenges?new=1&preset=CUSTOM">
+            CREATE CUSTOM / MANUAL
+          </Link>
+          <Link className={styles.secondary} href="/challenges">
+            OPEN CHALLENGES
+          </Link>
+        </div>
+      </section>
+
+      <section className={styles.manualCard}>
+        <div>
+          <span className={styles.eyebrow}>CUSTOM RULES</span>
+          <h2>Any prop firm, any account plan</h2>
+          <p>
+            For a firm or plan that is not in FFZ yet, choose Custom / Manual and enter the prop firm, account size, target, drawdown type, daily loss, contract limits, fees and trading-day rules directly on the challenge.
+          </p>
+        </div>
+        <Link className={styles.primary} href="/challenges?new=1&preset=CUSTOM">
+          NEW MANUAL CHALLENGE
+        </Link>
+      </section>
+
+      <div className={styles.listHeader}>
+        <div>
+          <span className={styles.eyebrow}>AVAILABLE PRESETS</span>
+          <h2>{PROP_FIRM_PRESETS.length} verified preset{PROP_FIRM_PRESETS.length === 1 ? "" : "s"}</h2>
+        </div>
+        <p>Preset values are copied into the challenge and remain editable.</p>
+      </div>
+
+      <section className={styles.cards}>
+        {PROP_FIRM_PRESETS.map((preset) => (
+          <PresetCard key={preset.id} preset={preset} />
+        ))}
+      </section>
+    </main>
+  );
+}
