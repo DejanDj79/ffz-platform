@@ -26,6 +26,20 @@ function Gate({ ok, label, value }: { ok: boolean; label: string; value: string 
   );
 }
 
+function scheduleValue(funded: FundedPayoutSummary) {
+  if (funded.payoutWaitDays == null || funded.payoutWaitDays <= 0) return "No rule";
+  if (funded.payoutScheduleMode === "TRADING_DAYS") {
+    return `${funded.tradingDays} / ${funded.payoutWaitDays} trading days`;
+  }
+  if (!funded.payoutUnlockAt) return `Starts after first trade · ${funded.payoutWaitDays} days`;
+  return `Unlocks ${new Date(funded.payoutUnlockAt).toLocaleString([], {
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  })}`;
+}
+
 export function FundedLifecyclePanel({
   challenge,
   metrics,
@@ -130,9 +144,9 @@ export function FundedLifecyclePanel({
 
       <div className={styles.fundedGrid}>
         <article>
-          <span>TRADING DAYS</span>
-          <strong>{funded.tradingDays}{funded.payoutDaysRequired ? ` / ${funded.payoutDaysRequired}` : ""}</strong>
-          <small>Current payout cycle</small>
+          <span>PAYOUT SCHEDULE</span>
+          <strong>{funded.scheduleOk ? "READY" : "WAIT"}</strong>
+          <small>{scheduleValue(funded)}</small>
         </article>
         <article>
           <span>CONSISTENCY</span>
@@ -163,9 +177,9 @@ export function FundedLifecyclePanel({
 
       <div className={styles.gates}>
         <Gate
-          ok={funded.daysOk}
-          label="Payout-day requirement"
-          value={funded.payoutDaysRequired ? `${funded.tradingDays} / ${funded.payoutDaysRequired}` : "No rule"}
+          ok={funded.scheduleOk}
+          label="Payout schedule"
+          value={scheduleValue(funded)}
         />
         <Gate
           ok={funded.consistencyOk}
