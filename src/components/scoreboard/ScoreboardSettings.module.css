@@ -1,0 +1,383 @@
+.page {
+  width: 100%;
+  padding: 24px 0 4px;
+  color: #eef4f8;
+}
+
+.topGrid {
+  display: grid;
+  grid-template-columns: minmax(560px, 1.25fr) minmax(330px, .75fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.panel,
+.previewPanel {
+  border: 1px solid rgba(68, 91, 109, .45);
+  border-radius: 11px;
+  overflow: hidden;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(12, 23, 31, .91),
+      rgba(7, 15, 22, .94)
+    );
+  backdrop-filter: blur(8px);
+}
+
+.panelHeader {
+  min-height: 58px;
+  padding: 13px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid rgba(66, 87, 103, .38);
+  background: rgba(255,255,255,.012);
+}
+
+.panelHeader > div {
+  display: grid;
+  gap: 3px;
+}
+
+.panelHeader span {
+  color: #dce7ed;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .13em;
+}
+
+.panelHeader small {
+  color: #6c7d89;
+  font-size: 9.5px;
+}
+
+.enabledToggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #9aabb6;
+  font-size: 9px;
+}
+
+.enabledToggle input {
+  accent-color: #30d0f8;
+}
+
+.form {
+  padding: 16px;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.form label,
+.obsBlock label {
+  display: grid;
+  gap: 6px;
+}
+
+.form label > span,
+.layoutBlock > span,
+.visibilityBlock > span,
+.obsBlock label > span {
+  color: #7e8e99;
+  font-size: 9.5px;
+  font-weight: 600;
+}
+
+.fieldWide {
+  width: 100%;
+}
+
+.form input,
+.form select,
+.obsBlock textarea {
+  width: 100%;
+  border: 1px solid #33434e;
+  border-radius: 7px;
+  outline: none;
+  color: #eef4f8;
+  background:
+    linear-gradient(180deg, #101b24, #0b141c);
+  font: inherit;
+  font-size: 11px;
+}
+
+.form input,
+.form select {
+  height: 37px;
+  padding: 0 10px;
+}
+
+.form input:focus,
+.form select:focus,
+.obsBlock textarea:focus {
+  border-color: #30d0f8;
+  box-shadow: 0 0 0 2px rgba(48,208,248,.07);
+}
+
+.form select {
+  color-scheme: dark;
+}
+
+.form select option {
+  color: #eef4f8;
+  background: #0b141c;
+}
+
+.layoutBlock,
+.visibilityBlock {
+  margin-top: 17px;
+}
+
+.layoutToggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin-top: 7px;
+}
+
+.layoutToggle button {
+  min-height: 75px;
+  padding: 11px 12px;
+  display: grid;
+  gap: 5px;
+  text-align: left;
+  border: 1px solid #344550;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #8596a1;
+  background: rgba(8, 17, 24, .75);
+  font: inherit;
+}
+
+.layoutToggle strong {
+  font-size: 9.5px;
+  letter-spacing: .08em;
+}
+
+.layoutToggle small {
+  color: #657681;
+  font-size: 8.5px;
+  line-height: 1.4;
+}
+
+.layoutToggle .activeLayout {
+  border-color: rgba(48,208,248,.48);
+  color: #30d0f8;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(48,208,248,.08),
+      rgba(160,112,232,.035)
+    );
+}
+
+.visibilityGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 7px;
+}
+
+.visibilityGrid label {
+  min-height: 55px;
+  padding: 9px 10px;
+  grid-template-columns: 17px 1fr;
+  align-items: center;
+  border: 1px solid rgba(61, 82, 97, .34);
+  border-radius: 7px;
+  background: rgba(255,255,255,.012);
+}
+
+.visibilityGrid input {
+  width: 14px;
+  height: 14px;
+  accent-color: #30d0f8;
+}
+
+.visibilityGrid label > span {
+  display: grid;
+  gap: 2px;
+}
+
+.visibilityGrid strong {
+  color: #b8c5ce;
+  font-size: 9px;
+}
+
+.visibilityGrid small {
+  color: #657681;
+  font-size: 8px;
+  line-height: 1.25;
+}
+
+.actions,
+.obsActions {
+  display: flex;
+  gap: 9px;
+  margin-top: 15px;
+}
+
+.primaryButton,
+.secondaryButton,
+.obsActions button {
+  min-height: 39px;
+  border-radius: 7px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .07em;
+}
+
+.primaryButton {
+  flex: 1 1 auto;
+  border: 1px solid rgba(48,208,248,.52);
+  color: #041117;
+  background: #30d0f8;
+}
+
+.secondaryButton {
+  flex: 0 0 145px;
+  border: 1px solid #34434f;
+  color: #8998a3;
+  background: #0c151d;
+}
+
+.error,
+.message {
+  margin: 13px 0 0;
+  padding: 9px 10px;
+  border-radius: 7px;
+  font-size: 9.5px;
+}
+
+.error {
+  border: 1px solid rgba(255,115,127,.30);
+  color: #ff9ca4;
+  background: rgba(255,115,127,.055);
+}
+
+.message {
+  border: 1px solid rgba(69,219,173,.26);
+  color: #65e3bc;
+  background: rgba(69,219,173,.045);
+}
+
+.obsBlock {
+  padding: 16px;
+}
+
+.obsBlock textarea {
+  min-height: 88px;
+  resize: none;
+  padding: 10px;
+  line-height: 1.45;
+}
+
+.obsActions button {
+  flex: 1 1 0;
+  border: 1px solid rgba(48,208,248,.32);
+  color: #30d0f8;
+  background: rgba(48,208,248,.05);
+}
+
+.obsActions .dangerButton {
+  border-color: rgba(255,115,127,.25);
+  color: #ff838e;
+  background: rgba(255,115,127,.04);
+}
+
+.obsHelp {
+  margin-top: 17px;
+  padding: 12px;
+  display: grid;
+  gap: 5px;
+  border: 1px solid rgba(68,91,109,.34);
+  border-radius: 8px;
+  background: rgba(255,255,255,.012);
+}
+
+.obsHelp strong {
+  margin-bottom: 3px;
+  color: #b9c5cd;
+  font-size: 9px;
+  letter-spacing: .06em;
+}
+
+.obsHelp span,
+.obsBlock p {
+  color: #667884;
+  font-size: 8.7px;
+  line-height: 1.45;
+}
+
+.obsBlock p {
+  margin: 14px 1px 0;
+}
+
+.previewPanel {
+  margin-top: 14px;
+}
+
+.previewFrame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background:
+    linear-gradient(45deg, #111b22 25%, transparent 25%),
+    linear-gradient(-45deg, #111b22 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #111b22 75%),
+    linear-gradient(-45deg, transparent 75%, #111b22 75%),
+    #0b1319;
+  background-size: 22px 22px;
+  background-position:
+    0 0,
+    0 11px,
+    11px -11px,
+    -11px 0;
+}
+
+.previewFrame iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.loading {
+  min-height: 320px;
+  display: grid;
+  place-items: center;
+  color: #687a86;
+  font-size: 10px;
+}
+
+@media (max-width: 1150px) {
+  .topGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 650px) {
+  .formGrid,
+  .layoutToggle,
+  .visibilityGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .secondaryButton {
+    flex-basis: auto;
+  }
+}

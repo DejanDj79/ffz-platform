@@ -21,6 +21,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/challenges", label: "Challenges", icon: "flag", section: "workspace" },
   { href: "/journal", label: "Journal", icon: "journal", section: "tracking" },
   { href: "/ledger", label: "Real Money Ledger", icon: "ledger", section: "tracking" },
+  { href: "/scoreboard", label: "Scoreboard", icon: "scoreboard", section: "tracking" },
 ];
 
 const PAGE_META: Array<{
@@ -59,6 +60,12 @@ const PAGE_META: Array<{
     subtitle: "Track challenge fees, resets, platform costs and real payouts.",
     icon: "ledger",
   },
+  {
+    match: (pathname) => pathname.startsWith("/scoreboard"),
+    title: "OBS Scoreboard",
+    subtitle: "Configure the live Futures From Zero OBS overlay.",
+    icon: "scoreboard",
+  },
 ];
 
 function Icon({ name }: { name: string }) {
@@ -80,6 +87,7 @@ function Icon({ name }: { name: string }) {
     flag: <><path d="M5 21V4"/><path d="M5 5h10l-1.5 3L15 11H5"/></>,
     journal: <><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H19v18H7.5A2.5 2.5 0 0 0 5 22V4.5Z"/><path d="M5 18.5A2.5 2.5 0 0 1 7.5 16H19M9 6h6M9 10h6"/></>,
     ledger: <><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h4M7 16h6M16 14v4M14 16h4"/></>,
+    scoreboard: <><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 8h3M14 8h3M7 12h10M8 21h8M12 18v3"/></>,
     menu: <><path d="M4 7h16M4 12h16M4 17h16"/></>,
     close: <><path d="m6 6 12 12M18 6 6 18"/></>,
     chevron: <path d="m9 6 6 6-6 6"/>,
@@ -103,13 +111,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
 
   const isAuthPage = pathname === "/login" || pathname === "/register";
+  const isOverlayPage = pathname.startsWith("/overlays/");
+  const bypassShell = isAuthPage || isOverlayPage;
 
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
 
   useEffect(() => {
-    if (isAuthPage) {
+    if (bypassShell) {
       setAuthState("unauthenticated");
       setUser(null);
       return;
@@ -149,7 +159,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [isAuthPage, pathname, router]);
+  }, [bypassShell, pathname, router]);
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -167,7 +177,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const workspaceItems = NAV_ITEMS.filter((item) => item.section === "workspace");
   const trackingItems = NAV_ITEMS.filter((item) => item.section === "tracking");
 
-  if (isAuthPage) {
+  if (bypassShell) {
     return <>{children}</>;
   }
 

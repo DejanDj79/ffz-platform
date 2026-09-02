@@ -3,6 +3,21 @@
   display: grid;
   grid-template-columns: 238px minmax(0, 1fr);
   color: var(--text, #f2f6fa);
+
+  /* Main FFZ application background.
+     Add your own image at:
+     public/ffz-app-background.jpg
+
+     The dark gradient and color remain as a safe fallback when the
+     image has not been added yet. */
+  background:
+    linear-gradient(
+      180deg,
+      rgba(3, 8, 13, .76),
+      rgba(3, 8, 13, .84)
+    ),
+    url("/ffz-app-background.jpg") center / cover fixed no-repeat,
+    #050b11;
 }
 
 .sidebar {
@@ -14,8 +29,13 @@
   flex-direction: column;
   border-right: 1px solid rgba(68, 91, 109, .48);
   background:
-    linear-gradient(180deg, rgba(9, 17, 25, .985), rgba(5, 11, 17, .985)),
-    #071019;
+    linear-gradient(
+      180deg,
+      rgba(8, 16, 24, .94),
+      rgba(4, 10, 16, .91)
+    );
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   z-index: 30;
 }
 
@@ -187,6 +207,12 @@
 .stage {
   min-width: 0;
   padding: 0 24px 26px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(4, 10, 15, .12),
+      rgba(4, 10, 15, .34)
+    );
 }
 
 .pageHeader {

@@ -1,0 +1,386 @@
+.compactRoot,
+.fullRoot {
+  width: 100vw;
+  height: 100vh;
+  box-sizing: border-box;
+  pointer-events: none;
+  font-family: Poppins, Arial, sans-serif;
+  color: #f1f7fa;
+  background: transparent;
+}
+
+.compactRoot {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 34px;
+}
+
+.fullRoot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 40px 46px;
+}
+
+.compactCard,
+.fullCard {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(48, 208, 248, .52);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(5, 13, 19, .94),
+      rgba(8, 15, 23, .91) 52%,
+      rgba(12, 15, 28, .93)
+    );
+  box-shadow:
+    0 18px 55px rgba(0, 0, 0, .42),
+    inset 0 1px rgba(255,255,255,.035);
+}
+
+.compactCard::before,
+.fullCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      circle at 12% 0%,
+      rgba(48,208,248,.10),
+      transparent 31%
+    ),
+    radial-gradient(
+      circle at 100% 100%,
+      rgba(160,112,232,.10),
+      transparent 32%
+    );
+}
+
+.compactCard {
+  width: 520px;
+  border-radius: 13px;
+  padding: 17px;
+}
+
+.fullCard {
+  width: min(1500px, calc(100vw - 92px));
+  min-height: 205px;
+  display: grid;
+  grid-template-columns: 285px 260px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  gap: 0 22px;
+  padding: 19px 22px;
+  border-radius: 14px;
+}
+
+.brand {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logoWrap {
+  width: 148px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.logo {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.goal {
+  min-width: 0;
+  padding-left: 14px;
+  border-left: 1px solid rgba(89, 111, 127, .48);
+}
+
+.goal span,
+.challengeLine span,
+.fullChallenge span,
+.metric span,
+.progressLabels span {
+  display: block;
+  color: #6f818e;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .13em;
+}
+
+.goal strong {
+  display: block;
+  margin-top: 2px;
+  overflow: hidden;
+  color: #dbe7ee;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.challengeLine {
+  position: relative;
+  z-index: 1;
+  margin-top: 16px;
+  padding: 11px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid rgba(67, 88, 104, .38);
+  border-radius: 8px;
+  background: rgba(255,255,255,.018);
+}
+
+.challengeLine > div {
+  min-width: 0;
+}
+
+.challengeLine strong {
+  display: block;
+  margin-top: 3px;
+  overflow: hidden;
+  color: #e5eef3;
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.challengeLine small,
+.fullChallenge small {
+  display: block;
+  margin-top: 2px;
+  color: #657783;
+  font-size: 8px;
+}
+
+.challengeLine > b {
+  flex: 0 0 auto;
+  padding: 5px 7px;
+  border: 1px solid rgba(160,112,232,.32);
+  border-radius: 5px;
+  color: #c4a8ef;
+  background: rgba(160,112,232,.06);
+  font-size: 7.5px;
+  letter-spacing: .06em;
+}
+
+.compactMetrics {
+  position: relative;
+  z-index: 1;
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.metric {
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid rgba(65, 86, 102, .34);
+  border-radius: 7px;
+  background: rgba(255,255,255,.014);
+}
+
+.metric strong {
+  display: block;
+  margin-top: 4px;
+  overflow: hidden;
+  color: #eef5f8;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.05;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.positive {
+  color: #50dfb3 !important;
+}
+
+.negative {
+  color: #ff7784 !important;
+}
+
+.progress {
+  position: relative;
+  z-index: 1;
+  margin-top: 12px;
+}
+
+.progressLabels {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.progressLabels strong {
+  color: #d8e5eb;
+  font-size: 9px;
+}
+
+.progressLabels small {
+  color: #657783;
+  font-size: 8px;
+}
+
+.progressTrack {
+  height: 5px;
+  margin-top: 6px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: rgba(27, 43, 54, .92);
+}
+
+.progressTrack i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, #30d0f8, #a070e8);
+  box-shadow: 0 0 11px rgba(48,208,248,.20);
+}
+
+.compactFooter {
+  position: relative;
+  z-index: 1;
+  margin-top: 11px;
+  padding-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 15px;
+  border-top: 1px solid rgba(70, 91, 107, .27);
+  color: #617580;
+  font-size: 7.7px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.compactFooter b {
+  margin-left: 3px;
+  color: #c7d3da;
+}
+
+.fullBrand,
+.fullChallenge,
+.fullMetrics,
+.fullProgress {
+  position: relative;
+  z-index: 1;
+}
+
+.fullBrand {
+  align-self: center;
+}
+
+.fullBrand .brand {
+  display: grid;
+  gap: 11px;
+}
+
+.fullBrand .logoWrap {
+  width: 205px;
+  height: 58px;
+}
+
+.fullBrand .goal {
+  padding: 8px 0 0;
+  border-left: 0;
+  border-top: 1px solid rgba(81, 103, 119, .38);
+}
+
+.fullBrand .goal strong {
+  font-size: 12px;
+}
+
+.fullChallenge {
+  align-self: center;
+  padding-left: 20px;
+  border-left: 1px solid rgba(76, 98, 114, .34);
+}
+
+.fullChallenge strong {
+  display: block;
+  margin-top: 5px;
+  color: #ecf4f8;
+  font-size: 21px;
+  line-height: 1.1;
+}
+
+.fullChallenge small {
+  max-width: 230px;
+  margin-top: 7px;
+  line-height: 1.4;
+}
+
+.fullMetrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  align-content: center;
+}
+
+.fullMetrics .metric {
+  min-height: 62px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.fullMetrics .metric strong {
+  font-size: 16px;
+}
+
+.fullProgress {
+  grid-column: 2 / 4;
+  padding-left: 20px;
+}
+
+.errorBadge {
+  position: fixed;
+  left: 32px;
+  top: 32px;
+  padding: 7px 10px;
+  border: 1px solid rgba(255,115,127,.42);
+  border-radius: 6px;
+  color: #ff929b;
+  background: rgba(12, 10, 14, .80);
+  font-family: Arial, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+
+@media (max-width: 950px) {
+  .fullCard {
+    grid-template-columns: 220px 1fr;
+  }
+
+  .fullChallenge {
+    border-left: 1px solid rgba(76, 98, 114, .34);
+  }
+
+  .fullMetrics {
+    grid-column: 1 / -1;
+    margin-top: 12px;
+  }
+
+  .fullProgress {
+    grid-column: 1 / -1;
+    padding-left: 0;
+  }
+}
