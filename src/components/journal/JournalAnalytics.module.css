@@ -189,7 +189,7 @@
 
 .chartGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(390px, .85fr);
+  grid-template-columns: minmax(300px, 1fr) minmax(620px, 2fr);
   gap: 14px;
   margin-bottom: 14px;
   align-items: stretch;
@@ -237,7 +237,7 @@
 }
 
 .chartWrap {
-  height: 300px;
+  height: 340px;
   position: relative;
   padding: 15px 14px 17px;
   background: linear-gradient(180deg, rgba(255,255,255,.006), transparent);
