@@ -1,5 +1,5 @@
-import { TradeJournal } from "@/components/journal/TradeJournal";
+import { JournalWorkspace } from "@/components/journal/JournalWorkspace";
 
 export default function JournalPage() {
-  return <TradeJournal />;
+  return <JournalWorkspace />;
 }
