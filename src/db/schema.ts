@@ -61,6 +61,12 @@ export const tradeOutcomeEnum = pgEnum("trade_outcome", [
   "BREAKEVEN",
 ]);
 
+
+export const ledgerEntryTypeEnum = pgEnum("ledger_entry_type", [
+  "EXPENSE",
+  "INCOME",
+]);
+
 export const users = pgTable(
   "users",
   {
@@ -226,6 +232,61 @@ export const trades = pgTable(
   }),
 );
 
+
+export const ledgerEntries = pgTable(
+  "ledger_entries",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    challengeId: uuid("challenge_id").references(
+      () => challenges.id,
+      { onDelete: "set null" },
+    ),
+
+    tradingAccountId: uuid("trading_account_id").references(
+      () => tradingAccounts.id,
+      { onDelete: "set null" },
+    ),
+
+    entryType: ledgerEntryTypeEnum("entry_type").notNull(),
+
+    // Kept as varchar instead of a PostgreSQL enum so new ledger
+    // categories can be added later without a database enum migration.
+    category: varchar("category", { length: 50 }).notNull(),
+
+    occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull(),
+
+    // Always stored as a positive amount; entryType determines cash direction.
+    amountCents: integer("amount_cents").notNull(),
+
+    currency: varchar("currency", { length: 3 }).notNull().default("USD"),
+
+    provider: varchar("provider", { length: 160 }),
+    description: varchar("description", { length: 240 }),
+    reference: varchar("reference", { length: 160 }),
+    notes: text("notes"),
+
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    userIdx: index("ledger_entries_user_idx").on(table.userId),
+    challengeIdx: index("ledger_entries_challenge_idx").on(table.challengeId),
+    accountIdx: index("ledger_entries_account_idx").on(table.tradingAccountId),
+    occurredAtIdx: index("ledger_entries_occurred_at_idx").on(table.occurredAt),
+    typeIdx: index("ledger_entries_type_idx").on(table.entryType),
+  }),
+);
+
 export type UserRow = typeof users.$inferSelect;
 export type NewUserRow = typeof users.$inferInsert;
 export type SessionRow = typeof sessions.$inferSelect;
@@ -237,3 +298,6 @@ export type NewChallengeRow = typeof challenges.$inferInsert;
 
 export type TradeRow = typeof trades.$inferSelect;
 export type NewTradeRow = typeof trades.$inferInsert;
+
+export type LedgerEntryRow = typeof ledgerEntries.$inferSelect;
+export type NewLedgerEntryRow = typeof ledgerEntries.$inferInsert;

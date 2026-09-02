@@ -1,65 +1,108 @@
-# FFZ Trade Journal v1 UI
+# FFZ Backend v1.6 — Real Money Ledger API
 
-This patch adds the first usable Trade Journal screen on top of the already-working Journal API.
+This sprint adds the backend for the Real Money Ledger.
 
-## Replaces
+It tracks REAL cash movement only.
+
+It does NOT duplicate challenge account P&L or Journal trade P&L.
+
+Examples:
+- challenge purchase
+- reset
+- activation/reactivation
+- platform/data fees
+- real payout received
+- refund
+- other real expense/income
+
+## Database
+
+New table:
 
 ```text
-src/app/journal/page.tsx
+ledger_entries
 ```
 
-The old placeholder is removed.
-
-## Adds
+New enum:
 
 ```text
-src/components/journal/TradeJournal.tsx
-src/components/journal/TradeJournal.module.css
-src/lib/journal/api-client.ts
-src/lib/journal/stats.ts
-src/tests/journal-stats.test.ts
+ledger_entry_type
+  EXPENSE
+  INCOME
 ```
 
-No App Shell, Calculator, Challenge Planner or backend route is replaced.
+Amounts are always positive integer cents.
+`entryType` determines whether money went out or came in.
 
-## Features
+Categories remain a varchar in PostgreSQL so we can add new categories later without changing a DB enum.
 
-New/Edit Trade:
-- challenge
-- instrument
-- long/short
-- opened/closed time
-- entry
-- stop
-- target
-- exit
-- contracts
-- commission & fees
-- setup
-- tags
-- notes
+Current categories:
 
-History:
-- edit
-- delete
-- refresh
-- instrument filter
-- outcome filter
-- challenge filter
+```text
+CHALLENGE_FEE
+RESET_FEE
+ACTIVATION_FEE
+REACTIVATION_FEE
+PLATFORM_FEE
+DATA_FEE
+PAYOUT
+REFUND
+OTHER_EXPENSE
+OTHER_INCOME
+```
 
-Statistics:
-- Net P&L
-- Win Rate
-- Average R
-- Profit Factor
-- Total/Open trades
+An entry can optionally link to:
+- a Challenge
+- a Trading Account
 
-All P&L, R and Outcome values still come from the backend.
-The UI does not calculate or submit authoritative trade performance values.
+The backend verifies that linked records belong to the authenticated user.
+
+## API
+
+```text
+GET    /api/ledger
+POST   /api/ledger
+
+GET    /api/ledger/:id
+PATCH  /api/ledger/:id
+DELETE /api/ledger/:id
+```
 
 ## Install
 
-Copy the patch into the existing project.
+First commit the working Journal UI if needed:
+
+```bash
+git status
+git add .
+git commit -m "Add Trade Journal v1 UI"
+git push
+```
+
+Then copy this patch into the existing project.
+
+The only existing source file intentionally replaced is:
+
+```text
+src/db/schema.ts
+```
+
+Everything under:
+
+```text
+src/lib/ledger/
+src/app/api/ledger/
+```
+
+is new.
+
+Update PostgreSQL:
+
+```bash
+npm run db:push
+```
+
+Do NOT reset the database.
 
 Then:
 
@@ -68,51 +111,118 @@ npm run test
 npm run dev
 ```
 
-No `db:push` is required for this UI-only sprint.
+## Verify empty ledger
 
-Open:
+While logged in open:
 
 ```text
-/journal
+/api/ledger
 ```
 
-## Test flow
+Expected initially:
 
-1. Create a closed MNQ trade:
-   - Entry 20000
-   - Stop 19990
-   - Exit 20020
-   - 1 contract
-   - Fees 1.22
-   - Opened At + Closed At both filled
+```json
+{"data":[]}
+```
 
-2. Save.
+## Create a test expense
 
-Expected in history:
-- Net P&L $38.78
-- about +1.939R
-- WIN
+Browser DevTools:
 
-3. Click Edit and change the Exit.
-4. Save and verify P&L/R update.
-5. Create one open trade by leaving both Exit and Closed At blank.
-6. Test filters.
-7. Delete test trades if desired.
+```js
+fetch("/api/ledger", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    challengeId: null,
+    tradingAccountId: null,
 
-## Git checkpoint
+    entryType: "EXPENSE",
+    category: "CHALLENGE_FEE",
 
-After confirmation:
+    occurredAt: new Date().toISOString(),
+    amount: 65,
+    currency: "USD",
+
+    provider: "Blue Guardian Futures",
+    description: "Standard 25K challenge",
+    reference: null,
+    notes: "Real Money Ledger API test."
+  })
+}).then(r => r.json()).then(console.log)
+```
+
+Refresh:
+
+```text
+/api/ledger
+```
+
+The $65 expense should be returned from PostgreSQL.
+
+## Create a test payout
+
+```js
+fetch("/api/ledger", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    challengeId: null,
+    tradingAccountId: null,
+
+    entryType: "INCOME",
+    category: "PAYOUT",
+
+    occurredAt: new Date().toISOString(),
+    amount: 500,
+    currency: "USD",
+
+    provider: "Example Prop Firm",
+    description: "First payout test",
+    reference: null,
+    notes: null
+  })
+}).then(r => r.json()).then(console.log)
+```
+
+## Design rule
+
+A Real Money Ledger payout is the amount you actually received.
+
+Example:
+
+```text
+Funded account trading P&L:  +$800
+Payout approved:             $500
+Money actually received:     $500
+```
+
+Journal/Challenge may know about the $800 trading result.
+
+Real Money Ledger records only:
+
+```text
++$500 PAYOUT
+```
+
+Likewise, defining a challenge fee in a Prop Firm preset does NOT automatically create a Ledger expense.
+
+A Ledger expense is created only when real money was actually paid.
+
+This distinction keeps the channel's future "Real Money Ledger" honest and auditable.
+
+## After confirmation
+
+Commit:
 
 ```bash
 git add .
-git commit -m "Add Trade Journal v1 UI"
+git commit -m "Add Real Money Ledger backend API"
 git push
 ```
 
-## Next
+Next sprint:
 
-After the Journal UI is stable, the next sensible step is:
-- Journal detail/screenshot attachment support, or
-- Real Money Ledger v1
-
-We can choose after using this screen.
+```text
+Real Money Ledger v1 UI
+```
