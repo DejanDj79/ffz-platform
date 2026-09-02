@@ -1,67 +1,78 @@
-# FFZ Real Money Ledger v1 UI
+# FFZ Dashboard v1
 
-This patch adds the first usable Real Money Ledger screen on top of the already-working Ledger API.
+This patch replaces the Dashboard placeholder with the first real FFZ command center.
+
+It uses existing APIs only:
+
+```text
+/api/challenges
+/api/journal/trades
+/api/ledger
+```
+
+No database change is required.
 
 ## Replaces
 
 ```text
-src/app/ledger/page.tsx
+src/app/dashboard/page.tsx
 ```
-
-The old placeholder is removed.
 
 ## Adds
 
 ```text
-src/components/ledger/RealMoneyLedger.tsx
-src/components/ledger/RealMoneyLedger.module.css
-src/lib/ledger/api-client.ts
-src/lib/ledger/presentation.ts
-src/tests/ledger-presentation.test.ts
+src/components/dashboard/Dashboard.tsx
+src/components/dashboard/Dashboard.module.css
+src/lib/dashboard/summary.ts
+src/tests/dashboard-summary.test.ts
 ```
 
-It does NOT replace:
-- App Shell
-- Challenge Planner
-- Risk Calculator
-- Journal
-- Ledger backend routes
-- Ledger database schema
+## Dashboard sections
 
-## Features
+Primary Challenge:
+- challenge name / prop firm
+- status / phase
+- current balance
+- challenge P&L
+- target remaining
+- target progress
 
-New/Edit entry:
-- challenge link
-- Expense / Income
-- category
-- date/time
-- amount
-- currency
-- provider/company
-- description
-- reference
-- notes
-
-History:
-- edit
-- delete
-- refresh
-- type filter
-- category filter
-- challenge filter
-
-Summary:
+Real Money:
 - Real Money Net
 - Total Paid
 - Total Received
-- Challenge Costs
 - Real Payouts
+
+Journal:
+- Net P&L
+- Win Rate
+- Average R
+- Profit Factor
+- Open Trades
+
+Recent Activity:
+- Journal trades
+- Real Money Ledger events
+- sorted together by timestamp
+
+Quick Actions:
+- Risk Calculator
+- Journal
+- Ledger
+- Challenge Planner
 
 ## Install
 
-Copy the patch into the existing project.
+First make sure the Ledger UI is committed:
 
-No database change is needed for this UI sprint.
+```bash
+git status
+git add .
+git commit -m "Add Real Money Ledger v1 UI"
+git push
+```
+
+Then copy this patch into the project.
 
 Run:
 
@@ -70,55 +81,31 @@ npm run test
 npm run dev
 ```
 
+No `db:push` required.
+
 Open:
 
 ```text
-/ledger
+/dashboard
 ```
 
-## Recommended first test
+## Important distinction
 
-You already created API test entries in the previous sprint.
-
-They should immediately appear in the Ledger UI.
-
-If they are still present, expected summary from the example:
+Dashboard intentionally shows two different money concepts:
 
 ```text
-Expense: -$65
-Income:  +$500
-Net:     +$435
+JOURNAL NET P&L
 ```
 
-Try:
-
-1. Edit the $65 Challenge Fee.
-2. Link it to `Standard 25K #1`.
-3. Save and verify it stays linked after refresh.
-4. Add a Reset Fee expense.
-5. Add a Payout income.
-6. Test all filters.
-7. Delete any temporary test entries you no longer want.
-
-## Important product rule
-
-This screen is the public-accountability ledger.
-
-It should answer:
+is trading performance.
 
 ```text
-How much real money have I paid?
-How much real money have I actually received?
-Am I net positive or negative in real cash?
+REAL MONEY NET
 ```
 
-It should NOT answer:
+is money actually paid/received.
 
-```text
-What is my simulated/funded account P&L?
-```
-
-That belongs to Challenges and Journal.
+They must never be combined into one number.
 
 ## Git checkpoint
 
@@ -126,15 +113,14 @@ After confirmation:
 
 ```bash
 git add .
-git commit -m "Add Real Money Ledger v1 UI"
+git commit -m "Add FFZ Dashboard v1"
 git push
 ```
 
-## Next sensible step
+## Next
 
-Once Journal and Ledger are both working, the next high-value module is the main Dashboard, because it can finally aggregate real backend data from:
-- Challenges
-- Journal
-- Real Money Ledger
-
-Then the Dashboard can become the real FFZ command center rather than a placeholder.
+After Dashboard v1 is stable, the platform core is complete enough to move to one of these:
+- Journal screenshot attachments
+- Scoreboard / OBS overlay
+- Episode snapshots
+- production deploy preparation
