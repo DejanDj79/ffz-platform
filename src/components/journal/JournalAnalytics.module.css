@@ -288,6 +288,8 @@
 }
 
 .dailyBars {
+  --daily-axis-height: 220px;
+  --daily-axis-half: 110px;
   min-height: 300px;
   height: 300px;
   padding: 18px 13px 15px;
@@ -299,10 +301,11 @@
 }
 
 .dailyColumn {
+  position: relative;
   min-width: 44px;
   flex: 1;
   display: grid;
-  grid-template-rows: 28px minmax(0, 1fr) 24px;
+  grid-template-rows: 28px minmax(0, 1fr);
   align-items: center;
   text-align: center;
 }
@@ -318,7 +321,8 @@
 
 .dailyAxis {
   position: relative;
-  height: 220px;
+  align-self: start;
+  height: var(--daily-axis-height);
   width: 100%;
   border-top: 1px solid rgba(101,124,139,.08);
   border-bottom: 1px solid rgba(101,124,139,.08);
@@ -353,9 +357,26 @@
 }
 
 .dailyColumn small {
-  align-self: end;
-  color: #71828d;
+  position: absolute;
+  left: 50%;
+  z-index: 2;
+  transform: translateX(-50%);
+  padding: 2px 3px;
+  border-radius: 3px;
+  color: #82939e;
+  background: rgba(7,15,22,.82);
   font-size: 9.5px;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.dailyColumn:has(.barPositive) small {
+  top: calc(28px + var(--daily-axis-half) + 7px);
+}
+
+.dailyColumn:has(.barNegative) small {
+  top: calc(28px + var(--daily-axis-half) - 19px);
 }
 
 .performanceStrip {
@@ -539,8 +560,9 @@
     min-height: 255px;
   }
 
-  .dailyAxis {
-    height: 180px;
+  .dailyBars {
+    --daily-axis-height: 180px;
+    --daily-axis-half: 90px;
   }
 }
 
