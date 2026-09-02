@@ -1,5 +1,6 @@
 "use client";
 
+import { isPlannedTrade } from "./planned";
 import type {
   TradeApiModel,
   TradeEditableInput,
@@ -21,13 +22,21 @@ async function parseResponse<T>(response: Response): Promise<T> {
   return json as T;
 }
 
-export async function fetchTrades(): Promise<TradeApiModel[]> {
-  const response = await fetch("/api/journal/trades", {
+export async function fetchTrades(
+  options: { includePlanned?: boolean } = {},
+): Promise<TradeApiModel[]> {
+  const query = options.includePlanned ? "?includePlanned=1" : "";
+  const response = await fetch(`/api/journal/trades${query}`, {
     cache: "no-store",
   });
 
   const json = await parseResponse<{ data: TradeApiModel[] }>(response);
   return json.data;
+}
+
+export async function fetchPlannedTrades(): Promise<TradeApiModel[]> {
+  const trades = await fetchTrades({ includePlanned: true });
+  return trades.filter(isPlannedTrade);
 }
 
 export async function createTradeViaApi(

@@ -3,7 +3,10 @@
 import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
 import { INSTRUMENTS } from "@/lib/trading/instruments";
 import { fetchChallenges } from "@/lib/challenges/api-client";
+import { createTradeViaApi } from "@/lib/journal/api-client";
+import { PLANNED_TRADE_TAG } from "@/lib/journal/planned";
 import { calculatePositionSize } from "@/lib/trading/position-size";
+import { evaluateTradeVerdict } from "@/lib/trading/trade-verdict";
 import type { AccountType, InstrumentCode, PositionSizeResult } from "@/lib/trading/types";
 import type { Challenge } from "@/lib/challenges/types";
 import { calculateChallengeMetrics } from "@/lib/challenges/calculations";
@@ -129,6 +132,8 @@ export function RiskCalculator() {
   const [error, setError] = useState<string | null>(null);
   const [savedChallenges, setSavedChallenges] = useState<Challenge[]>([]);
   const [selectedChallengeId, setSelectedChallengeId] = useState("");
+  const [planSaving, setPlanSaving] = useState(false);
+  const [planMessage, setPlanMessage] = useState<string | null>(null);
 
   const spec = useMemo(() => INSTRUMENTS[instrument], [instrument]);
 
@@ -137,7 +142,6 @@ export function RiskCalculator() {
       ? "MICRO"
       : "MINI";
 
-  
   const selectedChallenge = useMemo(
     () => savedChallenges.find((challenge) => challenge.id === selectedChallengeId) ?? null,
     [savedChallenges, selectedChallengeId],
@@ -196,6 +200,7 @@ export function RiskCalculator() {
   function calculate(event?: FormEvent) {
     event?.preventDefault();
     setError(null);
+    setPlanMessage(null);
 
     const parsedEntry = parsePositive(entry);
     const parsedStop = parsePositive(stop);
@@ -249,6 +254,7 @@ export function RiskCalculator() {
     setSelectedChallengeId("");
     setResult(null);
     setError(null);
+    setPlanMessage(null);
   }
 
   const display = result ?? {
@@ -290,6 +296,88 @@ export function RiskCalculator() {
         : healthStatus === "MODERATE"
           ? `This trade uses ${display.drawdownUsagePct}% of remaining drawdown. CAUTION appears above 5% and up to 10%.`
           : `This trade uses ${display.drawdownUsagePct}% of remaining drawdown. HIGH RISK appears above 10%.`;
+
+  const tradeVerdict = result
+    ? evaluateTradeVerdict({
+        result,
+        accountType,
+        challengeStatus: selectedChallenge?.status ?? null,
+      })
+    : null;
+
+  const verdictClassName = !tradeVerdict
+    ? "na"
+    : tradeVerdict.level === "SAFE"
+      ? "low"
+      : tradeVerdict.level === "CAUTION"
+        ? "moderate"
+        : "high";
+
+  async function savePlannedTrade() {
+    if (!result || !tradeVerdict) {
+      setError("Calculate the setup before saving a trade plan.");
+      return;
+    }
+
+    if (tradeVerdict.level === "BLOCKED") {
+      setError("This setup is blocked by the current risk verdict and cannot be saved as an actionable plan.");
+      return;
+    }
+
+    const parsedEntry = parsePositive(entry);
+    const parsedStop = parsePositive(stop);
+    const parsedMaxRisk = parsePositive(maxRisk);
+
+    if (parsedEntry == null || parsedStop == null || parsedMaxRisk == null) {
+      setError("Enter valid Entry, Stop Loss and Max Risk values.");
+      return;
+    }
+
+    setPlanSaving(true);
+    setError(null);
+    setPlanMessage(null);
+
+    try {
+      const commissionPerContract = parsePositive(commissionAndFees) ?? 0;
+      const slippageTicks = parsePositive(slippageBufferTicks) ?? 0;
+      const notes = [
+        "FFZ PRE-TRADE PLAN",
+        `Verdict: ${tradeVerdict.level}`,
+        ...tradeVerdict.reasons.map((reason) => `- ${reason}`),
+        "",
+        `Max risk setting: ${money.format(parsedMaxRisk)}`,
+        `Calculator total planned risk: ${money.format(result.actualRisk)}`,
+        `Risk per contract: ${money.format(result.riskPerContract)}`,
+        `Commission/fees per contract: ${money.format(commissionPerContract)}`,
+        `Slippage buffer: ${number.format(slippageTicks)} ticks per contract`,
+        `Planned R:R: ${result.rewardRiskRatio == null ? "—" : `1:${number.format(result.rewardRiskRatio)}`}`,
+      ].join("\n");
+
+      await createTradeViaApi({
+        challengeId: selectedChallengeId || null,
+        tradingAccountId: null,
+        instrument,
+        direction: result.direction,
+        openedAt: new Date().toISOString(),
+        closedAt: null,
+        entryPrice: parsedEntry,
+        stopPrice: parsedStop,
+        targetPrice: parsePositive(target),
+        exitPrice: null,
+        contracts: result.maxContracts,
+        commissionFees: commissionPerContract * result.maxContracts,
+        setup: null,
+        tags: [PLANNED_TRADE_TAG],
+        notes,
+      });
+
+      setPlanMessage(`${instrument} ${result.direction} saved to Planned Trades in the Journal.`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to save planned trade.");
+    } finally {
+      setPlanSaving(false);
+    }
+  }
 
   return (
     <main className="app-shell">
@@ -403,6 +491,15 @@ export function RiskCalculator() {
               <span className="health-shield"><Icon name="shield" /></span>
               <span className="health-tooltip" id="challenge-health-tooltip" role="tooltip">{healthReason}</span>
             </article>
+
+            <article className={`health-card ${verdictClassName}`} tabIndex={0} aria-describedby="trade-verdict-tooltip">
+              <div className="health-title"><Icon name="shield" />CAN I TAKE THIS TRADE?</div>
+              <strong>{tradeVerdict?.label ?? "CALCULATE FIRST"}</strong>
+              <span className="health-shield"><Icon name="crosshair" /></span>
+              <span className="health-tooltip" id="trade-verdict-tooltip" role="tooltip">
+                {tradeVerdict?.reasons.join(" ") ?? "Run the calculator to evaluate this setup against current risk limits."}
+              </span>
+            </article>
           </div>
 
           <section className="trade-summary">
@@ -415,6 +512,20 @@ export function RiskCalculator() {
             </div>
             <p>Risk is calculated from your stop distance and converted to dollar risk per contract.</p>
           </section>
+
+          <div className="input-actions">
+            <button
+              className="primary-btn"
+              type="button"
+              onClick={() => void savePlannedTrade()}
+              disabled={!result || tradeVerdict?.level === "BLOCKED" || planSaving}
+            >
+              <Icon name="briefcase" />
+              {planSaving ? "SAVING PLAN..." : "SAVE AS PLANNED TRADE"}
+            </button>
+          </div>
+
+          {planMessage && <div className="input-note"><Icon name="shield" /><span>{planMessage}</span></div>}
 
           {result && result.warnings.length > 0 && <div className="warnings">{result.warnings.map((warning) => <p key={warning}>⚠ {warning}</p>)}</div>}
 

@@ -1,0 +1,39 @@
+/* Targeted visual refinements layered after globals.css. */
+
+.results-panel .result-value {
+  min-height: 64px;
+  padding: 4px 10px 0;
+  font-size: clamp(22px, 1.55vw, 30px);
+  line-height: 1.08;
+}
+
+.results-panel .result-sub {
+  font-size: 12.5px;
+}
+
+.results-panel .health-card > strong {
+  max-width: calc(100% - 20px);
+  margin-top: 16px;
+  padding: 0 8px;
+  color: var(--ffz-cyan);
+  font-size: clamp(18px, 1.3vw, 24px);
+  line-height: 1.16;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.results-panel .health-title {
+  padding-inline: 10px;
+  font-size: 10px;
+}
+
+@media (max-width: 520px) {
+  .results-panel .result-value {
+    font-size: 26px;
+  }
+
+  .results-panel .health-card > strong {
+    font-size: 22px;
+  }
+}
