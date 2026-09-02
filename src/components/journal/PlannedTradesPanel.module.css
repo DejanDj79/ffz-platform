@@ -1,0 +1,154 @@
+.panel {
+  margin: 0 0 22px;
+  padding: 18px;
+  border: 1px solid rgba(90, 211, 255, 0.22);
+  border-radius: 18px;
+  background: rgba(8, 18, 31, 0.84);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.2);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.header span,
+.card span {
+  color: #63dcff;
+  font-size: 0.73rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.header h2 {
+  margin: 4px 0 2px;
+  font-size: 1.05rem;
+}
+
+.header p,
+.empty,
+.message,
+.card small {
+  color: rgba(222, 235, 246, 0.66);
+  font-size: 0.82rem;
+}
+
+.refresh {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  padding: 8px 11px;
+  color: #dcecf7;
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.card {
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.titleRow,
+.metrics,
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.titleRow strong {
+  font-size: 1rem;
+}
+
+.badge {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: rgba(65, 213, 154, 0.12);
+  color: #67e6ae !important;
+  font-size: 0.66rem !important;
+}
+
+.badgeCaution {
+  background: rgba(255, 185, 80, 0.12);
+  color: #ffc46b !important;
+}
+
+.metrics {
+  margin: 12px 0;
+  align-items: stretch;
+}
+
+.metrics div {
+  flex: 1;
+  display: grid;
+  gap: 3px;
+}
+
+.metrics b {
+  font-size: 0.92rem;
+}
+
+.actions {
+  justify-content: flex-start;
+  margin-top: 12px;
+}
+
+.start,
+.cancel {
+  border-radius: 10px;
+  padding: 8px 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.start {
+  border: 1px solid rgba(80, 218, 255, 0.45);
+  background: rgba(54, 202, 245, 0.13);
+  color: #7ee8ff;
+}
+
+.cancel {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent;
+  color: rgba(236, 243, 249, 0.72);
+}
+
+.start:disabled,
+.cancel:disabled,
+.refresh:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.message {
+  margin: 0 0 12px;
+  color: #73dfb0;
+}
+
+.error {
+  margin: 0 0 12px;
+  color: #ff8e9d;
+  font-size: 0.82rem;
+}
+
+.empty {
+  padding: 6px 0 2px;
+}
+
+@media (max-width: 700px) {
+  .header,
+  .metrics {
+    flex-direction: column;
+  }
+}
