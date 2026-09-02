@@ -32,7 +32,16 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/trading-desk", label: "Trading Desk", icon: "desk", section: "workspace" },
   { href: "/economic-calendar", label: "Economic Calendar", icon: "calendar", section: "workspace" },
   { href: "/tools/risk-calculator", label: "Risk Calculator", icon: "calc", section: "workspace" },
-  { href: "/challenges", label: "Challenge / Funded", icon: "flag", section: "workspace" },
+  {
+    href: "/challenges",
+    label: "Challenge / Funded",
+    icon: "flag",
+    section: "workspace",
+    children: [
+      { href: "/challenges", label: "Accounts" },
+      { href: "/tools/prop-firm-rules", label: "Rules Library" },
+    ],
+  },
   {
     href: "/journal",
     label: "Journal",
@@ -77,6 +86,12 @@ const PAGE_META: Array<{
     title: "Risk Calculator",
     subtitle: "Position sizing for futures and prop challenges.",
     icon: "calc",
+  },
+  {
+    match: (pathname) => pathname.startsWith("/tools/prop-firm-rules"),
+    title: "Prop Firm Rules",
+    subtitle: "Review preset rules or create a manual challenge setup.",
+    icon: "flag",
   },
   {
     match: (pathname) => pathname.startsWith("/challenges"),
@@ -350,7 +365,7 @@ function NavSection({ title, items, pathname }: { title: string; items: NavItem[
       <div className={styles.navTitle}>{title}</div>
       <div className={styles.navList}>
         {items.map((item) => {
-          const active = isActive(pathname, item.href);
+          const active = isActive(pathname, item.href) || item.children?.some((child) => isSubActive(pathname, child.href));
 
           return (
             <div key={`${item.section}-${item.href}`} className={styles.navEntry}>
