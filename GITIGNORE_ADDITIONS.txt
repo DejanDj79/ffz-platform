@@ -1,0 +1,7 @@
+# Add if not already covered:
+.env.production
+backups/
+
+# DO NOT ignore:
+# drizzle-production/
+# Production migrations must be committed to Git.

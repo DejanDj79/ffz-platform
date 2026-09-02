@@ -1,0 +1,31 @@
+.git
+.gitignore
+.next
+node_modules
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# NEVER send secrets/local env files into docker build context.
+.env
+.env.*
+!.env.production.example
+
+# Runtime data belongs in persistent volumes, never in the image.
+data
+data/uploads
+backups
+
+# Unit tests are run before the production-container build.
+src/tests
+
+# Local/editor files
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+
+coverage
+*.log

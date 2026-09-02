@@ -1,394 +1,378 @@
-# FFZ Production Readiness v1.1 — Security & Health
+# FFZ Production Readiness v1.3 — Migrations, Backups & Deployment
 
-This is Production Readiness step 1 of 3.
+Production Readiness step 3 of 3.
 
-It intentionally does NOT change trading features, layouts, Journal data,
-Ledger data, Challenges, Economic Calendar data or Scoreboard calculations.
+This patch completes the initial production foundation.
 
-## What this patch adds
-
-### 1. Hardened session cookie
-
-Development:
+It adds:
 
 ```text
-ffz_session
+clean production Drizzle migration history
+migration runner
+schema verification
+production deploy script
+PostgreSQL backup
+Journal screenshot backup
+checksum verification
+destructive restore guard
+Creator promotion helper
+systemd backup timer
+systemd TLS renewal timer
+final Hetzner deployment guide
 ```
 
-Production:
+No application feature UI is changed.
 
-```text
-__Host-ffz_session
-```
-
-Production cookie remains:
-
-```text
-HttpOnly
-Secure
-SameSite=Lax
-Path=/
-```
-
-and now also has:
-
-```text
-Priority=High
-Max-Age=30 days
-```
-
-Logout clears both the development and production cookie names.
-
-### 2. Auth rate limiting
-
-Login:
-
-```text
-30 requests / 15 min per IP
-8 failed-ish account attempts / 15 min per IP + email
-```
-
-A successful login clears the account-specific bucket.
-
-Registration:
-
-```text
-5 requests / hour per IP
-```
-
-429 responses include:
-
-```text
-Retry-After
-```
-
-This v1 limiter is deliberately in-process because the planned first production
-deployment is one Next.js instance on one Hetzner server.
-
-If FFZ later runs multiple app replicas, replace this store with Redis or a
-shared database-backed limiter.
-
-### 3. Next.js 16 Proxy page gate
-
-Adds:
-
-```text
-src/proxy.ts
-```
-
-Protected page families include:
-
-```text
-/
-Dashboard
-Risk Calculator
-Challenges
-Journal
-Ledger
-Economic Calendar
-Scoreboard
-```
-
-If there is no session cookie, the request is redirected server-side to:
-
-```text
-/login?next=...
-```
-
-Important:
-
-The Proxy only improves early page gating.
-
-Actual authentication and authorization remain inside the API/routes and
-repositories. Never treat cookie presence in Proxy as the security boundary.
-
-Public OBS routes remain public.
-
-### 4. Security response headers
-
-The Proxy adds:
-
-```text
-X-Content-Type-Options: nosniff
-Referrer-Policy: strict-origin-when-cross-origin
-Permissions-Policy: camera=(), microphone=(), geolocation=(), browsing-topics=()
-X-Frame-Options: SAMEORIGIN
-```
-
-Production additionally adds:
-
-```text
-Strict-Transport-Security: max-age=31536000
-```
-
-`SAMEORIGIN` is intentional: `/scoreboard` can still preview the OBS overlay in
-a same-origin iframe, while third-party pages cannot frame FFZ.
-
-A full Content-Security-Policy is deliberately deferred until the production
-Nginx/domain stage because it needs to be tested against the complete Next.js
-runtime and any future analytics/email integrations.
-
-### 5. Production environment validation
-
-Production requires:
-
-```text
-DATABASE_URL
-FFZ_UPLOAD_DIR
-AUTH_RATE_LIMIT_SALT
-```
-
-The validator also rejects:
-
-```text
-ffz_dev_password
-```
-
-inside the production database URL.
-
-`FFZ_UPLOAD_DIR` must be absolute.
-
-### 6. Health endpoints
-
-Liveness:
-
-```text
-GET /api/health/live
-```
-
-Expected:
-
-```json
-{
-  "status": "ok",
-  "service": "ffz-platform"
-}
-```
-
-Readiness:
-
-```text
-GET /api/health/ready
-```
-
-Checks:
-
-```text
-production environment
-PostgreSQL connection
-Journal screenshot storage read/write access
-```
-
-A failed readiness check returns:
-
-```text
-HTTP 503
-```
-
-This is what Docker will use later.
-
-### 7. Journal screenshot storage readiness
-
-`image-storage.ts` now exports:
-
-```text
-ensureImageStorageReady()
-```
-
-Production will later mount:
-
-```text
-/app/data/uploads
-```
-
-as a persistent Docker volume.
-
-### 8. User-data isolation audit
-
-See:
-
-```text
-SECURITY_AUDIT.md
-```
-
-The current private repositories are user-scoped.
+No local development database is reset.
 
 ---
 
-# Install
+# Why a separate production migration directory?
 
-Checkpoint Economic Calendar first:
+FFZ was developed rapidly with `db:push`.
 
-```bash
-git status
-git add .
-git commit -m "Add FFZ Economic Calendar"
-git push
-```
-
-Copy this patch over:
+Rather than pretending that old experimental migration history is a clean
+production history, this sprint creates:
 
 ```text
-~/WaytrXGroundOps/external/ffz-platform
+drizzle-production/
 ```
 
-No database schema change is included in this sprint.
+from the CURRENT authoritative:
 
-Run:
+```text
+src/db/schema.ts
+```
+
+A fresh production database receives that baseline.
+
+Your existing Ubuntu/Windows development databases remain untouched.
+
+Going forward:
+
+```text
+src/db/schema.ts changes
+       ↓
+generate next drizzle-production migration
+       ↓
+inspect/test
+       ↓
+commit
+       ↓
+production migrate
+```
+
+Production must never use `db:push`.
+
+---
+
+# STEP 1 — Copy this patch
+
+Copy all files over the current project.
+
+This patch replaces:
+
+```text
+docker-compose.production.yml
+scripts/production-preflight.sh
+```
+
+and adds the remaining files.
+
+---
+
+# STEP 2 — Generate the ONE-TIME production baseline
+
+Run locally:
 
 ```bash
 npm run test
-npm run dev
-```
-
-No `db:push` is required.
-
----
-
-# Development tests
-
-While `npm run dev` is running:
-
-```bash
-curl -i http://localhost:3001/api/health/live
-```
-
-Use port 3000 instead if Next is running there.
-
-Expected:
-
-```text
-HTTP 200
 ```
 
 Then:
 
 ```bash
-curl -i http://localhost:3001/api/health/ready
+./scripts/create-production-baseline.sh
 ```
 
-In development, the environment validator does not require production-only
-variables.
-
-Expected if PostgreSQL and uploads are working:
+Drizzle should create files under:
 
 ```text
-HTTP 200
-"status":"ready"
+drizzle-production/
 ```
 
-Open a private page in an Incognito window:
+The helper verifies that the baseline creates the main FFZ tables.
+
+IMPORTANT:
+
+Do not delete or regenerate this folder after it has been committed and used by
+production.
+
+It becomes the migration history.
+
+---
+
+# STEP 3 — Inspect it
+
+See what Drizzle generated:
+
+```bash
+find drizzle-production -type f -maxdepth 3 -print
+```
+
+Open the generated SQL.
+
+It should be schema creation, NOT:
 
 ```text
-/dashboard
+DROP DATABASE
+DROP TABLE existing production data
+```
+
+This is an initial fresh-database baseline.
+
+---
+
+# STEP 4 — Run the local production preflight again
+
+The preflight is now stronger.
+
+It performs:
+
+```text
+Docker config
+Docker build
+PostgreSQL start
+Drizzle migrate
+schema verification
+Next.js start
+readiness verification
+```
+
+Run:
+
+```bash
+FFZ_HTTP_PORT=8088 \
+FFZ_HTTPS_PORT=8443 \
+./scripts/production-preflight.sh
 ```
 
 Expected:
 
 ```text
-redirect to /login?next=/dashboard
+Production container + migration preflight PASSED.
 ```
 
-Then log in normally and verify:
+Because your previous v1.2 preflight volume contains only a blank PostgreSQL
+database, the baseline should apply cleanly.
 
-```text
-Dashboard
-Challenges
-Journal
-Journal screenshots
-Ledger
-Economic Calendar
-Scoreboard (creator only)
-```
-
-still behave exactly as before.
+Do not delete your normal development PostgreSQL database.
 
 ---
 
-# Rate-limit smoke test
+# STEP 5 — Test backup
 
-Do NOT intentionally lock yourself out with your real login.
-
-The automated Vitest suite covers the limiter behavior.
-
-A 429 looks like:
-
-```text
-Too many sign-in attempts. Try again later.
-```
-
-The limiter resets automatically after its time window.
-
-Restarting the Next.js process also clears v1 rate-limit buckets.
-
----
-
-# Production-only env values
-
-A template is included:
-
-```text
-.env.production.example
-```
-
-Later on Hetzner we will create a real secret file, not commit it.
-
-Generate the salt with:
+While the local production containers are running:
 
 ```bash
-openssl rand -hex 32
+./scripts/backup-production.sh
 ```
 
-Example future values:
+Expected:
 
 ```text
-DATABASE_URL=postgresql://ffz:<strong-password>@postgres:5432/ffz_platform
-FFZ_UPLOAD_DIR=/app/data/uploads
-AUTH_RATE_LIMIT_SALT=<64-random-hex-characters>
+backups/<timestamp>/
 ```
+
+with:
+
+```text
+database.dump
+uploads.tar.gz
+manifest.txt
+SHA256SUMS
+```
+
+Verify:
+
+```bash
+cd backups/<timestamp>
+sha256sum -c SHA256SUMS
+cd ../..
+```
+
+Do not commit `backups/`.
 
 ---
 
-# Why no Docker/Nginx yet?
+# STEP 6 — Git checkpoint
 
-This sprint gives Docker something meaningful to check:
+Make sure `.gitignore` includes:
 
-```text
-/api/health/ready
+```gitignore
+.env.production
+backups/
 ```
 
-and makes screenshot persistence explicit.
-
-Production Readiness 2/3 will add:
+But DO NOT ignore:
 
 ```text
-Dockerfile
-docker-compose production stack
-PostgreSQL private network
-persistent DB volume
-persistent screenshot volume
-Nginx reverse proxy
-HTTPS layout
-production secrets layout
+drizzle-production/
 ```
 
-Then Production Readiness 3/3 will finalize:
-
-```text
-Drizzle migration baseline
-backup/restore scripts
-deployment procedure
-rollback/checklist
-```
-
----
-
-# Git checkpoint
-
-After testing:
+Then:
 
 ```bash
 git add .
-git commit -m "Harden FFZ for production"
+git commit -m "Complete FFZ production readiness"
 git push
+```
+
+---
+
+# STEP 7 — Hetzner
+
+Only after the baseline preflight and backup test both succeed, follow:
+
+```text
+HETZNER_DEPLOYMENT.md
+```
+
+That is the first real deployment procedure.
+
+---
+
+# Future schema changes
+
+Do NOT make another baseline.
+
+Edit:
+
+```text
+src/db/schema.ts
+```
+
+then:
+
+```bash
+./scripts/generate-production-migration.sh add_some_feature
+```
+
+Drizzle compares the current schema snapshot to the previous migration snapshot
+and generates the next migration.
+
+Inspect it before committing.
+
+---
+
+# Production migration command
+
+Normally deployment runs it automatically.
+
+Manual:
+
+```bash
+./scripts/production-migrate.sh
+```
+
+The migration runner uses a private Docker network and the real production
+`DATABASE_URL` only at runtime.
+
+---
+
+# Production backup
+
+Manual:
+
+```bash
+./scripts/backup-production.sh
+```
+
+Default local retention:
+
+```text
+14 days
+```
+
+Override if needed:
+
+```bash
+FFZ_BACKUP_RETENTION_DAYS=30 \
+./scripts/backup-production.sh
+```
+
+This backs up BOTH:
+
+```text
+PostgreSQL
+Journal screenshots
+```
+
+---
+
+# Restore
+
+Restore requires explicit destructive confirmation:
+
+```bash
+RESTORE_FFZ_PRODUCTION=YES \
+./scripts/restore-production.sh \
+  backups/<timestamp>
+```
+
+Without that exact environment variable the script refuses to run.
+
+---
+
+# Important remaining production items
+
+After the first successful public deploy, production readiness is not
+"finished forever".
+
+Later hardening can include:
+
+```text
+email verification
+password reset email flow
+Redis/distributed rate limiting if multiple app instances are added
+off-site backup automation
+external uptime monitoring
+error tracking
+object storage for screenshots if storage needs grow
+```
+
+None of those block the initial single-server FFZ launch.
+
+---
+
+# Files
+
+Added:
+
+```text
+drizzle.production.config.ts
+
+scripts/create-production-baseline.sh
+scripts/generate-production-migration.sh
+scripts/production-migrate.sh
+scripts/verify-production-schema.sh
+scripts/backup-production.sh
+scripts/restore-production.sh
+scripts/promote-creator.sh
+scripts/deploy-production.sh
+
+deploy/systemd/ffz-backup.service
+deploy/systemd/ffz-backup.timer
+deploy/systemd/ffz-cert-renew.service
+deploy/systemd/ffz-cert-renew.timer
+
+HETZNER_DEPLOYMENT.md
+GITIGNORE_ADDITIONS.txt
+```
+
+Replaced:
+
+```text
+docker-compose.production.yml
+scripts/production-preflight.sh
 ```

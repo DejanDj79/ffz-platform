@@ -9,6 +9,7 @@ import {
 
 export function imageUploadRoot() {
   return path.resolve(
+    /* turbopackIgnore: true */
     process.env.FFZ_UPLOAD_DIR ??
       path.join(process.cwd(), "data", "uploads"),
   );
@@ -16,7 +17,11 @@ export function imageUploadRoot() {
 
 function resolveStorageKey(storageKey: string) {
   const root = imageUploadRoot();
-  const fullPath = path.resolve(root, storageKey);
+  const fullPath = path.resolve(
+    /* turbopackIgnore: true */
+    root,
+    storageKey,
+  );
 
   if (
     fullPath !== root &&
@@ -50,22 +55,33 @@ export async function writeStoredImage(
     recursive: true,
   });
 
-  await writeFile(fullPath, bytes);
+  await writeFile(
+    /* turbopackIgnore: true */
+    fullPath,
+    bytes,
+  );
 }
 
 export async function readStoredImage(
   storageKey: string,
 ) {
-  return readFile(resolveStorageKey(storageKey));
+  return readFile(
+    /* turbopackIgnore: true */
+    resolveStorageKey(storageKey),
+  );
 }
 
 export async function deleteStoredImage(
   storageKey: string,
 ) {
   try {
-    await rm(resolveStorageKey(storageKey), {
-      force: true,
-    });
+    await rm(
+      /* turbopackIgnore: true */
+      resolveStorageKey(storageKey),
+      {
+        force: true,
+      },
+    );
   } catch (error) {
     console.error(
       `Unable to delete stored Journal image ${storageKey}:`,
@@ -83,6 +99,7 @@ export async function ensureImageStorageReady() {
   });
 
   await access(
+    /* turbopackIgnore: true */
     root,
     constants.R_OK | constants.W_OK,
   );

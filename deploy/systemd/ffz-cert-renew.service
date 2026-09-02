@@ -1,0 +1,9 @@
+[Unit]
+Description=FFZ Let's Encrypt renewal check
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/ffz
+ExecStart=/opt/ffz/scripts/renew-certificate.sh /opt/ffz/.env.production

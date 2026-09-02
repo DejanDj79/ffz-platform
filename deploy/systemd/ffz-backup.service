@@ -1,0 +1,10 @@
+[Unit]
+Description=FFZ production backup
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/ffz
+Environment=FFZ_BACKUP_RETENTION_DAYS=14
+ExecStart=/opt/ffz/scripts/backup-production.sh /opt/ffz/.env.production

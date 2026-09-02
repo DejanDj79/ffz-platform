@@ -1,0 +1,158 @@
+name: ffz-production
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    volumes:
+      - ffz_postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+    networks:
+      - backend
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    restart: unless-stopped
+    init: true
+
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      FFZ_UPLOAD_DIR: /app/data/uploads
+      AUTH_RATE_LIMIT_SALT: ${AUTH_RATE_LIMIT_SALT}
+
+    volumes:
+      - ffz_uploads:/app/data/uploads
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+    security_opt:
+      - no-new-privileges:true
+
+    networks:
+      - frontend
+      - backend
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+
+    environment:
+      FFZ_DOMAIN: ${FFZ_DOMAIN}
+
+    ports:
+      - "${FFZ_HTTP_PORT:-80}:80"
+      - "${FFZ_HTTPS_PORT:-443}:443"
+
+    volumes:
+      - ./deploy/nginx/http.conf.template:/etc/nginx/ffz-templates/http.conf.template:ro
+      - ./deploy/nginx/https.conf.template:/etc/nginx/ffz-templates/https.conf.template:ro
+      - ./deploy/nginx/40-ffz-config.sh:/docker-entrypoint.d/40-ffz-config.sh:ro
+
+      - certbot_etc:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+
+    depends_on:
+      app:
+        condition: service_healthy
+
+    networks:
+      - frontend
+
+  # Operational image: includes drizzle-kit/dev dependencies and project source.
+  # It is never exposed to the network and only runs on demand.
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: build
+
+    profiles:
+      - ops
+
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+
+    command:
+      [
+        "./node_modules/.bin/drizzle-kit",
+        "migrate",
+        "--config=drizzle.production.config.ts",
+      ]
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - backend
+
+  backup-helper:
+    image: alpine:3.21
+
+    profiles:
+      - ops
+
+    volumes:
+      - ffz_uploads:/uploads
+
+    command: ["true"]
+
+  certbot:
+    image: certbot/certbot:latest
+
+    profiles:
+      - tls
+
+    volumes:
+      - certbot_etc:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+
+networks:
+  frontend:
+    driver: bridge
+
+  backend:
+    driver: bridge
+    internal: true
+
+volumes:
+  ffz_postgres_data:
+  ffz_uploads:
+  certbot_etc:
+  certbot_www:
