@@ -25,8 +25,7 @@
 .intro h1,
 .manualCard h2,
 .listHeader h2,
-.card h2,
-.card h3 {
+.card h2 {
   margin: 0;
 }
 
@@ -52,7 +51,7 @@
 
 .eyebrow {
   color: #30d0f8;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 800;
   letter-spacing: .14em;
 }
@@ -60,20 +59,20 @@
 .introActions,
 .cardFooter {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .primary,
 .secondary {
-  min-height: 40px;
+  min-height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 14px;
-  border-radius: 8px;
+  padding: 0 12px;
+  border-radius: 7px;
   text-decoration: none;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: .035em;
 }
@@ -95,14 +94,14 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 18px 22px;
+  padding: 16px 20px;
   border-color: rgba(160, 112, 232, .38);
 }
 
 .manualCard p {
   max-width: 900px;
-  margin: 7px 0 0;
-  font-size: 11px;
+  margin: 6px 0 0;
+  font-size: 10.5px;
 }
 
 .listHeader {
@@ -115,77 +114,72 @@
 
 .listHeader h2 {
   margin-top: 4px;
-  font-size: 19px;
+  font-size: 18px;
 }
 
 .listHeader p {
   margin: 0;
-  font-size: 10.5px;
+  font-size: 10px;
 }
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(520px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
 }
 
 .card {
+  min-width: 0;
   overflow: hidden;
 }
 
 .cardHeader {
   display: flex;
   justify-content: space-between;
-  gap: 18px;
-  padding: 18px 20px;
+  gap: 10px;
+  padding: 13px 14px 11px;
   border-bottom: 1px solid rgba(68, 91, 109, .36);
 }
 
 .cardHeader h2 {
-  margin-top: 5px;
-  font-size: 19px;
+  margin-top: 4px;
+  font-size: 15px;
+  line-height: 1.2;
 }
 
 .cardHeader p {
-  margin: 5px 0 0;
-  font-size: 10.5px;
+  margin: 4px 0 0;
+  font-size: 9.5px;
 }
 
 .verified {
   align-self: flex-start;
-  padding: 6px 9px;
+  padding: 4px 6px;
   border: 1px solid rgba(69, 219, 173, .3);
   border-radius: 999px;
   color: #65dfb2;
   background: rgba(69, 219, 173, .06);
-  font-size: 9px;
+  font-size: 7.5px;
   white-space: nowrap;
 }
 
-.section {
-  padding: 15px 20px 16px;
-  border-bottom: 1px solid rgba(68, 91, 109, .28);
-}
-
-.section h3 {
-  margin-bottom: 10px;
-  color: #b7c4ce;
-  font-size: 11px;
-  letter-spacing: .07em;
-  text-transform: uppercase;
-}
-
-.ruleGrid {
+.quickRules,
+.detailsGrid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.quickRules {
+  padding: 10px 12px;
 }
 
 .rule {
   min-width: 0;
-  padding: 10px 11px;
+  padding: 7px 8px;
   border: 1px solid rgba(73, 94, 109, .32);
-  border-radius: 8px;
+  border-radius: 7px;
   background: rgba(255, 255, 255, .018);
 }
 
@@ -196,28 +190,66 @@
 
 .rule span {
   color: #71818d;
-  font-size: 9px;
+  font-size: 7.8px;
+  line-height: 1.25;
 }
 
 .rule strong {
-  margin-top: 4px;
+  margin-top: 3px;
   color: #edf4f8;
-  font-size: 12px;
+  font-size: 10.5px;
   font-weight: 650;
+  line-height: 1.25;
   overflow-wrap: anywhere;
+}
+
+.details {
+  border-top: 1px solid rgba(68, 91, 109, .28);
+  border-bottom: 1px solid rgba(68, 91, 109, .28);
+}
+
+.details summary {
+  padding: 9px 12px;
+  color: #88dff2;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  cursor: pointer;
+  list-style-position: inside;
+}
+
+.details[open] summary {
+  border-bottom: 1px solid rgba(68, 91, 109, .24);
+}
+
+.detailsGrid {
+  padding: 10px 12px;
 }
 
 .notice {
   margin: 0;
-  padding: 13px 20px;
-  border-bottom: 1px solid rgba(68, 91, 109, .28);
+  padding: 9px 12px;
+  border-top: 1px solid rgba(68, 91, 109, .24);
   color: #c5aee6;
   background: rgba(160, 112, 232, .045);
-  font-size: 10px;
+  font-size: 8.5px;
 }
 
 .cardFooter {
-  padding: 15px 20px 18px;
+  padding: 10px 12px 12px;
+}
+
+.cardFooter .primary,
+.cardFooter .secondary {
+  min-height: 32px;
+  padding-inline: 10px;
+  font-size: 8.5px;
+}
+
+@media (max-width: 1250px) {
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 760px) {
@@ -231,14 +263,11 @@
   .cards {
     grid-template-columns: 1fr;
   }
-
-  .ruleGrid {
-    grid-template-columns: 1fr 1fr;
-  }
 }
 
 @media (max-width: 480px) {
-  .ruleGrid {
+  .quickRules,
+  .detailsGrid {
     grid-template-columns: 1fr;
   }
 }
