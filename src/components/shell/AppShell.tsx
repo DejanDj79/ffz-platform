@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import styles from "./AppShell.module.css";
+import { EconomicCalendarAlert } from "@/components/economic-calendar/EconomicCalendarAlert";
 
 type AuthUser = {
   id: string;
@@ -22,6 +23,7 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: "dashboard", section: "workspace" },
+  { href: "/economic-calendar", label: "Economic Calendar", icon: "calendar", section: "workspace" },
   { href: "/tools/risk-calculator", label: "Risk Calculator", icon: "calc", section: "workspace" },
   { href: "/challenges", label: "Challenges", icon: "flag", section: "workspace" },
   { href: "/journal", label: "Journal", icon: "journal", section: "tracking" },
@@ -40,6 +42,12 @@ const PAGE_META: Array<{
     title: "Dashboard",
     subtitle: "Your Futures From Zero workspace.",
     icon: "dashboard",
+  },
+  {
+    match: (pathname) => pathname.startsWith("/economic-calendar"),
+    title: "Economic Calendar",
+    subtitle: "High-impact macro events that can move futures markets.",
+    icon: "calendar",
   },
   {
     match: (pathname) => pathname.startsWith("/tools/risk-calculator"),
@@ -91,6 +99,7 @@ function Icon({ name }: { name: string }) {
     calc: <><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11h.1M8 15h2M12 15h2M16 15h.1M8 18h2M12 18h4"/></>,
     flag: <><path d="M5 21V4"/><path d="M5 5h10l-1.5 3L15 11H5"/></>,
     journal: <><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H19v18H7.5A2.5 2.5 0 0 0 5 22V4.5Z"/><path d="M5 18.5A2.5 2.5 0 0 1 7.5 16H19M9 6h6M9 10h6"/></>,
+    calendar: <><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M7 14h2M11 14h2M15 14h2M7 18h2M11 18h2"/></>,
     ledger: <><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h4M7 16h6M16 14v4M14 16h4"/></>,
     scoreboard: <><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 8h3M14 8h3M7 12h10M8 21h8M12 18v3"/></>,
     menu: <><path d="M4 7h16M4 12h16M4 17h16"/></>,
@@ -271,7 +280,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div>
               <span className={styles.eyebrow}>FFZ PLATFORM</span>
               <h1>{page.title}</h1>
-              {/* <p>{page.subtitle}</p> */}
+              <p>{page.subtitle}</p>
             </div>
           </div>
 
@@ -283,6 +292,10 @@ export function AppShell({ children }: { children: ReactNode }) {
             </span>
           </div>
         </header>
+
+        {!pathname.startsWith("/economic-calendar") && (
+          <EconomicCalendarAlert />
+        )}
 
         <div className={styles.content}>{children}</div>
       </div>

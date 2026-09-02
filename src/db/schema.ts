@@ -400,6 +400,37 @@ export const scoreboardSettings = pgTable(
   }),
 );
 
+
+export const economicCalendarCache = pgTable(
+  "economic_calendar_cache",
+  {
+    cacheKey: varchar("cache_key", { length: 160 }).primaryKey(),
+    payload: jsonb("payload").notNull(),
+
+    providerFetchedAt: timestamp("provider_fetched_at", {
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+
+    expiresAt: timestamp("expires_at", {
+      withTimezone: true,
+    }).notNull(),
+
+    updatedAt: timestamp("updated_at", {
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    expiresIdx: index("economic_calendar_cache_expires_idx").on(
+      table.expiresAt,
+    ),
+  }),
+);
+
+
 export type UserRow = typeof users.$inferSelect;
 export type NewUserRow = typeof users.$inferInsert;
 export type SessionRow = typeof sessions.$inferSelect;
@@ -420,3 +451,6 @@ export type NewLedgerEntryRow = typeof ledgerEntries.$inferInsert;
 
 export type ScoreboardSettingsRow = typeof scoreboardSettings.$inferSelect;
 export type NewScoreboardSettingsRow = typeof scoreboardSettings.$inferInsert;
+
+export type EconomicCalendarCacheRow = typeof economicCalendarCache.$inferSelect;
+export type NewEconomicCalendarCacheRow = typeof economicCalendarCache.$inferInsert;

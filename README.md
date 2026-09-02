@@ -1,351 +1,133 @@
-# FFZ Journal Screenshots v1
+# FFZ Economic Calendar v1.1 — Forex Factory provider
 
-Adds image attachments to Trade Journal.
+This patch replaces Signal8 with the public Forex Factory weekly JSON calendar
+export.
 
-## What it does
-
-Each trade can have up to:
-
-```text
-10 screenshots
-```
-
-Supported:
+Why:
 
 ```text
-JPG
-PNG
-WEBP
+Signal8 Free API key
+        ↓
+Economic Calendar endpoint
+        ↓
+HTTP 403 / TIER_INSUFFICIENT
 ```
 
-Maximum:
+No Signal8 subscription is needed.
+
+New source:
 
 ```text
-8 MB per image
-40 MB per upload batch
+Forex Factory public weekly JSON export
 ```
 
-The New/Edit Trade form now has:
+The existing FFZ Calendar UI, PostgreSQL cache, filters, countdown and global
+HIGH-impact alert remain.
+
+## Data available
+
+The feed supplies:
 
 ```text
-SCREENSHOTS
-Drop screenshots here
-or
-ADD IMAGES
+date/time
+currency
+impact: High / Medium / Low
+title
+forecast
+previous
+actual (when available after release)
 ```
 
-You can select multiple screenshots before saving a new trade.
+Forex Factory also emits non-economic rows such as `Holiday`; FFZ v1.1 ignores
+those because the current UI is specifically an economic-impact calendar.
 
-Queued screenshots show thumbnails immediately.
+## API key
 
-Existing screenshots show when editing a trade.
-
-Clicking a thumbnail opens the image in a fullscreen lightbox.
-
----
-
-## Trade Details
-
-Trade History now has:
-
-```text
-View
-Edit
-Delete
-```
-
-`View` opens a Trade Details overlay.
-
-It shows:
-- key trade facts
-- Setup
-- Tags
-- Notes
-- screenshot thumbnails
-
-Click any screenshot thumbnail.
-
-The image opens fullscreen.
-
-Controls:
-
-```text
-ESC       close
-←         previous image
-→         next image
-click X   close
-click outside the image   close
-```
-
-The lightbox also shows:
-
-```text
-filename
-2 / 5
-```
-
----
-
-# Storage design
-
-PostgreSQL does NOT store the image bytes.
-
-New table:
-
-```text
-trade_attachments
-```
-
-stores:
-
-```text
-id
-user_id
-trade_id
-storage_key
-original_filename
-mime_type
-file_size_bytes
-sort_order
-created_at
-```
-
-Actual files go to:
-
-```text
-ffz-platform/data/uploads/
-```
-
-by default.
-
-You can override that later with:
-
-```text
-FFZ_UPLOAD_DIR=/some/persistent/path
-```
-
-This means the Journal UI/API does not need to change when we later move image
-storage to a production storage provider.
-
----
-
-# Security
-
-Screenshots are NOT written into:
-
-```text
-public/
-```
-
-and there is no raw public file URL.
-
-Every image request goes through:
-
-```text
-/api/journal/trades/<tradeId>/attachments/<attachmentId>/file
-```
-
-The server checks:
-- logged-in user
-- trade ownership
-- attachment ownership
-
-A user cannot request another user's Journal screenshot by guessing an ID.
-
-Upload validation also checks:
-- allowed MIME type
-- actual JPG/PNG/WEBP file signature
-- file size
-- maximum attachment count
-
----
-
-# Important `.gitignore`
-
-Add this line to the project's existing `.gitignore`:
-
-```gitignore
-/data/uploads/
-```
-
-Do not commit uploaded screenshots to Git.
-
----
-
-# Database
-
-The patch adds:
-
-```text
-trade_attachments
-```
-
-Run:
+You can remove this from `.env.local`:
 
 ```bash
-npm run db:push
+SIGNAL8_API_KEY=...
 ```
 
-Do NOT reset PostgreSQL.
+It is no longer used.
 
----
+## Cache
 
-# Install
+The existing `economic_calendar_cache` table stays unchanged.
 
-Copy the patch into:
+The provider cache key changes from:
 
 ```text
-~/WaytrXGroundOps/external/ffz-platform
+signal8-economic:...
 ```
 
-Then:
+to:
+
+```text
+forexfactory-economic:...
+```
+
+so old Signal8 cache rows cannot contaminate the new feed.
+
+No DB migration is required for this provider swap.
+
+## Install
+
+Copy the patch over the current FFZ project, then:
 
 ```bash
-npm run db:push
 npm run test
 npm run dev
 ```
 
+No `db:push` is required for v1.1 if Economic Calendar v1 already created the
+`economic_calendar_cache` table.
+
 Open:
 
 ```text
-/journal
+/economic-calendar
 ```
 
----
-
-# Test 1 — new trade with screenshots
-
-Create a new trade.
-
-Before clicking SAVE TRADE:
-1. click `ADD IMAGES`
-2. select 2 or 3 screenshots
-3. verify thumbnails appear
-4. click a thumbnail
-5. verify fullscreen lightbox works
-6. close it
-7. SAVE TRADE
-
-Expected:
-- trade is saved
-- screenshots are uploaded
-- form resets
-
----
-
-# Test 2 — View trade
-
-In Trade History click:
+Expected source indicator:
 
 ```text
-View
+FOREX FACTORY
 ```
 
-Expected:
-- Trade Details overlay opens
-- screenshots appear as thumbnails
-- click a thumbnail
-- fullscreen screenshot opens
-- Left/Right arrows switch images
-- ESC closes lightbox
+and calendar rows should load immediately.
 
----
-
-# Test 3 — Edit trade
-
-Click:
+## Files changed
 
 ```text
-Edit
-```
-
-Expected:
-- existing screenshots load in the form
-- you can add more
-- you can delete one
-- clicking any thumbnail opens it fullscreen
-
----
-
-# Test 4 — delete trade
-
-Delete a trade with screenshots.
-
-Expected:
-- trade disappears
-- attachment DB rows cascade-delete
-- physical screenshot files are also removed
-
----
-
-# Local file check
-
-After uploading screenshots you should see:
-
-```text
-data/
-└── uploads/
-    └── <user-id>/
-        └── <trade-id>/
-            ├── <uuid>.png
-            └── <uuid>.jpg
-```
-
----
-
-# Files changed
-
-Existing:
-
-```text
-src/db/schema.ts
-src/lib/journal/types.ts
-src/lib/journal/api-client.ts
-src/app/api/journal/trades/[id]/route.ts
-src/components/journal/TradeJournal.tsx
-src/components/journal/TradeJournal.module.css
+src/lib/economic-calendar/types.ts
+src/lib/economic-calendar/calendar-utils.ts
+src/lib/economic-calendar/service.ts
+src/app/api/economic-calendar/route.ts
+src/components/economic-calendar/EconomicCalendar.tsx
+src/tests/economic-calendar.test.ts
 ```
 
 New:
 
 ```text
-src/lib/journal/attachments-validation.ts
-src/lib/journal/attachments-repository.ts
-src/lib/storage/image-storage.ts
-
-src/app/api/journal/trades/[id]/attachments/route.ts
-src/app/api/journal/trades/[id]/attachments/[attachmentId]/route.ts
-src/app/api/journal/trades/[id]/attachments/[attachmentId]/file/route.ts
-
-src/tests/journal-attachments.test.ts
+src/lib/economic-calendar/forex-factory-provider.ts
 ```
 
----
-
-# Production note
-
-For the current development version, local filesystem storage is deliberate.
-
-When we deploy to Hetzner we must make:
+The old file:
 
 ```text
-data/uploads
+src/lib/economic-calendar/signal8-provider.ts
 ```
 
-a persistent Docker volume.
+can be deleted after copying this patch.
 
-Later we can swap the storage implementation for S3-compatible object storage
-without changing the Journal UI.
+## Important
 
----
+The public feed is rate limited, so FFZ retains the PostgreSQL cache and only
+refreshes the external source every 15 minutes during the US-market portion of
+the day and every 30 minutes otherwise.
 
-# Git checkpoint
-
-When everything passes:
-
-```bash
-git add .
-git commit -m "Add Journal screenshot attachments"
-git push
-```
+For a future public commercial launch, re-check Forex Factory/Fair Economy
+Media's then-current terms for redistribution. The provider is isolated behind
+one adapter so it can be replaced without changing the Calendar UI.
