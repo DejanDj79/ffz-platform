@@ -31,6 +31,10 @@ export const breachTypeSchema = z.enum(["NONE", "SOFT", "HARD"]);
 const money = z.number().finite().nonnegative();
 const signedMoney = z.number().finite();
 const nullableMoney = money.nullable();
+const drawdownLockOffset = z.number().finite().refine(
+  (value) => value === -1 || value >= 0,
+  "Drawdown lock offset must be -1 (no lock) or a non-negative amount.",
+);
 
 export const createChallengeSchema = z.object({
   rulesPresetId: z.string().max(160).nullable().default(null),
@@ -50,7 +54,7 @@ export const createChallengeSchema = z.object({
 
   profitTarget: money,
   maxDrawdown: money,
-  drawdownLockFloorOffset: money.default(0),
+  drawdownLockFloorOffset: drawdownLockOffset.default(0),
   dailyLossLimit: nullableMoney.default(null),
 
   challengeFee: money.default(0),
