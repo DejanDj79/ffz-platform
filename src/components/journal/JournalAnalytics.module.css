@@ -195,6 +195,11 @@
   align-items: stretch;
 }
 
+.chartGrid > .panel:first-child {
+  display: flex;
+  flex-direction: column;
+}
+
 .panel {
   min-width: 0;
   border-radius: 11px;
@@ -237,9 +242,10 @@
 }
 
 .chartWrap {
-  height: 340px;
+  flex: 1 1 auto;
+  min-height: 340px;
   position: relative;
-  padding: 15px 14px 17px;
+  padding: 18px 14px;
   background: linear-gradient(180deg, rgba(255,255,255,.006), transparent);
 }
 
@@ -263,7 +269,7 @@
 
 .chartLabels {
   position: absolute;
-  inset: 15px 16px auto;
+  inset: 18px 16px auto;
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -529,6 +535,10 @@
   .chartGrid,
   .breakdownGrid {
     grid-template-columns: 1fr;
+  }
+
+  .chartGrid > .panel:first-child {
+    display: block;
   }
 
   .filters {
