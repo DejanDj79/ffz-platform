@@ -1,117 +1,118 @@
-# FFZ Backend v1.5 — Trade Journal schema + API
+# FFZ Trade Journal v1 UI
 
-This sprint adds the Journal backend only. No Journal UI yet.
+This patch adds the first usable Trade Journal screen on top of the already-working Journal API.
 
-## Added
+## Replaces
 
-Database:
-- `trades`
-- `trade_direction`
-- `trade_status`
-- `trade_outcome`
+```text
+src/app/journal/page.tsx
+```
 
-API:
-- `GET /api/journal/trades`
-- `POST /api/journal/trades`
-- `GET /api/journal/trades/:id`
-- `PATCH /api/journal/trades/:id`
-- `DELETE /api/journal/trades/:id`
+The old placeholder is removed.
 
-Calculated server-side:
-- Open/Closed
-- Gross P&L
+## Adds
+
+```text
+src/components/journal/TradeJournal.tsx
+src/components/journal/TradeJournal.module.css
+src/lib/journal/api-client.ts
+src/lib/journal/stats.ts
+src/tests/journal-stats.test.ts
+```
+
+No App Shell, Calculator, Challenge Planner or backend route is replaced.
+
+## Features
+
+New/Edit Trade:
+- challenge
+- instrument
+- long/short
+- opened/closed time
+- entry
+- stop
+- target
+- exit
+- contracts
+- commission & fees
+- setup
+- tags
+- notes
+
+History:
+- edit
+- delete
+- refresh
+- instrument filter
+- outcome filter
+- challenge filter
+
+Statistics:
 - Net P&L
-- Initial Risk
-- R multiple
-- Win/Loss/Breakeven
+- Win Rate
+- Average R
+- Profit Factor
+- Total/Open trades
 
-The calculation reuses the existing specs in `src/lib/trading/instruments.ts`.
+All P&L, R and Outcome values still come from the backend.
+The UI does not calculate or submit authoritative trade performance values.
 
 ## Install
 
-Before copying, make a Git checkpoint if needed:
-
-```bash
-git status
-git add .
-git commit -m "Complete authentication backend"
-```
-
-Copy the ZIP contents into the FFZ project root.
-
-The only existing source file intentionally replaced is:
-
-```text
-src/db/schema.ts
-```
+Copy the patch into the existing project.
 
 Then:
 
 ```bash
-npm run db:push
 npm run test
 npm run dev
 ```
 
-Do NOT reset the database.
+No `db:push` is required for this UI-only sprint.
 
-## Verify
-
-While logged in, open:
+Open:
 
 ```text
-/api/journal/trades
+/journal
 ```
 
-Initially expect:
+## Test flow
 
-```json
-{"data":[]}
-```
+1. Create a closed MNQ trade:
+   - Entry 20000
+   - Stop 19990
+   - Exit 20020
+   - 1 contract
+   - Fees 1.22
+   - Opened At + Closed At both filled
 
-Create a test trade in browser DevTools:
+2. Save.
 
-```js
-fetch("/api/journal/trades", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    challengeId: null,
-    tradingAccountId: null,
-    instrument: "MNQ",
-    direction: "LONG",
-    openedAt: new Date(Date.now() - 20 * 60 * 1000).toISOString(),
-    closedAt: new Date().toISOString(),
-    entryPrice: 20000,
-    stopPrice: 19990,
-    targetPrice: 20020,
-    exitPrice: 20020,
-    contracts: 1,
-    commissionFees: 1.22,
-    setup: "API Test",
-    tags: ["scalp", "test"],
-    notes: "Trade Journal backend test."
-  })
-}).then(r => r.json()).then(console.log)
-```
+Expected in history:
+- Net P&L $38.78
+- about +1.939R
+- WIN
 
-Expected:
-- Gross P&L = 40.00
-- Net P&L = 38.78
-- Initial Risk = 20.00
-- R Multiple = 1.939
-- Outcome = WIN
-- Status = CLOSED
+3. Click Edit and change the Exit.
+4. Save and verify P&L/R update.
+5. Create one open trade by leaving both Exit and Closed At blank.
+6. Test filters.
+7. Delete test trades if desired.
 
-Then refresh `/api/journal/trades`.
+## Git checkpoint
 
-## After confirmation
-
-Commit:
+After confirmation:
 
 ```bash
 git add .
-git commit -m "Add Trade Journal backend API"
+git commit -m "Add Trade Journal v1 UI"
+git push
 ```
 
-Next sprint: Trade Journal v1 UI.
+## Next
+
+After the Journal UI is stable, the next sensible step is:
+- Journal detail/screenshot attachment support, or
+- Real Money Ledger v1
+
+We can choose after using this screen.
