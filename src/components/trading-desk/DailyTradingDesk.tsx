@@ -224,7 +224,7 @@ export function DailyTradingDesk() {
       maxRiskPerTrade: plan.maxRiskPerTrade,
       maxLosingTrades: plan.maxLosingTrades,
       challengeRemainingDrawdown: challengeMetrics?.remainingDrawdown ?? null,
-      challengeRemainingDailyLoss,
+      challengeRemainingDailyLoss: challengeDailyLossRemaining,
       challengeFailed: selectedChallenge?.status === "FAILED",
     }),
     [challengeDailyLossRemaining, challengeMetrics?.remainingDrawdown, daySummary, plan.maxLosingTrades, plan.maxRiskPerTrade, selectedChallenge?.status],
