@@ -10,4 +10,10 @@ export function getPropFirmPreset(id?: PropFirmPresetId | string | null) {
   return PROP_FIRM_PRESETS.find((preset) => preset.id === id) ?? null;
 }
 
-export type { PropFirmPresetId, PropFirmRulePreset, DrawdownMode, BreachType } from "./types";
+export type {
+  PropFirmPresetId,
+  PropFirmRulePreset,
+  DrawdownMode,
+  BreachType,
+  PayoutEligibilityMode,
+} from "./types";
