@@ -1,0 +1,16 @@
+.root :global(section[class*="bottomGrid"]) {
+  align-items: stretch !important;
+}
+
+.root :global(article[class*="activityPanel"]),
+.root :global(article[class*="moneyPanel"]) {
+  align-self: stretch !important;
+  height: 100%;
+}
+
+@media (max-width: 1260px) {
+  .root :global(article[class*="activityPanel"]),
+  .root :global(article[class*="moneyPanel"]) {
+    height: auto;
+  }
+}
