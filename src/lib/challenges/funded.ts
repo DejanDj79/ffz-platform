@@ -14,6 +14,9 @@ export type FundedPayoutSummary = {
   payoutWaitDays: number | null;
   payoutUnlockAt: string | null;
   scheduleOk: boolean;
+  /** Compatibility aliases for callers that still present generic payout days. */
+  payoutDaysRequired: number | null;
+  daysOk: boolean;
   cycleNetPnl: number;
   bestDayPnl: number | null;
   consistencyPct: number | null;
@@ -241,6 +244,8 @@ export function calculateFundedPayoutSummary(
     payoutWaitDays,
     payoutUnlockAt,
     scheduleOk,
+    payoutDaysRequired: payoutWaitDays,
+    daysOk: scheduleOk,
     cycleNetPnl,
     bestDayPnl,
     consistencyPct,
