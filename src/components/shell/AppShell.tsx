@@ -29,6 +29,7 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: "dashboard", section: "workspace" },
+  { href: "/trading-desk", label: "Trading Desk", icon: "desk", section: "workspace" },
   { href: "/economic-calendar", label: "Economic Calendar", icon: "calendar", section: "workspace" },
   { href: "/tools/risk-calculator", label: "Risk Calculator", icon: "calc", section: "workspace" },
   { href: "/challenges", label: "Challenges", icon: "flag", section: "workspace" },
@@ -57,6 +58,12 @@ const PAGE_META: Array<{
     title: "Dashboard",
     subtitle: "Your Futures From Zero workspace.",
     icon: "dashboard",
+  },
+  {
+    match: (pathname) => pathname.startsWith("/trading-desk"),
+    title: "Daily Trading Desk",
+    subtitle: "Plan the session, enforce risk and review execution.",
+    icon: "desk",
   },
   {
     match: (pathname) => pathname.startsWith("/economic-calendar"),
@@ -117,6 +124,7 @@ function Icon({ name }: { name: string }) {
 
   const icons: Record<string, ReactNode> = {
     dashboard: <><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="4" rx="1.5"/><rect x="14" y="11" width="7" height="10" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></>,
+    desk: <><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M7 20h10M9 16v4M15 16v4M7 12l3-3 2 2 4-4 1 1"/></>,
     calc: <><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11h.1M8 15h2M12 15h2M16 15h.1M8 18h2M12 18h4"/></>,
     flag: <><path d="M5 21V4"/><path d="M5 5h10l-1.5 3L15 11H5"/></>,
     journal: <><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H19v18H7.5A2.5 2.5 0 0 0 5 22V4.5Z"/><path d="M5 18.5A2.5 2.5 0 0 1 7.5 16H19M9 6h6M9 10h6"/></>,
