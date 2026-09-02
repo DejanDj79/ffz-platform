@@ -463,7 +463,7 @@
 
 .performanceGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(350px, .65fr);
+  grid-template-columns: minmax(0, 1.55fr) minmax(330px, .65fr);
   gap: 13px;
   margin-bottom: 13px;
   align-items: start;
@@ -553,7 +553,7 @@
 
 .bottomGrid {
   display: grid;
-  grid-template-columns: minmax(600px, 1.35fr) minmax(330px, .65fr);
+  grid-template-columns: minmax(0, 1.55fr) minmax(330px, .65fr);
   gap: 13px;
   align-items: start;
 }
