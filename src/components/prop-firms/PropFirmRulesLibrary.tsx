@@ -78,7 +78,7 @@ function PresetCard({ preset }: { preset: PropFirmRulePreset }) {
 
       <footer className={styles.cardFooter}>
         <Link className={styles.primary} href="/challenges">
-          USE PRESET
+          SELECT IN CHALLENGE SETUP
         </Link>
         <a className={styles.secondary} href={preset.sourceUrl} target="_blank" rel="noreferrer">
           SOURCE
