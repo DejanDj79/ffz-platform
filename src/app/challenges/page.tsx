@@ -1,10 +1,10 @@
-import { ChallengePlanner } from "@/components/challenges/ChallengePlanner";
+import { ChallengeFundedPlanner } from "@/components/challenges/ChallengeFundedPlanner";
 
 export const metadata = {
-  title: "Challenge Planner | Futures From Zero",
-  description: "Plan and track futures prop challenges with Futures From Zero.",
+  title: "Challenge / Funded | Futures From Zero",
+  description: "Track prop evaluations, funded accounts and payout readiness with Futures From Zero.",
 };
 
 export default function ChallengesPage() {
-  return <ChallengePlanner />;
+  return <ChallengeFundedPlanner />;
 }
