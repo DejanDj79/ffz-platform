@@ -1,6 +1,8 @@
 import {
   index,
   integer,
+  jsonb,
+  numeric,
   pgEnum,
   pgTable,
   text,
@@ -40,6 +42,23 @@ export const breachTypeEnum = pgEnum("breach_type", [
   "NONE",
   "SOFT",
   "HARD",
+]);
+
+
+export const tradeDirectionEnum = pgEnum("trade_direction", [
+  "LONG",
+  "SHORT",
+]);
+
+export const tradeStatusEnum = pgEnum("trade_status", [
+  "OPEN",
+  "CLOSED",
+]);
+
+export const tradeOutcomeEnum = pgEnum("trade_outcome", [
+  "WIN",
+  "LOSS",
+  "BREAKEVEN",
 ]);
 
 export const users = pgTable(
@@ -145,6 +164,68 @@ export const challenges = pgTable(
   }),
 );
 
+
+export const trades = pgTable(
+  "trades",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    challengeId: uuid("challenge_id").references(
+      () => challenges.id,
+      { onDelete: "set null" },
+    ),
+
+    tradingAccountId: uuid("trading_account_id").references(
+      () => tradingAccounts.id,
+      { onDelete: "set null" },
+    ),
+
+    instrument: varchar("instrument", { length: 16 }).notNull(),
+    direction: tradeDirectionEnum("direction").notNull(),
+    status: tradeStatusEnum("status").notNull().default("OPEN"),
+
+    openedAt: timestamp("opened_at", { withTimezone: true }).notNull(),
+    closedAt: timestamp("closed_at", { withTimezone: true }),
+
+    entryPrice: numeric("entry_price", { precision: 18, scale: 4 }).notNull(),
+    stopPrice: numeric("stop_price", { precision: 18, scale: 4 }),
+    targetPrice: numeric("target_price", { precision: 18, scale: 4 }),
+    exitPrice: numeric("exit_price", { precision: 18, scale: 4 }),
+
+    contracts: integer("contracts").notNull(),
+
+    commissionFeesCents: integer("commission_fees_cents").notNull().default(0),
+    grossPnlCents: integer("gross_pnl_cents"),
+    netPnlCents: integer("net_pnl_cents"),
+    initialRiskCents: integer("initial_risk_cents"),
+
+    rMultiple: numeric("r_multiple", { precision: 12, scale: 4 }),
+    outcome: tradeOutcomeEnum("outcome"),
+
+    setup: varchar("setup", { length: 120 }),
+    tags: jsonb("tags").$type<string[]>().notNull().default([]),
+    notes: text("notes"),
+
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    userIdx: index("trades_user_idx").on(table.userId),
+    challengeIdx: index("trades_challenge_idx").on(table.challengeId),
+    accountIdx: index("trades_account_idx").on(table.tradingAccountId),
+    openedAtIdx: index("trades_opened_at_idx").on(table.openedAt),
+  }),
+);
+
 export type UserRow = typeof users.$inferSelect;
 export type NewUserRow = typeof users.$inferInsert;
 export type SessionRow = typeof sessions.$inferSelect;
@@ -153,3 +234,6 @@ export type TradingAccountRow = typeof tradingAccounts.$inferSelect;
 export type NewTradingAccountRow = typeof tradingAccounts.$inferInsert;
 export type ChallengeRow = typeof challenges.$inferSelect;
 export type NewChallengeRow = typeof challenges.$inferInsert;
+
+export type TradeRow = typeof trades.$inferSelect;
+export type NewTradeRow = typeof trades.$inferInsert;
