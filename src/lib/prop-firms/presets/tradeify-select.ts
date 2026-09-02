@@ -11,6 +11,7 @@ type TradeifySelectConfig = {
   evaluationFee: number;
   resetFee: number;
   flexPayoutCap: number;
+  legacyNote?: string;
 };
 
 function tradeifySelect(config: TradeifySelectConfig): PropFirmRulePreset {
@@ -49,10 +50,10 @@ function tradeifySelect(config: TradeifySelectConfig): PropFirmRulePreset {
     microscalpingMaxProfitSharePct: null,
 
     profitSplitPct: 90,
-    // The funded payout policy is chosen only after passing (Flex or Daily).
+    // Funded fields remain neutral because Flex vs Daily is chosen only after passing.
     payoutEligibleAfterTradingDays: null,
-    firstPayoutCap: config.flexPayoutCap,
-    laterPayoutCap: config.flexPayoutCap,
+    firstPayoutCap: null,
+    laterPayoutCap: null,
     fundedBuffer: null,
 
     evaluationFee: config.evaluationFee,
@@ -65,9 +66,10 @@ function tradeifySelect(config: TradeifySelectConfig): PropFirmRulePreset {
     verifiedAt: "2026-09-03",
     sourceUrl: "https://help.tradeify.co/en/articles/12853921-select-evaluation-accounts",
     reviewNote:
-      `Select ${sizeLabel} is a one-time ${config.evaluationFee} evaluation with a ${config.resetFee} reset fee. ` +
+      `Select ${sizeLabel} is a one-time $${config.evaluationFee} evaluation with a $${config.resetFee} reset fee. ` +
       "Evaluation uses a 40% consistency rule, no Daily Loss Limit, and an EOD trailing drawdown that does NOT lock during evaluation. " +
-      "After passing, the trader permanently chooses Select Flex or Select Daily. This preset shows the current post-Sep-1 Flex payout cap as a reference, but funded DLL/buffer/payout behavior depends on that later choice.",
+      `After passing, the trader permanently chooses Select Flex or Select Daily; the current post-Sep-1 Flex cap for this size is $${config.flexPayoutCap.toLocaleString("en-US")}, but funded payout/DLL/buffer fields stay neutral until that path is selected. ` +
+      (config.legacyNote ?? ""),
   };
 }
 
@@ -93,6 +95,7 @@ export const TRADEIFY_SELECT_50K = tradeifySelect({
   evaluationFee: 165,
   resetFee: 109,
   flexPayoutCap: 2_500,
+  legacyNote: "Older 50K Select accounts purchased before the new dashboard may retain the previous $2,500 profit target, including on reset; use Custom / Manual for those accounts.",
 });
 
 export const TRADEIFY_SELECT_100K = tradeifySelect({
