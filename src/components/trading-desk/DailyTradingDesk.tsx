@@ -128,6 +128,7 @@ export function DailyTradingDesk() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [calendarError, setCalendarError] = useState<string | null>(null);
+  const [editingLivePlan, setEditingLivePlan] = useState(false);
 
   const dateKey = localDateKey(now);
 
@@ -138,6 +139,7 @@ export function DailyTradingDesk() {
 
   useEffect(() => {
     setHydrated(false);
+    setEditingLivePlan(false);
     try {
       const raw = window.localStorage.getItem(storageKey(dateKey));
       setPlan(raw ? normalizePlan(JSON.parse(raw) as Partial<DeskPlan>) : DEFAULT_PLAN);
@@ -244,6 +246,7 @@ export function DailyTradingDesk() {
   const nextHighEvent = highImpactEvents.find((event) => new Date(event.date).getTime() >= now.getTime()) ?? null;
   const checklistDone = CHECKLIST_ITEMS.every((item) => plan.checklist[item.key]);
   const canStart = checklistDone && plan.maxRiskPerTrade > 0 && guardrails.status !== "STOP";
+  const planLocked = plan.sessionStatus !== "PLANNING" && !editingLivePlan;
   const sessionEffectiveStatus = guardrails.status === "STOP" && plan.sessionStatus === "LIVE"
     ? "STOP"
     : plan.sessionStatus;
@@ -253,6 +256,7 @@ export function DailyTradingDesk() {
   }
 
   function toggleChecklist(key: ChecklistKey) {
+    if (planLocked) return;
     setPlan((current) => ({
       ...current,
       checklist: {
@@ -264,6 +268,7 @@ export function DailyTradingDesk() {
 
   function startSession() {
     if (!canStart) return;
+    setEditingLivePlan(false);
     setPlan((current) => ({
       ...current,
       sessionStatus: "LIVE",
@@ -273,6 +278,7 @@ export function DailyTradingDesk() {
   }
 
   function endSession() {
+    setEditingLivePlan(false);
     setPlan((current) => ({
       ...current,
       sessionStatus: "ENDED",
@@ -280,10 +286,30 @@ export function DailyTradingDesk() {
     }));
   }
 
+  function reopenSession() {
+    setEditingLivePlan(false);
+    setPlan((current) => ({
+      ...current,
+      sessionStatus: "LIVE",
+      endedAt: null,
+    }));
+  }
+
+  function toggleLivePlanEditing() {
+    if (editingLivePlan) {
+      setEditingLivePlan(false);
+      return;
+    }
+
+    if (!window.confirm("Edit the live trading plan? Changes to risk limits during a session should be intentional.")) return;
+    setEditingLivePlan(true);
+  }
+
   function resetToday() {
     if (!window.confirm("Reset today's Trading Desk plan and checklist?")) return;
     const preferred = challenges.find((challenge) => challenge.status === "IN_PROGRESS") ?? challenges[0];
     const next = { ...DEFAULT_PLAN, accountId: preferred?.id ?? "ALL" };
+    setEditingLivePlan(false);
     setPlan(next);
     window.localStorage.setItem(storageKey(dateKey), JSON.stringify(next));
   }
@@ -331,7 +357,7 @@ export function DailyTradingDesk() {
             <button className={styles.endButton} type="button" onClick={endSession}>END SESSION</button>
           )}
           {plan.sessionStatus === "ENDED" && (
-            <button className={styles.ghostButton} type="button" onClick={() => updatePlan("sessionStatus", "LIVE")}>REOPEN</button>
+            <button className={styles.ghostButton} type="button" onClick={reopenSession}>REOPEN</button>
           )}
         </div>
       </section>
@@ -383,16 +409,23 @@ export function DailyTradingDesk() {
             <header className={styles.panelHeader}>
               <div>
                 <span>SESSION PLAN</span>
-                <small>Decide the rules before the market starts moving.</small>
+                <small>{plan.sessionStatus === "PLANNING" ? "Decide the rules before the market starts moving." : editingLivePlan ? "Live plan editing unlocked — relock when finished." : "Trading plan locked for this session."}</small>
               </div>
-              <button type="button" className={styles.textButton} onClick={resetToday}>RESET TODAY</button>
+              {plan.sessionStatus === "PLANNING" && (
+                <button type="button" className={styles.textButton} onClick={resetToday}>RESET TODAY</button>
+              )}
+              {plan.sessionStatus === "LIVE" && (
+                <button type="button" className={styles.textButton} onClick={toggleLivePlanEditing}>
+                  {editingLivePlan ? "LOCK PLAN" : "EDIT LIVE PLAN"}
+                </button>
+              )}
             </header>
 
             <div className={styles.planBody}>
               <div className={styles.fieldGrid}>
                 <label>
                   <span>ACCOUNT / CHALLENGE</span>
-                  <select value={plan.accountId} onChange={(event) => updatePlan("accountId", event.target.value)}>
+                  <select disabled={planLocked} value={plan.accountId} onChange={(event) => updatePlan("accountId", event.target.value)}>
                     {!plan.accountId && <option value="">Loading account…</option>}
                     <option value="ALL">All Journal accounts</option>
                     <option value="NONE">Personal / no challenge</option>
@@ -404,7 +437,7 @@ export function DailyTradingDesk() {
 
                 <label>
                   <span>INSTRUMENT</span>
-                  <select value={plan.instrument} onChange={(event) => updatePlan("instrument", event.target.value as JournalInstrument)}>
+                  <select disabled={planLocked} value={plan.instrument} onChange={(event) => updatePlan("instrument", event.target.value as JournalInstrument)}>
                     <option value="MNQ">MNQ</option>
                     <option value="MES">MES</option>
                     <option value="NQ">NQ</option>
@@ -416,18 +449,18 @@ export function DailyTradingDesk() {
                   <span>MAX RISK / TRADE</span>
                   <div className={styles.moneyField}>
                     <b>$</b>
-                    <input type="number" min="0" step="10" value={plan.maxRiskPerTrade} onChange={(event) => updatePlan("maxRiskPerTrade", Math.max(0, Number(event.target.value)))} />
+                    <input disabled={planLocked} type="number" min="0" step="10" value={plan.maxRiskPerTrade} onChange={(event) => updatePlan("maxRiskPerTrade", Math.max(0, Number(event.target.value)))} />
                   </div>
                 </label>
 
                 <label>
                   <span>MAX LOSING TRADES</span>
-                  <input type="number" min="1" max="10" step="1" value={plan.maxLosingTrades} onChange={(event) => updatePlan("maxLosingTrades", Math.max(1, Math.floor(Number(event.target.value) || 1)))} />
+                  <input disabled={planLocked} type="number" min="1" max="10" step="1" value={plan.maxLosingTrades} onChange={(event) => updatePlan("maxLosingTrades", Math.max(1, Math.floor(Number(event.target.value) || 1)))} />
                 </label>
 
                 <label>
                   <span>PREMARKET BIAS</span>
-                  <select value={plan.bias} onChange={(event) => updatePlan("bias", event.target.value as DeskBias)}>
+                  <select disabled={planLocked} value={plan.bias} onChange={(event) => updatePlan("bias", event.target.value as DeskBias)}>
                     <option value="NEUTRAL">Neutral / React</option>
                     <option value="BULLISH">Bullish</option>
                     <option value="BEARISH">Bearish</option>
@@ -447,15 +480,15 @@ export function DailyTradingDesk() {
               <div className={styles.notesGrid}>
                 <label>
                   <span>KEY LEVELS</span>
-                  <textarea rows={4} placeholder="Premarket high/low, overnight high/low, prior day levels…" value={plan.keyLevels} onChange={(event) => updatePlan("keyLevels", event.target.value)} />
+                  <textarea disabled={planLocked} rows={4} placeholder="Premarket high/low, overnight high/low, prior day levels…" value={plan.keyLevels} onChange={(event) => updatePlan("keyLevels", event.target.value)} />
                 </label>
                 <label>
                   <span>SETUP FOCUS</span>
-                  <textarea rows={4} placeholder="What exactly must happen before you take a trade?" value={plan.setupFocus} onChange={(event) => updatePlan("setupFocus", event.target.value)} />
+                  <textarea disabled={planLocked} rows={4} placeholder="What exactly must happen before you take a trade?" value={plan.setupFocus} onChange={(event) => updatePlan("setupFocus", event.target.value)} />
                 </label>
                 <label>
                   <span>NO-TRADE CONDITIONS</span>
-                  <textarea rows={4} placeholder="Conditions that invalidate the session or force you to sit out." value={plan.noTradeConditions} onChange={(event) => updatePlan("noTradeConditions", event.target.value)} />
+                  <textarea disabled={planLocked} rows={4} placeholder="Conditions that invalidate the session or force you to sit out." value={plan.noTradeConditions} onChange={(event) => updatePlan("noTradeConditions", event.target.value)} />
                 </label>
               </div>
             </div>
@@ -465,7 +498,7 @@ export function DailyTradingDesk() {
             <header className={styles.panelHeader}>
               <div>
                 <span>PRE-SESSION CHECKLIST</span>
-                <small>{CHECKLIST_ITEMS.filter((item) => plan.checklist[item.key]).length} / {CHECKLIST_ITEMS.length} complete · all four required to start</small>
+                <small>{CHECKLIST_ITEMS.filter((item) => plan.checklist[item.key]).length} / {CHECKLIST_ITEMS.length} complete · {plan.sessionStatus === "PLANNING" ? "all four required to start" : "locked after session start"}</small>
               </div>
             </header>
             <div className={styles.checklist}>
@@ -473,6 +506,7 @@ export function DailyTradingDesk() {
                 <button
                   key={item.key}
                   type="button"
+                  disabled={planLocked}
                   className={`${styles.checkItem} ${plan.checklist[item.key] ? styles.checkDone : ""}`}
                   onClick={() => toggleChecklist(item.key)}
                 >
