@@ -13,6 +13,12 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
+
+export const userRoleEnum = pgEnum("user_role", [
+  "USER",
+  "CREATOR",
+]);
+
 export const challengeStatusEnum = pgEnum("challenge_status", [
   "NOT_STARTED",
   "ACTIVE", // legacy API value; new UI uses IN_PROGRESS
@@ -75,6 +81,7 @@ export const users = pgTable(
     email: varchar("email", { length: 320 }).notNull(),
     displayName: varchar("display_name", { length: 120 }),
     passwordHash: varchar("password_hash", { length: 255 }),
+    role: userRoleEnum("role").notNull().default("USER"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
@@ -234,6 +241,39 @@ export const trades = pgTable(
 );
 
 
+export const tradeAttachments = pgTable(
+  "trade_attachments",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    tradeId: uuid("trade_id")
+      .notNull()
+      .references(() => trades.id, { onDelete: "cascade" }),
+
+    storageKey: varchar("storage_key", { length: 500 }).notNull(),
+    originalFilename: varchar("original_filename", { length: 255 }).notNull(),
+    mimeType: varchar("mime_type", { length: 80 }).notNull(),
+    fileSizeBytes: integer("file_size_bytes").notNull(),
+    sortOrder: integer("sort_order").notNull().default(0),
+
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    userIdx: index("trade_attachments_user_idx").on(table.userId),
+    tradeIdx: index("trade_attachments_trade_idx").on(table.tradeId),
+    storageKeyUnique: uniqueIndex("trade_attachments_storage_key_unique").on(
+      table.storageKey,
+    ),
+  }),
+);
+
+
 export const ledgerEntries = pgTable(
   "ledger_entries",
   {
@@ -307,10 +347,27 @@ export const scoreboardSettings = pgTable(
       { onDelete: "set null" },
     ),
 
-    layout: varchar("layout", { length: 20 }).notNull().default("COMPACT"),
+    layout: varchar("layout", { length: 20 }).notNull().default("FULL"),
     goalLabel: varchar("goal_label", { length: 100 })
       .notNull()
       .default("FIRST REAL PAYOUT"),
+
+    // Creator-only fields used by the Premiere-style FULL scoreboard.
+    tradingStyle: varchar("trading_style", { length: 80 })
+      .notNull()
+      .default("SCALPING"),
+
+    instrumentsLabel: varchar("instruments_label", { length: 80 })
+      .notNull()
+      .default("MNQ / MES"),
+
+    seasonStartDate: timestamp("season_start_date", {
+      withTimezone: true,
+    }),
+
+    scoreboardNotes: text("scoreboard_notes")
+      .notNull()
+      .default(""),
 
     refreshSeconds: integer("refresh_seconds").notNull().default(5),
     isEnabled: boolean("is_enabled").notNull().default(true),
@@ -354,6 +411,9 @@ export type NewChallengeRow = typeof challenges.$inferInsert;
 
 export type TradeRow = typeof trades.$inferSelect;
 export type NewTradeRow = typeof trades.$inferInsert;
+
+export type TradeAttachmentRow = typeof tradeAttachments.$inferSelect;
+export type NewTradeAttachmentRow = typeof tradeAttachments.$inferInsert;
 
 export type LedgerEntryRow = typeof ledgerEntries.$inferSelect;
 export type NewLedgerEntryRow = typeof ledgerEntries.$inferInsert;

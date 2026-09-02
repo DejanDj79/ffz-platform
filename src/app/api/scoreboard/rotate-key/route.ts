@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
+import { canAccessCreatorTools } from "@/lib/auth/roles";
 import { rotateScoreboardKey } from "@/lib/scoreboard/repository";
 
 export const runtime = "nodejs";
@@ -13,6 +14,13 @@ export async function POST() {
       return NextResponse.json(
         { error: "Authentication required." },
         { status: 401 },
+      );
+    }
+
+    if (!canAccessCreatorTools(user)) {
+      return NextResponse.json(
+        { error: "Creator access required." },
+        { status: 403 },
       );
     }
 

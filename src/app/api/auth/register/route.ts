@@ -40,6 +40,7 @@ export async function POST(request: Request) {
         id: users.id,
         email: users.email,
         displayName: users.displayName,
+        role: users.role,
       });
 
     const user = inserted[0];

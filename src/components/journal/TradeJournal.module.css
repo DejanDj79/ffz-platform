@@ -423,7 +423,8 @@
   font-size: 9px;
 }
 
-.rowActions button:hover:first-child { color: #30d0f8; }
+.rowActions button:hover:nth-child(1),
+.rowActions button:hover:nth-child(2) { color: #30d0f8; }
 .rowActions button:hover:last-child { color: #ff737f; }
 
 .emptyState {
@@ -464,6 +465,558 @@
 
 @media (max-width: 480px) {
   .statGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+.screenshotField {
+  min-width: 0;
+  margin-top: 2px;
+}
+
+.screenshotHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.screenshotHeader > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.screenshotHeader span {
+  color: #7e8e99;
+  font-size: 9.5px;
+  font-weight: 600;
+}
+
+.screenshotHeader small {
+  color: #61737f;
+  font-size: 8.5px;
+}
+
+.fileInput {
+  display: none;
+}
+
+.dropZone {
+  min-height: 112px;
+  margin-top: 7px;
+  padding: 16px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 5px;
+  border: 1px dashed rgba(48, 208, 248, .28);
+  border-radius: 8px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(48, 208, 248, .025),
+      rgba(160, 112, 232, .018)
+    );
+}
+
+.dropZone > strong {
+  color: #aab8c1;
+  font-size: 9.5px;
+}
+
+.dropZone > span {
+  color: #556873;
+  font-size: 8px;
+}
+
+.dropZone > button {
+  min-width: 112px;
+  min-height: 31px;
+  margin: 2px 0;
+  border: 1px solid rgba(48,208,248,.38);
+  border-radius: 6px;
+  cursor: pointer;
+  color: #30d0f8;
+  background: rgba(48,208,248,.06);
+  font: inherit;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: .07em;
+}
+
+.dropZone > button:hover {
+  border-color: rgba(48,208,248,.65);
+  background: rgba(48,208,248,.09);
+}
+
+.dropZone > small {
+  color: #52646f;
+  font-size: 7.8px;
+}
+
+.thumbnailGrid {
+  margin-top: 9px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.thumbnailCard {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid rgba(68,91,109,.38);
+  border-radius: 7px;
+  background: #09131a;
+}
+
+.thumbnailButton {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: block;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  cursor: zoom-in;
+  background: #050b0f;
+}
+
+.thumbnailButton img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.thumbnailButton em {
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  padding: 3px 5px;
+  border: 1px solid rgba(48,208,248,.32);
+  border-radius: 4px;
+  color: #68e1ff;
+  background: rgba(4,16,23,.84);
+  font-size: 6.5px;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.thumbnailCard figcaption {
+  min-height: 29px;
+  padding: 5px 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.thumbnailCard figcaption span {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  color: #71838f;
+  font-size: 7.5px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.thumbnailCard figcaption button {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #8a9aa4;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.thumbnailCard figcaption button:hover {
+  color: #ff737f;
+  background: rgba(255,115,127,.06);
+}
+
+/* Trade detail overlay */
+.tradeModalBackdrop,
+.lightboxBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  background: rgba(1,5,8,.78);
+  backdrop-filter: blur(8px);
+}
+
+.tradeModal {
+  width: min(980px, calc(100vw - 48px));
+  max-height: calc(100vh - 56px);
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  border: 1px solid rgba(48,208,248,.34);
+  border-radius: 12px;
+  background:
+    radial-gradient(
+      circle at 85% 0%,
+      rgba(160,112,232,.08),
+      transparent 30%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(10,22,30,.99),
+      rgba(5,13,20,.995)
+    );
+  box-shadow: 0 30px 110px rgba(0,0,0,.58);
+}
+
+.tradeModal > header {
+  min-height: 70px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid rgba(65,88,103,.38);
+}
+
+.tradeModal > header > div {
+  display: grid;
+  gap: 4px;
+}
+
+.tradeModal > header span,
+.tradeScreenshotsTitle > span,
+.tradeNarrative span {
+  color: #667b87;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+
+.tradeModal > header strong {
+  color: #e6eef2;
+  font-size: 17px;
+  letter-spacing: -.01em;
+}
+
+.tradeModal > header > button {
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(74,97,112,.36);
+  border-radius: 6px;
+  cursor: pointer;
+  color: #8495a0;
+  background: rgba(255,255,255,.018);
+  font: inherit;
+  font-size: 20px;
+}
+
+.tradeModal > header > button:hover {
+  color: #eef5f8;
+  border-color: rgba(48,208,248,.35);
+}
+
+.tradeModalBody {
+  padding: 17px 18px;
+  overflow: auto;
+}
+
+.tradeFacts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.detail {
+  min-width: 0;
+  padding: 11px;
+  border: 1px solid rgba(66,87,103,.29);
+  border-radius: 7px;
+  background: rgba(255,255,255,.011);
+}
+
+.detail span {
+  display: block;
+  color: #617480;
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.detail strong {
+  display: block;
+  margin-top: 5px;
+  overflow: hidden;
+  color: #dce6eb;
+  font-size: 10px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tradeNarrative {
+  margin-top: 11px;
+  padding: 12px;
+  display: grid;
+  gap: 11px;
+  border: 1px solid rgba(66,87,103,.29);
+  border-radius: 7px;
+  background: rgba(255,255,255,.01);
+}
+
+.tradeNarrative p {
+  margin: 4px 0 0;
+  color: #a9b6be;
+  font-size: 9.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.tradeScreenshots {
+  margin-top: 13px;
+}
+
+.tradeScreenshotsTitle {
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tradeScreenshotsTitle small {
+  min-width: 21px;
+  height: 19px;
+  padding: 0 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  color: #30d0f8;
+  background: rgba(48,208,248,.07);
+  font-size: 7.5px;
+}
+
+.detailThumbnailGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.detailThumbnailGrid > button {
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto 28px;
+  border: 1px solid rgba(66,87,103,.36);
+  border-radius: 7px;
+  cursor: zoom-in;
+  color: inherit;
+  background: #071118;
+}
+
+.detailThumbnailGrid img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: block;
+  object-fit: cover;
+  background: #03080b;
+}
+
+.detailThumbnailGrid span {
+  min-width: 0;
+  padding: 0 7px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  color: #71838f;
+  font-size: 7.5px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.screenshotEmpty {
+  min-height: 90px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed rgba(66,87,103,.3);
+  border-radius: 7px;
+  color: #5f727e;
+  font-size: 9px;
+}
+
+.tradeModal > footer {
+  min-height: 56px;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  border-top: 1px solid rgba(65,88,103,.35);
+}
+
+.tradeModal > footer button {
+  min-width: 110px;
+  min-height: 34px;
+  border: 1px solid rgba(48,208,248,.38);
+  border-radius: 6px;
+  cursor: pointer;
+  color: #30d0f8;
+  background: rgba(48,208,248,.05);
+  font: inherit;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: .07em;
+}
+
+/* Fullscreen screenshot lightbox */
+.lightboxBackdrop {
+  z-index: 6000;
+  padding: 18px;
+  background: rgba(0,2,4,.93);
+  backdrop-filter: blur(10px);
+}
+
+.lightbox {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.lightbox > img {
+  max-width: calc(100vw - 130px);
+  max-height: calc(100vh - 105px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border: 1px solid rgba(89,109,122,.3);
+  border-radius: 7px;
+  box-shadow: 0 25px 80px rgba(0,0,0,.5);
+}
+
+.lightboxClose,
+.lightboxPrev,
+.lightboxNext {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(99,119,132,.35);
+  cursor: pointer;
+  color: #d7e1e6;
+  background: rgba(7,15,20,.72);
+  font: inherit;
+}
+
+.lightboxClose {
+  right: 8px;
+  top: 8px;
+  width: 42px;
+  height: 42px;
+  border-radius: 7px;
+  font-size: 25px;
+}
+
+.lightboxPrev,
+.lightboxNext {
+  top: 50%;
+  width: 48px;
+  height: 72px;
+  transform: translateY(-50%);
+  border-radius: 8px;
+  font-size: 37px;
+  line-height: 1;
+}
+
+.lightboxPrev { left: 8px; }
+.lightboxNext { right: 8px; }
+
+.lightboxClose:hover,
+.lightboxPrev:hover,
+.lightboxNext:hover {
+  border-color: rgba(48,208,248,.55);
+  color: #30d0f8;
+}
+
+.lightboxCaption {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  max-width: min(720px, 70vw);
+  transform: translateX(-50%);
+  padding: 8px 11px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  border: 1px solid rgba(80,101,115,.3);
+  border-radius: 7px;
+  background: rgba(6,14,19,.82);
+}
+
+.lightboxCaption span {
+  min-width: 0;
+  overflow: hidden;
+  color: #9dacb5;
+  font-size: 8.5px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.lightboxCaption strong {
+  flex: 0 0 auto;
+  color: #30d0f8;
+  font-size: 8.5px;
+}
+
+@media (max-width: 820px) {
+  .thumbnailGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tradeFacts,
+  .detailThumbnailGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tradeModalBackdrop {
+    padding: 12px;
+  }
+
+  .tradeModal {
+    width: calc(100vw - 24px);
+    max-height: calc(100vh - 24px);
+  }
+
+  .lightbox > img {
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 120px);
+  }
+
+  .lightboxPrev,
+  .lightboxNext {
+    top: auto;
+    bottom: 10px;
+    width: 42px;
+    height: 42px;
+    transform: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .thumbnailGrid,
+  .tradeFacts,
+  .detailThumbnailGrid {
     grid-template-columns: 1fr;
   }
 }

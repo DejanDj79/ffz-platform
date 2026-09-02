@@ -6,7 +6,12 @@ import { usePathname, useRouter } from "next/navigation";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import styles from "./AppShell.module.css";
 
-type AuthUser = { id: string; email: string; displayName: string | null };
+type AuthUser = {
+  id: string;
+  email: string;
+  displayName: string | null;
+  role: "USER" | "CREATOR";
+};
 
 type NavItem = {
   href: string;
@@ -62,8 +67,8 @@ const PAGE_META: Array<{
   },
   {
     match: (pathname) => pathname.startsWith("/scoreboard"),
-    title: "OBS Scoreboard",
-    subtitle: "Configure the live Futures From Zero OBS overlay.",
+    title: "Creator Scoreboard",
+    subtitle: "Your Futures From Zero journey graphic for episodes and OBS.",
     icon: "scoreboard",
   },
 ];
@@ -175,7 +180,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 
   const workspaceItems = NAV_ITEMS.filter((item) => item.section === "workspace");
-  const trackingItems = NAV_ITEMS.filter((item) => item.section === "tracking");
+  const trackingItems = NAV_ITEMS.filter(
+    (item) =>
+      item.section === "tracking" &&
+      (item.href !== "/scoreboard" || user?.role === "CREATOR"),
+  );
 
   if (bypassShell) {
     return <>{children}</>;
@@ -233,7 +242,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className={styles.modeCard}>
             <span className={styles.modeIcon}><Icon name="database" /></span>
             <span>
-              <strong>DATABASE MODE</strong>
+              <strong>{user.role === "CREATOR" ? "CREATOR MODE" : "DATABASE MODE"}</strong>
               <small title={user.email}>{user.displayName || user.email}</small>
             </span>
             <i />
@@ -262,7 +271,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div>
               <span className={styles.eyebrow}>FFZ PLATFORM</span>
               <h1>{page.title}</h1>
-              <p>{page.subtitle}</p>
+              {/* <p>{page.subtitle}</p> */}
             </div>
           </div>
 

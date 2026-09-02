@@ -48,6 +48,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
       id: users.id,
       email: users.email,
       displayName: users.displayName,
+      role: users.role,
     })
     .from(sessions)
     .innerJoin(users, eq(sessions.userId, users.id))

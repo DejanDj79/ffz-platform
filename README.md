@@ -1,129 +1,184 @@
-# FFZ Scoreboard v1 + Image Application Background
+# FFZ Journal Screenshots v1
 
-This patch adds:
+Adds image attachments to Trade Journal.
 
-1. Authenticated Scoreboard settings page
-2. Public OBS Browser Source overlay
-3. Compact and Full layouts
-4. Automatic polling from PostgreSQL-backed FFZ data
-5. Regeneratable public overlay URL
-6. Image-based FFZ application background support
-7. Scoreboard item in the shared App Shell navigation
+## What it does
+
+Each trade can have up to:
+
+```text
+10 screenshots
+```
+
+Supported:
+
+```text
+JPG
+PNG
+WEBP
+```
+
+Maximum:
+
+```text
+8 MB per image
+40 MB per upload batch
+```
+
+The New/Edit Trade form now has:
+
+```text
+SCREENSHOTS
+Drop screenshots here
+or
+ADD IMAGES
+```
+
+You can select multiple screenshots before saving a new trade.
+
+Queued screenshots show thumbnails immediately.
+
+Existing screenshots show when editing a trade.
+
+Clicking a thumbnail opens the image in a fullscreen lightbox.
 
 ---
 
-# IMPORTANT: application background image
+## Trade Details
 
-The patch DOES NOT contain a background image.
-
-Put your image here:
+Trade History now has:
 
 ```text
-ffz-platform/public/ffz-app-background.jpg
+View
+Edit
+Delete
 ```
 
-Exact filename:
+`View` opens a Trade Details overlay.
+
+It shows:
+- key trade facts
+- Setup
+- Tags
+- Notes
+- screenshot thumbnails
+
+Click any screenshot thumbnail.
+
+The image opens fullscreen.
+
+Controls:
 
 ```text
-ffz-app-background.jpg
+ESC       close
+←         previous image
+→         next image
+click X   close
+click outside the image   close
 ```
 
-The App Shell CSS loads it as:
-
-```css
-url("/ffz-app-background.jpg")
-```
-
-Recommended image:
+The lightbox also shows:
 
 ```text
-1920x1080 or larger
-16:9
-dark / low-contrast
-JPG is fine
+filename
+2 / 5
 ```
-
-If the file does not exist yet, the application continues to work with its
-dark CSS fallback.
-
-The background applies to the main authenticated application shell.
-
-It does NOT apply to the OBS overlay because the OBS overlay must remain
-transparent.
 
 ---
 
-# Scoreboard architecture
+# Storage design
 
-Authenticated configuration:
+PostgreSQL does NOT store the image bytes.
 
-```text
-/scoreboard
-```
-
-Public OBS page:
+New table:
 
 ```text
-/overlays/scoreboard/<OVERLAY_KEY>
+trade_attachments
 ```
 
-Public read-only data:
+stores:
 
 ```text
-/api/public/scoreboard/<OVERLAY_KEY>
+id
+user_id
+trade_id
+storage_key
+original_filename
+mime_type
+file_size_bytes
+sort_order
+created_at
 ```
 
-The public overlay does not require a FFZ login session.
+Actual files go to:
 
-Editing still requires normal FFZ authentication.
+```text
+ffz-platform/data/uploads/
+```
 
-The public URL exposes only scoreboard data selected by this feature. It does
-not provide access to Challenge editing, Journal editing, Ledger editing or
-the user's FFZ session.
+by default.
 
-The URL can be regenerated at any time. Regenerating it immediately invalidates
-the old OBS link.
+You can override that later with:
+
+```text
+FFZ_UPLOAD_DIR=/some/persistent/path
+```
+
+This means the Journal UI/API does not need to change when we later move image
+storage to a production storage provider.
 
 ---
 
-# What Scoreboard v1 can display
+# Security
 
-Challenge:
-- Challenge name / prop firm
-- Phase / status
-- Current balance
-- Challenge P&L
-- Profit target progress
+Screenshots are NOT written into:
 
-Journal, scoped to selected challenge:
-- Trade count
-- Win Rate
-- Average R
+```text
+public/
+```
 
-Real Money Ledger, journey-wide:
-- Real Money Net
-- Real Payouts
+and there is no raw public file URL.
 
-Season goal:
-- configurable text, default `FIRST REAL PAYOUT`
+Every image request goes through:
 
-Two layouts:
-- COMPACT
-- FULL
+```text
+/api/journal/trades/<tradeId>/attachments/<attachmentId>/file
+```
 
-Every metric can be enabled/disabled.
+The server checks:
+- logged-in user
+- trade ownership
+- attachment ownership
+
+A user cannot request another user's Journal screenshot by guessing an ID.
+
+Upload validation also checks:
+- allowed MIME type
+- actual JPG/PNG/WEBP file signature
+- file size
+- maximum attachment count
+
+---
+
+# Important `.gitignore`
+
+Add this line to the project's existing `.gitignore`:
+
+```gitignore
+/data/uploads/
+```
+
+Do not commit uploaded screenshots to Git.
 
 ---
 
 # Database
 
-New table:
+The patch adds:
 
 ```text
-scoreboard_settings
+trade_attachments
 ```
-
-One settings row per authenticated FFZ user.
 
 Run:
 
@@ -131,41 +186,19 @@ Run:
 npm run db:push
 ```
 
-Do NOT reset the database.
-
----
-
-# Existing files intentionally replaced
-
-```text
-src/db/schema.ts
-src/components/shell/AppShell.tsx
-src/components/shell/AppShell.module.css
-```
-
-Why AppShell changes:
-- add Scoreboard navigation
-- bypass normal authenticated shell for `/overlays/*`
-- add image application background
-
-All other Scoreboard files are new.
+Do NOT reset PostgreSQL.
 
 ---
 
 # Install
 
-First commit the working Dashboard if you have not already:
+Copy the patch into:
 
-```bash
-git status
-git add .
-git commit -m "Add FFZ Dashboard v1"
-git push
+```text
+~/WaytrXGroundOps/external/ffz-platform
 ```
 
-Then copy this patch into the project root.
-
-Run:
+Then:
 
 ```bash
 npm run db:push
@@ -173,115 +206,137 @@ npm run test
 npm run dev
 ```
 
----
-
-# Test Scoreboard settings
-
 Open:
 
 ```text
-/scoreboard
+/journal
 ```
 
-The first visit creates the user's default Scoreboard settings automatically.
+---
 
-Select:
-- Challenge
-- COMPACT or FULL
-- visible metrics
-- refresh interval
+# Test 1 — new trade with screenshots
+
+Create a new trade.
+
+Before clicking SAVE TRADE:
+1. click `ADD IMAGES`
+2. select 2 or 3 screenshots
+3. verify thumbnails appear
+4. click a thumbnail
+5. verify fullscreen lightbox works
+6. close it
+7. SAVE TRADE
+
+Expected:
+- trade is saved
+- screenshots are uploaded
+- form resets
+
+---
+
+# Test 2 — View trade
+
+In Trade History click:
+
+```text
+View
+```
+
+Expected:
+- Trade Details overlay opens
+- screenshots appear as thumbnails
+- click a thumbnail
+- fullscreen screenshot opens
+- Left/Right arrows switch images
+- ESC closes lightbox
+
+---
+
+# Test 3 — Edit trade
 
 Click:
 
 ```text
-SAVE SCOREBOARD
+Edit
 ```
 
-The page shows a live preview.
+Expected:
+- existing screenshots load in the form
+- you can add more
+- you can delete one
+- clicking any thumbnail opens it fullscreen
 
 ---
 
-# OBS setup
+# Test 4 — delete trade
 
-On `/scoreboard`, copy the generated Browser Source URL.
+Delete a trade with screenshots.
 
-In OBS:
-
-```text
-Sources
-→ +
-→ Browser
-```
-
-Use:
-
-```text
-Width:  1920
-Height: 1080
-```
-
-Paste the generated URL.
-
-The page background is transparent.
-
-COMPACT layout appears in the upper-left portion of the browser canvas.
-
-FULL layout appears as a wide lower-third.
-
-You can position/crop/scale the Browser Source normally inside OBS.
+Expected:
+- trade disappears
+- attachment DB rows cascade-delete
+- physical screenshot files are also removed
 
 ---
 
-# Live updates
+# Local file check
 
-Scoreboard v1 uses polling rather than WebSockets.
-
-Default:
+After uploading screenshots you should see:
 
 ```text
-every 5 seconds
+data/
+└── uploads/
+    └── <user-id>/
+        └── <trade-id>/
+            ├── <uuid>.png
+            └── <uuid>.jpg
 ```
-
-Available:
-- 2 sec
-- 5 sec
-- 10 sec
-- 30 sec
-
-This is sufficient for recording/streaming while keeping the implementation
-simple and reliable.
-
-Later we can replace polling with live push updates if there is a real need.
 
 ---
 
-# Important data rule
+# Files changed
 
-Trading stats:
-
-```text
-selected Challenge → linked Journal trades
-```
-
-Real Money values:
+Existing:
 
 ```text
-whole FFZ journey → Real Money Ledger
+src/db/schema.ts
+src/lib/journal/types.ts
+src/lib/journal/api-client.ts
+src/app/api/journal/trades/[id]/route.ts
+src/components/journal/TradeJournal.tsx
+src/components/journal/TradeJournal.module.css
 ```
 
-This means the scoreboard can truthfully show both:
+New:
 
 ```text
-Challenge P&L
+src/lib/journal/attachments-validation.ts
+src/lib/journal/attachments-repository.ts
+src/lib/storage/image-storage.ts
+
+src/app/api/journal/trades/[id]/attachments/route.ts
+src/app/api/journal/trades/[id]/attachments/[attachmentId]/route.ts
+src/app/api/journal/trades/[id]/attachments/[attachmentId]/file/route.ts
+
+src/tests/journal-attachments.test.ts
 ```
 
-and:
+---
+
+# Production note
+
+For the current development version, local filesystem storage is deliberate.
+
+When we deploy to Hetzner we must make:
 
 ```text
-Real Money Net
+data/uploads
 ```
 
-without mixing simulated/funded account value with actual money received.
+a persistent Docker volume.
+
+Later we can swap the storage implementation for S3-compatible object storage
+without changing the Journal UI.
 
 ---
 
@@ -291,20 +346,6 @@ When everything passes:
 
 ```bash
 git add .
-git commit -m "Add FFZ OBS Scoreboard v1"
+git commit -m "Add Journal screenshot attachments"
 git push
 ```
-
----
-
-# Background reminder
-
-When you have chosen the final background, simply copy it to:
-
-```text
-public/ffz-app-background.jpg
-```
-
-Then refresh the app.
-
-No code change is required.

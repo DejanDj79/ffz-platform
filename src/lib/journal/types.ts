@@ -51,3 +51,14 @@ export type TradeEditableInput = {
 };
 
 export type UpdateTradeInput = Partial<TradeEditableInput>;
+
+
+export type TradeAttachmentApiModel = {
+  id: string;
+  tradeId: string;
+  originalFilename: string;
+  mimeType: string;
+  fileSizeBytes: number;
+  sortOrder: number;
+  createdAt: string;
+};

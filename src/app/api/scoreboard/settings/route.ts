@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { getCurrentUser } from "@/lib/auth/session";
+import { canAccessCreatorTools } from "@/lib/auth/roles";
 import {
   getOrCreateScoreboardSettings,
   updateScoreboardSettings,
@@ -18,6 +19,13 @@ export async function GET() {
       return NextResponse.json(
         { error: "Authentication required." },
         { status: 401 },
+      );
+    }
+
+    if (!canAccessCreatorTools(user)) {
+      return NextResponse.json(
+        { error: "Creator access required." },
+        { status: 403 },
       );
     }
 
@@ -42,6 +50,13 @@ export async function PUT(request: Request) {
       return NextResponse.json(
         { error: "Authentication required." },
         { status: 401 },
+      );
+    }
+
+    if (!canAccessCreatorTools(user)) {
+      return NextResponse.json(
+        { error: "Creator access required." },
+        { status: 403 },
       );
     }
 

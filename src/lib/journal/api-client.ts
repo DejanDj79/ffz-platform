@@ -64,3 +64,68 @@ export async function deleteTradeViaApi(tradeId: string): Promise<void> {
 
   await parseResponse<{ ok: true; id: string }>(response);
 }
+
+
+export async function fetchTradeAttachments(
+  tradeId: string,
+): Promise<import("./types").TradeAttachmentApiModel[]> {
+  const response = await fetch(
+    `/api/journal/trades/${tradeId}/attachments`,
+    { cache: "no-store" },
+  );
+
+  const json = await parseResponse<{
+    data: import("./types").TradeAttachmentApiModel[];
+  }>(response);
+
+  return json.data;
+}
+
+export async function uploadTradeAttachments(
+  tradeId: string,
+  files: File[],
+): Promise<import("./types").TradeAttachmentApiModel[]> {
+  const formData = new FormData();
+
+  for (const file of files) {
+    formData.append("files", file);
+  }
+
+  const response = await fetch(
+    `/api/journal/trades/${tradeId}/attachments`,
+    {
+      method: "POST",
+      body: formData,
+    },
+  );
+
+  const json = await parseResponse<{
+    data: import("./types").TradeAttachmentApiModel[];
+  }>(response);
+
+  return json.data;
+}
+
+export async function deleteTradeAttachmentViaApi(
+  tradeId: string,
+  attachmentId: string,
+): Promise<void> {
+  const response = await fetch(
+    `/api/journal/trades/${tradeId}/attachments/${attachmentId}`,
+    {
+      method: "DELETE",
+    },
+  );
+
+  await parseResponse<{
+    ok: true;
+    id: string;
+  }>(response);
+}
+
+export function tradeAttachmentImageUrl(
+  tradeId: string,
+  attachmentId: string,
+) {
+  return `/api/journal/trades/${tradeId}/attachments/${attachmentId}/file`;
+}

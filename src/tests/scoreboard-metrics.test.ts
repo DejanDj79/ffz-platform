@@ -10,17 +10,25 @@ const base = {
   propFirm: "Test",
   status: "NOT_STARTED",
   phase: "EVALUATION",
+
+  accountSize: 25000,
   startingBalance: 25000,
   currentBalance: 25000,
+
   profitTarget: 1500,
+  maxDrawdown: 1500,
+  dailyLossLimit: null,
+
+  daysTraded: 0,
+  createdAt: "2026-09-01T00:00:00.000Z",
 };
 
-describe("scoreboard metrics", () => {
+describe("scoreboard challenge metrics", () => {
   it("uses explicitly selected challenge", () => {
     const selected = selectScoreboardChallenge(
       [
         base,
-        { ...base, id: "b", status: "IN_PROGRESS" },
+        { ...base, id: "b", status: "ACTIVE" },
       ],
       "a",
     );
@@ -28,11 +36,11 @@ describe("scoreboard metrics", () => {
     expect(selected?.id).toBe("a");
   });
 
-  it("auto-selects an in-progress challenge", () => {
+  it("auto-selects an active challenge", () => {
     const selected = selectScoreboardChallenge(
       [
         base,
-        { ...base, id: "b", status: "IN_PROGRESS" },
+        { ...base, id: "b", status: "ACTIVE" },
       ],
       null,
     );
@@ -40,14 +48,17 @@ describe("scoreboard metrics", () => {
     expect(selected?.id).toBe("b");
   });
 
-  it("calculates challenge progress", () => {
+  it("calculates challenge percentages", () => {
     const result = calculateScoreboardChallenge({
       ...base,
       currentBalance: 25500,
+      dailyLossLimit: 500,
     });
 
     expect(result?.pnl).toBe(500);
     expect(result?.targetRemaining).toBe(1000);
-    expect(result?.targetProgressPct).toBeCloseTo(33.333, 2);
+    expect(result?.profitTargetPct).toBe(6);
+    expect(result?.maxDrawdownPct).toBe(6);
+    expect(result?.dailyLossLimitPct).toBe(2);
   });
 });

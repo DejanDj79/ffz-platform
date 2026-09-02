@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { getCurrentUser } from "@/lib/auth/session";
 import { deleteTrade, getTrade, updateTrade } from "@/lib/journal/repository";
+import { listTradeAttachmentStorageKeys } from "@/lib/journal/attachments-repository";
+import { deleteStoredImage } from "@/lib/storage/image-storage";
 import { updateTradeSchema } from "@/lib/journal/validation";
 
 export const runtime = "nodejs";
@@ -78,11 +80,23 @@ export async function DELETE(_request: Request, context: RouteContext) {
     }
 
     const { id } = await context.params;
+
+    const storageKeys = await listTradeAttachmentStorageKeys(
+      user.id,
+      id,
+    );
+
     const deleted = await deleteTrade(user.id, id);
 
     if (!deleted) {
       return NextResponse.json({ error: "Trade not found." }, { status: 404 });
     }
+
+    await Promise.allSettled(
+      storageKeys.map((storageKey) =>
+        deleteStoredImage(storageKey),
+      ),
+    );
 
     return NextResponse.json({ ok: true, id: deleted.id });
   } catch (error) {

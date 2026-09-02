@@ -17,72 +17,51 @@ import styles from "./ScoreboardSettings.module.css";
 const VISIBILITY_FIELDS: Array<{
   key: keyof ScoreboardVisibility;
   label: string;
-  description: string;
 }> = [
-  {
-    key: "showBalance",
-    label: "Current Balance",
-    description: "Selected challenge current balance.",
-  },
-  {
-    key: "showChallengePnl",
-    label: "Challenge P&L",
-    description: "Current balance minus starting balance.",
-  },
-  {
-    key: "showTargetProgress",
-    label: "Target Progress",
-    description: "Progress toward the challenge profit target.",
-  },
-  {
-    key: "showTradeCount",
-    label: "Trade Count",
-    description: "Journal trades linked to the selected challenge.",
-  },
-  {
-    key: "showWinRate",
-    label: "Win Rate",
-    description: "Win rate from closed linked trades.",
-  },
-  {
-    key: "showAverageR",
-    label: "Average R",
-    description: "Average R multiple from closed linked trades.",
-  },
-  {
-    key: "showRealMoneyNet",
-    label: "Real Money Net",
-    description: "Journey-wide money received minus money paid.",
-  },
-  {
-    key: "showRealPayouts",
-    label: "Real Payouts",
-    description: "Total real payouts actually received.",
-  },
+  { key: "showBalance", label: "Current Balance" },
+  { key: "showChallengePnl", label: "Challenge P&L" },
+  { key: "showTargetProgress", label: "Target Progress" },
+  { key: "showTradeCount", label: "Trade Count" },
+  { key: "showWinRate", label: "Win Rate" },
+  { key: "showAverageR", label: "Average R" },
+  { key: "showRealMoneyNet", label: "Real Money Net" },
+  { key: "showRealPayouts", label: "Real Payouts" },
 ];
+
+function dateInputValue(value: string | null) {
+  if (!value) return "";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+
+  return date.toISOString().slice(0, 10);
+}
 
 export function ScoreboardSettings() {
   const [settings, setSettings] =
     useState<ScoreboardSettingsApiModel | null>(null);
 
-  const [challenges, setChallenges] = useState<Challenge[]>([]);
-  const [origin, setOrigin] = useState("");
+  const [challenges, setChallenges] =
+    useState<Challenge[]>([]);
 
-  const [loading, setLoading] = useState(true);
+  const [origin, setOrigin] = useState("");
+  const [previewVersion, setPreviewVersion] =
+    useState(0);
+
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [previewVersion, setPreviewVersion] = useState(0);
+  const [message, setMessage] =
+    useState<string | null>(null);
+
+  const [error, setError] =
+    useState<string | null>(null);
 
   async function load() {
-    setLoading(true);
-    setError(null);
-
     try {
-      const [nextSettings, nextChallenges] = await Promise.all([
-        fetchScoreboardSettings(),
-        fetchChallenges(),
-      ]);
+      const [nextSettings, nextChallenges] =
+        await Promise.all([
+          fetchScoreboardSettings(),
+          fetchChallenges(),
+        ]);
 
       setSettings(nextSettings);
       setChallenges(nextChallenges);
@@ -90,10 +69,8 @@ export function ScoreboardSettings() {
       setError(
         err instanceof Error
           ? err.message
-          : "Unable to load Scoreboard.",
+          : "Unable to load Creator Scoreboard.",
       );
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -108,12 +85,19 @@ export function ScoreboardSettings() {
     return `${origin}/overlays/scoreboard/${settings.overlayKey}`;
   }, [origin, settings]);
 
-  function patch<K extends keyof ScoreboardSettingsApiModel>(
+  function patch<
+    K extends keyof ScoreboardSettingsApiModel,
+  >(
     key: K,
     value: ScoreboardSettingsApiModel[K],
   ) {
     setSettings((current) =>
-      current ? { ...current, [key]: value } : current,
+      current
+        ? {
+            ...current,
+            [key]: value,
+          }
+        : current,
     );
   }
 
@@ -128,7 +112,13 @@ export function ScoreboardSettings() {
       const next = await saveScoreboardSettings({
         challengeId: settings.challengeId,
         layout: settings.layout,
+
         goalLabel: settings.goalLabel,
+        tradingStyle: settings.tradingStyle,
+        instrumentsLabel: settings.instrumentsLabel,
+        seasonStartDate: settings.seasonStartDate,
+        scoreboardNotes: settings.scoreboardNotes,
+
         refreshSeconds: settings.refreshSeconds,
         isEnabled: settings.isEnabled,
 
@@ -144,7 +134,7 @@ export function ScoreboardSettings() {
 
       setSettings(next);
       setPreviewVersion((value) => value + 1);
-      setMessage("Scoreboard settings saved.");
+      setMessage("Scoreboard saved.");
     } catch (err) {
       setError(
         err instanceof Error
@@ -156,36 +146,35 @@ export function ScoreboardSettings() {
     }
   }
 
-  async function copyOverlayUrl() {
+  async function copyUrl() {
     if (!overlayUrl) return;
 
     try {
       await navigator.clipboard.writeText(overlayUrl);
-      setMessage("OBS Browser Source URL copied.");
+      setMessage("OBS URL copied.");
       setError(null);
     } catch {
-      setError("Could not copy automatically. Select the URL and copy it manually.");
+      setError(
+        "Copy failed. Select the URL manually.",
+      );
     }
   }
 
-  async function regenerateLink() {
+  async function rotateUrl() {
     const ok = window.confirm(
-      "Regenerate the OBS overlay link? The old Browser Source URL will immediately stop working.",
+      "Create a new OBS link? The old Scoreboard URL will stop working.",
     );
 
     if (!ok) return;
 
     setSaving(true);
-    setMessage(null);
-    setError(null);
 
     try {
       const next = await regenerateScoreboardLink();
       setSettings(next);
       setPreviewVersion((value) => value + 1);
-      setMessage(
-        "New overlay link created. Update the URL in OBS.",
-      );
+      setMessage("New OBS URL created.");
+      setError(null);
     } catch (err) {
       setError(
         err instanceof Error
@@ -197,11 +186,11 @@ export function ScoreboardSettings() {
     }
   }
 
-  if (loading || !settings) {
+  if (!settings) {
     return (
       <main className={styles.page}>
         <div className={styles.loading}>
-          {error || "Loading Scoreboard settings..."}
+          {error || "Loading Creator Scoreboard..."}
         </div>
       </main>
     );
@@ -209,42 +198,42 @@ export function ScoreboardSettings() {
 
   return (
     <main className={styles.page}>
-      <section className={styles.topGrid}>
+      <section className={styles.scoreboardStage}>
+        <iframe
+          key={`${settings.overlayKey}-${previewVersion}-${settings.layout}`}
+          title="FFZ Creator Scoreboard"
+          src={`${overlayUrl}?inside=app`}
+        />
+      </section>
+
+      <section className={styles.controlGrid}>
         <article className={styles.panel}>
           <div className={styles.panelHeader}>
             <div>
-              <span>SCOREBOARD SETTINGS</span>
+              <span>EDIT SCOREBOARD</span>
               <small>
-                Configure the data shown in your OBS Browser Source.
+                Creator fields used by the Premiere-style
+                graphic.
               </small>
             </div>
 
-            <label className={styles.enabledToggle}>
+            <label className={styles.enableToggle}>
               <input
                 type="checkbox"
                 checked={settings.isEnabled}
                 onChange={(event) =>
-                  patch("isEnabled", event.target.checked)
+                  patch(
+                    "isEnabled",
+                    event.target.checked,
+                  )
                 }
               />
-              <span>Overlay enabled</span>
+              <span>Enabled</span>
             </label>
           </div>
 
           <div className={styles.form}>
-            <label className={styles.fieldWide}>
-              <span>Season / Goal Label</span>
-              <input
-                value={settings.goalLabel}
-                onChange={(event) =>
-                  patch("goalLabel", event.target.value)
-                }
-                maxLength={100}
-                placeholder="FIRST REAL PAYOUT"
-              />
-            </label>
-
-            <div className={styles.formGrid}>
+            <div className={styles.twoColumns}>
               <label>
                 <span>Challenge</span>
                 <select
@@ -265,14 +254,102 @@ export function ScoreboardSettings() {
                       key={challenge.id}
                       value={challenge.id}
                     >
-                      {challenge.name} — {challenge.propFirm}
+                      {challenge.name} —{" "}
+                      {challenge.propFirm}
                     </option>
                   ))}
                 </select>
               </label>
 
               <label>
-                <span>Refresh</span>
+                <span>Season Start Date</span>
+                <input
+                  type="date"
+                  value={dateInputValue(
+                    settings.seasonStartDate,
+                  )}
+                  onChange={(event) =>
+                    patch(
+                      "seasonStartDate",
+                      event.target.value
+                        ? `${event.target.value}T00:00:00.000Z`
+                        : null,
+                    )
+                  }
+                />
+              </label>
+            </div>
+
+            <div className={styles.twoColumns}>
+              <label>
+                <span>Trading Style</span>
+                <input
+                  value={settings.tradingStyle}
+                  onChange={(event) =>
+                    patch(
+                      "tradingStyle",
+                      event.target.value,
+                    )
+                  }
+                  maxLength={80}
+                  placeholder="SCALPING"
+                />
+              </label>
+
+              <label>
+                <span>Instruments</span>
+                <input
+                  value={settings.instrumentsLabel}
+                  onChange={(event) =>
+                    patch(
+                      "instrumentsLabel",
+                      event.target.value,
+                    )
+                  }
+                  maxLength={80}
+                  placeholder="MNQ / MES"
+                />
+              </label>
+            </div>
+
+            <label className={styles.wide}>
+              <span>Season Goal</span>
+              <input
+                value={settings.goalLabel}
+                maxLength={100}
+                onChange={(event) =>
+                  patch(
+                    "goalLabel",
+                    event.target.value,
+                  )
+                }
+                placeholder="FIRST REAL PAYOUT"
+              />
+            </label>
+
+            <label
+              className={`${styles.wide} ${styles.notesField}`}
+            >
+              <span>Scoreboard Notes</span>
+              <textarea
+                value={settings.scoreboardNotes}
+                onChange={(event) =>
+                  patch(
+                    "scoreboardNotes",
+                    event.target.value,
+                  )
+                }
+                maxLength={1200}
+                rows={5}
+                placeholder={
+                  "One line per note.\nKeep it short enough for the Scoreboard."
+                }
+              />
+            </label>
+
+            <div className={styles.twoColumns}>
+              <label>
+                <span>Refresh Rate</span>
                 <select
                   value={settings.refreshSeconds}
                   onChange={(event) =>
@@ -282,171 +359,174 @@ export function ScoreboardSettings() {
                     )
                   }
                 >
-                  <option value={2}>Every 2 seconds</option>
-                  <option value={5}>Every 5 seconds</option>
-                  <option value={10}>Every 10 seconds</option>
-                  <option value={30}>Every 30 seconds</option>
+                  <option value={2}>2 seconds</option>
+                  <option value={5}>5 seconds</option>
+                  <option value={10}>10 seconds</option>
+                  <option value={30}>30 seconds</option>
                 </select>
               </label>
-            </div>
 
-            <div className={styles.layoutBlock}>
-              <span>Layout</span>
+              <div className={styles.layoutSelect}>
+                <span>Version</span>
+                <div>
+                  <button
+                    type="button"
+                    className={
+                      settings.layout === "FULL"
+                        ? styles.selected
+                        : ""
+                    }
+                    onClick={() =>
+                      patch("layout", "FULL")
+                    }
+                  >
+                    FULL
+                  </button>
 
-              <div className={styles.layoutToggle}>
-                <button
-                  type="button"
-                  className={
-                    settings.layout === "COMPACT"
-                      ? styles.activeLayout
-                      : ""
-                  }
-                  onClick={() => patch("layout", "COMPACT")}
-                >
-                  <strong>COMPACT</strong>
-                  <small>
-                    Small corner scoreboard for regular trading footage.
-                  </small>
-                </button>
-
-                <button
-                  type="button"
-                  className={
-                    settings.layout === "FULL"
-                      ? styles.activeLayout
-                      : ""
-                  }
-                  onClick={() => patch("layout", "FULL")}
-                >
-                  <strong>FULL</strong>
-                  <small>
-                    Wide lower-third scoreboard for recaps and intros.
-                  </small>
-                </button>
+                  <button
+                    type="button"
+                    className={
+                      settings.layout === "COMPACT"
+                        ? styles.selected
+                        : ""
+                    }
+                    onClick={() =>
+                      patch("layout", "COMPACT")
+                    }
+                  >
+                    COMPACT
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div className={styles.visibilityBlock}>
-              <span>Visible Metrics</span>
+            <div className={styles.metrics}>
+              <span>Compact / optional metric controls</span>
 
-              <div className={styles.visibilityGrid}>
+              <div>
                 {VISIBILITY_FIELDS.map((item) => (
                   <label key={item.key}>
                     <input
                       type="checkbox"
                       checked={settings[item.key]}
                       onChange={(event) =>
-                        patch(item.key, event.target.checked)
+                        patch(
+                          item.key,
+                          event.target.checked,
+                        )
                       }
                     />
-                    <span>
-                      <strong>{item.label}</strong>
-                      <small>{item.description}</small>
-                    </span>
+                    <span>{item.label}</span>
                   </label>
                 ))}
               </div>
             </div>
 
-            {error && <p className={styles.error}>{error}</p>}
-            {message && <p className={styles.message}>{message}</p>}
+            {error && (
+              <p className={styles.error}>{error}</p>
+            )}
 
-            <div className={styles.actions}>
-              <button
-                className={styles.primaryButton}
-                type="button"
-                onClick={() => void save()}
-                disabled={saving}
-              >
-                {saving ? "SAVING..." : "SAVE SCOREBOARD"}
-              </button>
+            {message && (
+              <p className={styles.message}>
+                {message}
+              </p>
+            )}
 
-              <button
-                className={styles.secondaryButton}
-                type="button"
-                onClick={() => setPreviewVersion((value) => value + 1)}
-                disabled={saving}
-              >
-                REFRESH PREVIEW
-              </button>
-            </div>
+            <button
+              type="button"
+              className={styles.saveButton}
+              onClick={() => void save()}
+              disabled={saving}
+            >
+              {saving
+                ? "SAVING..."
+                : "SAVE SCOREBOARD"}
+            </button>
           </div>
         </article>
 
         <article className={styles.panel}>
           <div className={styles.panelHeader}>
             <div>
-              <span>OBS BROWSER SOURCE</span>
+              <span>HOW FULL SCOREBOARD WORKS</span>
               <small>
-                This URL can load without your FFZ login session.
+                Almost every number is now automatic.
               </small>
             </div>
           </div>
 
-          <div className={styles.obsBlock}>
+          <div className={styles.explainer}>
+            <div>
+              <strong>AUTOMATIC FROM CHALLENGE</strong>
+              <span>
+                Status, phase, prop firm, account size,
+                target, daily loss, drawdown, P&amp;L.
+              </span>
+            </div>
+
+            <div>
+              <strong>AUTOMATIC FROM JOURNAL</strong>
+              <span>
+                Trades, win rate, wins, losses, best,
+                worst, average win/loss and daily calendar.
+              </span>
+            </div>
+
+            <div>
+              <strong>CREATOR SETTINGS</strong>
+              <span>
+                Trading style, instruments, season start,
+                goal and notes.
+              </span>
+            </div>
+
+            <div>
+              <strong>REAL MONEY</strong>
+              <span>
+                Net real cash and actual payouts remain
+                separate from challenge P&amp;L.
+              </span>
+            </div>
+          </div>
+
+          <div className={styles.obs}>
             <label>
-              <span>Browser Source URL</span>
+              <span>OBS Browser Source URL</span>
               <textarea
                 readOnly
-                value={overlayUrl}
                 rows={4}
-                onFocus={(event) => event.currentTarget.select()}
+                value={overlayUrl}
+                onFocus={(event) =>
+                  event.currentTarget.select()
+                }
               />
             </label>
 
-            <div className={styles.obsActions}>
-              <button
-                type="button"
-                onClick={() => void copyOverlayUrl()}
-              >
-                COPY URL
-              </button>
+            <button
+              type="button"
+              className={styles.copyButton}
+              onClick={() => void copyUrl()}
+            >
+              COPY OBS URL
+            </button>
 
-              <button
-                type="button"
-                className={styles.dangerButton}
-                onClick={() => void regenerateLink()}
-                disabled={saving}
-              >
-                REGENERATE LINK
-              </button>
-            </div>
-
-            <div className={styles.obsHelp}>
-              <strong>Recommended OBS setup</strong>
-              <span>Source: Browser</span>
+            <div className={styles.obsSetup}>
+              <strong>Recommended OBS Browser Source</strong>
               <span>Width: 1920</span>
               <span>Height: 1080</span>
-              <span>Shutdown source when not visible: optional</span>
-              <span>Refresh browser when scene becomes active: optional</span>
+              <span>Background: transparent</span>
             </div>
 
-            <p>
-              Treat this URL like a private share link. Anyone who has it can
-              view only the scoreboard data exposed by this overlay — not your
-              FFZ account or editing APIs.
-            </p>
+            <button
+              type="button"
+              className={styles.rotateButton}
+              onClick={() => void rotateUrl()}
+              disabled={saving}
+            >
+              Regenerate private OBS link
+            </button>
           </div>
         </article>
-      </section>
-
-      <section className={styles.previewPanel}>
-        <div className={styles.panelHeader}>
-          <div>
-            <span>LIVE PREVIEW</span>
-            <small>
-              Transparent OBS canvas preview at 16:9.
-            </small>
-          </div>
-        </div>
-
-        <div className={styles.previewFrame}>
-          <iframe
-            key={`${settings.overlayKey}-${previewVersion}`}
-            title="FFZ Scoreboard Preview"
-            src={`${overlayUrl}?preview=1`}
-          />
-        </div>
       </section>
     </main>
   );

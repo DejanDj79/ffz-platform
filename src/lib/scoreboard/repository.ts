@@ -19,6 +19,10 @@ function toApiModel(
     challengeId: row.challengeId,
     layout: row.layout as "COMPACT" | "FULL",
     goalLabel: row.goalLabel,
+    tradingStyle: row.tradingStyle,
+    instrumentsLabel: row.instrumentsLabel,
+    seasonStartDate: row.seasonStartDate?.toISOString() ?? null,
+    scoreboardNotes: row.scoreboardNotes,
     refreshSeconds: row.refreshSeconds,
     isEnabled: row.isEnabled,
 
@@ -99,6 +103,21 @@ export async function updateScoreboardSettings(
 
   if (input.goalLabel !== undefined)
     values.goalLabel = input.goalLabel;
+
+  if (input.tradingStyle !== undefined)
+    values.tradingStyle = input.tradingStyle;
+
+  if (input.instrumentsLabel !== undefined)
+    values.instrumentsLabel = input.instrumentsLabel;
+
+  if (input.seasonStartDate !== undefined)
+    values.seasonStartDate =
+      input.seasonStartDate == null
+        ? null
+        : new Date(input.seasonStartDate);
+
+  if (input.scoreboardNotes !== undefined)
+    values.scoreboardNotes = input.scoreboardNotes;
 
   if (input.refreshSeconds !== undefined)
     values.refreshSeconds = input.refreshSeconds;
