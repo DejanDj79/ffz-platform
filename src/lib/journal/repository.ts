@@ -3,6 +3,7 @@ import { db } from "@/db/client";
 import { centsToDollars, dollarsToCents } from "@/db/money";
 import { challenges, trades, tradingAccounts } from "@/db/schema";
 import { calculateTradeMetrics } from "./calculations";
+import { isPlannedTrade } from "./planned";
 import type {
   JournalInstrument,
   TradeApiModel,
@@ -86,11 +87,18 @@ function metrics(input: TradeEditableInput) {
   };
 }
 
-export async function listTrades(userId: string) {
+export async function listTrades(
+  userId: string,
+  options: { includePlanned?: boolean } = {},
+) {
   const rows = await db.select().from(trades)
     .where(eq(trades.userId, userId))
     .orderBy(desc(trades.openedAt));
-  return rows.map(toApiModel);
+
+  const models = rows.map(toApiModel);
+  return options.includePlanned
+    ? models
+    : models.filter((trade) => !isPlannedTrade(trade));
 }
 
 export async function getTrade(userId: string, tradeId: string) {
