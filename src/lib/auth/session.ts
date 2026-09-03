@@ -76,7 +76,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
 
   return {
     ...user,
-    plan: user.plan ?? "FREE",
+    plan: user.role === "CREATOR" ? "PRO" : (user.plan ?? "FREE"),
   };
 }
 
