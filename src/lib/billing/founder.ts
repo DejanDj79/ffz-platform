@@ -169,9 +169,18 @@ export async function cancelSubscriptionAfterFounderPurchase(subscriptionId: str
   const response = await fetch(
     `https://api.lemonsqueezy.com/v1/subscriptions/${encodeURIComponent(subscriptionId)}`,
     {
-      method: "DELETE",
+      method: "PATCH",
       headers: lemonHeaders(config.apiKey),
       cache: "no-store",
+      body: JSON.stringify({
+        data: {
+          type: "subscriptions",
+          id: subscriptionId,
+          attributes: {
+            cancelled: true,
+          },
+        },
+      }),
     },
   );
 
