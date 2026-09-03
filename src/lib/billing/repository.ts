@@ -64,10 +64,12 @@ export async function findUserIdByProviderSubscriptionId(subscriptionId: string)
 export async function syncLemonSubscription(
   userId: string,
   snapshot: LemonSubscriptionSnapshot,
+  options: { bypassStaleGuard?: boolean } = {},
 ) {
   const current = await getUserBillingState(userId);
 
   if (
+    !options.bypassStaleGuard &&
     current.providerUpdatedAt &&
     current.providerUpdatedAt.getTime() > snapshot.providerUpdatedAt.getTime()
   ) {
