@@ -63,6 +63,7 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   { href: "/ledger", label: "Real Money Ledger", icon: "ledger", section: "tracking" },
+  { href: "/prop-journey", label: "Prop Journey", icon: "journey", section: "tracking" },
   { href: "/scoreboard", label: "Scoreboard", icon: "scoreboard", section: "tracking" },
 ];
 
@@ -139,6 +140,12 @@ const PAGE_META: Array<{
     icon: "ledger",
   },
   {
+    match: (pathname) => pathname.startsWith("/prop-journey"),
+    title: "Prop Journey",
+    subtitle: "Measure the real cash economics of your path from evaluation to payout.",
+    icon: "journey",
+  },
+  {
     match: (pathname) => pathname.startsWith("/scoreboard"),
     title: "Creator Scoreboard",
     subtitle: "Your Futures From Zero journey graphic for episodes and OBS.",
@@ -167,6 +174,7 @@ function Icon({ name }: { name: string }) {
     journal: <><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H19v18H7.5A2.5 2.5 0 0 0 5 22V4.5Z"/><path d="M5 18.5A2.5 2.5 0 0 1 7.5 16H19M9 6h6M9 10h6"/></>,
     calendar: <><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M7 14h2M11 14h2M15 14h2M7 18h2M11 18h2"/></>,
     ledger: <><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h4M7 16h6M16 14v4M14 16h4"/></>,
+    journey: <><path d="M4 18V6M4 18h16"/><path d="m7 15 4-4 3 2 5-6"/><path d="M16 7h3v3"/></>,
     scoreboard: <><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 8h3M14 8h3M7 12h10M8 21h8M12 18v3"/></>,
     menu: <><path d="M4 7h16M4 12h16M4 17h16"/></>,
     close: <><path d="m6 6 12 12M18 6 6 18"/></>,
