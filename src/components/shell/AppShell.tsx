@@ -23,7 +23,7 @@ type NavItem = {
   href: string;
   label: string;
   icon: string;
-  section: "workspace" | "tracking";
+  section: "workspace" | "tracking" | "creator";
   children?: NavChild[];
 };
 
@@ -64,7 +64,8 @@ const NAV_ITEMS: NavItem[] = [
   },
   { href: "/ledger", label: "Real Money Ledger", icon: "ledger", section: "tracking" },
   { href: "/prop-journey", label: "Prop Journey", icon: "journey", section: "tracking" },
-  { href: "/scoreboard", label: "Scoreboard", icon: "scoreboard", section: "tracking" },
+  { href: "/creator/episodes", label: "Episode Builder", icon: "journal", section: "creator" },
+  { href: "/scoreboard", label: "Scoreboard", icon: "scoreboard", section: "creator" },
 ];
 
 const PAGE_META: Array<{
@@ -144,6 +145,12 @@ const PAGE_META: Array<{
     title: "Prop Journey",
     subtitle: "Measure the real cash economics of your path from evaluation to payout.",
     icon: "journey",
+  },
+  {
+    match: (pathname) => pathname.startsWith("/creator/episodes"),
+    title: "Episode Builder",
+    subtitle: "Turn FFZ trading data into a concise creator brief.",
+    icon: "journal",
   },
   {
     match: (pathname) => pathname.startsWith("/scoreboard"),
@@ -277,11 +284,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 
   const workspaceItems = NAV_ITEMS.filter((item) => item.section === "workspace");
-  const trackingItems = NAV_ITEMS.filter(
-    (item) =>
-      item.section === "tracking" &&
-      (item.href !== "/scoreboard" || user?.role === "CREATOR"),
-  );
+  const trackingItems = NAV_ITEMS.filter((item) => item.section === "tracking");
+  const creatorItems = user?.role === "CREATOR"
+    ? NAV_ITEMS.filter((item) => item.section === "creator")
+    : [];
 
   if (bypassShell) {
     return <>{children}</>;
@@ -337,6 +343,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         <nav className={styles.nav} aria-label="Main navigation">
           <NavSection title="WORKSPACE" items={workspaceItems} pathname={pathname} />
           <NavSection title="TRACKING" items={trackingItems} pathname={pathname} />
+          {creatorItems.length > 0 && (
+            <NavSection title="CREATOR" items={creatorItems} pathname={pathname} />
+          )}
         </nav>
 
         <div className={styles.sidebarBottom}>
