@@ -220,7 +220,11 @@ export async function hasActiveFounderEntitlement(userId: string) {
 }
 
 export async function completeFounderPurchase(snapshot: FounderOrderSnapshot) {
-  if (!snapshot.userId || !snapshot.slotNo || !snapshot.reservationToken) {
+  const userId = snapshot.userId;
+  const slotNo = snapshot.slotNo;
+  const reservationToken = snapshot.reservationToken;
+
+  if (!userId || slotNo == null || !reservationToken) {
     return { applied: false as const, reason: "missing_custom_data" as const };
   }
 
@@ -241,15 +245,15 @@ export async function completeFounderPurchase(snapshot: FounderOrderSnapshot) {
     }
 
     const rows = await tx.select().from(founderSlots)
-      .where(eq(founderSlots.slotNo, snapshot.slotNo))
+      .where(eq(founderSlots.slotNo, slotNo))
       .limit(1);
     const slot = rows[0];
 
     if (
       !slot ||
       status(slot) !== "RESERVED" ||
-      slot.userId !== snapshot.userId ||
-      slot.reservationToken !== snapshot.reservationToken
+      slot.userId !== userId ||
+      slot.reservationToken !== reservationToken
     ) {
       return { applied: false as const, reason: "reservation_mismatch" as const };
     }
@@ -270,7 +274,7 @@ export async function completeFounderPurchase(snapshot: FounderOrderSnapshot) {
 
     const now = new Date();
     await tx.insert(userPlans).values({
-      userId: snapshot.userId,
+      userId,
       plan: "PRO",
       updatedAt: now,
     }).onConflictDoUpdate({
@@ -284,7 +288,7 @@ export async function completeFounderPurchase(snapshot: FounderOrderSnapshot) {
     return {
       applied: true as const,
       reason: "purchased" as const,
-      userId: snapshot.userId,
+      userId,
       slotNo: slot.slotNo,
     };
   });
