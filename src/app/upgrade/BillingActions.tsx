@@ -75,15 +75,65 @@ export function SubscribeAction({
   );
 }
 
-export function FounderAction() {
+export function FounderAction({
+  available,
+  soldOut,
+  remaining,
+  hasSubscription,
+}: {
+  available: boolean;
+  soldOut: boolean;
+  remaining: number;
+  hasSubscription: boolean;
+}) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function start() {
+    if (!available || soldOut) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      await redirectFromApi("/api/billing/founder-checkout");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to start Founder checkout.");
+      setLoading(false);
+    }
+  }
+
+  const buttonLabel = soldOut
+    ? "SOLD OUT"
+    : !available
+      ? "COMING SOON"
+      : loading
+        ? "OPENING CHECKOUT..."
+        : "GET FOUNDER ACCESS";
+
   return (
     <div className={styles.subscribeArea}>
-      <button className={styles.founderButton} type="button" disabled>
-        COMING SOON
+      <button
+        className={styles.founderButton}
+        type="button"
+        onClick={() => void start()}
+        disabled={!available || soldOut || loading}
+      >
+        {buttonLabel}
       </button>
+      {error && <p className={styles.billingError}>{error}</p>}
       <p className={styles.checkoutNote}>
-        Founder checkout opens at launch and is limited to the first 150 traders.
+        {soldOut
+          ? "All 150 Founder Trader spots have been claimed."
+          : available
+            ? `${remaining} Founder spot${remaining === 1 ? "" : "s"} currently available. Secure one-time checkout is handled by Lemon Squeezy.`
+            : "Founder checkout will open when the one-time Lemon Squeezy product is configured."}
       </p>
+      {available && !soldOut && hasSubscription && (
+        <p className={styles.checkoutNote}>
+          Your existing Pro subscription will be set to cancel at the end of its paid period after Founder activates.
+        </p>
+      )}
     </div>
   );
 }
