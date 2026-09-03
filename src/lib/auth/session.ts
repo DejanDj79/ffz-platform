@@ -2,6 +2,7 @@ import { and, eq, gt } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { db } from "@/db/client";
 import { sessions, users } from "@/db/schema";
+import { userPlans } from "@/db/user-plans-schema";
 import type { AuthUser } from "./types";
 import {
   PRODUCTION_SESSION_COOKIE_NAME,
@@ -57,9 +58,11 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
       email: users.email,
       displayName: users.displayName,
       role: users.role,
+      plan: userPlans.plan,
     })
     .from(sessions)
     .innerJoin(users, eq(sessions.userId, users.id))
+    .leftJoin(userPlans, eq(userPlans.userId, users.id))
     .where(
       and(
         eq(sessions.tokenHash, tokenHash),
@@ -68,7 +71,13 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     )
     .limit(1);
 
-  return rows[0] ?? null;
+  const user = rows[0];
+  if (!user) return null;
+
+  return {
+    ...user,
+    plan: user.plan ?? "FREE",
+  };
 }
 
 export async function destroyCurrentSession() {
