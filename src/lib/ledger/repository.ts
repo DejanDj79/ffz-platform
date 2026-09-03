@@ -144,7 +144,7 @@ export async function createLedgerEntry(
 
   const created = toApiModel(rows[0]);
   if (created.entryType === "INCOME" && created.category === "PAYOUT") {
-    await syncChallengesFromJournal(userId, [created.challengeId]);
+    await syncChallengesFromJournal(userId, [created.challengeId], new Date(), true);
   }
   return created;
 }
@@ -234,7 +234,12 @@ export async function updateLedgerEntry(
   const currentWasPayout = current.entryType === "INCOME" && current.category === "PAYOUT";
   const updatedIsPayout = updated?.entryType === "INCOME" && updated.category === "PAYOUT";
   if (currentWasPayout || updatedIsPayout) {
-    await syncChallengesFromJournal(userId, [current.challengeId, updated?.challengeId]);
+    await syncChallengesFromJournal(
+      userId,
+      [current.challengeId, updated?.challengeId],
+      new Date(),
+      true,
+    );
   }
 
   return updated;
@@ -262,7 +267,7 @@ export async function deleteLedgerEntry(
     current.entryType === "INCOME" &&
     current.category === "PAYOUT"
   ) {
-    await syncChallengesFromJournal(userId, [current.challengeId]);
+    await syncChallengesFromJournal(userId, [current.challengeId], new Date(), true);
   }
 
   return rows[0] ?? null;
