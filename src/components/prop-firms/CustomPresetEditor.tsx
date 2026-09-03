@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import {
   createCustomRulePresetViaApi,
   updateCustomRulePresetViaApi,
@@ -61,6 +61,11 @@ function nullableNumberFromInput(raw: string) {
   return Number.isFinite(parsed) ? Math.max(0, parsed) : null;
 }
 
+function nullableIntFromInput(raw: string) {
+  const value = nullableNumberFromInput(raw);
+  return value == null ? null : Math.max(1, Math.floor(value));
+}
+
 export function CustomPresetEditor({
   initialPreset,
   onSaved,
@@ -82,6 +87,12 @@ export function CustomPresetEditor({
   const [message, setMessage] = useState<string | null>(null);
 
   const selected = variants.find((variant) => variant.id === selectedId) ?? variants[0];
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      document.getElementById("custom-preset-editor")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, []);
 
   function updateSelected(patch: Partial<CustomRuleVariant>) {
     if (!selected) return;
@@ -160,7 +171,7 @@ export function CustomPresetEditor({
   if (!selected) return null;
 
   return (
-    <form className={styles.editor} onSubmit={save}>
+    <form id="custom-preset-editor" className={styles.editor} onSubmit={save}>
       <div className={styles.editorHeader}>
         <div>
           <span className={styles.customEyebrow}>{initialPreset ? "EDIT CUSTOM PRESET" : "CREATE CUSTOM PRESET"}</span>
@@ -229,8 +240,8 @@ export function CustomPresetEditor({
           </select>
         </label>
         <label><span>Minimum Trading Days</span><input type="number" min="0" step="1" value={selected.minimumTradingDays || ""} onChange={(event) => updateSelected({ minimumTradingDays: Math.floor(numberFromInput(event.target.value)) })} /></label>
-        <label><span>Max Minis</span><input type="number" min="1" step="1" value={selected.maxMinis ?? ""} placeholder="No limit" onChange={(event) => updateSelected({ maxMinis: nullableNumberFromInput(event.target.value) })} /></label>
-        <label><span>Max Micros</span><input type="number" min="1" step="1" value={selected.maxMicros ?? ""} placeholder="No limit" onChange={(event) => updateSelected({ maxMicros: nullableNumberFromInput(event.target.value) })} /></label>
+        <label><span>Max Minis</span><input type="number" min="1" step="1" value={selected.maxMinis ?? ""} placeholder="No limit" onChange={(event) => updateSelected({ maxMinis: nullableIntFromInput(event.target.value) })} /></label>
+        <label><span>Max Micros</span><input type="number" min="1" step="1" value={selected.maxMicros ?? ""} placeholder="No limit" onChange={(event) => updateSelected({ maxMicros: nullableIntFromInput(event.target.value) })} /></label>
         <label><span>Evaluation Fee</span><input type="number" min="0" step="0.01" value={selected.evaluationFee || ""} onChange={(event) => updateSelected({ evaluationFee: numberFromInput(event.target.value) })} /></label>
         <label><span>Reset Fee</span><input type="number" min="0" step="0.01" value={selected.resetFee ?? ""} placeholder="None" onChange={(event) => updateSelected({ resetFee: nullableNumberFromInput(event.target.value) })} /></label>
       </div>
