@@ -6,6 +6,7 @@ import {
   listLedgerEntries,
 } from "@/lib/ledger/repository";
 import { ledgerEntrySchema } from "@/lib/ledger/validation";
+import { hasEntitlement } from "@/lib/monetization/entitlements";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -49,7 +50,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       {
-        data: await createLedgerEntry(user.id, input),
+        data: await createLedgerEntry(user.id, input, {
+          syncChallenges: hasEntitlement(user.plan, "AUTO_CHALLENGE_SYNC"),
+        }),
       },
       { status: 201 },
     );

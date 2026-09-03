@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ProFeatureGate } from "@/components/monetization/ProFeatureGate";
 import { PROP_FIRM_PRESETS } from "@/lib/prop-firms";
 import type { PropFirmRulePreset } from "@/lib/prop-firms";
+import { fetchCustomRulePresets } from "@/lib/prop-firms/custom-api-client";
+import type { CustomRulePreset } from "@/lib/prop-firms/custom-types";
 import styles from "./PropFirmRulesLibrary.module.css";
 
 const money = new Intl.NumberFormat("en-US", {
@@ -119,6 +121,55 @@ function FirmCard({ presets }: { presets: PropFirmRulePreset[] }) {
   );
 }
 
+function ReadOnlyCustomCard({ preset }: { preset: CustomRulePreset }) {
+  const ordered = useMemo(
+    () => [...preset.variants].sort((a, b) => a.accountSize - b.accountSize),
+    [preset.variants],
+  );
+  const [selectedId, setSelectedId] = useState(ordered[0]?.id ?? "");
+  const variant = ordered.find((item) => item.id === selectedId) ?? ordered[0];
+  if (!variant) return null;
+
+  return (
+    <article className={`${styles.card} ${styles.customCard}`}>
+      <header className={styles.cardHeader}>
+        <div>
+          <span className={styles.customEyebrow}>MY CUSTOM PRESET · READ ONLY</span>
+          <h2>{preset.name}</h2>
+          <p>{preset.propFirm}</p>
+        </div>
+        <span className={styles.customBadge}>PRO</span>
+      </header>
+
+      <div className={styles.sizeTabs}>
+        {ordered.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            className={`${styles.sizeTab} ${item.id === variant.id ? styles.sizeTabActive : ""}`}
+            onClick={() => setSelectedId(item.id)}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+
+      <div className={styles.quickRules}>
+        <Rule label="Profit target" value={moneyValue(variant.profitTarget)} />
+        <Rule label="Max drawdown" value={moneyValue(variant.maxDrawdown)} />
+        <Rule label="Daily loss" value={moneyValue(variant.dailyLossLimit)} />
+        <Rule label="Max minis" value={value(variant.maxMinis)} />
+        <Rule label="Max micros" value={value(variant.maxMicros)} />
+        <Rule label="Evaluation fee" value={moneyValue(variant.evaluationFee)} />
+      </div>
+
+      <footer className={styles.cardFooter}>
+        <Link className={styles.secondary} href="/upgrade">UPGRADE TO EDIT / REUSE</Link>
+      </footer>
+    </article>
+  );
+}
+
 export function FreePropFirmRulesLibrary() {
   const firms = useMemo(() => {
     const grouped = new Map<string, PropFirmRulePreset[]>();
@@ -129,6 +180,23 @@ export function FreePropFirmRulesLibrary() {
     }
     return Array.from(grouped.values());
   }, []);
+  const [customPresets, setCustomPresets] = useState<CustomRulePreset[]>([]);
+  const [customLoading, setCustomLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchCustomRulePresets()
+      .then((items) => {
+        if (!cancelled) setCustomPresets(items);
+      })
+      .catch((error) => console.error("Unable to load read-only custom presets:", error))
+      .finally(() => {
+        if (!cancelled) setCustomLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <main className={styles.page}>
@@ -136,7 +204,7 @@ export function FreePropFirmRulesLibrary() {
         <div>
           <span className={styles.eyebrow}>PROP FIRM RULE ENGINE</span>
           <h1>Rules Library</h1>
-          <p>Verified built-in prop firm rules remain available on FFZ Free. Reusable custom rule cards are an FFZ Pro workflow.</p>
+          <p>Verified built-in prop firm rules remain available on FFZ Free. Existing custom cards stay visible after a downgrade, while creating, editing and reusing them is an FFZ Pro workflow.</p>
         </div>
         <div className={styles.introActions}>
           <Link className={styles.secondary} href="/challenges">OPEN CHALLENGES</Link>
@@ -161,6 +229,23 @@ export function FreePropFirmRulesLibrary() {
       <section className={styles.cards}>
         {firms.map((presets) => <FirmCard key={presets[0].propFirm} presets={presets} />)}
       </section>
+
+      {(customLoading || customPresets.length > 0) && (
+        <>
+          <div className={styles.listHeader}>
+            <div>
+              <span className={styles.customEyebrow}>MY CUSTOM PRESETS</span>
+              <h2>{customLoading ? "Loading saved custom cards…" : `${customPresets.length} saved custom card${customPresets.length === 1 ? "" : "s"}`}</h2>
+            </div>
+            <p>Visible on Free so your data is never hidden; editing and reuse require Pro.</p>
+          </div>
+          {!customLoading && customPresets.length > 0 && (
+            <section className={styles.cards}>
+              {customPresets.map((preset) => <ReadOnlyCustomCard key={preset.id} preset={preset} />)}
+            </section>
+          )}
+        </>
+      )}
     </main>
   );
 }

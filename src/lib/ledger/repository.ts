@@ -14,6 +14,10 @@ import type {
   UpdateLedgerEntryInput,
 } from "./types";
 
+type LedgerWriteOptions = {
+  syncChallenges?: boolean;
+};
+
 function toApiModel(
   row: typeof ledgerEntries.$inferSelect,
 ): LedgerEntryApiModel {
@@ -111,6 +115,7 @@ export async function getLedgerEntry(
 export async function createLedgerEntry(
   userId: string,
   input: LedgerEntryInput,
+  options: LedgerWriteOptions = {},
 ) {
   await assertOwnedRelations(
     userId,
@@ -143,7 +148,11 @@ export async function createLedgerEntry(
     .returning();
 
   const created = toApiModel(rows[0]);
-  if (created.entryType === "INCOME" && created.category === "PAYOUT") {
+  if (
+    options.syncChallenges !== false &&
+    created.entryType === "INCOME" &&
+    created.category === "PAYOUT"
+  ) {
     await syncChallengesFromJournal(userId, [created.challengeId], new Date(), true);
   }
   return created;
@@ -153,6 +162,7 @@ export async function updateLedgerEntry(
   userId: string,
   entryId: string,
   input: UpdateLedgerEntryInput,
+  options: LedgerWriteOptions = {},
 ) {
   const current = await getLedgerEntry(userId, entryId);
   if (!current) return null;
@@ -233,7 +243,7 @@ export async function updateLedgerEntry(
   const updated = rows[0] ? toApiModel(rows[0]) : null;
   const currentWasPayout = current.entryType === "INCOME" && current.category === "PAYOUT";
   const updatedIsPayout = updated?.entryType === "INCOME" && updated.category === "PAYOUT";
-  if (currentWasPayout || updatedIsPayout) {
+  if (options.syncChallenges !== false && (currentWasPayout || updatedIsPayout)) {
     await syncChallengesFromJournal(
       userId,
       [current.challengeId, updated?.challengeId],
@@ -248,6 +258,7 @@ export async function updateLedgerEntry(
 export async function deleteLedgerEntry(
   userId: string,
   entryId: string,
+  options: LedgerWriteOptions = {},
 ) {
   const current = await getLedgerEntry(userId, entryId);
   if (!current) return null;
@@ -264,6 +275,7 @@ export async function deleteLedgerEntry(
 
   if (
     rows[0] &&
+    options.syncChallenges !== false &&
     current.entryType === "INCOME" &&
     current.category === "PAYOUT"
   ) {

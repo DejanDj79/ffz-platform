@@ -5,6 +5,7 @@ import { deleteTrade, getTrade, updateTrade } from "@/lib/journal/repository";
 import { listTradeAttachmentStorageKeys } from "@/lib/journal/attachments-repository";
 import { deleteStoredImage } from "@/lib/storage/image-storage";
 import { updateTradeSchema } from "@/lib/journal/validation";
+import { hasEntitlement } from "@/lib/monetization/entitlements";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -41,7 +42,9 @@ export async function PATCH(request: Request, context: RouteContext) {
 
     const { id } = await context.params;
     const input = updateTradeSchema.parse(await request.json());
-    const trade = await updateTrade(user.id, id, input);
+    const trade = await updateTrade(user.id, id, input, {
+      syncChallenges: hasEntitlement(user.plan, "AUTO_CHALLENGE_SYNC"),
+    });
 
     if (!trade) {
       return NextResponse.json({ error: "Trade not found." }, { status: 404 });
@@ -86,7 +89,9 @@ export async function DELETE(_request: Request, context: RouteContext) {
       id,
     );
 
-    const deleted = await deleteTrade(user.id, id);
+    const deleted = await deleteTrade(user.id, id, {
+      syncChallenges: hasEntitlement(user.plan, "AUTO_CHALLENGE_SYNC"),
+    });
 
     if (!deleted) {
       return NextResponse.json({ error: "Trade not found." }, { status: 404 });

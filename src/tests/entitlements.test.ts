@@ -5,6 +5,10 @@ import {
   hasEntitlement,
   planLimits,
 } from "@/lib/monetization/entitlements";
+import {
+  countActiveChallenges,
+  countsTowardActiveChallengeLimit,
+} from "@/lib/monetization/challenge-limits";
 
 describe("FFZ monetization entitlements", () => {
   it("keeps the core workflow available on FREE", () => {
@@ -40,6 +44,28 @@ describe("FFZ monetization entitlements", () => {
 
     expect(planLimits("PRO").activeChallenges).toBeNull();
     expect(canCreateActiveChallenge("PRO", 50)).toBe(true);
+  });
+
+  it("counts live evaluations and funded accounts but not completed history", () => {
+    expect(countsTowardActiveChallengeLimit("NOT_STARTED")).toBe(true);
+    expect(countsTowardActiveChallengeLimit("IN_PROGRESS")).toBe(true);
+    expect(countsTowardActiveChallengeLimit("PAUSED")).toBe(true);
+    expect(countsTowardActiveChallengeLimit("FUNDED")).toBe(true);
+    expect(countsTowardActiveChallengeLimit("PASSED")).toBe(false);
+    expect(countsTowardActiveChallengeLimit("FAILED")).toBe(false);
+    expect(countsTowardActiveChallengeLimit("CLOSED")).toBe(false);
+
+    expect(countActiveChallenges([
+      { id: "one", status: "IN_PROGRESS" },
+      { id: "two", status: "PASSED" },
+      { id: "three", status: "FAILED" },
+      { id: "four", status: "FUNDED" },
+    ])).toBe(2);
+
+    expect(countActiveChallenges([
+      { id: "one", status: "IN_PROGRESS" },
+      { id: "four", status: "FUNDED" },
+    ], "one")).toBe(1);
   });
 
   it("makes PRO a superset of FREE", () => {

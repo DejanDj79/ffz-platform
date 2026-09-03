@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { getCurrentUser } from "@/lib/auth/session";
+import { hasEntitlement } from "@/lib/monetization/entitlements";
 import {
   createCustomRulePreset,
   listCustomRulePresets,
@@ -9,6 +10,17 @@ import { customRulePresetInputSchema } from "@/lib/prop-firms/custom-validation"
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+function proRequiredResponse() {
+  return NextResponse.json(
+    {
+      error: "Reusable custom prop rule presets require FFZ Pro.",
+      code: "PRO_REQUIRED",
+      upgradeUrl: "/upgrade",
+    },
+    { status: 403 },
+  );
+}
 
 export async function GET() {
   try {
@@ -30,6 +42,10 @@ export async function POST(request: Request) {
     const user = await getCurrentUser();
     if (!user) {
       return NextResponse.json({ error: "Authentication required." }, { status: 401 });
+    }
+
+    if (!hasEntitlement(user.plan, "CUSTOM_PROP_RULES")) {
+      return proRequiredResponse();
     }
 
     const input = customRulePresetInputSchema.parse(await request.json());
