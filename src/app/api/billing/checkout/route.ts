@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
+import { getLemonBillingAvailability } from "@/lib/billing/availability";
 import {
   createLemonCheckout,
   type BillingInterval,
@@ -23,6 +24,17 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "This account already has FFZ Pro.", code: "ALREADY_PRO" },
         { status: 409 },
+      );
+    }
+
+    const billingAvailability = getLemonBillingAvailability();
+    if (!billingAvailability.available) {
+      return NextResponse.json(
+        {
+          error: "FFZ Pro subscriptions are not available yet.",
+          code: "BILLING_UNAVAILABLE",
+        },
+        { status: 503 },
       );
     }
 
