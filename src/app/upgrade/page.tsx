@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
-import { getLemonBillingAvailability } from "@/lib/billing/availability";
+import {
+  getFounderBillingAvailability,
+  getLemonBillingAvailability,
+} from "@/lib/billing/availability";
+import { getFounderOfferState } from "@/lib/billing/founder-repository";
 import { getUserBillingState } from "@/lib/billing/repository";
 import {
   FounderAction,
@@ -54,6 +58,9 @@ export default async function UpgradePage() {
 
   const isPro = user.plan === "PRO";
   const billingAvailability = getLemonBillingAvailability();
+  const founderAvailability = getFounderBillingAvailability();
+  const founderOffer = await getFounderOfferState(user.id);
+  const isFounder = founderOffer.userStatus === "PURCHASED";
   const billing = isPro ? await getUserBillingState(user.id) : null;
   const hasSubscription = Boolean(
     billing?.provider === "LEMON_SQUEEZY" && billing.subscriptionId,
@@ -66,8 +73,13 @@ export default async function UpgradePage() {
     : billing?.variantId === process.env.LEMONSQUEEZY_ANNUAL_VARIANT_ID
       ? "ANNUAL"
       : null;
+  const founderDisplayRemaining = founderOffer.remaining + (founderOffer.hasActiveReservation ? 1 : 0);
 
   function proState(interval: "MONTHLY" | "ANNUAL") {
+    if (isFounder) {
+      return <div className={styles.planState}>Included with Founder lifetime access</div>;
+    }
+
     if (!isPro) {
       return <SubscribeAction available={billingAvailability.available} interval={interval} />;
     }
@@ -109,7 +121,7 @@ export default async function UpgradePage() {
           150 traders. Your existing data stays visible if your plan changes.
         </p>
         <div className={styles.current}>
-          CURRENT PLAN <strong>{user.plan}</strong>
+          CURRENT PLAN <strong>{isFounder ? "FOUNDER" : user.plan}</strong>
         </div>
       </section>
 
@@ -125,7 +137,9 @@ export default async function UpgradePage() {
             <p>Core prop tracking and journaling tools.</p>
           </div>
           <FeatureList items={FREE_FEATURES} />
-          <div className={styles.planState}>{isPro ? "Included in your Pro plan" : "Your current plan"}</div>
+          <div className={styles.planState}>
+            {isFounder ? "Included in your Founder access" : isPro ? "Included in your Pro plan" : "Your current plan"}
+          </div>
         </article>
 
         <article className={`${styles.card} ${styles.proCard}`}>
@@ -158,7 +172,11 @@ export default async function UpgradePage() {
         </article>
 
         <article className={`${styles.card} ${styles.founderCard}`}>
-          <div className={styles.founderBadge}>LIMITED · 150 SPOTS</div>
+          <div className={styles.founderBadge}>
+            {founderOffer.soldOut
+              ? "SOLD OUT · 150 CLAIMED"
+              : `LIMITED · ${founderDisplayRemaining} SPOTS LEFT`}
+          </div>
           <div className={styles.cardHeader}>
             <span className={styles.planKicker}>ONE-TIME</span>
             <h2>FOUNDER</h2>
@@ -170,10 +188,22 @@ export default async function UpgradePage() {
             <p>Lifetime FFZ Pro access with one payment. Available only to the first 150 traders.</p>
           </div>
           <FeatureList items={PRO_FEATURES} />
-          {isPro ? (
-            <div className={styles.planState}>Included in your current Pro access</div>
+          {user.role === "CREATOR" ? (
+            <div className={styles.planState}>Creator access already includes Pro</div>
+          ) : isFounder ? (
+            <div className={`${styles.planState} ${styles.active}`}>
+              FOUNDER ACTIVE
+              {founderOffer.userSlotNo && <small>FOUNDER SLOT #{founderOffer.userSlotNo}</small>}
+            </div>
+          ) : founderOffer.userStatus === "REFUNDED" ? (
+            <div className={styles.planState}>Founder purchase refunded</div>
           ) : (
-            <FounderAction />
+            <FounderAction
+              available={founderAvailability.available}
+              soldOut={founderOffer.soldOut}
+              remaining={founderDisplayRemaining}
+              hasSubscription={hasSubscription}
+            />
           )}
         </article>
       </section>
