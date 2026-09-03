@@ -11,6 +11,7 @@ import {
   parseCustomPresetRef,
 } from "@/lib/prop-firms/custom-types";
 import type { CustomRulePreset } from "@/lib/prop-firms/custom-types";
+import type { UserPlan } from "@/lib/monetization/types";
 import styles from "./RulePresetControl.module.css";
 
 export function RulePresetControl({
@@ -21,18 +22,28 @@ export function RulePresetControl({
   onChange: (challenge: Challenge) => void;
 }) {
   const [customPresets, setCustomPresets] = useState<CustomRulePreset[]>([]);
+  const [plan, setPlan] = useState<UserPlan>("FREE");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    void fetchCustomRulePresets()
-      .then((items) => {
-        if (!cancelled) setCustomPresets(items);
+
+    void Promise.all([
+      fetchCustomRulePresets(),
+      fetch("/api/auth/me", { cache: "no-store" })
+        .then(async (response) => response.ok
+          ? (await response.json() as { data: { plan: UserPlan } }).data.plan
+          : "FREE" as UserPlan),
+    ])
+      .then(([items, currentPlan]) => {
+        if (cancelled) return;
+        setCustomPresets(items);
+        setPlan(currentPlan);
       })
       .catch((loadError) => {
         console.error("Unable to load custom rule presets:", loadError);
-        if (!cancelled) setError("Custom presets unavailable until the database update is applied.");
+        if (!cancelled) setError("Custom presets are currently unavailable.");
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -42,6 +53,8 @@ export function RulePresetControl({
       cancelled = true;
     };
   }, []);
+
+  const customAllowed = plan === "PRO";
 
   function selectPreset(value: string) {
     setError(null);
@@ -53,6 +66,11 @@ export function RulePresetControl({
 
     const customRef = parseCustomPresetRef(value);
     if (customRef) {
+      if (!customAllowed) {
+        setError("Reusable custom presets require FFZ Pro. Manual values remain available on Free.");
+        return;
+      }
+
       const preset = customPresets.find((item) => item.id === customRef.presetId);
       const variant = preset?.variants.find((item) => item.id === customRef.variantId);
       if (preset && variant) onChange(applyCustomVariantToChallenge(challenge, preset, variant));
@@ -75,13 +93,17 @@ export function RulePresetControl({
           ))}
         </optgroup>
         {customPresets.length > 0 && (
-          <optgroup label="My Custom Presets">
+          <optgroup label={customAllowed ? "My Custom Presets" : "My Custom Presets — FFZ Pro"}>
             {customPresets.flatMap((preset) =>
               [...preset.variants]
                 .sort((a, b) => a.accountSize - b.accountSize)
                 .map((variant) => (
-                  <option key={`${preset.id}-${variant.id}`} value={customPresetRef(preset.id, variant.id)}>
-                    {preset.name} — {variant.label}
+                  <option
+                    key={`${preset.id}-${variant.id}`}
+                    value={customPresetRef(preset.id, variant.id)}
+                    disabled={!customAllowed}
+                  >
+                    {preset.name} — {variant.label}{customAllowed ? "" : " · PRO"}
                   </option>
                 )),
             )}
@@ -89,7 +111,10 @@ export function RulePresetControl({
         )}
       </select>
 
-      {loading && <span className={styles.message}>Loading custom presets...</span>}
+      {loading && <span className={styles.message}>Loading rule presets...</span>}
+      {!loading && !customAllowed && customPresets.length > 0 && (
+        <span className={styles.message}>Custom presets are read-only on Free. <a href="/upgrade">View Pro</a></span>
+      )}
       {error && <span className={`${styles.message} ${styles.error}`}>{error}</span>}
     </div>
   );

@@ -3,6 +3,7 @@ import { ZodError } from "zod";
 import { getCurrentUser } from "@/lib/auth/session";
 import { createTrade, listTrades } from "@/lib/journal/repository";
 import { tradeEditableSchema } from "@/lib/journal/validation";
+import { hasEntitlement } from "@/lib/monetization/entitlements";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -35,7 +36,11 @@ export async function POST(request: Request) {
 
     const input = tradeEditableSchema.parse(await request.json());
     return NextResponse.json(
-      { data: await createTrade(user.id, input) },
+      {
+        data: await createTrade(user.id, input, {
+          syncChallenges: hasEntitlement(user.plan, "AUTO_CHALLENGE_SYNC"),
+        }),
+      },
       { status: 201 },
     );
   } catch (error) {

@@ -11,10 +11,21 @@ import { normalizeChallenge } from "./defaults";
 const LEGACY_STORAGE_KEY = "ffz-challenges-v1";
 const MIGRATION_FLAG_KEY = "ffz-challenges-api-migrated-v1";
 
-function assertOk(response: Response) {
-  if (!response.ok) {
-    throw new Error(`Challenge API request failed (${response.status}).`);
+async function assertOk(response: Response) {
+  if (response.ok) return;
+
+  const json = await response.json().catch(() => null) as {
+    error?: string;
+    upgradeUrl?: string;
+  } | null;
+
+  if (json?.upgradeUrl && typeof window !== "undefined") {
+    window.location.assign(json.upgradeUrl);
   }
+
+  throw new Error(
+    json?.error ?? `Challenge API request failed (${response.status}).`,
+  );
 }
 
 export function apiModelToChallenge(input: ChallengeApiModel): Challenge {
@@ -88,7 +99,7 @@ export function challengeToApiInput(challenge: Challenge): CreateChallengeApiInp
 
 export async function fetchChallenges(): Promise<Challenge[]> {
   const response = await fetch("/api/challenges", { cache: "no-store" });
-  assertOk(response);
+  await assertOk(response);
   const json = await response.json() as { data: ChallengeApiModel[] };
   return json.data.map(apiModelToChallenge);
 }
@@ -99,7 +110,7 @@ export async function createChallengeViaApi(challenge: Challenge): Promise<Chall
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(challengeToApiInput(challenge)),
   });
-  assertOk(response);
+  await assertOk(response);
   const json = await response.json() as { data: ChallengeApiModel };
   return apiModelToChallenge(json.data);
 }
@@ -111,14 +122,14 @@ export async function updateChallengeViaApi(challenge: Challenge): Promise<Chall
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
-  assertOk(response);
+  await assertOk(response);
   const json = await response.json() as { data: ChallengeApiModel };
   return apiModelToChallenge(json.data);
 }
 
 export async function deleteChallengeViaApi(challengeId: string): Promise<void> {
   const response = await fetch(`/api/challenges/${challengeId}`, { method: "DELETE" });
-  assertOk(response);
+  await assertOk(response);
 }
 
 function sameChallenge(a: Challenge, b: Challenge) {

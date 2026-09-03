@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { getCurrentUser } from "@/lib/auth/session";
+import { hasEntitlement } from "@/lib/monetization/entitlements";
 import {
   deleteCustomRulePreset,
   getCustomRulePreset,
@@ -12,6 +13,17 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type RouteContext = { params: Promise<{ id: string }> };
+
+function proRequiredResponse() {
+  return NextResponse.json(
+    {
+      error: "Editing reusable custom prop rule presets requires FFZ Pro.",
+      code: "PRO_REQUIRED",
+      upgradeUrl: "/upgrade",
+    },
+    { status: 403 },
+  );
+}
 
 export async function GET(_request: Request, context: RouteContext) {
   try {
@@ -37,6 +49,10 @@ export async function PATCH(request: Request, context: RouteContext) {
       return NextResponse.json({ error: "Authentication required." }, { status: 401 });
     }
 
+    if (!hasEntitlement(user.plan, "CUSTOM_PROP_RULES")) {
+      return proRequiredResponse();
+    }
+
     const { id } = await context.params;
     const input = customRulePresetUpdateSchema.parse(await request.json());
     const data = await updateCustomRulePreset(user.id, id, input);
@@ -56,6 +72,10 @@ export async function DELETE(_request: Request, context: RouteContext) {
     const user = await getCurrentUser();
     if (!user) {
       return NextResponse.json({ error: "Authentication required." }, { status: 401 });
+    }
+
+    if (!hasEntitlement(user.plan, "CUSTOM_PROP_RULES")) {
+      return proRequiredResponse();
     }
 
     const { id } = await context.params;

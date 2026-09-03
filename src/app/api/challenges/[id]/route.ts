@@ -4,9 +4,19 @@ import { getCurrentUser } from "@/lib/auth/session";
 import {
   deleteChallenge,
   getChallenge,
+  listChallenges,
   updateChallenge,
 } from "@/lib/challenges/repository";
 import { updateChallengeSchema } from "@/lib/challenges/validation";
+import {
+  countActiveChallenges,
+  countsTowardActiveChallengeLimit,
+} from "@/lib/monetization/challenge-limits";
+import {
+  canCreateActiveChallenge,
+  hasEntitlement,
+} from "@/lib/monetization/entitlements";
+import { parseCustomPresetRef } from "@/lib/prop-firms/custom-types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -14,6 +24,28 @@ export const dynamic = "force-dynamic";
 type RouteContext = {
   params: Promise<{ id: string }>;
 };
+
+function planLimitResponse() {
+  return NextResponse.json(
+    {
+      error: "FFZ Free supports one active Challenge / Funded account. Close or finish the current active account, or upgrade to FFZ Pro for unlimited active accounts.",
+      code: "PLAN_LIMIT",
+      upgradeUrl: "/upgrade",
+    },
+    { status: 403 },
+  );
+}
+
+function customRulesResponse() {
+  return NextResponse.json(
+    {
+      error: "Reusable custom prop rule presets require FFZ Pro.",
+      code: "PRO_REQUIRED",
+      upgradeUrl: "/upgrade",
+    },
+    { status: 403 },
+  );
+}
 
 export async function GET(
   _request: Request,
@@ -64,8 +96,38 @@ export async function PATCH(
     }
 
     const { id } = await context.params;
+    const current = await getChallenge(user.id, id);
+
+    if (!current) {
+      return NextResponse.json(
+        { error: "Challenge not found." },
+        { status: 404 },
+      );
+    }
+
     const body = await request.json();
     const input = updateChallengeSchema.parse(body);
+
+    if (
+      input.rulesPresetId !== undefined &&
+      parseCustomPresetRef(input.rulesPresetId) &&
+      !hasEntitlement(user.plan, "CUSTOM_PROP_RULES")
+    ) {
+      return customRulesResponse();
+    }
+
+    const nextStatus = input.status ?? current.status;
+    const activating =
+      countsTowardActiveChallengeLimit(nextStatus) &&
+      !countsTowardActiveChallengeLimit(current.status);
+
+    if (activating) {
+      const existing = await listChallenges(user.id, { syncFromJournal: false });
+      if (!canCreateActiveChallenge(user.plan, countActiveChallenges(existing, id))) {
+        return planLimitResponse();
+      }
+    }
+
     const challenge = await updateChallenge(user.id, id, input);
 
     if (!challenge) {

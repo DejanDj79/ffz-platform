@@ -46,8 +46,14 @@ function toApiModel(row: typeof challenges.$inferSelect): ChallengeApiModel {
   };
 }
 
-export async function listChallenges(userId: string) {
-  await syncAllChallengesFromJournal(userId);
+export async function listChallenges(
+  userId: string,
+  options: { syncFromJournal?: boolean } = {},
+) {
+  if (options.syncFromJournal !== false) {
+    await syncAllChallengesFromJournal(userId);
+  }
+
   const rows = await db.select().from(challenges)
     .where(eq(challenges.userId, userId))
     .orderBy(desc(challenges.createdAt));

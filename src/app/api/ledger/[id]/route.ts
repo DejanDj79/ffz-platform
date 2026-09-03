@@ -7,6 +7,7 @@ import {
   updateLedgerEntry,
 } from "@/lib/ledger/repository";
 import { updateLedgerEntrySchema } from "@/lib/ledger/validation";
+import { hasEntitlement } from "@/lib/monetization/entitlements";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -73,6 +74,9 @@ export async function PATCH(
       user.id,
       id,
       input,
+      {
+        syncChallenges: hasEntitlement(user.plan, "AUTO_CHALLENGE_SYNC"),
+      },
     );
 
     if (!entry) {
@@ -138,7 +142,9 @@ export async function DELETE(
     }
 
     const { id } = await context.params;
-    const deleted = await deleteLedgerEntry(user.id, id);
+    const deleted = await deleteLedgerEntry(user.id, id, {
+      syncChallenges: hasEntitlement(user.plan, "AUTO_CHALLENGE_SYNC"),
+    });
 
     if (!deleted) {
       return NextResponse.json(

@@ -14,6 +14,10 @@ import type {
 
 const n = (value: string | null) => value == null ? null : Number(value);
 
+type JournalWriteOptions = {
+  syncChallenges?: boolean;
+};
+
 function toApiModel(row: typeof trades.$inferSelect): TradeApiModel {
   return {
     id: row.id,
@@ -109,7 +113,11 @@ export async function getTrade(userId: string, tradeId: string) {
   return rows[0] ? toApiModel(rows[0]) : null;
 }
 
-export async function createTrade(userId: string, input: TradeEditableInput) {
+export async function createTrade(
+  userId: string,
+  input: TradeEditableInput,
+  options: JournalWriteOptions = {},
+) {
   await assertOwnedRelations(userId, input.challengeId, input.tradingAccountId);
   const m = metrics(input);
 
@@ -140,7 +148,7 @@ export async function createTrade(userId: string, input: TradeEditableInput) {
   }).returning();
 
   const created = toApiModel(rows[0]);
-  if (!isPlannedTrade(created)) {
+  if (options.syncChallenges !== false && !isPlannedTrade(created)) {
     await syncChallengesFromJournal(userId, [created.challengeId], new Date(), true);
   }
   return created;
@@ -150,6 +158,7 @@ export async function updateTrade(
   userId: string,
   tradeId: string,
   input: UpdateTradeInput,
+  options: JournalWriteOptions = {},
 ) {
   const current = await getTrade(userId, tradeId);
   if (!current) return null;
@@ -213,7 +222,10 @@ export async function updateTrade(
     .returning();
 
   const updated = rows[0] ? toApiModel(rows[0]) : null;
-  if (!isPlannedTrade(current) || (updated && !isPlannedTrade(updated))) {
+  if (
+    options.syncChallenges !== false &&
+    (!isPlannedTrade(current) || (updated && !isPlannedTrade(updated)))
+  ) {
     await syncChallengesFromJournal(
       userId,
       [current.challengeId, updated?.challengeId],
@@ -224,7 +236,11 @@ export async function updateTrade(
   return updated;
 }
 
-export async function deleteTrade(userId: string, tradeId: string) {
+export async function deleteTrade(
+  userId: string,
+  tradeId: string,
+  options: JournalWriteOptions = {},
+) {
   const current = await getTrade(userId, tradeId);
   if (!current) return null;
 
@@ -232,7 +248,7 @@ export async function deleteTrade(userId: string, tradeId: string) {
     .where(and(eq(trades.id, tradeId), eq(trades.userId, userId)))
     .returning({ id: trades.id });
 
-  if (rows[0] && !isPlannedTrade(current)) {
+  if (rows[0] && options.syncChallenges !== false && !isPlannedTrade(current)) {
     await syncChallengesFromJournal(userId, [current.challengeId], new Date(), true);
   }
 
