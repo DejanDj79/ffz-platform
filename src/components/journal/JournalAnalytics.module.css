@@ -191,6 +191,10 @@
 .negative { color: #ff737f !important; }
 .neutral { color: #9aa7b0 !important; }
 
+.proGateSpacing {
+  margin-bottom: 28px;
+}
+
 .chartGrid {
   display: grid;
   grid-template-columns: minmax(300px, 1fr) minmax(620px, 2fr);
@@ -516,92 +520,4 @@
 
 .loading {
   color: #30d0f8 !important;
-}
-
-@media (max-width: 1450px) {
-  .kpiGrid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 1320px) {
-  .filterPanel {
-    grid-template-columns: 1fr;
-    align-items: stretch;
-  }
-
-  .filters {
-    grid-template-columns:
-      minmax(94px, .82fr)
-      minmax(116px, 1.12fr)
-      minmax(96px, .92fr)
-      minmax(86px, .76fr)
-      minmax(104px, .96fr)
-      auto;
-  }
-}
-
-@media (max-width: 1040px) {
-  .chartGrid,
-  .breakdownGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .chartGrid > .panel:first-child {
-    display: block;
-  }
-
-  .filters {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .filters button {
-    min-height: 38px;
-  }
-}
-
-@media (max-width: 760px) {
-  .page {
-    padding-top: 14px;
-  }
-
-  .filterPanel {
-    padding: 15px;
-  }
-
-  .filters {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .kpiGrid,
-  .performanceStrip {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .chartWrap,
-  .dailyBars {
-    height: 255px;
-    min-height: 255px;
-  }
-
-  .dailyBars {
-    --daily-axis-height: 180px;
-    --daily-axis-half: 90px;
-  }
-}
-
-@media (max-width: 520px) {
-  .filters,
-  .kpiGrid,
-  .performanceStrip {
-    grid-template-columns: 1fr;
-  }
-
-  .filterPanel > div:first-child > strong {
-    font-size: 18px;
-  }
-
-  .dailyColumn {
-    min-width: 48px;
-  }
 }
