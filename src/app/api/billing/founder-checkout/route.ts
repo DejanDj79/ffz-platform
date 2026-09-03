@@ -39,6 +39,7 @@ export async function POST(request: Request) {
   }
 
   let reservation: Awaited<ReturnType<typeof reserveFounderSlot>> | null = null;
+  let lemonCheckoutCreated = false;
 
   try {
     reservation = await reserveFounderSlot(user.id);
@@ -60,6 +61,16 @@ export async function POST(request: Request) {
     if (reservation.kind === "SOLD_OUT") {
       return NextResponse.json(
         { error: "Founder Trader is sold out.", code: "FOUNDER_SOLD_OUT" },
+        { status: 409 },
+      );
+    }
+
+    if (reservation.kind === "PENDING") {
+      return NextResponse.json(
+        {
+          error: "A Founder checkout is already being prepared for this account. Please try again shortly.",
+          code: "FOUNDER_CHECKOUT_PENDING",
+        },
         { status: 409 },
       );
     }
@@ -105,6 +116,7 @@ export async function POST(request: Request) {
       expiresAt: checkoutExpiresAt,
       redirectUrl: redirectUrl.toString(),
     });
+    lemonCheckoutCreated = true;
 
     const attached = await attachFounderCheckoutUrl({
       userId: user.id,
@@ -119,7 +131,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ data: { url: checkout.url } });
   } catch (error) {
-    if (reservation?.kind === "RESERVED") {
+    if (reservation?.kind === "RESERVED" && !lemonCheckoutCreated) {
       await releaseFounderReservation({
         userId: user.id,
         slotNo: reservation.slotNo,
