@@ -77,7 +77,8 @@ export async function POST(request: Request) {
 
     await createSession(user.id);
     clearRateLimit(accountLimitKey);
-    const plan = await getUserPlan(user.id);
+    const storedPlan = await getUserPlan(user.id);
+    const plan = user.role === "CREATOR" ? "PRO" : storedPlan;
 
     return NextResponse.json({
       data: {
