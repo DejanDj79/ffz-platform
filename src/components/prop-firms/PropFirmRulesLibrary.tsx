@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo, useState } from "react";
 import { PROP_FIRM_PRESETS } from "@/lib/prop-firms";
 import type { PropFirmRulePreset } from "@/lib/prop-firms";
 import styles from "./PropFirmRulesLibrary.module.css";
@@ -19,6 +20,12 @@ function moneyValue(value: number | null | undefined) {
   return value == null ? "—" : money.format(value);
 }
 
+function sizeLabel(accountSize: number) {
+  return accountSize >= 1000 && accountSize % 1000 === 0
+    ? `${accountSize / 1000}K`
+    : money.format(accountSize);
+}
+
 function Rule({ label, value }: { label: string; value: string }) {
   return (
     <div className={styles.rule}>
@@ -28,7 +35,16 @@ function Rule({ label, value }: { label: string; value: string }) {
   );
 }
 
-function PresetCard({ preset }: { preset: PropFirmRulePreset }) {
+function FirmCard({ presets }: { presets: PropFirmRulePreset[] }) {
+  const ordered = useMemo(
+    () => [...presets].sort((a, b) => a.accountSize - b.accountSize),
+    [presets],
+  );
+  const [selectedId, setSelectedId] = useState(ordered[0]?.id ?? "");
+  const preset = ordered.find((item) => item.id === selectedId) ?? ordered[0];
+
+  if (!preset) return null;
+
   const billing = preset.evaluationBillingMode === "MONTHLY"
     ? "Monthly"
     : preset.evaluationBillingMode === "ONE_TIME"
@@ -39,12 +55,30 @@ function PresetCard({ preset }: { preset: PropFirmRulePreset }) {
     <article className={styles.card}>
       <header className={styles.cardHeader}>
         <div>
-          <span className={styles.eyebrow}>BUILT-IN PRESET</span>
+          <span className={styles.eyebrow}>BUILT-IN PRESETS</span>
           <h2>{preset.propFirm}</h2>
-          <p>{preset.program} · {money.format(preset.accountSize)}</p>
+          <p>{preset.program}</p>
         </div>
         <span className={styles.verified}>Verified {preset.verifiedAt}</span>
       </header>
+
+      <div className={styles.sizeTabs} aria-label={`${preset.propFirm} account size`}>
+        {ordered.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            className={`${styles.sizeTab} ${item.id === preset.id ? styles.sizeTabActive : ""}`}
+            onClick={() => setSelectedId(item.id)}
+          >
+            {sizeLabel(item.accountSize)}
+          </button>
+        ))}
+      </div>
+
+      <div className={styles.selectedPlan}>
+        <span>SELECTED PLAN</span>
+        <strong>{sizeLabel(preset.accountSize)}</strong>
+      </div>
 
       <div className={styles.quickRules}>
         <Rule label="Profit target" value={moneyValue(preset.profitTarget)} />
@@ -55,7 +89,7 @@ function PresetCard({ preset }: { preset: PropFirmRulePreset }) {
         <Rule label="Evaluation fee" value={moneyValue(preset.evaluationFee)} />
       </div>
 
-      <details className={styles.details}>
+      <details className={styles.details} key={preset.id}>
         <summary>ALL RULES</summary>
         <div className={styles.detailsGrid}>
           <Rule label="Drawdown mode" value={preset.drawdownMode.replaceAll("_", " ")} />
@@ -89,6 +123,16 @@ function PresetCard({ preset }: { preset: PropFirmRulePreset }) {
 }
 
 export function PropFirmRulesLibrary() {
+  const firms = useMemo(() => {
+    const grouped = new Map<string, PropFirmRulePreset[]>();
+    for (const preset of PROP_FIRM_PRESETS) {
+      const current = grouped.get(preset.propFirm) ?? [];
+      current.push(preset);
+      grouped.set(preset.propFirm, current);
+    }
+    return Array.from(grouped.values());
+  }, []);
+
   return (
     <main className={styles.page}>
       <section className={styles.intro}>
@@ -125,14 +169,14 @@ export function PropFirmRulesLibrary() {
       <div className={styles.listHeader}>
         <div>
           <span className={styles.eyebrow}>AVAILABLE PRESETS</span>
-          <h2>{PROP_FIRM_PRESETS.length} verified preset{PROP_FIRM_PRESETS.length === 1 ? "" : "s"}</h2>
+          <h2>{firms.length} prop firm{firms.length === 1 ? "" : "s"} · {PROP_FIRM_PRESETS.length} verified plans</h2>
         </div>
-        <p>Preset values are copied into the challenge and remain editable.</p>
+        <p>Choose an account size inside each firm card to switch the displayed rules.</p>
       </div>
 
       <section className={styles.cards}>
-        {PROP_FIRM_PRESETS.map((preset) => (
-          <PresetCard key={preset.id} preset={preset} />
+        {firms.map((presets) => (
+          <FirmCard key={presets[0].propFirm} presets={presets} />
         ))}
       </section>
     </main>
