@@ -23,11 +23,14 @@ async function redirectFromApi(path: string, body?: object) {
   window.location.assign(json.data.url);
 }
 
-export function SubscribeActions() {
+export function SubscribeActions({ available }: { available: boolean }) {
   const [loading, setLoading] = useState<"MONTHLY" | "ANNUAL" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const disabled = !available || loading !== null;
 
   async function start(interval: "MONTHLY" | "ANNUAL") {
+    if (!available) return;
+
     setLoading(interval);
     setError(null);
 
@@ -42,23 +45,49 @@ export function SubscribeActions() {
   return (
     <div className={styles.subscribeArea}>
       <div className={styles.priceOptions}>
-        <button type="button" onClick={() => void start("MONTHLY")} disabled={loading !== null}>
+        <button
+          className={!available ? styles.unavailable : undefined}
+          type="button"
+          onClick={() => void start("MONTHLY")}
+          disabled={disabled}
+        >
           <span>MONTHLY</span>
           <strong>$12.99</strong>
           <small>/ month</small>
-          <i>{loading === "MONTHLY" ? "OPENING CHECKOUT..." : "CHOOSE MONTHLY"}</i>
+          <i>
+            {!available
+              ? "COMING SOON"
+              : loading === "MONTHLY"
+                ? "OPENING CHECKOUT..."
+                : "CHOOSE MONTHLY"}
+          </i>
         </button>
 
-        <button className={styles.bestValue} type="button" onClick={() => void start("ANNUAL")} disabled={loading !== null}>
+        <button
+          className={`${styles.bestValue}${!available ? ` ${styles.unavailable}` : ""}`}
+          type="button"
+          onClick={() => void start("ANNUAL")}
+          disabled={disabled}
+        >
           <b>SAVE 36%</b>
           <span>ANNUAL</span>
           <strong>$99</strong>
           <small>/ year · $8.25/mo</small>
-          <i>{loading === "ANNUAL" ? "OPENING CHECKOUT..." : "CHOOSE ANNUAL"}</i>
+          <i>
+            {!available
+              ? "COMING SOON"
+              : loading === "ANNUAL"
+                ? "OPENING CHECKOUT..."
+                : "CHOOSE ANNUAL"}
+          </i>
         </button>
       </div>
       {error && <p className={styles.billingError}>{error}</p>}
-      <p className={styles.checkoutNote}>Secure checkout and subscription billing are handled by Lemon Squeezy.</p>
+      <p className={styles.checkoutNote}>
+        {available
+          ? "Secure checkout and subscription billing are handled by Lemon Squeezy."
+          : "FFZ Pro subscriptions are being prepared and will be available soon."}
+      </p>
     </div>
   );
 }
