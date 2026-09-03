@@ -35,6 +35,7 @@ export type FounderReservationResult =
       expiresAt: Date;
       checkoutUrl: string | null;
     }
+  | { kind: "PENDING"; slotNo: number }
   | { kind: "PURCHASED"; slotNo: number }
   | { kind: "REFUNDED"; slotNo: number }
   | { kind: "SOLD_OUT" };
@@ -104,6 +105,11 @@ export async function reserveFounderSlot(userId: string): Promise<FounderReserva
         if (!existing.reservationToken || !existing.reservationExpiresAt) {
           throw new Error("FOUNDER_RESERVATION_INVALID");
         }
+
+        if (!existing.checkoutUrl) {
+          return { kind: "PENDING", slotNo: existing.slotNo };
+        }
+
         return {
           kind: "RESERVED",
           slotNo: existing.slotNo,
