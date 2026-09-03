@@ -12,6 +12,7 @@ set +a
 EXPECTED=(
   users
   sessions
+  user_plans
   trading_accounts
   challenges
   trades
