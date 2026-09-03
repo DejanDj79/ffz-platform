@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
-import { tradingGuardrailSettings } from "@/db/schema";
+import { tradingGuardrailSettings } from "@/db/trading-guardrails-schema";
 import { DEFAULT_TRADING_GUARDRAILS } from "./guardrails";
 import type {
   TradingGuardrailSettings,
