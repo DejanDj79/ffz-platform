@@ -70,6 +70,7 @@ export type EvaluatePersonalGuardrailsInput = {
   dailyStats: DailyTradingStats;
   now?: Date;
   uncappedMaxContracts?: number | null;
+  journalAvailable?: boolean;
 };
 
 export type EvaluateNewsGuardrailsInput = {
