@@ -16,6 +16,7 @@ const PROTECTED_PAGE_PREFIXES = [
   "/challenges",
   "/journal",
   "/ledger",
+  "/prop-journey",
   "/economic-calendar",
   "/scoreboard",
 ];
