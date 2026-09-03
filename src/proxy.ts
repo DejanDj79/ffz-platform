@@ -6,6 +6,10 @@ import {
   SESSION_COOKIE_CANDIDATES,
 } from "@/lib/auth/cookies";
 
+const PUBLIC_PAGE_PATHS = new Set([
+  "/tools/risk-calculator",
+]);
+
 const PROTECTED_PAGE_PREFIXES = [
   "/dashboard",
   "/tools",
@@ -19,6 +23,10 @@ const PROTECTED_PAGE_PREFIXES = [
 function isProtectedPage(
   pathname: string,
 ) {
+  if (PUBLIC_PAGE_PATHS.has(pathname)) {
+    return false;
+  }
+
   return (
     pathname === "/" ||
     PROTECTED_PAGE_PREFIXES.some(

@@ -6,6 +6,14 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./Auth.module.css";
 
+function safeNextPath() {
+  if (typeof window === "undefined") return "/dashboard";
+  const next = new URLSearchParams(window.location.search).get("next");
+  return next && next.startsWith("/") && !next.startsWith("//")
+    ? next
+    : "/dashboard";
+}
+
 export default function RegisterPage() {
   const router = useRouter();
   const [displayName, setDisplayName] = useState("");
@@ -43,7 +51,7 @@ export default function RegisterPage() {
         throw new Error(json.error ?? "Unable to create account.");
       }
 
-      router.replace("/dashboard");
+      router.replace(safeNextPath());
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to create account.");

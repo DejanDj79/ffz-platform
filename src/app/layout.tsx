@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
-import { AppShell } from "@/components/shell/AppShell";
+import { RouteShell } from "@/components/shell/RouteShell";
 import "./globals.css";
 import "./ui-tweaks.css";
 
@@ -20,7 +20,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body className={poppins.variable}>
-        <AppShell>{children}</AppShell>
+        <RouteShell>{children}</RouteShell>
       </body>
     </html>
   );

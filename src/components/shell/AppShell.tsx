@@ -197,6 +197,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const isAuthPage = pathname === "/login" || pathname === "/register";
   const isOverlayPage = pathname.startsWith("/overlays/");
+  const isPublicCalculator = pathname === "/tools/risk-calculator";
   const bypassShell = isAuthPage || isOverlayPage;
 
   useEffect(() => {
@@ -219,8 +220,12 @@ export function AppShell({ children }: { children: ReactNode }) {
         if (!response.ok) {
           if (!cancelled) {
             setAuthState("unauthenticated");
-            const next = encodeURIComponent(pathname);
-            router.replace(`/login?next=${next}`);
+            setUser(null);
+
+            if (!isPublicCalculator) {
+              const next = encodeURIComponent(pathname);
+              router.replace(`/login?next=${next}`);
+            }
           }
           return;
         }
@@ -234,7 +239,11 @@ export function AppShell({ children }: { children: ReactNode }) {
       } catch {
         if (!cancelled) {
           setAuthState("unauthenticated");
-          router.replace("/login");
+          setUser(null);
+
+          if (!isPublicCalculator) {
+            router.replace("/login");
+          }
         }
       }
     }
@@ -244,7 +253,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [bypassShell, pathname, router]);
+  }, [bypassShell, isPublicCalculator, pathname, router]);
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -267,6 +276,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 
   if (bypassShell) {
+    return <>{children}</>;
+  }
+
+  if (isPublicCalculator && authState === "unauthenticated") {
     return <>{children}</>;
   }
 
