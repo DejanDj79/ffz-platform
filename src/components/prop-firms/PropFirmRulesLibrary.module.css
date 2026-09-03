@@ -144,31 +144,84 @@
 
 .cardHeader h2 {
   margin-top: 4px;
-  font-size: 15px;
+  font-size: 17px;
   line-height: 1.2;
 }
 
 .cardHeader p {
   margin: 4px 0 0;
-  font-size: 9.5px;
+  font-size: 11px;
 }
 
 .verified {
   align-self: flex-start;
-  padding: 4px 6px;
+  padding: 5px 7px;
   border: 1px solid rgba(69, 219, 173, .3);
   border-radius: 999px;
   color: #65dfb2;
   background: rgba(69, 219, 173, .06);
-  font-size: 7.5px;
+  font-size: 9px;
   white-space: nowrap;
+}
+
+.sizeTabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 11px 12px 9px;
+  border-bottom: 1px solid rgba(68, 91, 109, .28);
+}
+
+.sizeTab {
+  min-width: 54px;
+  min-height: 31px;
+  padding: 0 10px;
+  border: 1px solid rgba(88, 112, 130, .5);
+  border-radius: 7px;
+  color: #aab8c3;
+  background: rgba(255, 255, 255, .025);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.sizeTab:hover {
+  border-color: rgba(48, 208, 248, .55);
+  color: #dff7fd;
+}
+
+.sizeTabActive {
+  border-color: #42d7f8;
+  color: #031018;
+  background: linear-gradient(180deg, #49dcfc, #2bbde9);
+  box-shadow: 0 0 0 1px rgba(66, 215, 248, .1), 0 5px 18px rgba(43, 189, 233, .14);
+}
+
+.selectedPlan {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px 0;
+}
+
+.selectedPlan span {
+  color: #748793;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.selectedPlan strong {
+  color: #6de6ff;
+  font-size: 14px;
 }
 
 .quickRules,
 .detailsGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
+  gap: 7px;
 }
 
 .quickRules {
@@ -177,7 +230,7 @@
 
 .rule {
   min-width: 0;
-  padding: 7px 8px;
+  padding: 8px 9px;
   border: 1px solid rgba(73, 94, 109, .32);
   border-radius: 7px;
   background: rgba(255, 255, 255, .018);
@@ -189,16 +242,17 @@
 }
 
 .rule span {
-  color: #71818d;
-  font-size: 9.5px;
+  color: #8596a2;
+  font-size: 12px;
+  font-weight: 650;
   line-height: 1.3;
 }
 
 .rule strong {
-  margin-top: 3px;
+  margin-top: 4px;
   color: #edf4f8;
-  font-size: 10.5px;
-  font-weight: 650;
+  font-size: 13px;
+  font-weight: 700;
   line-height: 1.25;
   overflow-wrap: anywhere;
 }
@@ -209,9 +263,9 @@
 }
 
 .details summary {
-  padding: 9px 12px;
+  padding: 10px 12px;
   color: #88dff2;
-  font-size: 8.5px;
+  font-size: 10.5px;
   font-weight: 800;
   letter-spacing: .08em;
   cursor: pointer;
@@ -228,11 +282,11 @@
 
 .notice {
   margin: 0;
-  padding: 9px 12px;
+  padding: 10px 12px;
   border-top: 1px solid rgba(68, 91, 109, .24);
   color: #c5aee6;
   background: rgba(160, 112, 232, .045);
-  font-size: 8.5px;
+  font-size: 10px;
 }
 
 .cardFooter {
@@ -243,7 +297,7 @@
 .cardFooter .secondary {
   min-height: 32px;
   padding-inline: 10px;
-  font-size: 8.5px;
+  font-size: 9.5px;
 }
 
 @media (max-width: 1250px) {
