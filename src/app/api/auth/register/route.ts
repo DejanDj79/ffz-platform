@@ -64,7 +64,12 @@ export async function POST(request: Request) {
     await claimLegacyDevData(user.id, user.email);
     await createSession(user.id);
 
-    return NextResponse.json({ data: user }, { status: 201 });
+    return NextResponse.json({
+      data: {
+        ...user,
+        plan: "FREE" as const,
+      },
+    }, { status: 201 });
   } catch (error) {
     if (error instanceof ZodError) {
       return NextResponse.json(
