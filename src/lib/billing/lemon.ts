@@ -256,6 +256,40 @@ export function subscriptionSnapshotFromWebhook(payload: LemonWebhookPayload) {
   } satisfies LemonSubscriptionSnapshot & { storeId: string };
 }
 
+const TEST_LIFECYCLE_EVENT_STATUS: Partial<Record<string, LemonSubscriptionStatus>> = {
+  subscription_cancelled: "cancelled",
+  subscription_resumed: "active",
+  subscription_expired: "expired",
+  subscription_paused: "paused",
+  subscription_unpaused: "active",
+};
+
+export function normalizeLemonTestLifecycleEvent(
+  eventName: string,
+  snapshot: LemonSubscriptionSnapshot,
+) {
+  if (!snapshot.testMode) {
+    return { snapshot, bypassStaleGuard: false };
+  }
+
+  const simulatedStatus = TEST_LIFECYCLE_EVENT_STATUS[eventName];
+  if (!simulatedStatus) {
+    return { snapshot, bypassStaleGuard: false };
+  }
+
+  return {
+    snapshot: {
+      ...snapshot,
+      status: simulatedStatus,
+    },
+    // Test-mode simulated lifecycle events are generated from an existing
+    // subscription snapshot, so their provider updated_at can be older than a
+    // previously stored real test event. Bypass the stale-event guard only for
+    // these explicit test lifecycle events. Live webhooks never use this path.
+    bypassStaleGuard: true,
+  };
+}
+
 export function isExpectedLemonSubscription(
   snapshot: LemonSubscriptionSnapshot & { storeId: string },
   config = getLemonConfig(),
