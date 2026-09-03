@@ -8,7 +8,8 @@
 
 .intro,
 .manualCard,
-.card {
+.card,
+.customEmpty {
   border: 1px solid rgba(68, 91, 109, .42);
   border-radius: 12px;
   background: linear-gradient(180deg, rgba(12, 23, 31, .96), rgba(7, 15, 22, .97));
@@ -49,11 +50,19 @@
   font-size: 12px;
 }
 
-.eyebrow {
-  color: #30d0f8;
+.eyebrow,
+.customEyebrow {
   font-size: 9px;
   font-weight: 800;
   letter-spacing: .14em;
+}
+
+.eyebrow {
+  color: #30d0f8;
+}
+
+.customEyebrow {
+  color: #c39af8;
 }
 
 .introActions,
@@ -64,7 +73,8 @@
 }
 
 .primary,
-.secondary {
+.secondary,
+.actionButton {
   min-height: 36px;
   display: inline-flex;
   align-items: center;
@@ -83,10 +93,30 @@
   background: linear-gradient(180deg, #45dafc, #29bce9);
 }
 
-.secondary {
+.secondary,
+.actionButton {
   border: 1px solid rgba(90, 112, 128, .55);
   color: #dbe5ec;
   background: rgba(255, 255, 255, .025);
+}
+
+.actionButton {
+  min-height: 32px;
+  padding-inline: 10px;
+  font-family: inherit;
+  font-size: 9.5px;
+  cursor: pointer;
+}
+
+.actionButton:disabled {
+  opacity: .5;
+  cursor: default;
+}
+
+.dangerButton {
+  border-color: rgba(230, 95, 105, .42);
+  color: #ff9da4;
+  background: rgba(230, 95, 105, .045);
 }
 
 .manualCard {
@@ -134,6 +164,10 @@
   overflow: hidden;
 }
 
+.customCard {
+  border-color: rgba(160, 112, 232, .42);
+}
+
 .cardHeader {
   display: flex;
   justify-content: space-between;
@@ -153,15 +187,25 @@
   font-size: 11px;
 }
 
-.verified {
+.verified,
+.customBadge {
   align-self: flex-start;
   padding: 5px 7px;
-  border: 1px solid rgba(69, 219, 173, .3);
   border-radius: 999px;
-  color: #65dfb2;
-  background: rgba(69, 219, 173, .06);
   font-size: 9px;
   white-space: nowrap;
+}
+
+.verified {
+  border: 1px solid rgba(69, 219, 173, .3);
+  color: #65dfb2;
+  background: rgba(69, 219, 173, .06);
+}
+
+.customBadge {
+  border: 1px solid rgba(183, 135, 242, .38);
+  color: #d4b2ff;
+  background: rgba(160, 112, 232, .07);
 }
 
 .sizeTabs {
@@ -298,6 +342,13 @@
   min-height: 32px;
   padding-inline: 10px;
   font-size: 9.5px;
+}
+
+.customEmpty {
+  padding: 18px 20px;
+  border-style: dashed;
+  color: #7f909d;
+  font-size: 11px;
 }
 
 @media (max-width: 1250px) {
