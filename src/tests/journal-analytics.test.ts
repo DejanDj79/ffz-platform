@@ -92,6 +92,24 @@ describe("journal analytics", () => {
     expect(analytics.dailyPnl).toHaveLength(3);
   });
 
+  it("starts the equity curve at zero so a single losing trade is visible", () => {
+    const analytics = calculateJournalAnalytics(
+      [
+        trade({
+          netPnl: -75,
+          grossPnl: -75,
+          outcome: "LOSS",
+          rMultiple: -1,
+        }),
+      ],
+      allFilters,
+    );
+
+    expect(analytics.equityCurve).toHaveLength(2);
+    expect(analytics.equityCurve[0].cumulativePnl).toBe(0);
+    expect(analytics.equityCurve[1].cumulativePnl).toBe(-75);
+  });
+
   it("builds setup, tag and direction breakdowns", () => {
     const analytics = calculateJournalAnalytics(
       [

@@ -9,7 +9,14 @@ import {
   type JournalBreakdownRow,
 } from "@/lib/journal/analytics";
 import { fetchTrades } from "@/lib/journal/api-client";
+import {
+  ALL_SETUPS,
+  calculateSetupTimeOfDayBreakdown,
+  filterTradesBySetup,
+  setupOptionsFromTrades,
+} from "@/lib/journal/setup-analytics";
 import type { TradeApiModel } from "@/lib/journal/types";
+import { SetupAnalyticsPanel } from "./SetupAnalyticsPanel";
 import { TradingCalendar } from "./TradingCalendar";
 import styles from "./JournalAnalytics.module.css";
 
@@ -191,6 +198,7 @@ export function JournalAnalytics() {
   const [trades, setTrades] = useState<TradeApiModel[]>([]);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [filters, setFilters] = useState<JournalAnalyticsFilters>(defaultFilters);
+  const [selectedSetup, setSelectedSetup] = useState(ALL_SETUPS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -216,10 +224,35 @@ export function JournalAnalytics() {
     void load();
   }, []);
 
+  const setupOptions = useMemo(
+    () => setupOptionsFromTrades(trades),
+    [trades],
+  );
+
+  const setupScopedTrades = useMemo(
+    () => filterTradesBySetup(trades, selectedSetup),
+    [selectedSetup, trades],
+  );
+
   const analytics = useMemo(
+    () => calculateJournalAnalytics(setupScopedTrades, filters),
+    [setupScopedTrades, filters],
+  );
+
+  const comparisonAnalytics = useMemo(
     () => calculateJournalAnalytics(trades, filters),
     [trades, filters],
   );
+
+  const timeOfDayRows = useMemo(
+    () => calculateSetupTimeOfDayBreakdown(analytics.filteredTrades),
+    [analytics.filteredTrades],
+  );
+
+  function resetFilters() {
+    setFilters(defaultFilters);
+    setSelectedSetup(ALL_SETUPS);
+  }
 
   return (
     <main className={styles.page}>
@@ -234,7 +267,11 @@ export function JournalAnalytics() {
         <div>
           <span className={styles.eyebrow}>JOURNAL V2</span>
           <strong>Performance Analytics</strong>
-          <small>Read your edge from closed-trade data, not from memory.</small>
+          <small>
+            {selectedSetup === ALL_SETUPS
+              ? "Read your edge from closed-trade data, not from memory."
+              : `Focused on ${selectedSetup}. Every metric below now uses only this setup.`}
+          </small>
         </div>
 
         <div className={styles.filters}>
@@ -266,6 +303,16 @@ export function JournalAnalytics() {
           </label>
 
           <label>
+            <span>SETUP</span>
+            <select value={selectedSetup} onChange={(event) => setSelectedSetup(event.target.value)}>
+              <option value={ALL_SETUPS}>All setups</option>
+              {setupOptions.map((setup) => (
+                <option key={setup} value={setup}>{setup}</option>
+              ))}
+            </select>
+          </label>
+
+          <label>
             <span>INSTRUMENT</span>
             <select
               value={filters.instrument}
@@ -291,7 +338,7 @@ export function JournalAnalytics() {
             </select>
           </label>
 
-          <button type="button" onClick={() => setFilters(defaultFilters)}>RESET</button>
+          <button type="button" onClick={resetFilters}>RESET</button>
         </div>
       </section>
 
@@ -332,6 +379,13 @@ export function JournalAnalytics() {
           <small>Maximum consecutive wins / losses</small>
         </article>
       </section>
+
+      <SetupAnalyticsPanel
+        selectedSetup={selectedSetup}
+        comparisonRows={comparisonAnalytics.bySetup}
+        timeOfDayRows={timeOfDayRows}
+        onSelectSetup={setSelectedSetup}
+      />
 
       <section className={styles.chartGrid}>
         <article className={styles.panel}>
@@ -377,13 +431,6 @@ export function JournalAnalytics() {
           empty="No direction data for this filter."
         />
         <BreakdownTable
-          title="SETUP PERFORMANCE"
-          subtitle="Your most-used setups ranked by frequency"
-          rows={analytics.bySetup}
-          empty="Add Setup names to trades to unlock this view."
-          limit={10}
-        />
-        <BreakdownTable
           title="DAY OF WEEK"
           subtitle="Closed-trade performance by weekday"
           rows={analytics.byWeekday}
@@ -410,7 +457,7 @@ export function JournalAnalytics() {
               Setup, tag, instrument, direction and weekday statistics use only closed trades. Open trades stay visible in the total count but do not affect P&amp;L metrics.
             </p>
             <p>
-              Session/time-of-day analytics are intentionally not guessed from timezone alone. We can add explicit session metadata later if you want NY Open, Lunch, Power Hour and similar buckets to be reliable.
+              Time-of-day analytics use each trade&apos;s entry timestamp converted to America/New_York. Psychology analytics still need explicit Journal metadata before we can measure them reliably.
             </p>
             {loading && <small className={styles.loading}>Refreshing journal data…</small>}
           </div>
