@@ -15,6 +15,13 @@
       "when": 1788431000000,
       "tag": "0001_rule_presets_and_guardrails",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788432000000,
+      "tag": "0002_user_plans",
+      "breakpoints": true
     }
   ]
 }
