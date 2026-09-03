@@ -1,31 +1,69 @@
 import { eq, ne } from "drizzle-orm";
 import { db } from "./client";
 import { users } from "./schema";
+import { userPlans } from "./user-plans-schema";
+
+async function grantCreator(userId: string) {
+  const now = new Date();
+
+  await db.transaction(async (tx) => {
+    await tx
+      .update(users)
+      .set({
+        role: "CREATOR",
+        updatedAt: now,
+      })
+      .where(eq(users.id, userId));
+
+    await tx
+      .insert(userPlans)
+      .values({
+        userId,
+        plan: "PRO",
+        updatedAt: now,
+      })
+      .onConflictDoUpdate({
+        target: userPlans.userId,
+        set: {
+          plan: "PRO",
+          updatedAt: now,
+        },
+      });
+  });
+
+  const rows = await db
+    .select({
+      id: users.id,
+      email: users.email,
+      displayName: users.displayName,
+      role: users.role,
+      plan: userPlans.plan,
+    })
+    .from(users)
+    .leftJoin(userPlans, eq(userPlans.userId, users.id))
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  return rows[0];
+}
 
 async function main() {
   const requestedEmail = process.argv[2]?.trim().toLowerCase();
 
   if (requestedEmail) {
-    const rows = await db
-      .update(users)
-      .set({
-        role: "CREATOR",
-        updatedAt: new Date(),
-      })
+    const matches = await db
+      .select({ id: users.id })
+      .from(users)
       .where(eq(users.email, requestedEmail))
-      .returning({
-        id: users.id,
-        email: users.email,
-        displayName: users.displayName,
-        role: users.role,
-      });
+      .limit(1);
 
-    if (!rows[0]) {
+    if (!matches[0]) {
       throw new Error(`No FFZ user found for ${requestedEmail}`);
     }
 
-    console.log("CREATOR role granted:");
-    console.log(rows[0]);
+    const user = await grantCreator(matches[0].id);
+    console.log("CREATOR role + PRO plan granted:");
+    console.log(user);
     return;
   }
 
@@ -59,24 +97,9 @@ async function main() {
     return;
   }
 
-  const user = realUsers[0];
-
-  const rows = await db
-    .update(users)
-    .set({
-      role: "CREATOR",
-      updatedAt: new Date(),
-    })
-    .where(eq(users.id, user.id))
-    .returning({
-      id: users.id,
-      email: users.email,
-      displayName: users.displayName,
-      role: users.role,
-    });
-
-  console.log("CREATOR role granted:");
-  console.log(rows[0]);
+  const user = await grantCreator(realUsers[0].id);
+  console.log("CREATOR role + PRO plan granted:");
+  console.log(user);
 }
 
 main()
