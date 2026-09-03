@@ -7,7 +7,7 @@ const REQUIRED_BILLING_VARS = [
   "LEMONSQUEEZY_WEBHOOK_SECRET",
 ] as const;
 
-type BillingEnv = Partial<Record<(typeof REQUIRED_BILLING_VARS)[number] | "LEMONSQUEEZY_TEST_MODE", string | undefined>>;
+type BillingEnv = Record<string, string | undefined>;
 
 export type LemonBillingAvailability = {
   available: boolean;
