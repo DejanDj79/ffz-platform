@@ -1,5 +1,7 @@
+import { sql } from "drizzle-orm";
 import {
   boolean,
+  check,
   integer,
   pgTable,
   text,
@@ -35,6 +37,14 @@ export const founderSlots = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => ({
+    slotRange: check(
+      "founder_slots_slot_range",
+      sql`${table.slotNo} BETWEEN 1 AND 150`,
+    ),
+    statusCheck: check(
+      "founder_slots_status_check",
+      sql`${table.status} IN ('AVAILABLE', 'RESERVED', 'PURCHASED', 'REFUNDED')`,
+    ),
     userUnique: uniqueIndex("founder_slots_user_unique").on(table.userId),
     reservationTokenUnique: uniqueIndex("founder_slots_reservation_token_unique").on(table.reservationToken),
     providerOrderUnique: uniqueIndex("founder_slots_provider_order_unique").on(table.providerOrderId),
