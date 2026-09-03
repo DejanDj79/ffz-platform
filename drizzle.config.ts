@@ -12,6 +12,7 @@ export default defineConfig({
     "./src/db/schema.ts",
     "./src/db/custom-rule-presets-schema.ts",
     "./src/db/trading-guardrails-schema.ts",
+    "./src/db/user-plans-schema.ts",
   ],
   out: "./drizzle",
   dialect: "postgresql",
