@@ -40,9 +40,16 @@ export function calculateDrawdownFloor(challenge: Challenge) {
     : Math.max(startingBalance, challenge.currentBalance);
 
   const rawTrailingFloor = referenceHigh - maxDrawdown;
-  const lockOffset = finiteNonNegative(challenge.drawdownLockFloorOffset ?? 0);
-  const maximumLockedFloor = startingBalance + lockOffset;
+  const configuredLockOffset = challenge.drawdownLockFloorOffset ?? 0;
 
+  // A negative offset is the internal representation of a trailing drawdown
+  // that never locks during the current phase (for example Tradeify Select
+  // Evaluation). In that case the floor keeps following the reference high.
+  if (configuredLockOffset < 0) {
+    return rawTrailingFloor;
+  }
+
+  const maximumLockedFloor = startingBalance + finiteNonNegative(configuredLockOffset);
   return Math.min(rawTrailingFloor, maximumLockedFloor);
 }
 
@@ -53,18 +60,16 @@ export function calculateDrawdownFloor(challenge: Challenge) {
  *   floor = starting balance - max drawdown
  *
  * EOD_TRAILING:
- *   floor = highest EOD balance - max drawdown, capped at the configured
- *   locked floor. highestEodBalance must be updated after an EOD close.
- *   For Blue Guardian Standard evaluation, the cap is starting balance.
- *   A +$100 cap is a post-payout funded rule and should only be applied after
- *   a payout event, not during evaluation.
+ *   floor = highest EOD balance - max drawdown. If a non-negative lock offset
+ *   is configured, the floor is capped at starting balance + that offset.
+ *   A negative lock offset means the evaluation has no drawdown lock and the
+ *   floor continues trailing upward.
  *
  * INTRADAY_TRAILING:
  *   uses currentBalance as the current high proxy until we add live equity.
  *
  * A dailyLossLimit of 0 means the rule does not exist, not that zero loss is
- * allowed. This matters for Blue Guardian Futures Standard 25K, which currently
- * publishes no daily loss limit.
+ * allowed.
  */
 export function calculateChallengeMetrics(challenge: Challenge): ChallengeMetrics {
   const profitTarget = finiteNonNegative(challenge.profitTarget);

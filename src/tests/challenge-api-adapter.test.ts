@@ -66,4 +66,35 @@ describe("challenge API adapter", () => {
     expect(input.maxMicroContracts).toBe(10);
     expect(input.drawdownType).toBe("EOD_TRAILING");
   });
+
+  it("preserves the internal no-lock trailing drawdown marker", () => {
+    const challenge = {
+      ...createBlankChallenge(),
+      rulesPresetId: "TRADEIFY_SELECT_50K" as const,
+      propFirm: "Tradeify",
+      name: "Select 50K #1",
+      drawdownMode: "EOD_TRAILING" as const,
+      drawdownLockFloorOffset: -1,
+    };
+
+    const input = challengeToApiInput(challenge);
+    expect(input.drawdownLockFloorOffset).toBe(-1);
+
+    const restored = apiModelToChallenge({
+      ...apiModel,
+      rulesPresetId: "TRADEIFY_SELECT_50K",
+      propFirm: "Tradeify",
+      name: "Select 50K #1",
+      accountSize: 50000,
+      startingBalance: 50000,
+      currentBalance: 50000,
+      highestEodBalance: 50000,
+      profitTarget: 3000,
+      maxDrawdown: 2000,
+      drawdownLockFloorOffset: -1,
+      maxMiniContracts: 4,
+      maxMicroContracts: 40,
+    });
+    expect(restored.drawdownLockFloorOffset).toBe(-1);
+  });
 });

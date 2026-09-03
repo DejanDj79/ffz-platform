@@ -1,12 +1,26 @@
 export type PropFirmPresetId =
   | "CUSTOM"
-  | "BLUE_GUARDIAN_FUTURES_STANDARD_25K";
+  | "BLUE_GUARDIAN_FUTURES_STANDARD_25K"
+  | "TOPSTEP_TRADING_COMBINE_STANDARD_50K"
+  | "TOPSTEP_TRADING_COMBINE_STANDARD_100K"
+  | "TOPSTEP_TRADING_COMBINE_STANDARD_150K"
+  | "TRADEIFY_SELECT_25K"
+  | "TRADEIFY_SELECT_50K"
+  | "TRADEIFY_SELECT_100K"
+  | "TRADEIFY_SELECT_150K";
 
 export type DrawdownMode = "STATIC" | "EOD_TRAILING" | "INTRADAY_TRAILING";
 export type BreachType = "NONE" | "SOFT" | "HARD";
 export type PayoutEligibilityMode =
   | "TRADING_DAYS"
   | "CALENDAR_DAYS_AFTER_FIRST_TRADE";
+export type EvaluationBillingMode = "ONE_TIME" | "MONTHLY";
+
+/**
+ * Internal sentinel for trailing drawdowns that do not lock during the current
+ * challenge phase. A negative offset is intentionally never shown to users.
+ */
+export const NO_DRAWDOWN_LOCK = -1;
 
 export interface PropFirmRulePreset {
   id: Exclude<PropFirmPresetId, "CUSTOM">;
@@ -22,8 +36,8 @@ export interface PropFirmRulePreset {
   drawdownMode: DrawdownMode;
   /**
    * Highest floor the trailing drawdown may reach in the current challenge
-   * state, expressed as an offset from startingBalance. For Blue Guardian
-   * Standard evaluation this is 0: the EOD trail stops at starting balance.
+   * state, expressed as an offset from startingBalance. Use
+   * NO_DRAWDOWN_LOCK when the evaluation keeps trailing without a lock.
    */
   drawdownLockFloorOffset: number;
 
@@ -60,6 +74,9 @@ export interface PropFirmRulePreset {
   laterPayoutCap: number | null;
   fundedBuffer: number | null;
 
+  /** Initial evaluation purchase/subscription charge before discounts. */
+  evaluationFee?: number | null;
+  evaluationBillingMode?: EvaluationBillingMode;
   resetFee: number | null;
   reactivationFee: number | null;
   monthlyFee: number | null;

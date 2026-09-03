@@ -61,6 +61,7 @@ export function applyPresetToChallenge(challenge: Challenge, presetId: Challenge
     minimumTradingDays: preset.minimumTradingDays,
     maxMinis: preset.maxMinis,
     maxMicros: preset.maxMicros,
+    challengeFee: preset.evaluationFee ?? challenge.challengeFee,
     resetFee: preset.resetFee ?? challenge.resetFee,
     phase: "EVALUATION",
   };
@@ -124,7 +125,7 @@ export function createDemoChallenges(): Challenge[] {
       profitTarget: preset.profitTarget,
       maxDrawdown: preset.maxDrawdown,
       dailyLossLimit: preset.dailyLossLimit ?? 0,
-      challengeFee: 0,
+      challengeFee: preset.evaluationFee ?? 0,
       resetFee: preset.resetFee ?? 0,
       resetsUsed: 0,
       minimumTradingDays: preset.minimumTradingDays,

@@ -53,6 +53,8 @@ export function apiModelToChallenge(input: ChallengeApiModel): Challenge {
 }
 
 export function challengeToApiInput(challenge: Challenge): CreateChallengeApiInput {
+  const drawdownLockFloorOffset = challenge.drawdownLockFloorOffset ?? 0;
+
   return {
     rulesPresetId: challenge.rulesPresetId ?? "CUSTOM",
     propFirm: challenge.propFirm.trim() || "Custom Prop Firm",
@@ -70,7 +72,7 @@ export function challengeToApiInput(challenge: Challenge): CreateChallengeApiInp
 
     profitTarget: Math.max(0, challenge.profitTarget),
     maxDrawdown: Math.max(0, challenge.maxDrawdown),
-    drawdownLockFloorOffset: Math.max(0, challenge.drawdownLockFloorOffset ?? 0),
+    drawdownLockFloorOffset: drawdownLockFloorOffset < 0 ? -1 : Math.max(0, drawdownLockFloorOffset),
     dailyLossLimit: challenge.dailyLossLimit > 0 ? challenge.dailyLossLimit : null,
 
     challengeFee: Math.max(0, challenge.challengeFee),
@@ -152,7 +154,6 @@ export async function migrateLegacyChallengesToApi(existing: Challenge[]): Promi
     const matching = existing.find((serverChallenge) => sameChallenge(localChallenge, serverChallenge));
 
     if (matching) {
-      // Preserve the server UUID while importing the user's latest browser values.
       await updateChallengeViaApi({
         ...localChallenge,
         id: matching.id,

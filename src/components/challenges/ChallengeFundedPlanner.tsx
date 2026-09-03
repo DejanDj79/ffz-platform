@@ -4,6 +4,7 @@ import Image from "next/image";
 import { FormEvent, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import styles from "./ChallengePlanner.module.css";
 import { FundedLifecyclePanel } from "./FundedLifecyclePanel";
+import { RulePresetControl } from "@/components/prop-firms/RulePresetControl";
 import { calculateChallengeMetrics } from "@/lib/challenges/calculations";
 import {
   applyPresetToChallenge,
@@ -15,7 +16,7 @@ import {
   effectiveChallengeAfterPayouts,
   payoutEntriesForChallenge,
 } from "@/lib/challenges/funded";
-import { getPropFirmPreset, PROP_FIRM_PRESETS } from "@/lib/prop-firms";
+import { getPropFirmPreset } from "@/lib/prop-firms";
 import type { DrawdownMode, PropFirmPresetId } from "@/lib/prop-firms";
 import type { Challenge, ChallengePhase, ChallengeStatus } from "@/lib/challenges/types";
 import {
@@ -338,10 +339,7 @@ export function ChallengeFundedPlanner() {
           <div className={styles.panelTitle}><Icon name="settings" />ACCOUNT SETUP</div>
           <div className={styles.formList}>
             <Field icon="settings" label="Rule Preset">
-              <select value={draft.rulesPresetId ?? "CUSTOM"} onChange={(e) => changePreset(e.target.value as PropFirmPresetId)}>
-                <option value="CUSTOM">Custom / Manual</option>
-                {PROP_FIRM_PRESETS.map((preset) => <option key={preset.id} value={preset.id}>{preset.label}</option>)}
-              </select>
+              <RulePresetControl challenge={draft} onChange={setDraft} />
             </Field>
             <Field icon="building" label="Prop Firm"><input value={draft.propFirm} onChange={(e) => update("propFirm", e.target.value)} placeholder="e.g. Topstep" /></Field>
             <Field icon="tag" label="Account Name"><input value={draft.name} onChange={(e) => update("name", e.target.value)} placeholder="e.g. 50K Challenge #1" /></Field>

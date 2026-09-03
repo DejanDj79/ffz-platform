@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { calculateChallengeMetrics } from "@/lib/challenges/calculations";
 import { normalizeChallenge } from "@/lib/challenges/defaults";
-import { BLUE_GUARDIAN_FUTURES_STANDARD_25K } from "@/lib/prop-firms/presets";
+import {
+  BLUE_GUARDIAN_FUTURES_STANDARD_25K,
+  TOPSTEP_TRADING_COMBINE_STANDARD_50K,
+  TRADEIFY_SELECT_50K,
+} from "@/lib/prop-firms/presets";
 import type { Challenge } from "@/lib/challenges/types";
 
 function challenge(overrides: Partial<Challenge> = {}): Challenge {
@@ -97,6 +101,20 @@ describe("calculateChallengeMetrics", () => {
     expect(result.remainingDrawdown).toBe(2000);
   });
 
+  it("keeps trailing above starting balance when the evaluation has no drawdown lock", () => {
+    const result = calculateChallengeMetrics(challenge({
+      startingBalance: 50000,
+      currentBalance: 53000,
+      maxDrawdown: 2000,
+      drawdownMode: "EOD_TRAILING",
+      highestEodBalance: 53000,
+      drawdownLockFloorOffset: -1,
+      dailyLossLimit: 0,
+    }));
+    expect(result.drawdownFloor).toBe(51000);
+    expect(result.remainingDrawdown).toBe(2000);
+  });
+
   it("supports the Blue Guardian post-payout +$100 funded floor when explicitly configured", () => {
     const result = calculateChallengeMetrics(challenge({
       startingBalance: 25000,
@@ -141,5 +159,19 @@ describe("calculateChallengeMetrics", () => {
     expect(BLUE_GUARDIAN_FUTURES_STANDARD_25K.drawdownMode).toBe("EOD_TRAILING");
     expect(BLUE_GUARDIAN_FUTURES_STANDARD_25K.drawdownLockFloorOffset).toBe(0);
     expect(BLUE_GUARDIAN_FUTURES_STANDARD_25K.postPayoutDrawdownLockFloorOffset).toBe(100);
+  });
+
+  it("contains current Topstep and Tradeify 50K evaluation presets", () => {
+    expect(TOPSTEP_TRADING_COMBINE_STANDARD_50K.profitTarget).toBe(3000);
+    expect(TOPSTEP_TRADING_COMBINE_STANDARD_50K.maxDrawdown).toBe(2000);
+    expect(TOPSTEP_TRADING_COMBINE_STANDARD_50K.maxMicros).toBe(50);
+    expect(TOPSTEP_TRADING_COMBINE_STANDARD_50K.evaluationFee).toBe(49);
+
+    expect(TRADEIFY_SELECT_50K.profitTarget).toBe(3000);
+    expect(TRADEIFY_SELECT_50K.maxDrawdown).toBe(2000);
+    expect(TRADEIFY_SELECT_50K.maxMicros).toBe(40);
+    expect(TRADEIFY_SELECT_50K.evaluationConsistencyPct).toBe(40);
+    expect(TRADEIFY_SELECT_50K.drawdownLockFloorOffset).toBe(-1);
+    expect(TRADEIFY_SELECT_50K.evaluationFee).toBe(165);
   });
 });
