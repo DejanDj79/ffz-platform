@@ -1,26 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import type { Challenge } from "@/lib/challenges/types";
 import { applyPresetToChallenge } from "@/lib/challenges/defaults";
 import { PROP_FIRM_PRESETS } from "@/lib/prop-firms";
-import {
-  createCustomRulePresetViaApi,
-  fetchCustomRulePresets,
-  updateCustomRulePresetViaApi,
-} from "@/lib/prop-firms/custom-api-client";
+import { fetchCustomRulePresets } from "@/lib/prop-firms/custom-api-client";
 import {
   applyCustomVariantToChallenge,
-  challengeToCustomRuleVariant,
   customPresetRef,
   parseCustomPresetRef,
 } from "@/lib/prop-firms/custom-types";
 import type { CustomRulePreset } from "@/lib/prop-firms/custom-types";
 import styles from "./RulePresetControl.module.css";
-
-function sameText(a: string, b: string) {
-  return a.trim().toLowerCase() === b.trim().toLowerCase();
-}
 
 export function RulePresetControl({
   challenge,
@@ -31,8 +22,7 @@ export function RulePresetControl({
 }) {
   const [customPresets, setCustomPresets] = useState<CustomRulePreset[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<{ kind: "success" | "error"; text: string } | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -40,9 +30,9 @@ export function RulePresetControl({
       .then((items) => {
         if (!cancelled) setCustomPresets(items);
       })
-      .catch((error) => {
-        console.error("Unable to load custom rule presets:", error);
-        if (!cancelled) setMessage({ kind: "error", text: "Custom presets unavailable until the database migration is applied." });
+      .catch((loadError) => {
+        console.error("Unable to load custom rule presets:", loadError);
+        if (!cancelled) setError("Custom presets unavailable until the database update is applied.");
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -53,16 +43,8 @@ export function RulePresetControl({
     };
   }, []);
 
-  const activeCustom = useMemo(() => {
-    const ref = parseCustomPresetRef(challenge.rulesPresetId);
-    if (!ref) return null;
-    const preset = customPresets.find((item) => item.id === ref.presetId);
-    const variant = preset?.variants.find((item) => item.id === ref.variantId);
-    return preset && variant ? { preset, variant } : null;
-  }, [challenge.rulesPresetId, customPresets]);
-
   function selectPreset(value: string) {
-    setMessage(null);
+    setError(null);
 
     if (value === "CUSTOM") {
       onChange({ ...challenge, rulesPresetId: "CUSTOM" });
@@ -78,96 +60,6 @@ export function RulePresetControl({
     }
 
     onChange(applyPresetToChallenge(challenge, value));
-  }
-
-  async function saveAsCustomPreset(addAsNewSize = false) {
-    const propFirm = challenge.propFirm.trim();
-    if (!propFirm) {
-      setMessage({ kind: "error", text: "Enter a Prop Firm name before saving a custom preset." });
-      return;
-    }
-
-    setSaving(true);
-    setMessage(null);
-
-    try {
-      let saved: CustomRulePreset;
-      let selectedVariantId: string;
-
-      if (activeCustom) {
-        const generated = challengeToCustomRuleVariant(challenge);
-
-        if (addAsNewSize) {
-          const sameSize = activeCustom.preset.variants.find(
-            (variant) => variant.accountSize === generated.accountSize,
-          );
-          if (sameSize) {
-            setMessage({ kind: "error", text: "That account size already exists in this custom preset. Use UPDATE CUSTOM PRESET instead." });
-            return;
-          }
-
-          saved = await updateCustomRulePresetViaApi(activeCustom.preset.id, {
-            propFirm,
-            variants: [...activeCustom.preset.variants, generated],
-          });
-          selectedVariantId = generated.id;
-        } else {
-          const nextVariant = { ...generated, id: activeCustom.variant.id };
-          const variants = activeCustom.preset.variants.map((variant) =>
-            variant.id === nextVariant.id ? nextVariant : variant,
-          );
-          saved = await updateCustomRulePresetViaApi(activeCustom.preset.id, {
-            propFirm,
-            variants,
-          });
-          selectedVariantId = nextVariant.id;
-        }
-      } else {
-        const defaultName = `${propFirm} Custom`;
-        const existing = customPresets.find((preset) =>
-          sameText(preset.name, defaultName) && sameText(preset.propFirm, propFirm),
-        );
-        const generated = challengeToCustomRuleVariant(challenge);
-
-        if (existing) {
-          const sameSize = existing.variants.find((variant) => variant.accountSize === generated.accountSize);
-          const nextVariant = sameSize ? { ...generated, id: sameSize.id } : generated;
-          const variants = sameSize
-            ? existing.variants.map((variant) => variant.id === sameSize.id ? nextVariant : variant)
-            : [...existing.variants, nextVariant];
-          saved = await updateCustomRulePresetViaApi(existing.id, { variants, propFirm });
-          selectedVariantId = nextVariant.id;
-        } else {
-          saved = await createCustomRulePresetViaApi({
-            name: defaultName,
-            propFirm,
-            variants: [generated],
-          });
-          selectedVariantId = generated.id;
-        }
-      }
-
-      setCustomPresets((items) => {
-        const exists = items.some((item) => item.id === saved.id);
-        return exists
-          ? items.map((item) => item.id === saved.id ? saved : item)
-          : [saved, ...items];
-      });
-      onChange({ ...challenge, rulesPresetId: customPresetRef(saved.id, selectedVariantId) });
-      setMessage({
-        kind: "success",
-        text: addAsNewSize
-          ? "New account size added to the custom preset."
-          : activeCustom
-            ? "Custom preset updated."
-            : "Saved to My Custom Presets.",
-      });
-    } catch (error) {
-      console.error("Unable to save custom preset:", error);
-      setMessage({ kind: "error", text: "Unable to save the custom preset." });
-    } finally {
-      setSaving(false);
-    }
   }
 
   return (
@@ -197,33 +89,8 @@ export function RulePresetControl({
         )}
       </select>
 
-      <div className={styles.actions}>
-        <button
-          className={styles.saveButton}
-          type="button"
-          disabled={saving || loading}
-          onClick={() => void saveAsCustomPreset(false)}
-        >
-          {saving ? "SAVING..." : activeCustom ? "UPDATE CUSTOM PRESET" : "SAVE AS CUSTOM PRESET"}
-        </button>
-        {activeCustom && (
-          <button
-            className={styles.saveButton}
-            type="button"
-            disabled={saving || loading}
-            onClick={() => void saveAsCustomPreset(true)}
-          >
-            ADD AS NEW SIZE
-          </button>
-        )}
-        {loading && <span className={styles.message}>Loading custom presets...</span>}
-      </div>
-
-      {message && (
-        <span className={`${styles.message} ${message.kind === "success" ? styles.success : styles.error}`}>
-          {message.text}
-        </span>
-      )}
+      {loading && <span className={styles.message}>Loading custom presets...</span>}
+      {error && <span className={`${styles.message} ${styles.error}`}>{error}</span>}
     </div>
   );
 }
