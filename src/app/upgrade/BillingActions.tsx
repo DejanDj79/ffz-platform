@@ -46,7 +46,6 @@ export function SubscribeActions({ available }: { available: boolean }) {
     <div className={styles.subscribeArea}>
       <div className={styles.priceOptions}>
         <button
-          className={!available ? styles.unavailable : undefined}
           type="button"
           onClick={() => void start("MONTHLY")}
           disabled={disabled}
@@ -64,7 +63,7 @@ export function SubscribeActions({ available }: { available: boolean }) {
         </button>
 
         <button
-          className={`${styles.bestValue}${!available ? ` ${styles.unavailable}` : ""}`}
+          className={styles.bestValue}
           type="button"
           onClick={() => void start("ANNUAL")}
           disabled={disabled}
