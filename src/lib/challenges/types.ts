@@ -1,4 +1,4 @@
-import type { BreachType, DrawdownMode, PropFirmPresetId } from "@/lib/prop-firms";
+import type { BreachType, DrawdownMode } from "@/lib/prop-firms";
 
 export type ChallengeStatus =
   | "NOT_STARTED"
@@ -41,7 +41,7 @@ export interface Challenge {
   createdAt: string;
   updatedAt: string;
 
-  rulesPresetId?: PropFirmPresetId;
+  rulesPresetId?: string;
   drawdownMode?: DrawdownMode;
   highestEodBalance?: number;
   drawdownLockFloorOffset?: number;
