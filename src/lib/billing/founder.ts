@@ -106,6 +106,10 @@ export async function createLemonFounderCheckout(input: {
   redirectUrl: string;
 }) {
   const config = getFounderLemonConfig();
+  const founderVariantId = Number(config.variantId);
+  if (!Number.isInteger(founderVariantId) || founderVariantId <= 0) {
+    throw new Error("LEMONSQUEEZY_FOUNDER_VARIANT_ID must be a numeric Lemon variant ID.");
+  }
 
   const response = await fetch("https://api.lemonsqueezy.com/v1/checkouts", {
     method: "POST",
@@ -118,6 +122,7 @@ export async function createLemonFounderCheckout(input: {
           expires_at: input.expiresAt.toISOString(),
           product_options: {
             redirect_url: input.redirectUrl,
+            enabled_variants: [founderVariantId],
           },
           checkout_options: {
             embed: false,
