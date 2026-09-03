@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
+import { getLemonBillingAvailability } from "@/lib/billing/availability";
 import { getUserBillingState } from "@/lib/billing/repository";
 import {
   ManageSubscriptionButton,
@@ -51,6 +52,7 @@ export default async function UpgradePage() {
   if (!user) redirect("/login?next=/upgrade");
 
   const isPro = user.plan === "PRO";
+  const billingAvailability = getLemonBillingAvailability();
   const billing = isPro ? await getUserBillingState(user.id) : null;
   const hasSubscription = Boolean(
     billing?.provider === "LEMON_SQUEEZY" && billing.subscriptionId,
@@ -107,7 +109,7 @@ export default async function UpgradePage() {
               {hasSubscription && <ManageSubscriptionButton />}
             </div>
           ) : (
-            <SubscribeActions />
+            <SubscribeActions available={billingAvailability.available} />
           )}
         </article>
       </section>
