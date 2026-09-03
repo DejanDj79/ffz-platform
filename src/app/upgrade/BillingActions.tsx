@@ -3,6 +3,8 @@
 import { useState } from "react";
 import styles from "./Upgrade.module.css";
 
+type BillingInterval = "MONTHLY" | "ANNUAL";
+
 type ApiResponse = {
   data?: { url?: string };
   error?: string;
@@ -23,69 +25,64 @@ async function redirectFromApi(path: string, body?: object) {
   window.location.assign(json.data.url);
 }
 
-export function SubscribeActions({ available }: { available: boolean }) {
-  const [loading, setLoading] = useState<"MONTHLY" | "ANNUAL" | null>(null);
+export function SubscribeAction({
+  available,
+  interval,
+}: {
+  available: boolean;
+  interval: BillingInterval;
+}) {
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const disabled = !available || loading !== null;
 
-  async function start(interval: "MONTHLY" | "ANNUAL") {
+  async function start() {
     if (!available) return;
 
-    setLoading(interval);
+    setLoading(true);
     setError(null);
 
     try {
       await redirectFromApi("/api/billing/checkout", { interval });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to start checkout.");
-      setLoading(null);
+      setLoading(false);
     }
   }
 
   return (
     <div className={styles.subscribeArea}>
-      <div className={styles.priceOptions}>
-        <button
-          type="button"
-          onClick={() => void start("MONTHLY")}
-          disabled={disabled}
-        >
-          <span>MONTHLY</span>
-          <strong>$12.99</strong>
-          <small>/ month</small>
-          <i>
-            {!available
-              ? "COMING SOON"
-              : loading === "MONTHLY"
-                ? "OPENING CHECKOUT..."
-                : "CHOOSE MONTHLY"}
-          </i>
-        </button>
-
-        <button
-          className={styles.bestValue}
-          type="button"
-          onClick={() => void start("ANNUAL")}
-          disabled={disabled}
-        >
-          <b>SAVE 36%</b>
-          <span>ANNUAL</span>
-          <strong>$99</strong>
-          <small>/ year · $8.25/mo</small>
-          <i>
-            {!available
-              ? "COMING SOON"
-              : loading === "ANNUAL"
-                ? "OPENING CHECKOUT..."
-                : "CHOOSE ANNUAL"}
-          </i>
-        </button>
-      </div>
+      <button
+        className={interval === "ANNUAL" ? styles.annualButton : undefined}
+        type="button"
+        onClick={() => void start()}
+        disabled={!available || loading}
+      >
+        {!available
+          ? "COMING SOON"
+          : loading
+            ? "OPENING CHECKOUT..."
+            : interval === "MONTHLY"
+              ? "CHOOSE MONTHLY"
+              : "CHOOSE YEARLY"}
+      </button>
       {error && <p className={styles.billingError}>{error}</p>}
       <p className={styles.checkoutNote}>
         {available
           ? "Secure checkout and subscription billing are handled by Lemon Squeezy."
           : "FFZ Pro subscriptions are being prepared and will be available soon."}
+      </p>
+    </div>
+  );
+}
+
+export function FounderAction() {
+  return (
+    <div className={styles.subscribeArea}>
+      <button className={styles.founderButton} type="button" disabled>
+        COMING SOON
+      </button>
+      <p className={styles.checkoutNote}>
+        Founder checkout opens at launch and is limited to the first 150 traders.
       </p>
     </div>
   );

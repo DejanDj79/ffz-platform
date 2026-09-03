@@ -4,8 +4,9 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { getLemonBillingAvailability } from "@/lib/billing/availability";
 import { getUserBillingState } from "@/lib/billing/repository";
 import {
+  FounderAction,
   ManageSubscriptionButton,
-  SubscribeActions,
+  SubscribeAction,
 } from "./BillingActions";
 import styles from "./Upgrade.module.css";
 
@@ -60,6 +61,42 @@ export default async function UpgradePage() {
   const renewalLabel = billing?.status === "cancelled"
     ? formatDate(billing.endsAt)
     : formatDate(billing?.renewsAt ?? null);
+  const currentBillingInterval = billing?.variantId === process.env.LEMONSQUEEZY_MONTHLY_VARIANT_ID
+    ? "MONTHLY"
+    : billing?.variantId === process.env.LEMONSQUEEZY_ANNUAL_VARIANT_ID
+      ? "ANNUAL"
+      : null;
+
+  function proState(interval: "MONTHLY" | "ANNUAL") {
+    if (!isPro) {
+      return <SubscribeAction available={billingAvailability.available} interval={interval} />;
+    }
+
+    const isCurrentSubscription = hasSubscription && currentBillingInterval === interval;
+
+    if (!isCurrentSubscription) {
+      return (
+        <div className={styles.planState}>
+          {hasSubscription ? "Included with your current Pro subscription" : "Included in your Pro plan"}
+        </div>
+      );
+    }
+
+    return (
+      <div className={styles.activeBilling}>
+        <div className={`${styles.planState} ${styles.active}`}>
+          PRO ACTIVE
+          {billing?.status && <small>{billing.status.replaceAll("_", " ").toUpperCase()}</small>}
+          {renewalLabel && (
+            <small>
+              {billing?.status === "cancelled" ? "ACCESS UNTIL" : "NEXT BILLING"} {renewalLabel}
+            </small>
+          )}
+        </div>
+        <ManageSubscriptionButton />
+      </div>
+    );
+  }
 
   return (
     <main className={styles.page}>
@@ -68,7 +105,8 @@ export default async function UpgradePage() {
         <h1>Turn FFZ from a tracker into your prop trading operating system.</h1>
         <p>
           Free keeps the core workflow useful. Pro removes account limits and unlocks automation,
-          guardrails and edge analytics. Your existing data stays visible if your plan changes.
+          guardrails and edge analytics. Founder Trader adds a limited lifetime option for the first
+          150 traders. Your existing data stays visible if your plan changes.
         </p>
         <div className={styles.current}>
           CURRENT PLAN <strong>{user.plan}</strong>
@@ -78,38 +116,64 @@ export default async function UpgradePage() {
       <section className={styles.grid}>
         <article className={styles.card}>
           <div className={styles.cardHeader}>
-            <span>FFZ FREE</span>
-            <strong>$0</strong>
-            <small>Core prop tracking</small>
+            <span className={styles.planKicker}>CORE</span>
+            <h2>FREE</h2>
+            <div className={styles.priceRow}>
+              <strong>$0</strong>
+              <small>forever</small>
+            </div>
+            <p>Core prop tracking and journaling tools.</p>
           </div>
           <FeatureList items={FREE_FEATURES} />
           <div className={styles.planState}>{isPro ? "Included in your Pro plan" : "Your current plan"}</div>
         </article>
 
         <article className={`${styles.card} ${styles.proCard}`}>
-          <div className={styles.proBadge}>PRO</div>
           <div className={styles.cardHeader}>
-            <span>FFZ PRO</span>
-            <strong>$12.99 monthly · $99 annual</strong>
-            <small>Automation + advanced edge tools · annual plan saves 36%</small>
+            <span className={styles.planKicker}>MONTHLY</span>
+            <h2>PRO</h2>
+            <div className={styles.priceRow}>
+              <strong>$12.99</strong>
+              <small>/ month</small>
+            </div>
+            <p>Full FFZ access with flexible monthly billing.</p>
           </div>
           <FeatureList items={PRO_FEATURES} />
+          {proState("MONTHLY")}
+        </article>
 
-          {isPro ? (
-            <div className={styles.activeBilling}>
-              <div className={`${styles.planState} ${styles.active}`}>
-                PRO ACTIVE
-                {billing?.status && <small>{billing.status.replaceAll("_", " ").toUpperCase()}</small>}
-                {renewalLabel && (
-                  <small>
-                    {billing?.status === "cancelled" ? "ACCESS UNTIL" : "NEXT BILLING"} {renewalLabel}
-                  </small>
-                )}
-              </div>
-              {hasSubscription && <ManageSubscriptionButton />}
+        <article className={`${styles.card} ${styles.proCard} ${styles.yearlyCard}`}>
+          <div className={styles.savingsBadge}>SAVE 36%</div>
+          <div className={styles.cardHeader}>
+            <span className={styles.planKicker}>YEARLY</span>
+            <h2>PRO</h2>
+            <div className={styles.priceRow}>
+              <strong>$99</strong>
+              <small>/ year</small>
             </div>
+            <p>$8.25/month equivalent · best value for long-term use.</p>
+          </div>
+          <FeatureList items={PRO_FEATURES} />
+          {proState("ANNUAL")}
+        </article>
+
+        <article className={`${styles.card} ${styles.founderCard}`}>
+          <div className={styles.founderBadge}>LIMITED · 150 SPOTS</div>
+          <div className={styles.cardHeader}>
+            <span className={styles.planKicker}>ONE-TIME</span>
+            <h2>FOUNDER</h2>
+            <div className={styles.founderName}>TRADER</div>
+            <div className={styles.priceRow}>
+              <strong>$199</strong>
+              <small>one-time</small>
+            </div>
+            <p>Lifetime FFZ Pro access with one payment. Available only to the first 150 traders.</p>
+          </div>
+          <FeatureList items={PRO_FEATURES} />
+          {isPro ? (
+            <div className={styles.planState}>Included in your current Pro access</div>
           ) : (
-            <SubscribeActions available={billingAvailability.available} />
+            <FounderAction />
           )}
         </article>
       </section>
