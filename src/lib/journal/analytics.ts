@@ -245,15 +245,26 @@ export function calculateJournalAnalytics(
     .filter((value): value is number => value != null);
 
   let cumulativePnl = 0;
-  const equityCurve = closedTrades.map((trade) => {
+  const tradeEquityPoints = closedTrades.map((trade) => {
     const pnl = trade.netPnl ?? 0;
     cumulativePnl = round(cumulativePnl + pnl);
     return {
-      date: (trade.closedAt ?? trade.openedAt),
+      date: trade.closedAt ?? trade.openedAt,
       pnl: round(pnl),
       cumulativePnl,
     };
   });
+
+  const equityCurve: JournalEquityPoint[] = closedTrades.length === 0
+    ? []
+    : [
+        {
+          date: closedTrades[0].openedAt,
+          pnl: 0,
+          cumulativePnl: 0,
+        },
+        ...tradeEquityPoints,
+      ];
 
   const dailyMap = new Map<string, { pnl: number; trades: number }>();
   for (const trade of closedTrades) {
