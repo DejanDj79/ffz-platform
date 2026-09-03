@@ -1,0 +1,592 @@
+.page {
+  width: 100%;
+  display: grid;
+  gap: 16px;
+  padding: 18px 0 8px;
+  color: #edf4f8;
+}
+
+.toolbar,
+.snapshot,
+.kpiGrid article,
+.funnelPanel,
+.panel,
+.sourceNote {
+  border: 1px solid rgba(68,91,109,.42);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(160,112,232,.045), transparent 30%),
+    linear-gradient(180deg, rgba(14,26,35,.96), rgba(7,15,22,.98));
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.02),
+    0 10px 30px rgba(0,0,0,.08);
+}
+
+.toolbar {
+  min-height: 86px;
+  padding: 17px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border-radius: 11px;
+}
+
+.toolbar > div:first-child {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.eyebrow {
+  color: #a070e8;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: .13em;
+}
+
+.toolbar > div:first-child > strong {
+  color: #eef5f9;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.toolbar small,
+.panel header small,
+.funnelPanel header small,
+.sourceNote p,
+.snapshot p {
+  color: #7b8b96;
+  font-size: 10.5px;
+  line-height: 1.55;
+}
+
+.toolbarActions {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+}
+
+.toolbarActions label {
+  display: grid;
+  gap: 5px;
+}
+
+.toolbarActions label > span {
+  color: #71828d;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .09em;
+}
+
+.toolbarActions select,
+.toolbarActions > a {
+  min-height: 36px;
+  border: 1px solid rgba(67,89,105,.52);
+  border-radius: 7px;
+  color: #dce6ec;
+  background: linear-gradient(180deg, #101c25, #0a151d);
+  font: inherit;
+  font-size: 10.5px;
+}
+
+.toolbarActions select {
+  min-width: 92px;
+  padding: 0 10px;
+  color-scheme: dark;
+}
+
+.toolbarActions > a {
+  padding: 0 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #30d0f8;
+  border-color: rgba(48,208,248,.35);
+  text-decoration: none;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+
+.snapshot {
+  min-height: 210px;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, .75fr);
+  gap: 24px;
+  align-items: center;
+  border-radius: 12px;
+  border-color: rgba(48,208,248,.3);
+  background:
+    radial-gradient(circle at 20% 30%, rgba(48,208,248,.09), transparent 28rem),
+    radial-gradient(circle at 86% 20%, rgba(160,112,232,.08), transparent 22rem),
+    linear-gradient(180deg, rgba(10,24,33,.98), rgba(6,14,21,.99));
+}
+
+.snapshotMain {
+  min-width: 0;
+}
+
+.snapshotMain > strong {
+  display: block;
+  margin-top: 11px;
+  font-size: clamp(38px, 4vw, 62px);
+  line-height: 1;
+  letter-spacing: -.035em;
+}
+
+.snapshot p {
+  max-width: 760px;
+  margin: 13px 0 0;
+}
+
+.breakEvenCard {
+  padding: 18px;
+  border: 1px solid rgba(72,96,113,.42);
+  border-radius: 10px;
+  background: rgba(7,15,22,.58);
+}
+
+.breakEvenTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.breakEvenTop span {
+  color: #8d9ba5;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .1em;
+}
+
+.breakEvenTop strong {
+  color: #30d0f8;
+  font-size: 22px;
+}
+
+.progressTrack,
+.costTrack {
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(82,103,118,.2);
+}
+
+.progressTrack {
+  height: 9px;
+  margin: 13px 0 10px;
+}
+
+.progressTrack i,
+.costTrack i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #30d0f8, #a070e8);
+}
+
+.breakEvenCard small {
+  color: #71828d;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 11px;
+}
+
+.kpiGrid article {
+  min-height: 116px;
+  padding: 15px;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpiGrid article::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 3px;
+  background: linear-gradient(90deg, #30d0f8, #a070e8);
+  opacity: .75;
+}
+
+.kpiGrid span,
+.funnel article span {
+  color: #81919c;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: .09em;
+}
+
+.kpiGrid strong {
+  display: block;
+  margin-top: 9px;
+  color: #e9f0f4;
+  font-size: clamp(19px, 1.55vw, 25px);
+  line-height: 1.08;
+}
+
+.kpiGrid small {
+  display: block;
+  margin-top: 8px;
+  color: #71828e;
+  font-size: 9.8px;
+  line-height: 1.45;
+}
+
+.funnelPanel,
+.panel {
+  border-radius: 11px;
+  overflow: hidden;
+}
+
+.funnelPanel > header,
+.panel > header {
+  min-height: 62px;
+  padding: 13px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-bottom: 1px solid rgba(66,87,103,.38);
+  background: rgba(255,255,255,.014);
+}
+
+.funnelPanel header > div,
+.panel header > div {
+  display: grid;
+  gap: 4px;
+}
+
+.funnelPanel header span,
+.panel header span {
+  color: #dce7ed;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .11em;
+}
+
+.funnel {
+  padding: 17px;
+  display: grid;
+  grid-template-columns: repeat(9, auto);
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.funnel > i {
+  color: #425663;
+  font-style: normal;
+  font-size: 18px;
+}
+
+.funnel article {
+  min-width: 130px;
+  min-height: 92px;
+  padding: 13px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 3px;
+  border: 1px solid rgba(68,91,109,.34);
+  border-radius: 9px;
+  background: rgba(8,16,23,.62);
+  text-align: center;
+}
+
+.funnel article strong {
+  color: #30d0f8;
+  font-size: 26px;
+  line-height: 1;
+}
+
+.funnel article small {
+  color: #6e7f8a;
+  font-size: 9px;
+}
+
+.twoColumn {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.costList,
+.monthList {
+  min-height: 260px;
+  padding: 14px 16px 16px;
+}
+
+.costList {
+  display: grid;
+  align-content: start;
+  gap: 13px;
+}
+
+.costRow > div:first-child,
+.monthRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.costRow > div:first-child span {
+  color: #aab7bf;
+  font-size: 10.5px;
+}
+
+.costRow > div:first-child strong {
+  color: #dce6ec;
+  font-size: 11px;
+}
+
+.costTrack {
+  height: 6px;
+  margin-top: 7px;
+}
+
+.costRow > small {
+  display: block;
+  margin-top: 5px;
+  color: #657681;
+  font-size: 9px;
+}
+
+.monthList {
+  display: grid;
+  align-content: start;
+}
+
+.monthRow {
+  min-height: 52px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(63,84,99,.24);
+}
+
+.monthRow:last-child {
+  border-bottom: 0;
+}
+
+.monthRow > div {
+  display: grid;
+  gap: 3px;
+}
+
+.monthRow > div > strong {
+  color: #cfd9df;
+  font-size: 10.5px;
+}
+
+.monthRow small {
+  color: #6d7f8a;
+  font-size: 9px;
+}
+
+.monthRow > strong {
+  font-size: 11px;
+}
+
+.tableScroll {
+  overflow-x: auto;
+}
+
+.tableScroll table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10.5px;
+}
+
+.tableScroll th,
+.tableScroll td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(64,84,99,.22);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.tableScroll th:first-child,
+.tableScroll td:first-child {
+  text-align: left;
+}
+
+.tableScroll th {
+  color: #71828d;
+  background: rgba(255,255,255,.012);
+  font-size: 9.3px;
+  font-weight: 800;
+  letter-spacing: .07em;
+}
+
+.tableScroll td {
+  color: #9eadb6;
+}
+
+.tableScroll td strong {
+  color: #dce5ea;
+  font-size: 10.8px;
+}
+
+.tableScroll tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.tableScroll tbody tr:hover {
+  background: rgba(48,208,248,.018);
+}
+
+.status {
+  padding: 4px 7px;
+  border: 1px solid rgba(76,100,116,.4);
+  border-radius: 999px;
+  color: #a8b6bf;
+  background: rgba(255,255,255,.018);
+  font-size: 8.8px;
+  font-weight: 800;
+  letter-spacing: .05em;
+}
+
+.sourceNote {
+  padding: 17px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border-radius: 11px;
+}
+
+.sourceNote > div {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.sourceNote span {
+  color: #30d0f8;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .11em;
+}
+
+.sourceNote strong {
+  color: #dce7ed;
+  font-size: 12px;
+}
+
+.sourceNote p {
+  max-width: 900px;
+  margin: 0;
+}
+
+.sourceNote > a {
+  flex: 0 0 auto;
+  padding: 10px 13px;
+  border: 1px solid rgba(48,208,248,.34);
+  border-radius: 7px;
+  color: #30d0f8;
+  background: rgba(48,208,248,.04);
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.positive { color: #45dbad !important; }
+.negative { color: #ff737f !important; }
+.neutral { color: #9aa7b0 !important; }
+
+.loading,
+.error {
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(68,91,109,.42);
+  border-radius: 11px;
+  color: #82939e;
+  background: rgba(8,16,23,.74);
+  font-size: 11px;
+}
+
+.error {
+  grid-template-columns: 1fr auto;
+  min-height: 64px;
+  padding: 14px;
+  color: #ff9ca4;
+}
+
+.error button {
+  border: 0;
+  color: #30d0f8;
+  background: transparent;
+  font: inherit;
+  font-weight: 800;
+}
+
+.inlineError {
+  padding: 10px 12px;
+  border: 1px solid rgba(255,115,127,.25);
+  border-radius: 8px;
+  color: #ff9ca4;
+  background: rgba(255,115,127,.05);
+  font-size: 10px;
+}
+
+.empty,
+.emptyCell {
+  color: #71838f;
+  text-align: center;
+  font-size: 10px;
+}
+
+.empty {
+  min-height: 190px;
+  display: grid;
+  place-items: center;
+}
+
+.emptyCell {
+  padding: 28px !important;
+}
+
+@media (max-width: 1180px) {
+  .snapshot {
+    grid-template-columns: 1fr;
+  }
+
+  .kpiGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .funnel {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .funnel > i {
+    display: none;
+  }
+}
+
+@media (max-width: 820px) {
+  .toolbar,
+  .sourceNote {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .toolbarActions {
+    justify-content: space-between;
+  }
+
+  .twoColumn,
+  .kpiGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .funnel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
