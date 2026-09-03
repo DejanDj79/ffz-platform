@@ -1,6 +1,7 @@
 import { and, eq, gt } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { db } from "@/db/client";
+import { founderSlots } from "@/db/founder-slots-schema";
 import { sessions, users } from "@/db/schema";
 import { userPlans } from "@/db/user-plans-schema";
 import type { AuthUser } from "./types";
@@ -59,10 +60,12 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
       displayName: users.displayName,
       role: users.role,
       plan: userPlans.plan,
+      founderStatus: founderSlots.status,
     })
     .from(sessions)
     .innerJoin(users, eq(sessions.userId, users.id))
     .leftJoin(userPlans, eq(userPlans.userId, users.id))
+    .leftJoin(founderSlots, eq(founderSlots.userId, users.id))
     .where(
       and(
         eq(sessions.tokenHash, tokenHash),
@@ -75,8 +78,14 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
   if (!user) return null;
 
   return {
-    ...user,
-    plan: user.role === "CREATOR" ? "PRO" : (user.plan ?? "FREE"),
+    id: user.id,
+    email: user.email,
+    displayName: user.displayName,
+    role: user.role,
+    plan:
+      user.role === "CREATOR" || user.founderStatus === "PURCHASED"
+        ? "PRO"
+        : (user.plan ?? "FREE"),
   };
 }
 
