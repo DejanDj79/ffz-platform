@@ -9,6 +9,7 @@ import type {
   TradeGuardrailCheck,
   TradingGuardrailSettings,
 } from "./guardrails-types";
+import type { PositionSizeResult, RiskLevel } from "./types";
 
 export const DEFAULT_TRADING_GUARDRAILS: TradingGuardrailSettings = {
   maxRiskPerTrade: { enabled: true, value: 100, severity: "BLOCKED" },
@@ -48,6 +49,13 @@ function check(
   reason: string,
 ): TradeGuardrailCheck {
   return { code, source, severity, reason };
+}
+
+function riskLevelFromUsage(drawdownUsagePct: number | null): RiskLevel {
+  if (drawdownUsagePct == null) return "N/A";
+  if (drawdownUsagePct <= 5) return "LOW";
+  if (drawdownUsagePct <= 10) return "MODERATE";
+  return "HIGH";
 }
 
 export function marketMinuteOfDay(value: string | Date) {
@@ -105,12 +113,41 @@ export function personalContractLimit(settings: TradingGuardrailSettings) {
   return value > 0 ? value : null;
 }
 
+export function applyPersonalContractLimit(
+  result: PositionSizeResult,
+  contractLimit: number | null,
+  remainingDrawdown: number | null,
+  remainingDailyLoss: number | null,
+): PositionSizeResult {
+  if (contractLimit == null || result.maxContracts <= contractLimit) return result;
+
+  const maxContracts = contractLimit;
+  const actualRisk = result.riskPerContract * maxContracts;
+  const drawdownUsagePct = remainingDrawdown && remainingDrawdown > 0
+    ? (actualRisk / remainingDrawdown) * 100
+    : result.drawdownUsagePct;
+  const dailyLossUsagePct = remainingDailyLoss && remainingDailyLoss > 0
+    ? (actualRisk / remainingDailyLoss) * 100
+    : result.dailyLossUsagePct;
+
+  return {
+    ...result,
+    maxContracts,
+    actualRisk,
+    unusedRiskBudget: Math.max(0, result.effectiveRiskBudget - actualRisk),
+    drawdownUsagePct,
+    dailyLossUsagePct,
+    riskLevel: riskLevelFromUsage(drawdownUsagePct),
+  };
+}
+
 export function evaluatePersonalGuardrails({
   result,
   settings,
   dailyStats,
   now = new Date(),
   uncappedMaxContracts = null,
+  journalAvailable = true,
 }: EvaluatePersonalGuardrailsInput): TradeGuardrailCheck[] {
   const checks: TradeGuardrailCheck[] = [];
 
@@ -126,7 +163,20 @@ export function evaluatePersonalGuardrails({
     ));
   }
 
+  const journalRulesEnabled =
+    settings.maxDailyLosses.enabled || settings.maxTradesPerDay.enabled;
+
+  if (!journalAvailable && journalRulesEnabled) {
+    checks.push(check(
+      "PERSONAL_JOURNAL_UNAVAILABLE",
+      "PERSONAL",
+      "CAUTION",
+      "Journal data is unavailable, so daily trade/loss guardrails cannot be verified.",
+    ));
+  }
+
   if (
+    journalAvailable &&
     settings.maxDailyLosses.enabled &&
     dailyStats.losses >= settings.maxDailyLosses.value
   ) {
@@ -139,6 +189,7 @@ export function evaluatePersonalGuardrails({
   }
 
   if (
+    journalAvailable &&
     settings.maxTradesPerDay.enabled &&
     dailyStats.trades >= settings.maxTradesPerDay.value
   ) {
