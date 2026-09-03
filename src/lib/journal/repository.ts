@@ -140,7 +140,9 @@ export async function createTrade(userId: string, input: TradeEditableInput) {
   }).returning();
 
   const created = toApiModel(rows[0]);
-  await syncChallengesFromJournal(userId, [created.challengeId]);
+  if (!isPlannedTrade(created)) {
+    await syncChallengesFromJournal(userId, [created.challengeId], new Date(), true);
+  }
   return created;
 }
 
@@ -211,7 +213,14 @@ export async function updateTrade(
     .returning();
 
   const updated = rows[0] ? toApiModel(rows[0]) : null;
-  await syncChallengesFromJournal(userId, [current.challengeId, updated?.challengeId]);
+  if (!isPlannedTrade(current) || (updated && !isPlannedTrade(updated))) {
+    await syncChallengesFromJournal(
+      userId,
+      [current.challengeId, updated?.challengeId],
+      new Date(),
+      true,
+    );
+  }
   return updated;
 }
 
@@ -223,8 +232,8 @@ export async function deleteTrade(userId: string, tradeId: string) {
     .where(and(eq(trades.id, tradeId), eq(trades.userId, userId)))
     .returning({ id: trades.id });
 
-  if (rows[0]) {
-    await syncChallengesFromJournal(userId, [current.challengeId]);
+  if (rows[0] && !isPlannedTrade(current)) {
+    await syncChallengesFromJournal(userId, [current.challengeId], new Date(), true);
   }
 
   return rows[0] ?? null;
