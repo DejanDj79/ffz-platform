@@ -22,6 +22,7 @@ EXPECTED=(
   economic_calendar_cache
   custom_rule_presets
   trading_guardrail_settings
+  founder_slots
 )
 
 for table in "${EXPECTED[@]}"; do
@@ -41,6 +42,22 @@ for table in "${EXPECTED[@]}"; do
     exit 1
   fi
 done
+
+founder_slot_count="$(
+  docker compose \
+    --env-file "$ENV_FILE" \
+    -f "$COMPOSE_FILE" \
+    exec -T postgres \
+    psql \
+    -U "$POSTGRES_USER" \
+    -d "$POSTGRES_DB" \
+    -Atc "SELECT count(*) FROM public.founder_slots;"
+)"
+
+if [[ "$founder_slot_count" != "150" ]]; then
+  echo "ERROR: founder_slots must contain exactly 150 rows; found $founder_slot_count." >&2
+  exit 1
+fi
 
 migration_table="$(
   docker compose \
