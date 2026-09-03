@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { getLemonBillingAvailability } from "@/lib/billing/availability";
 import { getUserBillingState } from "@/lib/billing/repository";
 import {
+  FounderAction,
   ManageSubscriptionButton,
   SubscribeAction,
 } from "./BillingActions";
@@ -104,7 +105,8 @@ export default async function UpgradePage() {
         <h1>Turn FFZ from a tracker into your prop trading operating system.</h1>
         <p>
           Free keeps the core workflow useful. Pro removes account limits and unlocks automation,
-          guardrails and edge analytics. Your existing data stays visible if your plan changes.
+          guardrails and edge analytics. Founder Trader adds a limited lifetime option for the first
+          150 traders. Your existing data stays visible if your plan changes.
         </p>
         <div className={styles.current}>
           CURRENT PLAN <strong>{user.plan}</strong>
@@ -153,6 +155,26 @@ export default async function UpgradePage() {
           </div>
           <FeatureList items={PRO_FEATURES} />
           {proState("ANNUAL")}
+        </article>
+
+        <article className={`${styles.card} ${styles.founderCard}`}>
+          <div className={styles.founderBadge}>LIMITED · 150 SPOTS</div>
+          <div className={styles.cardHeader}>
+            <span className={styles.planKicker}>ONE-TIME</span>
+            <h2>FOUNDER</h2>
+            <div className={styles.founderName}>TRADER</div>
+            <div className={styles.priceRow}>
+              <strong>$199</strong>
+              <small>one-time</small>
+            </div>
+            <p>Lifetime FFZ Pro access with one payment. Available only to the first 150 traders.</p>
+          </div>
+          <FeatureList items={PRO_FEATURES} />
+          {isPro ? (
+            <div className={styles.planState}>Included in your current Pro access</div>
+          ) : (
+            <FounderAction />
+          )}
         </article>
       </section>
 
