@@ -6,6 +6,7 @@ import {
   ledgerEntries,
   tradingAccounts,
 } from "@/db/schema";
+import { syncChallengesFromJournal } from "@/lib/challenges/journal-sync";
 import type {
   LedgerCategory,
   LedgerEntryApiModel,
@@ -141,7 +142,11 @@ export async function createLedgerEntry(
     })
     .returning();
 
-  return toApiModel(rows[0]);
+  const created = toApiModel(rows[0]);
+  if (created.entryType === "INCOME" && created.category === "PAYOUT") {
+    await syncChallengesFromJournal(userId, [created.challengeId]);
+  }
+  return created;
 }
 
 export async function updateLedgerEntry(
@@ -225,13 +230,23 @@ export async function updateLedgerEntry(
     )
     .returning();
 
-  return rows[0] ? toApiModel(rows[0]) : null;
+  const updated = rows[0] ? toApiModel(rows[0]) : null;
+  const currentWasPayout = current.entryType === "INCOME" && current.category === "PAYOUT";
+  const updatedIsPayout = updated?.entryType === "INCOME" && updated.category === "PAYOUT";
+  if (currentWasPayout || updatedIsPayout) {
+    await syncChallengesFromJournal(userId, [current.challengeId, updated?.challengeId]);
+  }
+
+  return updated;
 }
 
 export async function deleteLedgerEntry(
   userId: string,
   entryId: string,
 ) {
+  const current = await getLedgerEntry(userId, entryId);
+  if (!current) return null;
+
   const rows = await db
     .delete(ledgerEntries)
     .where(
@@ -241,6 +256,14 @@ export async function deleteLedgerEntry(
       ),
     )
     .returning({ id: ledgerEntries.id });
+
+  if (
+    rows[0] &&
+    current.entryType === "INCOME" &&
+    current.category === "PAYOUT"
+  ) {
+    await syncChallengesFromJournal(userId, [current.challengeId]);
+  }
 
   return rows[0] ?? null;
 }
