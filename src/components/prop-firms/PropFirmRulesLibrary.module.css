@@ -9,7 +9,8 @@
 .intro,
 .manualCard,
 .card,
-.customEmpty {
+.customEmpty,
+.editor {
   border: 1px solid rgba(68, 91, 109, .42);
   border-radius: 12px;
   background: linear-gradient(180deg, rgba(12, 23, 31, .96), rgba(7, 15, 22, .97));
@@ -26,7 +27,8 @@
 .intro h1,
 .manualCard h2,
 .listHeader h2,
-.card h2 {
+.card h2,
+.editor h2 {
   margin: 0;
 }
 
@@ -39,7 +41,8 @@
 .manualCard p,
 .listHeader p,
 .cardHeader p,
-.notice {
+.notice,
+.editorHeader p {
   color: #84939f;
   line-height: 1.55;
 }
@@ -82,9 +85,16 @@
   padding: 0 12px;
   border-radius: 7px;
   text-decoration: none;
+  font-family: inherit;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: .035em;
+}
+
+button.primary,
+button.secondary,
+.actionButton {
+  cursor: pointer;
 }
 
 .primary {
@@ -103,12 +113,12 @@
 .actionButton {
   min-height: 32px;
   padding-inline: 10px;
-  font-family: inherit;
   font-size: 9.5px;
-  cursor: pointer;
 }
 
-.actionButton:disabled {
+.actionButton:disabled,
+.primary:disabled,
+.secondary:disabled {
   opacity: .5;
   cursor: default;
 }
@@ -224,6 +234,7 @@
   border-radius: 7px;
   color: #aab8c3;
   background: rgba(255, 255, 255, .025);
+  font-family: inherit;
   font-size: 11px;
   font-weight: 800;
   cursor: pointer;
@@ -351,8 +362,156 @@
   font-size: 11px;
 }
 
+.editor {
+  overflow: hidden;
+  border-color: rgba(160, 112, 232, .46);
+}
+
+.editorHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(99, 76, 132, .38);
+}
+
+.editorHeader h2 {
+  margin-top: 5px;
+  font-size: 20px;
+}
+
+.editorHeader p {
+  max-width: 760px;
+  margin: 6px 0 0;
+  font-size: 11px;
+}
+
+.editorIdentity,
+.editorGrid {
+  display: grid;
+  gap: 10px;
+}
+
+.editorIdentity {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(68, 91, 109, .28);
+}
+
+.editorGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 14px 16px 16px;
+}
+
+.editorIdentity label,
+.editorGrid label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.editorIdentity label > span,
+.editorGrid label > span {
+  color: #9aaab5;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.editorIdentity input,
+.editorGrid input,
+.editorGrid select {
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  box-sizing: border-box;
+  padding: 0 10px;
+  border: 1px solid rgba(86, 107, 123, .52);
+  border-radius: 7px;
+  outline: none;
+  color: #edf4f8;
+  background: #0b141c;
+  font-family: inherit;
+  font-size: 12px;
+}
+
+.editorIdentity input:focus,
+.editorGrid input:focus,
+.editorGrid select:focus {
+  border-color: rgba(71, 215, 248, .75);
+  box-shadow: 0 0 0 2px rgba(71, 215, 248, .08);
+}
+
+.editorSizeBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid rgba(68, 91, 109, .28);
+}
+
+.editorSizeBar .sizeTabs {
+  flex: 1 1 auto;
+  border-bottom: 0;
+}
+
+.editorSizeActions {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  padding: 8px 12px 8px 0;
+}
+
+.editorSelectedTitle {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px 0;
+}
+
+.editorSelectedTitle span {
+  color: #7f909d;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .09em;
+}
+
+.editorSelectedTitle strong {
+  color: #cba8fa;
+  font-size: 16px;
+}
+
+.editorMessage {
+  margin: 0 16px 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(230, 95, 105, .35);
+  border-radius: 7px;
+  color: #ffb0b6;
+  background: rgba(230, 95, 105, .05);
+  font-size: 11px;
+}
+
+.editorFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 16px 16px;
+  border-top: 1px solid rgba(68, 91, 109, .28);
+}
+
+.editorFooter span {
+  color: #82939f;
+  font-size: 11px;
+}
+
 @media (max-width: 1250px) {
   .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .editorGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -360,13 +519,22 @@
 @media (max-width: 760px) {
   .intro,
   .manualCard,
-  .listHeader {
+  .listHeader,
+  .editorHeader,
+  .editorSizeBar,
+  .editorFooter {
     align-items: flex-start;
     flex-direction: column;
   }
 
-  .cards {
+  .cards,
+  .editorIdentity,
+  .editorGrid {
     grid-template-columns: 1fr;
+  }
+
+  .editorSizeActions {
+    padding: 0 12px 10px;
   }
 }
 
