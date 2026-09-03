@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { describe, expect, it } from "vitest";
 import {
+  normalizeLemonTestLifecycleEvent,
   planForLemonStatus,
   subscriptionSnapshotFromWebhook,
   verifyLemonSignature,
@@ -63,6 +64,35 @@ describe("Lemon Squeezy billing", () => {
     expect(snapshot?.status).toBe("cancelled");
     expect(snapshot?.testMode).toBe(true);
     expect(snapshot?.endsAt?.toISOString()).toBe("2026-10-03T00:00:00.000Z");
+  });
+
+  it("normalizes simulated test lifecycle events without changing live events", () => {
+    const baseSnapshot = {
+      subscriptionId: "12345",
+      customerId: "91",
+      productId: "1336641",
+      variantId: "2088449",
+      status: "active" as const,
+      renewsAt: new Date("2026-10-03T00:00:00.000Z"),
+      endsAt: null,
+      testMode: true,
+      providerUpdatedAt: new Date("2026-09-03T15:00:00.000Z"),
+    };
+
+    const expired = normalizeLemonTestLifecycleEvent("subscription_expired", baseSnapshot);
+    expect(expired.snapshot.status).toBe("expired");
+    expect(expired.bypassStaleGuard).toBe(true);
+    expect(planForLemonStatus(expired.snapshot.status)).toBe("FREE");
+
+    const cancelled = normalizeLemonTestLifecycleEvent("subscription_cancelled", baseSnapshot);
+    expect(cancelled.snapshot.status).toBe("cancelled");
+    expect(cancelled.bypassStaleGuard).toBe(true);
+    expect(planForLemonStatus(cancelled.snapshot.status)).toBe("PRO");
+
+    const liveSnapshot = { ...baseSnapshot, testMode: false };
+    const liveExpired = normalizeLemonTestLifecycleEvent("subscription_expired", liveSnapshot);
+    expect(liveExpired.snapshot.status).toBe("active");
+    expect(liveExpired.bypassStaleGuard).toBe(false);
   });
 
   it("ignores non-subscription webhook payloads", () => {
