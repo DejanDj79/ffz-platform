@@ -253,11 +253,13 @@ export function FreeJournalAnalytics() {
         </article>
       </section>
 
-      <ProFeatureGate
-        title="Discover where your trading edge actually comes from"
-        description="FFZ Pro unlocks setup comparison and New York time-of-day analytics without removing any of your existing Journal data."
-        features={["Setup Edge comparison", "Setup-focused page filtering", "Time-of-day performance", "Expectancy and average R by setup"]}
-      />
+      <div className={styles.proGateSpacing}>
+        <ProFeatureGate
+          title="Discover where your trading edge actually comes from"
+          description="FFZ Pro unlocks setup comparison and New York time-of-day analytics without removing any of your existing Journal data."
+          features={["Setup Edge comparison", "Setup-focused page filtering", "Time-of-day performance", "Expectancy and average R by setup"]}
+        />
+      </div>
 
       <section className={styles.chartGrid}>
         <article className={styles.panel}>
