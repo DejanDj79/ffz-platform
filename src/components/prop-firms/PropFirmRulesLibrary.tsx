@@ -8,9 +8,9 @@ import {
   createCustomRulePresetViaApi,
   deleteCustomRulePresetViaApi,
   fetchCustomRulePresets,
-  updateCustomRulePresetViaApi,
 } from "@/lib/prop-firms/custom-api-client";
 import type { CustomRulePreset, CustomRuleVariant } from "@/lib/prop-firms/custom-types";
+import { CustomPresetEditor } from "./CustomPresetEditor";
 import styles from "./PropFirmRulesLibrary.module.css";
 
 const money = new Intl.NumberFormat("en-US", {
@@ -131,10 +131,12 @@ function FirmCard({ presets }: { presets: PropFirmRulePreset[] }) {
 
 function CustomPresetCard({
   preset,
+  onEdit,
   onUpdated,
   onDeleted,
 }: {
   preset: CustomRulePreset;
+  onEdit: (preset: CustomRulePreset) => void;
   onUpdated: (preset: CustomRulePreset) => void;
   onDeleted: (presetId: string) => void;
 }) {
@@ -147,23 +149,6 @@ function CustomPresetCard({
   const [busy, setBusy] = useState(false);
 
   if (!variant) return null;
-
-  async function editCard() {
-    const nextName = window.prompt("Custom preset name", preset.name);
-    if (nextName == null || !nextName.trim()) return;
-    const nextFirm = window.prompt("Prop firm", preset.propFirm);
-    if (nextFirm == null || !nextFirm.trim()) return;
-
-    setBusy(true);
-    try {
-      onUpdated(await updateCustomRulePresetViaApi(preset.id, {
-        name: nextName.trim(),
-        propFirm: nextFirm.trim(),
-      }));
-    } finally {
-      setBusy(false);
-    }
-  }
 
   async function duplicateCard() {
     setBusy(true);
@@ -238,14 +223,15 @@ function CustomPresetCard({
           <Rule label="Daily loss breach" value={variant.dailyLossBreachType} />
           <Rule label="Minimum days" value={String(variant.minimumTradingDays)} />
           <Rule label="Starting balance" value={moneyValue(variant.startingBalance)} />
+          <Rule label="Drawdown lock offset" value={moneyValue(variant.drawdownLockFloorOffset)} />
           <Rule label="Reset fee" value={moneyValue(variant.resetFee)} />
         </div>
-        <p className={styles.notice}>Edit rule values by selecting this custom preset in Challenge Setup. Use UPDATE CUSTOM PRESET to replace this size or ADD AS NEW SIZE to create another size button.</p>
+        <p className={styles.notice}>Use EDIT to change any rule or add/remove account sizes on this card.</p>
       </details>
 
       <footer className={styles.cardFooter}>
-        <Link className={styles.primary} href="/challenges">OPEN IN CHALLENGE SETUP</Link>
-        <button className={styles.actionButton} type="button" disabled={busy} onClick={() => void editCard()}>EDIT</button>
+        <Link className={styles.primary} href="/challenges">USE IN CHALLENGE SETUP</Link>
+        <button className={styles.actionButton} type="button" disabled={busy} onClick={() => onEdit(preset)}>EDIT</button>
         <button className={styles.actionButton} type="button" disabled={busy} onClick={() => void duplicateCard()}>DUPLICATE</button>
         <button className={`${styles.actionButton} ${styles.dangerButton}`} type="button" disabled={busy} onClick={() => void deleteCard()}>DELETE</button>
       </footer>
@@ -266,6 +252,8 @@ export function PropFirmRulesLibrary() {
   const [customPresets, setCustomPresets] = useState<CustomRulePreset[]>([]);
   const [customLoading, setCustomLoading] = useState(true);
   const [customError, setCustomError] = useState<string | null>(null);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editingPreset, setEditingPreset] = useState<CustomRulePreset | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -294,6 +282,26 @@ export function PropFirmRulesLibrary() {
     });
   }
 
+  function openCreateEditor() {
+    setEditingPreset(null);
+    setEditorOpen(true);
+  }
+
+  function openEditEditor(preset: CustomRulePreset) {
+    setEditingPreset(preset);
+    setEditorOpen(true);
+  }
+
+  function closeEditor() {
+    setEditorOpen(false);
+    setEditingPreset(null);
+  }
+
+  function handleEditorSaved(saved: CustomRulePreset) {
+    replaceCustom(saved);
+    closeEditor();
+  }
+
   return (
     <main className={styles.page}>
       <section className={styles.intro}>
@@ -301,25 +309,34 @@ export function PropFirmRulesLibrary() {
           <span className={styles.eyebrow}>PROP FIRM RULE ENGINE</span>
           <h1>Rules Library</h1>
           <p>
-            Use a verified preset when one exists, or create reusable custom presets from Challenge Setup. Each card can hold multiple account sizes while every saved challenge keeps its own editable copy of the rules.
+            Use verified built-in presets or create your own reusable rule cards here. One custom card can contain multiple account sizes, and Challenge Setup only selects the preset you want to use.
           </p>
         </div>
         <div className={styles.introActions}>
-          <Link className={styles.primary} href="/challenges">CREATE CUSTOM / MANUAL</Link>
+          <button className={styles.primary} type="button" onClick={openCreateEditor}>CREATE CUSTOM PRESET</button>
           <Link className={styles.secondary} href="/challenges">OPEN CHALLENGES</Link>
         </div>
       </section>
 
-      <section className={styles.manualCard}>
-        <div>
-          <span className={styles.eyebrow}>CUSTOM RULES</span>
-          <h2>Any prop firm, any account plan</h2>
-          <p>
-            Enter the rules in Challenge Setup and choose SAVE AS CUSTOM PRESET. Saving another size to the same custom preset adds another size button instead of another card.
-          </p>
-        </div>
-        <Link className={styles.primary} href="/challenges">OPEN MANUAL SETUP</Link>
-      </section>
+      {editorOpen ? (
+        <CustomPresetEditor
+          key={editingPreset?.id ?? "new-custom-preset"}
+          initialPreset={editingPreset}
+          onSaved={handleEditorSaved}
+          onCancel={closeEditor}
+        />
+      ) : (
+        <section className={styles.manualCard}>
+          <div>
+            <span className={styles.customEyebrow}>CUSTOM PRESET BUILDER</span>
+            <h2>Create the whole rule card in one place</h2>
+            <p>
+              Add the firm and preset name, enter rules for the first account size, then use + ADD SIZE for 25K / 50K / 100K or any other variants before saving the card.
+            </p>
+          </div>
+          <button className={styles.primary} type="button" onClick={openCreateEditor}>CREATE CUSTOM PRESET</button>
+        </section>
+      )}
 
       <div className={styles.listHeader}>
         <div>
@@ -340,7 +357,7 @@ export function PropFirmRulesLibrary() {
           <span className={styles.customEyebrow}>MY CUSTOM PRESETS</span>
           <h2>{customPresets.length} custom card{customPresets.length === 1 ? "" : "s"}</h2>
         </div>
-        <p>Your private reusable rule cards, stored in PostgreSQL.</p>
+        <button className={styles.actionButton} type="button" onClick={openCreateEditor}>+ CREATE PRESET</button>
       </div>
 
       {customLoading ? (
@@ -353,13 +370,14 @@ export function PropFirmRulesLibrary() {
             <CustomPresetCard
               key={preset.id}
               preset={preset}
+              onEdit={openEditEditor}
               onUpdated={replaceCustom}
               onDeleted={(id) => setCustomPresets((items) => items.filter((item) => item.id !== id))}
             />
           ))}
         </section>
       ) : (
-        <div className={styles.customEmpty}>No custom presets yet. Create one from Challenge Setup.</div>
+        <div className={styles.customEmpty}>No custom presets yet. Use CREATE CUSTOM PRESET to build your first reusable card.</div>
       )}
     </main>
   );
