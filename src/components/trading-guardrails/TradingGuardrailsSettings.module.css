@@ -109,15 +109,14 @@
   flex-wrap: wrap;
 }
 .ruleControls label {
-  min-height: 34px;
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 0 8px;
-  border: 1px solid #334650;
-  border-radius: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
   color: #8697a1;
-  background: #0b151d;
+  background: transparent;
   font-size: 10px;
 }
 .ruleControls input,
