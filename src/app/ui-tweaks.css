@@ -1,5 +1,50 @@
 /* Targeted visual refinements layered after globals.css. */
 
+/* Keep the Free Analytics Pro teaser visually balanced between the KPI row
+   and the basic charts below it. */
+[class*="proGateSpacing"] {
+  margin-block: 28px !important;
+}
+
+/* FFZ scrollbar theme.
+   Internal scroll areas stay quiet until the pointer enters them. Firefox
+   uses scrollbar-color; Chromium/WebKit use the pseudo elements below. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+*:hover {
+  scrollbar-color: rgba(75, 96, 111, .52) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  background-clip: padding-box;
+}
+
+*:hover::-webkit-scrollbar-thumb {
+  background: rgba(75, 96, 111, .48);
+  background-clip: padding-box;
+}
+
+*:hover::-webkit-scrollbar-thumb:hover {
+  background: rgba(48, 208, 248, .34);
+  background-clip: padding-box;
+}
+
 .results-panel .result-value {
   min-height: 64px;
   padding: 4px 10px 0;
