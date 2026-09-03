@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
+import { getUserBillingState } from "@/lib/billing/repository";
+import {
+  ManageSubscriptionButton,
+  SubscribeActions,
+} from "./BillingActions";
 import styles from "./Upgrade.module.css";
 
 const FREE_FEATURES = [
@@ -32,11 +37,27 @@ function FeatureList({ items }: { items: string[] }) {
   );
 }
 
+function formatDate(value: Date | null) {
+  if (!value) return null;
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(value);
+}
+
 export default async function UpgradePage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/upgrade");
 
   const isPro = user.plan === "PRO";
+  const billing = isPro ? await getUserBillingState(user.id) : null;
+  const hasSubscription = Boolean(
+    billing?.provider === "LEMON_SQUEEZY" && billing.subscriptionId,
+  );
+  const renewalLabel = billing?.status === "cancelled"
+    ? formatDate(billing.endsAt)
+    : formatDate(billing?.renewsAt ?? null);
 
   return (
     <main className={styles.page}>
@@ -67,16 +88,26 @@ export default async function UpgradePage() {
           <div className={styles.proBadge}>PRO</div>
           <div className={styles.cardHeader}>
             <span>FFZ PRO</span>
-            <strong>Founding pricing next</strong>
-            <small>Automation + advanced edge tools</small>
+            <strong>$12.99 monthly · $99 annual</strong>
+            <small>Automation + advanced edge tools · annual plan saves 36%</small>
           </div>
           <FeatureList items={PRO_FEATURES} />
+
           {isPro ? (
-            <div className={`${styles.planState} ${styles.active}`}>PRO ACTIVE</div>
-          ) : (
-            <div className={styles.billingNote}>
-              Billing is intentionally not connected yet. Stripe subscriptions are the next monetization step after this entitlement rollout.
+            <div className={styles.activeBilling}>
+              <div className={`${styles.planState} ${styles.active}`}>
+                PRO ACTIVE
+                {billing?.status && <small>{billing.status.replaceAll("_", " ").toUpperCase()}</small>}
+                {renewalLabel && (
+                  <small>
+                    {billing?.status === "cancelled" ? "ACCESS UNTIL" : "NEXT BILLING"} {renewalLabel}
+                  </small>
+                )}
+              </div>
+              {hasSubscription && <ManageSubscriptionButton />}
             </div>
+          ) : (
+            <SubscribeActions />
           )}
         </article>
       </section>
