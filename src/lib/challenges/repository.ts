@@ -2,6 +2,7 @@ import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { challenges } from "@/db/schema";
 import { centsToDollars, dollarsToCents } from "@/db/money";
+import { syncAllChallengesFromJournal } from "./journal-sync";
 import type {
   ChallengeApiModel,
   CreateChallengeApiInput,
@@ -46,6 +47,7 @@ function toApiModel(row: typeof challenges.$inferSelect): ChallengeApiModel {
 }
 
 export async function listChallenges(userId: string) {
+  await syncAllChallengesFromJournal(userId);
   const rows = await db.select().from(challenges)
     .where(eq(challenges.userId, userId))
     .orderBy(desc(challenges.createdAt));
