@@ -75,6 +75,19 @@ export function SubscribeAction({
   );
 }
 
+export function FounderAction() {
+  return (
+    <div className={styles.subscribeArea}>
+      <button className={styles.founderButton} type="button" disabled>
+        COMING SOON
+      </button>
+      <p className={styles.checkoutNote}>
+        Founder checkout opens at launch and is limited to the first 150 traders.
+      </p>
+    </div>
+  );
+}
+
 export function ManageSubscriptionButton() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
