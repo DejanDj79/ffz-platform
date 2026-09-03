@@ -80,7 +80,7 @@ export function RulePresetControl({
     onChange(applyPresetToChallenge(challenge, value));
   }
 
-  async function saveAsCustomPreset() {
+  async function saveAsCustomPreset(addAsNewSize = false) {
     const propFirm = challenge.propFirm.trim();
     if (!propFirm) {
       setMessage({ kind: "error", text: "Enter a Prop Firm name before saving a custom preset." });
@@ -95,18 +95,33 @@ export function RulePresetControl({
       let selectedVariantId: string;
 
       if (activeCustom) {
-        const nextVariant = {
-          ...challengeToCustomRuleVariant(challenge),
-          id: activeCustom.variant.id,
-        };
-        const variants = activeCustom.preset.variants.map((variant) =>
-          variant.id === nextVariant.id ? nextVariant : variant,
-        );
-        saved = await updateCustomRulePresetViaApi(activeCustom.preset.id, {
-          propFirm,
-          variants,
-        });
-        selectedVariantId = nextVariant.id;
+        const generated = challengeToCustomRuleVariant(challenge);
+
+        if (addAsNewSize) {
+          const sameSize = activeCustom.preset.variants.find(
+            (variant) => variant.accountSize === generated.accountSize,
+          );
+          if (sameSize) {
+            setMessage({ kind: "error", text: "That account size already exists in this custom preset. Use UPDATE CUSTOM PRESET instead." });
+            return;
+          }
+
+          saved = await updateCustomRulePresetViaApi(activeCustom.preset.id, {
+            propFirm,
+            variants: [...activeCustom.preset.variants, generated],
+          });
+          selectedVariantId = generated.id;
+        } else {
+          const nextVariant = { ...generated, id: activeCustom.variant.id };
+          const variants = activeCustom.preset.variants.map((variant) =>
+            variant.id === nextVariant.id ? nextVariant : variant,
+          );
+          saved = await updateCustomRulePresetViaApi(activeCustom.preset.id, {
+            propFirm,
+            variants,
+          });
+          selectedVariantId = nextVariant.id;
+        }
       } else {
         const defaultName = `${propFirm} Custom`;
         const existing = customPresets.find((preset) =>
@@ -139,7 +154,14 @@ export function RulePresetControl({
           : [saved, ...items];
       });
       onChange({ ...challenge, rulesPresetId: customPresetRef(saved.id, selectedVariantId) });
-      setMessage({ kind: "success", text: activeCustom ? "Custom preset updated." : "Saved to My Custom Presets." });
+      setMessage({
+        kind: "success",
+        text: addAsNewSize
+          ? "New account size added to the custom preset."
+          : activeCustom
+            ? "Custom preset updated."
+            : "Saved to My Custom Presets.",
+      });
     } catch (error) {
       console.error("Unable to save custom preset:", error);
       setMessage({ kind: "error", text: "Unable to save the custom preset." });
@@ -180,10 +202,20 @@ export function RulePresetControl({
           className={styles.saveButton}
           type="button"
           disabled={saving || loading}
-          onClick={() => void saveAsCustomPreset()}
+          onClick={() => void saveAsCustomPreset(false)}
         >
           {saving ? "SAVING..." : activeCustom ? "UPDATE CUSTOM PRESET" : "SAVE AS CUSTOM PRESET"}
         </button>
+        {activeCustom && (
+          <button
+            className={styles.saveButton}
+            type="button"
+            disabled={saving || loading}
+            onClick={() => void saveAsCustomPreset(true)}
+          >
+            ADD AS NEW SIZE
+          </button>
+        )}
         {loading && <span className={styles.message}>Loading custom presets...</span>}
       </div>
 
