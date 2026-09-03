@@ -2,6 +2,7 @@ import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { centsToDollars, dollarsToCents } from "@/db/money";
 import { challenges, trades, tradingAccounts } from "@/db/schema";
+import { syncChallengesFromJournal } from "@/lib/challenges/journal-sync";
 import { calculateTradeMetrics } from "./calculations";
 import { isPlannedTrade } from "./planned";
 import type {
@@ -138,7 +139,11 @@ export async function createTrade(userId: string, input: TradeEditableInput) {
     updatedAt: new Date(),
   }).returning();
 
-  return toApiModel(rows[0]);
+  const created = toApiModel(rows[0]);
+  if (!isPlannedTrade(created)) {
+    await syncChallengesFromJournal(userId, [created.challengeId], new Date(), true);
+  }
+  return created;
 }
 
 export async function updateTrade(
@@ -207,12 +212,29 @@ export async function updateTrade(
   }).where(and(eq(trades.id, tradeId), eq(trades.userId, userId)))
     .returning();
 
-  return rows[0] ? toApiModel(rows[0]) : null;
+  const updated = rows[0] ? toApiModel(rows[0]) : null;
+  if (!isPlannedTrade(current) || (updated && !isPlannedTrade(updated))) {
+    await syncChallengesFromJournal(
+      userId,
+      [current.challengeId, updated?.challengeId],
+      new Date(),
+      true,
+    );
+  }
+  return updated;
 }
 
 export async function deleteTrade(userId: string, tradeId: string) {
+  const current = await getTrade(userId, tradeId);
+  if (!current) return null;
+
   const rows = await db.delete(trades)
     .where(and(eq(trades.id, tradeId), eq(trades.userId, userId)))
     .returning({ id: trades.id });
+
+  if (rows[0] && !isPlannedTrade(current)) {
+    await syncChallengesFromJournal(userId, [current.challengeId], new Date(), true);
+  }
+
   return rows[0] ?? null;
 }
