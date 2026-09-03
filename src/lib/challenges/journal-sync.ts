@@ -108,6 +108,7 @@ export async function syncChallengeFromJournal(
   userId: string,
   challengeId: string,
   now = new Date(),
+  force = false,
 ) {
   const challengeRows = await db
     .select()
@@ -145,13 +146,22 @@ export async function syncChallengeFromJournal(
       ),
   ]);
 
+  const normalizedTrades = tradeRows.map((trade) => ({
+    ...trade,
+    tags: Array.isArray(trade.tags) ? trade.tags : [],
+  }));
+  const hasRegularTrade = normalizedTrades.some(
+    (trade) => !trade.tags.includes(PLANNED_TRADE_TAG),
+  );
+
+  if (!force && !hasRegularTrade && payoutRows.length === 0) {
+    return null;
+  }
+
   const preset = getPropFirmPreset(challenge.rulesPresetId);
   const result = calculateJournalChallengeSync({
     startingBalanceCents: challenge.startingBalanceCents,
-    trades: tradeRows.map((trade) => ({
-      ...trade,
-      tags: Array.isArray(trade.tags) ? trade.tags : [],
-    })),
+    trades: normalizedTrades,
     payouts: payoutRows,
     profitSplitPct: preset?.profitSplitPct ?? null,
     now,
@@ -183,9 +193,10 @@ export async function syncChallengesFromJournal(
   userId: string,
   challengeIds: Array<string | null | undefined>,
   now = new Date(),
+  force = false,
 ) {
   const ids = [...new Set(challengeIds.filter((id): id is string => Boolean(id)))];
-  await Promise.all(ids.map((id) => syncChallengeFromJournal(userId, id, now)));
+  await Promise.all(ids.map((id) => syncChallengeFromJournal(userId, id, now, force)));
 }
 
 export async function syncAllChallengesFromJournal(userId: string, now = new Date()) {
@@ -194,5 +205,5 @@ export async function syncAllChallengesFromJournal(userId: string, now = new Dat
     .from(challenges)
     .where(eq(challenges.userId, userId));
 
-  await syncChallengesFromJournal(userId, rows.map((row) => row.id), now);
+  await syncChallengesFromJournal(userId, rows.map((row) => row.id), now, false);
 }
