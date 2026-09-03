@@ -22,6 +22,13 @@
       "when": 1788432000000,
       "tag": "0002_user_plans",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1788444000000,
+      "tag": "0003_lemon_billing",
+      "breakpoints": true
     }
   ]
 }
