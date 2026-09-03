@@ -48,6 +48,7 @@ describe("FFZ monetization entitlements", () => {
 
   it("counts live evaluations and funded accounts but not completed history", () => {
     expect(countsTowardActiveChallengeLimit("NOT_STARTED")).toBe(true);
+    expect(countsTowardActiveChallengeLimit("ACTIVE")).toBe(true);
     expect(countsTowardActiveChallengeLimit("IN_PROGRESS")).toBe(true);
     expect(countsTowardActiveChallengeLimit("PAUSED")).toBe(true);
     expect(countsTowardActiveChallengeLimit("FUNDED")).toBe(true);
@@ -56,11 +57,12 @@ describe("FFZ monetization entitlements", () => {
     expect(countsTowardActiveChallengeLimit("CLOSED")).toBe(false);
 
     expect(countActiveChallenges([
+      { id: "legacy", status: "ACTIVE" },
       { id: "one", status: "IN_PROGRESS" },
       { id: "two", status: "PASSED" },
       { id: "three", status: "FAILED" },
       { id: "four", status: "FUNDED" },
-    ])).toBe(2);
+    ])).toBe(3);
 
     expect(countActiveChallenges([
       { id: "one", status: "IN_PROGRESS" },
