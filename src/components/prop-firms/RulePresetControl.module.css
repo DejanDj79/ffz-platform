@@ -1,0 +1,44 @@
+.wrap {
+  display: grid;
+  gap: 7px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.saveButton {
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid rgba(48, 208, 248, .42);
+  border-radius: 7px;
+  color: #74e4fb;
+  background: rgba(48, 208, 248, .055);
+  font: inherit;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .045em;
+  cursor: pointer;
+}
+
+.saveButton:disabled {
+  opacity: .48;
+  cursor: default;
+}
+
+.message {
+  color: #7f909d;
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.success {
+  color: #69dbb5;
+}
+
+.error {
+  color: #ff8f95;
+}
