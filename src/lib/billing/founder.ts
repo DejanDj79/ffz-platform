@@ -1,5 +1,7 @@
 export const FOUNDER_TOTAL_SLOTS = 150;
-export const FOUNDER_RESERVATION_MINUTES = 30;
+export const FOUNDER_CHECKOUT_MINUTES = 30;
+export const FOUNDER_WEBHOOK_GRACE_MINUTES = 5;
+export const FOUNDER_RESERVATION_MINUTES = FOUNDER_CHECKOUT_MINUTES + FOUNDER_WEBHOOK_GRACE_MINUTES;
 
 export type FounderLemonConfig = {
   apiKey: string;
@@ -51,7 +53,7 @@ export type LemonOrderWebhookPayload = {
   };
 };
 
-type CheckoutResponse = {
+type LemonApiResponse = {
   data?: {
     id?: string;
     attributes?: {
@@ -84,8 +86,14 @@ function lemonHeaders(apiKey: string) {
   };
 }
 
-function errorMessage(payload: CheckoutResponse, fallback: string) {
+function errorMessage(payload: LemonApiResponse, fallback: string) {
   return payload.errors?.[0]?.detail || payload.errors?.[0]?.title || fallback;
+}
+
+export function founderCheckoutExpiresAt(reservationExpiresAt: Date) {
+  return new Date(
+    reservationExpiresAt.getTime() - FOUNDER_WEBHOOK_GRACE_MINUTES * 60 * 1000,
+  );
 }
 
 export async function createLemonFounderCheckout(input: {
@@ -141,7 +149,7 @@ export async function createLemonFounderCheckout(input: {
     }),
   });
 
-  const payload = await response.json() as CheckoutResponse;
+  const payload = await response.json() as LemonApiResponse;
   const url = payload.data?.attributes?.url;
 
   if (!response.ok || !url) {
@@ -149,6 +157,32 @@ export async function createLemonFounderCheckout(input: {
   }
 
   return { url, checkoutId: payload.data?.id ?? null };
+}
+
+export async function cancelSubscriptionAfterFounderPurchase(subscriptionId: string) {
+  const config = getFounderLemonConfig();
+  const response = await fetch(
+    `https://api.lemonsqueezy.com/v1/subscriptions/${encodeURIComponent(subscriptionId)}`,
+    {
+      method: "DELETE",
+      headers: lemonHeaders(config.apiKey),
+      cache: "no-store",
+    },
+  );
+
+  if (response.ok) return;
+
+  let payload: LemonApiResponse = {};
+  try {
+    payload = await response.json() as LemonApiResponse;
+  } catch {
+    // Keep the HTTP status fallback below if Lemon did not return JSON.
+  }
+
+  throw new Error(errorMessage(
+    payload,
+    `Unable to cancel the existing Pro subscription (${response.status}).`,
+  ));
 }
 
 function optionalDate(value: string | undefined) {
