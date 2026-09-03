@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import {
   getLemonConfig,
   isExpectedLemonSubscription,
+  normalizeLemonTestLifecycleEvent,
   subscriptionSnapshotFromWebhook,
   verifyLemonSignature,
   type LemonWebhookPayload,
@@ -31,14 +32,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true, ignored: "event_type" });
     }
 
-    const snapshot = subscriptionSnapshotFromWebhook(payload);
-    if (!snapshot) {
+    const rawSnapshot = subscriptionSnapshotFromWebhook(payload);
+    if (!rawSnapshot) {
       return NextResponse.json({ ok: true, ignored: "payload_type" });
     }
 
-    if (!isExpectedLemonSubscription(snapshot, config)) {
+    if (!isExpectedLemonSubscription(rawSnapshot, config)) {
       return NextResponse.json({ ok: true, ignored: "different_product_or_mode" });
     }
+
+    const lifecycle = normalizeLemonTestLifecycleEvent(eventName, rawSnapshot);
+    const snapshot = lifecycle.snapshot;
 
     const customUserId = payload.meta?.custom_data?.user_id;
     let userId = typeof customUserId === "string" ? customUserId : null;
@@ -54,11 +58,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true, ignored: "unlinked_subscription" });
     }
 
-    const result = await syncLemonSubscription(userId, snapshot);
+    const result = await syncLemonSubscription(userId, snapshot, {
+      bypassStaleGuard: lifecycle.bypassStaleGuard,
+    });
 
     return NextResponse.json({
       ok: true,
       event: eventName,
+      status: snapshot.status,
       applied: result.applied,
       plan: result.plan,
     });
