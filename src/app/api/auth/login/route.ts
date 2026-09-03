@@ -6,6 +6,7 @@ import { users } from "@/db/schema";
 import { verifyPassword } from "@/lib/auth/password";
 import { createSession } from "@/lib/auth/session";
 import { loginSchema } from "@/lib/auth/validation";
+import { getUserPlan } from "@/lib/monetization/user-plan-repository";
 import {
   consumeLoginAccountLimit,
   consumeLoginIpLimit,
@@ -76,6 +77,7 @@ export async function POST(request: Request) {
 
     await createSession(user.id);
     clearRateLimit(accountLimitKey);
+    const plan = await getUserPlan(user.id);
 
     return NextResponse.json({
       data: {
@@ -83,6 +85,7 @@ export async function POST(request: Request) {
         email: user.email,
         displayName: user.displayName,
         role: user.role,
+        plan,
       },
     });
   } catch (error) {
