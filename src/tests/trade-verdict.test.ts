@@ -75,4 +75,42 @@ describe("evaluateTradeVerdict", () => {
 
     expect(verdict.level).toBe("CAUTION");
   });
+
+  it("lets a BLOCKED personal/news guardrail override an otherwise safe setup", () => {
+    const verdict = evaluateTradeVerdict({
+      result: result(),
+      accountType: "PROP",
+      challengeStatus: "IN_PROGRESS",
+      guardrailChecks: [
+        {
+          code: "NEWS_MAJOR_CPI",
+          source: "NEWS",
+          severity: "BLOCKED",
+          reason: "Major USD news lockout: CPI in 4 min.",
+        },
+      ],
+    });
+
+    expect(verdict.level).toBe("BLOCKED");
+    expect(verdict.label).toBe("DO NOT TAKE");
+    expect(verdict.reasons.join(" ")).toContain("CPI");
+  });
+
+  it("keeps INFO guardrails safe and exposes their reason", () => {
+    const verdict = evaluateTradeVerdict({
+      result: result(),
+      accountType: "PERSONAL",
+      guardrailChecks: [
+        {
+          code: "PERSONAL_CONTRACT_CAP",
+          source: "PERSONAL",
+          severity: "INFO",
+          reason: "Position size capped to 1 contract.",
+        },
+      ],
+    });
+
+    expect(verdict.level).toBe("SAFE");
+    expect(verdict.reasons[0]).toContain("capped");
+  });
 });

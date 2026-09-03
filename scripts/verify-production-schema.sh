@@ -19,6 +19,8 @@ EXPECTED=(
   ledger_entries
   scoreboard_settings
   economic_calendar_cache
+  custom_rule_presets
+  trading_guardrail_settings
 )
 
 for table in "${EXPECTED[@]}"; do

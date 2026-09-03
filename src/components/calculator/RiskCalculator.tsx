@@ -3,14 +3,29 @@
 import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
 import { INSTRUMENTS } from "@/lib/trading/instruments";
 import { fetchChallenges } from "@/lib/challenges/api-client";
-import { createTradeViaApi } from "@/lib/journal/api-client";
+import { createTradeViaApi, fetchTrades } from "@/lib/journal/api-client";
 import { PLANNED_TRADE_TAG } from "@/lib/journal/planned";
+import type { TradeApiModel } from "@/lib/journal/types";
+import { fetchEconomicCalendar } from "@/lib/economic-calendar/api-client";
+import type { EconomicCalendarEvent } from "@/lib/economic-calendar/types";
 import { calculatePositionSize } from "@/lib/trading/position-size";
 import { evaluateTradeVerdict } from "@/lib/trading/trade-verdict";
+import {
+  DEFAULT_TRADING_GUARDRAILS,
+  applyPersonalContractLimit,
+  calculateDailyTradingStats,
+  evaluateNewsGuardrails,
+  evaluatePersonalGuardrails,
+  personalContractLimit,
+} from "@/lib/trading/guardrails";
+import { fetchTradingGuardrailSettings } from "@/lib/trading/guardrails-api-client";
+import type {
+  TradingGuardrailSettings,
+  TradingGuardrailSettingsApiModel,
+} from "@/lib/trading/guardrails-types";
 import type { AccountType, InstrumentCode, PositionSizeResult } from "@/lib/trading/types";
 import type { Challenge } from "@/lib/challenges/types";
 import { calculateChallengeMetrics } from "@/lib/challenges/calculations";
-import { normalizeChallenge } from "@/lib/challenges/defaults";
 import { applyChallengeContractLimit, getChallengeContractLimit } from "@/lib/prop-firms/calculator-integration";
 
 const money = new Intl.NumberFormat("en-US", {
@@ -25,6 +40,22 @@ function parsePositive(raw: string): number | null {
   if (raw.trim() === "") return null;
   const value = Number(raw.replace(/,/g, ""));
   return Number.isFinite(value) ? value : null;
+}
+
+function settingsOnly(
+  value: TradingGuardrailSettingsApiModel,
+): TradingGuardrailSettings {
+  return {
+    maxRiskPerTrade: value.maxRiskPerTrade,
+    maxDailyLosses: value.maxDailyLosses,
+    maxTradesPerDay: value.maxTradesPerDay,
+    maxContracts: value.maxContracts,
+    minRewardRisk: value.minRewardRisk,
+    noNewTradesAfter: value.noNewTradesAfter,
+    highImpactNews: value.highImpactNews,
+    mediumImpactNews: value.mediumImpactNews,
+    majorNewsOverride: value.majorNewsOverride,
+  };
 }
 
 function Icon({ name }: { name: string }) {
@@ -134,6 +165,16 @@ export function RiskCalculator() {
   const [selectedChallengeId, setSelectedChallengeId] = useState("");
   const [planSaving, setPlanSaving] = useState(false);
   const [planMessage, setPlanMessage] = useState<string | null>(null);
+  const [guardrailSettings, setGuardrailSettings] = useState<TradingGuardrailSettings>(
+    DEFAULT_TRADING_GUARDRAILS,
+  );
+  const [journalTrades, setJournalTrades] = useState<TradeApiModel[]>([]);
+  const [journalStatus, setJournalStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [calendarEvents, setCalendarEvents] = useState<EconomicCalendarEvent[]>([]);
+  const [calendarStatus, setCalendarStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [calendarStale, setCalendarStale] = useState(false);
+  const [verdictNow, setVerdictNow] = useState(() => new Date());
+  const [prePersonalMaxContracts, setPrePersonalMaxContracts] = useState<number | null>(null);
 
   const spec = useMemo(() => INSTRUMENTS[instrument], [instrument]);
 
@@ -149,30 +190,62 @@ export function RiskCalculator() {
 
   const challengeContractLimit =
     getChallengeContractLimit(selectedChallenge, instrument);
+  const personalMaxContracts = personalContractLimit(guardrailSettings);
 
   useEffect(() => {
     let cancelled = false;
 
-    async function loadSavedChallenges() {
-      try {
-        const items = await fetchChallenges();
+    async function loadContext() {
+      const [challengesResult, settingsResult, tradesResult, calendarResult] =
+        await Promise.allSettled([
+          fetchChallenges(),
+          fetchTradingGuardrailSettings(),
+          fetchTrades(),
+          fetchEconomicCalendar(),
+        ]);
 
-        if (!cancelled) {
-          setSavedChallenges(items);
-        }
-      } catch (error) {
-        console.error("Failed to load FFZ challenges from API:", error);
+      if (cancelled) return;
 
-        if (!cancelled) {
-          setSavedChallenges([]);
-        }
+      if (challengesResult.status === "fulfilled") {
+        setSavedChallenges(challengesResult.value);
+      } else {
+        console.error("Failed to load FFZ challenges from API:", challengesResult.reason);
+        setSavedChallenges([]);
+      }
+
+      if (settingsResult.status === "fulfilled") {
+        setGuardrailSettings(settingsOnly(settingsResult.value));
+      } else {
+        console.error("Failed to load trading guardrails:", settingsResult.reason);
+      }
+
+      if (tradesResult.status === "fulfilled") {
+        setJournalTrades(tradesResult.value);
+        setJournalStatus("ready");
+      } else {
+        console.error("Failed to load Journal data for guardrails:", tradesResult.reason);
+        setJournalTrades([]);
+        setJournalStatus("error");
+      }
+
+      if (calendarResult.status === "fulfilled") {
+        setCalendarEvents(calendarResult.value.events);
+        setCalendarStale(calendarResult.value.stale);
+        setCalendarStatus("ready");
+      } else {
+        console.error("Failed to load Economic Calendar for guardrails:", calendarResult.reason);
+        setCalendarEvents([]);
+        setCalendarStale(false);
+        setCalendarStatus("error");
       }
     }
 
-    void loadSavedChallenges();
+    void loadContext();
 
     const refresh = () => {
-      void loadSavedChallenges();
+      setJournalStatus("loading");
+      setCalendarStatus("loading");
+      void loadContext();
     };
 
     window.addEventListener("focus", refresh);
@@ -183,6 +256,11 @@ export function RiskCalculator() {
       window.removeEventListener("focus", refresh);
       window.removeEventListener("pageshow", refresh);
     };
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setVerdictNow(new Date()), 30_000);
+    return () => window.clearInterval(timer);
   }, []);
 
   function useChallenge(challengeId: string) {
@@ -201,6 +279,7 @@ export function RiskCalculator() {
     event?.preventDefault();
     setError(null);
     setPlanMessage(null);
+    setVerdictNow(new Date());
 
     const parsedEntry = parsePositive(entry);
     const parsedStop = parsePositive(stop);
@@ -213,6 +292,8 @@ export function RiskCalculator() {
     }
 
     try {
+      const remainingDd = accountType === "PROP" ? parsePositive(remainingDrawdown) : null;
+      const remainingDaily = accountType === "PROP" ? parsePositive(remainingDailyLoss) : null;
       const next = calculatePositionSize({
         instrument,
         entry: parsedEntry,
@@ -222,19 +303,27 @@ export function RiskCalculator() {
         commissionAndFeesPerContract: parsePositive(commissionAndFees) ?? 0,
         slippageBufferTicks: parsePositive(slippageBufferTicks) ?? 0,
         accountType,
-        remainingDrawdown: accountType === "PROP" ? parsePositive(remainingDrawdown) : null,
-        remainingDailyLoss: accountType === "PROP" ? parsePositive(remainingDailyLoss) : null,
+        remainingDrawdown: remainingDd,
+        remainingDailyLoss: remainingDaily,
       });
       const contractLimit = getChallengeContractLimit(selectedChallenge, instrument);
-      const adjusted = applyChallengeContractLimit(
+      const challengeAdjusted = applyChallengeContractLimit(
         next,
         contractLimit,
-        accountType === "PROP" ? parsePositive(remainingDrawdown) : null,
-        accountType === "PROP" ? parsePositive(remainingDailyLoss) : null,
+        remainingDd,
+        remainingDaily,
+      );
+      setPrePersonalMaxContracts(challengeAdjusted.maxContracts);
+      const adjusted = applyPersonalContractLimit(
+        challengeAdjusted,
+        personalContractLimit(guardrailSettings),
+        remainingDd,
+        remainingDaily,
       );
       setResult(adjusted);
     } catch (err) {
       setResult(null);
+      setPrePersonalMaxContracts(null);
       setError(err instanceof Error ? err.message : "Unable to calculate this setup.");
     }
   }
@@ -253,6 +342,7 @@ export function RiskCalculator() {
     setCurrentBalance("10250");
     setSelectedChallengeId("");
     setResult(null);
+    setPrePersonalMaxContracts(null);
     setError(null);
     setPlanMessage(null);
   }
@@ -297,11 +387,34 @@ export function RiskCalculator() {
           ? `This trade uses ${display.drawdownUsagePct}% of remaining drawdown. CAUTION appears above 5% and up to 10%.`
           : `This trade uses ${display.drawdownUsagePct}% of remaining drawdown. HIGH RISK appears above 10%.`;
 
+  const dailyStats = calculateDailyTradingStats(journalTrades, verdictNow);
+  const guardrailChecks = result
+    ? [
+        ...evaluatePersonalGuardrails({
+          result,
+          settings: guardrailSettings,
+          dailyStats,
+          now: verdictNow,
+          uncappedMaxContracts: prePersonalMaxContracts,
+          journalAvailable: journalStatus === "ready",
+        }),
+        ...evaluateNewsGuardrails({
+          instrument,
+          events: calendarEvents,
+          settings: guardrailSettings,
+          now: verdictNow,
+          calendarAvailable: calendarStatus === "ready",
+          calendarStale,
+        }),
+      ]
+    : [];
+
   const tradeVerdict = result
     ? evaluateTradeVerdict({
         result,
         accountType,
         challengeStatus: selectedChallenge?.status ?? null,
+        guardrailChecks,
       })
     : null;
 
@@ -314,13 +427,40 @@ export function RiskCalculator() {
         : "high";
 
   async function savePlannedTrade() {
-    if (!result || !tradeVerdict) {
+    if (!result) {
       setError("Calculate the setup before saving a trade plan.");
       return;
     }
 
-    if (tradeVerdict.level === "BLOCKED") {
-      setError("This setup is blocked by the current risk verdict and cannot be saved as an actionable plan.");
+    const now = new Date();
+    const liveChecks = [
+      ...evaluatePersonalGuardrails({
+        result,
+        settings: guardrailSettings,
+        dailyStats: calculateDailyTradingStats(journalTrades, now),
+        now,
+        uncappedMaxContracts: prePersonalMaxContracts,
+        journalAvailable: journalStatus === "ready",
+      }),
+      ...evaluateNewsGuardrails({
+        instrument,
+        events: calendarEvents,
+        settings: guardrailSettings,
+        now,
+        calendarAvailable: calendarStatus === "ready",
+        calendarStale,
+      }),
+    ];
+    const liveVerdict = evaluateTradeVerdict({
+      result,
+      accountType,
+      challengeStatus: selectedChallenge?.status ?? null,
+      guardrailChecks: liveChecks,
+    });
+    setVerdictNow(now);
+
+    if (liveVerdict.level === "BLOCKED") {
+      setError(`This setup is blocked: ${liveVerdict.reasons[0] ?? "current guardrail rules do not allow it."}`);
       return;
     }
 
@@ -342,9 +482,10 @@ export function RiskCalculator() {
       const slippageTicks = parsePositive(slippageBufferTicks) ?? 0;
       const notes = [
         "FFZ PRE-TRADE PLAN",
-        `Verdict: ${tradeVerdict.level}`,
-        ...tradeVerdict.reasons.map((reason) => `- ${reason}`),
+        `Verdict: ${liveVerdict.level}`,
+        ...liveVerdict.reasons.map((reason) => `- ${reason}`),
         "",
+        `Daily guardrail state: ${dailyStats.losses} losses / ${dailyStats.trades} trades`,
         `Max risk setting: ${money.format(parsedMaxRisk)}`,
         `Calculator total planned risk: ${money.format(result.actualRisk)}`,
         `Risk per contract: ${money.format(result.riskPerContract)}`,
@@ -358,7 +499,7 @@ export function RiskCalculator() {
         tradingAccountId: null,
         instrument,
         direction: result.direction,
-        openedAt: new Date().toISOString(),
+        openedAt: now.toISOString(),
         closedAt: null,
         entryPrice: parsedEntry,
         stopPrice: parsedStop,
@@ -459,6 +600,13 @@ export function RiskCalculator() {
             </div>
           )}
 
+          <div className="input-note">
+            <Icon name="shield" />
+            <span>
+              Personal guardrails: {dailyStats.losses} loss{dailyStats.losses === 1 ? "" : "es"} / {dailyStats.trades} trades today · personal max {personalMaxContracts ?? "—"} contract{personalMaxContracts === 1 ? "" : "s"} · news {calendarStatus === "ready" ? (calendarStale ? "stale" : "ready") : "unverified"}. <a href="/tools/trading-guardrails">Edit rules →</a>
+            </span>
+          </div>
+
           <div className="input-note"><Icon name="info" /><span>All values are editable. Calculator uses exchange tick values.</span></div>
         </section>
 
@@ -472,11 +620,11 @@ export function RiskCalculator() {
               icon="contracts"
               title="MAXIMUM CONTRACTS"
               value={String(display.maxContracts)}
-              sub={
-                challengeContractLimit
-                  ? `${contractType} • ${instrument} • Challenge max: ${challengeContractLimit}`
-                  : `${contractType} • ${instrument}`
-              }
+              sub={[
+                `${contractType} • ${instrument}`,
+                challengeContractLimit ? `Challenge max: ${challengeContractLimit}` : null,
+                personalMaxContracts ? `Personal max: ${personalMaxContracts}` : null,
+              ].filter(Boolean).join(" • ")}
               accent="purple"
             />
             <ResultCard icon="shield" title="ACTUAL TRADE RISK" value={money.format(display.actualRisk)} accent="purple" />
@@ -497,7 +645,7 @@ export function RiskCalculator() {
               <strong>{tradeVerdict?.label ?? "CALCULATE FIRST"}</strong>
               <span className="health-shield"><Icon name="crosshair" /></span>
               <span className="health-tooltip" id="trade-verdict-tooltip" role="tooltip">
-                {tradeVerdict?.reasons.join(" ") ?? "Run the calculator to evaluate this setup against current risk limits."}
+                {tradeVerdict?.reasons.join(" ") ?? "Run the calculator to evaluate this setup against prop, personal and news guardrails."}
               </span>
             </article>
           </div>
@@ -510,7 +658,7 @@ export function RiskCalculator() {
               <div><span>Contracts</span><strong>{display.maxContracts}</strong></div>
               <div><span>Max Risk</span><strong>{money.format(parsePositive(maxRisk) ?? 0)}</strong></div>
             </div>
-            <p>Risk is calculated from your stop distance and converted to dollar risk per contract.</p>
+            <p>Risk is calculated from your stop distance and checked against challenge rules, personal guardrails and current news lockouts.</p>
           </section>
 
           <div className="input-actions">
@@ -526,6 +674,14 @@ export function RiskCalculator() {
           </div>
 
           {planMessage && <div className="input-note"><Icon name="shield" /><span>{planMessage}</span></div>}
+
+          {result && guardrailChecks.length > 0 && (
+            <div className="warnings">
+              {guardrailChecks.map((item) => (
+                <p key={item.code}>{item.severity === "BLOCKED" ? "⛔" : item.severity === "CAUTION" ? "⚠" : "ℹ"} {item.reason}</p>
+              ))}
+            </div>
+          )}
 
           {result && result.warnings.length > 0 && <div className="warnings">{result.warnings.map((warning) => <p key={warning}>⚠ {warning}</p>)}</div>}
 

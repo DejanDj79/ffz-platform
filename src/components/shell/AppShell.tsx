@@ -31,7 +31,16 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: "dashboard", section: "workspace" },
   { href: "/trading-desk", label: "Trading Desk", icon: "desk", section: "workspace" },
   { href: "/economic-calendar", label: "Economic Calendar", icon: "calendar", section: "workspace" },
-  { href: "/tools/risk-calculator", label: "Risk Calculator", icon: "calc", section: "workspace" },
+  {
+    href: "/tools/risk-calculator",
+    label: "Risk Calculator",
+    icon: "calc",
+    section: "workspace",
+    children: [
+      { href: "/tools/risk-calculator", label: "Calculator" },
+      { href: "/tools/trading-guardrails", label: "Trading Guardrails" },
+    ],
+  },
   {
     href: "/challenges",
     label: "Challenge / Funded",
@@ -85,6 +94,12 @@ const PAGE_META: Array<{
     match: (pathname) => pathname.startsWith("/tools/risk-calculator"),
     title: "Risk Calculator",
     subtitle: "Position sizing for futures and prop challenges.",
+    icon: "calc",
+  },
+  {
+    match: (pathname) => pathname.startsWith("/tools/trading-guardrails"),
+    title: "Trading Guardrails",
+    subtitle: "Personal trading limits and news lockout rules.",
     icon: "calc",
   },
   {
