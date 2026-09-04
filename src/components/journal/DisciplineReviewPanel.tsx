@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type WheelEvent } from "react";
 import {
   EXECUTION_REVIEW_OPTIONS,
   MINDSET_REVIEW_OPTIONS,
@@ -39,6 +39,21 @@ function reviewFromDraft(draft: ReviewDraft) {
     execution: draft.execution || null,
     mindset: draft.mindset || null,
   };
+}
+
+function chainPageScrollAtListEdge(event: WheelEvent<HTMLDivElement>) {
+  const list = event.currentTarget;
+  const atTop = list.scrollTop <= 0;
+  const atBottom =
+    list.scrollTop + list.clientHeight >= list.scrollHeight - 1;
+
+  if (
+    (event.deltaY < 0 && atTop) ||
+    (event.deltaY > 0 && atBottom)
+  ) {
+    event.preventDefault();
+    window.scrollBy(0, event.deltaY);
+  }
 }
 
 export function DisciplineReviewPanel() {
@@ -150,7 +165,7 @@ export function DisciplineReviewPanel() {
           Close a trade in the Journal to start collecting discipline data.
         </div>
       ) : (
-        <div className={styles.list}>
+        <div className={styles.list} onWheel={chainPageScrollAtListEdge}>
           {trades.map((trade) => {
             const draft = drafts[trade.id] ?? draftFromTrade(trade);
             const persistedStatus = disciplineReviewStatus(
