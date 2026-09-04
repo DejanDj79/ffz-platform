@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   EXECUTION_REVIEW_OPTIONS,
   MINDSET_REVIEW_OPTIONS,
@@ -18,6 +19,17 @@ import styles from "./DisciplineReviewPanel.module.css";
 type ReviewDraft = {
   execution: ExecutionReview | "";
   mindset: MindsetReview | "";
+};
+
+type ReviewOption = {
+  value: string;
+  label: string;
+};
+
+type MenuPosition = {
+  top: number;
+  left: number;
+  width: number;
 };
 
 const money = new Intl.NumberFormat("en-US", {
@@ -39,6 +51,141 @@ function reviewFromDraft(draft: ReviewDraft) {
     execution: draft.execution || null,
     mindset: draft.mindset || null,
   };
+}
+
+function ReviewDropdown({
+  value,
+  options,
+  onChange,
+}: {
+  value: string;
+  options: readonly ReviewOption[];
+  onChange: (value: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [position, setPosition] = useState<MenuPosition | null>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+
+  const selectedLabel =
+    options.find((option) => option.value === value)?.label ?? "Not reviewed";
+
+  useEffect(() => {
+    if (!open) {
+      setPosition(null);
+      return;
+    }
+
+    const trigger = triggerRef.current;
+    if (!trigger) return;
+
+    const rect = trigger.getBoundingClientRect();
+    const menuHeight = Math.min(260, (options.length + 1) * 38 + 8);
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+    const openUp = spaceBelow < menuHeight && spaceAbove > spaceBelow;
+
+    setPosition({
+      top: openUp
+        ? Math.max(8, rect.top - menuHeight - 4)
+        : Math.min(window.innerHeight - menuHeight - 8, rect.bottom + 4),
+      left: Math.max(8, Math.min(rect.left, window.innerWidth - rect.width - 8)),
+      width: rect.width,
+    });
+
+    function closeOnOutsidePointer(event: PointerEvent) {
+      const target = event.target as Node | null;
+
+      if (
+        target &&
+        !triggerRef.current?.contains(target) &&
+        !menuRef.current?.contains(target)
+      ) {
+        setOpen(false);
+      }
+    }
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
+    }
+
+    function closeOnScrollOrResize() {
+      setOpen(false);
+    }
+
+    document.addEventListener("pointerdown", closeOnOutsidePointer, true);
+    document.addEventListener("keydown", closeOnEscape);
+    window.addEventListener("resize", closeOnScrollOrResize);
+    window.addEventListener("scroll", closeOnScrollOrResize, true);
+
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsidePointer, true);
+      document.removeEventListener("keydown", closeOnEscape);
+      window.removeEventListener("resize", closeOnScrollOrResize);
+      window.removeEventListener("scroll", closeOnScrollOrResize, true);
+    };
+  }, [open, options.length]);
+
+  return (
+    <>
+      <button
+        ref={triggerRef}
+        type="button"
+        className={`${styles.selectTrigger} ${open ? styles.selectTriggerOpen : ""}`}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+      >
+        <span>{selectedLabel}</span>
+        <span className={styles.selectCaret} aria-hidden="true">⌄</span>
+      </button>
+
+      {open && position &&
+        createPortal(
+          <div
+            ref={menuRef}
+            className={styles.selectMenu}
+            role="listbox"
+            style={position}
+          >
+            <button
+              type="button"
+              role="option"
+              aria-selected={value === ""}
+              className={value === "" ? styles.selectOptionActive : ""}
+              onClick={() => {
+                onChange("");
+                setOpen(false);
+                triggerRef.current?.focus();
+              }}
+            >
+              Not reviewed
+            </button>
+
+            {options.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                role="option"
+                aria-selected={value === option.value}
+                className={value === option.value ? styles.selectOptionActive : ""}
+                onClick={() => {
+                  onChange(option.value);
+                  setOpen(false);
+                  triggerRef.current?.focus();
+                }}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>,
+          document.body,
+        )}
+    </>
+  );
 }
 
 export function DisciplineReviewPanel() {
@@ -83,15 +230,6 @@ export function DisciplineReviewPanel() {
     if (!list) return;
 
     function onWheel(event: globalThis.WheelEvent) {
-      const target = event.target;
-
-      if (
-        target instanceof Element &&
-        target.closest("select, option, button, input, textarea")
-      ) {
-        return;
-      }
-
       const atTop = list.scrollTop <= 0;
       const atBottom =
         list.scrollTop + list.clientHeight >= list.scrollHeight - 1;
@@ -220,51 +358,39 @@ export function DisciplineReviewPanel() {
                   </small>
                 </div>
 
-                <label>
+                <div className={styles.reviewField}>
                   <span>EXECUTION</span>
-                  <select
+                  <ReviewDropdown
                     value={draft.execution}
-                    onChange={(event) =>
+                    options={EXECUTION_REVIEW_OPTIONS}
+                    onChange={(value) =>
                       setDrafts((current) => ({
                         ...current,
                         [trade.id]: {
                           ...draft,
-                          execution: event.target.value as ExecutionReview | "",
+                          execution: value as ExecutionReview | "",
                         },
                       }))
                     }
-                  >
-                    <option value="">Not reviewed</option>
-                    {EXECUTION_REVIEW_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                  />
+                </div>
 
-                <label>
+                <div className={styles.reviewField}>
                   <span>MINDSET</span>
-                  <select
+                  <ReviewDropdown
                     value={draft.mindset}
-                    onChange={(event) =>
+                    options={MINDSET_REVIEW_OPTIONS}
+                    onChange={(value) =>
                       setDrafts((current) => ({
                         ...current,
                         [trade.id]: {
                           ...draft,
-                          mindset: event.target.value as MindsetReview | "",
+                          mindset: value as MindsetReview | "",
                         },
                       }))
                     }
-                  >
-                    <option value="">Not reviewed</option>
-                    {MINDSET_REVIEW_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                  />
+                </div>
 
                 <button
                   type="button"
