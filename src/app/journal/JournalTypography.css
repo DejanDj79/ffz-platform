@@ -12,7 +12,7 @@
 .journalTypography [class*="detail"] span,
 .journalTypography [class*="tradeNarrative"] span,
 .journalTypography [class*="tradeScreenshotsTitle"] > span {
-  font-size: 11.5px !important;
+  font-size: calc(11.5px !important + 2px);
 }
 
 .journalTypography small,
@@ -21,7 +21,7 @@
 .journalTypography [class*="kpiCard"] small,
 .journalTypography [class*="statCard"] small,
 .journalTypography [class*="readoutBody"] small {
-  font-size: 11px !important;
+  font-size: calc(11px !important + 2px);
   line-height: 1.45;
 }
 
@@ -29,7 +29,7 @@
 .journalTypography input,
 .journalTypography textarea,
 .journalTypography button {
-  font-size: 11.5px !important;
+  font-size: calc(11.5px !important + 2px);
 }
 
 /* Keep native select menus consistent with the dark Journal UI. */
@@ -43,38 +43,38 @@
 }
 
 .journalTypography th {
-  font-size: 10.5px !important;
+  font-size: calc(10.5px !important + 2px);
 }
 
 .journalTypography td {
-  font-size: 11.5px;
+  font-size: 13.5px;
 }
 
 .journalTypography td strong {
-  font-size: 11.5px !important;
+  font-size: calc(11.5px !important + 2px);
 }
 
 .journalTypography [class*="chartLabels"],
 .journalTypography [class*="dailyValue"],
 .journalTypography [class*="dailyColumn"] small {
-  font-size: 10px !important;
+  font-size: calc(10px !important + 2px);
 }
 
 .journalTypography [class*="readoutBody"] p,
 .journalTypography [class*="chartEmpty"],
 .journalTypography [class*="tableEmpty"],
 .journalTypography [class*="emptyState"] {
-  font-size: 11px !important;
+  font-size: calc(11px !important + 2px);
 }
 
 .journalTypography figcaption span {
-  font-size: 10px !important;
+  font-size: calc(10px !important + 2px);
 }
 
 /* Journal submenu lives in the shared sidebar, outside the route wrapper. */
 [class*="subNavItem"] {
   min-height: 34px !important;
-  font-size: 12.5px !important;
+  font-size: calc(12.5px !important + 2px);
 }
 
 @media (max-width: 720px) {
@@ -82,10 +82,10 @@
   .journalTypography article > span,
   .journalTypography [class*="panelHeader"] span,
   .journalTypography [class*="panelTitle"] span {
-    font-size: 11px !important;
+    font-size: calc(11px !important + 2px);
   }
 
   .journalTypography small {
-    font-size: 10.5px !important;
+    font-size: calc(10.5px !important + 2px);
   }
 }

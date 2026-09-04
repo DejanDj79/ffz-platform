@@ -16,7 +16,7 @@
   border-radius: 8px;
   color: #ff9ca4;
   background: rgba(255, 115, 127, .055);
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .error button,
@@ -26,7 +26,7 @@
   color: #30d0f8;
   background: transparent;
   font: inherit;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .topBar {
@@ -40,7 +40,7 @@
 .eyebrow {
   display: block;
   color: #30d0f8;
-  font-size: 8.5px;
+  font-size: 10.5px;
   font-weight: 800;
   letter-spacing: .16em;
 }
@@ -48,7 +48,7 @@
 .topBar h1 {
   margin: 5px 0 0;
   color: #edf5f9;
-  font-size: clamp(25px, 2.4vw, 35px);
+  font-size: calc(clamp(25px, 2.4vw, 35px) + 2px);
   line-height: 1;
   letter-spacing: -.035em;
 }
@@ -56,7 +56,7 @@
 .topBar p {
   margin: 7px 0 0;
   color: #6b7d88;
-  font-size: 9.5px;
+  font-size: 11.5px;
 }
 
 .topActions {
@@ -75,7 +75,7 @@
   color: #30d0f8;
   text-decoration: none;
   background: rgba(48,208,248,.035);
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: .08em;
 }
@@ -127,7 +127,7 @@
 .balanceBlock > span {
   display: block;
   color: #667985;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: .1em;
 }
@@ -135,7 +135,7 @@
 .kpiCard strong {
   display: block;
   margin-top: 7px;
-  font-size: clamp(19px, 1.8vw, 27px);
+  font-size: calc(clamp(19px, 1.8vw, 27px) + 2px);
   line-height: 1;
 }
 
@@ -143,7 +143,7 @@
   display: block;
   margin-top: 7px;
   color: #61737f;
-  font-size: 8.5px;
+  font-size: 10.5px;
 }
 
 .positive { color: #45dbad !important; }
@@ -182,20 +182,20 @@
 
 .panelHeader span {
   color: #dce7ed;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: .12em;
 }
 
 .panelHeader small {
   color: #687985;
-  font-size: 8.5px;
+  font-size: 10.5px;
 }
 
 .panelHeader > a {
   color: #30d0f8;
   text-decoration: none;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 800;
 }
 
@@ -212,7 +212,7 @@
   display: inline-flex;
   align-items: center;
   border-radius: 5px;
-  font-size: 7.5px !important;
+  font-size: calc(7.5px !important + 2px);
   font-weight: 800;
   letter-spacing: .06em !important;
 }
@@ -255,14 +255,14 @@
 .challengeTitleRow h2 {
   margin: 0;
   color: #edf5f9;
-  font-size: clamp(20px, 2vw, 29px);
+  font-size: calc(clamp(20px, 2vw, 29px) + 2px);
   line-height: 1.05;
 }
 
 .challengeTitleRow p {
   margin: 6px 0 0;
   color: #657681;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .balanceBlock {
@@ -272,13 +272,13 @@
 .balanceBlock strong {
   display: block;
   margin-top: 5px;
-  font-size: clamp(20px, 1.8vw, 28px);
+  font-size: calc(clamp(20px, 1.8vw, 28px) + 2px);
 }
 
 .balanceBlock small {
   display: block;
   margin-top: 4px;
-  font-size: 8.5px;
+  font-size: 10.5px;
 }
 
 .challengeMetricGrid {
@@ -299,7 +299,7 @@
 .challengeMetricGrid strong {
   display: block;
   margin-top: 6px;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .barGroup {
@@ -312,7 +312,7 @@
   justify-content: space-between;
   align-items: center;
   color: #71838e;
-  font-size: 8px;
+  font-size: 10px;
 }
 
 .barLabel b {
@@ -343,7 +343,7 @@
   margin-top: 15px;
   color: #30d0f8;
   text-decoration: none;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 800;
 }
 
@@ -354,13 +354,13 @@
   place-content: center start;
   gap: 10px;
   color: #657681;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .emptyPanel a {
   color: #30d0f8;
   text-decoration: none;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 800;
 }
 
@@ -388,7 +388,7 @@
 .nextEvent strong {
   display: block;
   margin-top: 7px;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .marketRiskStatus small,
@@ -396,7 +396,7 @@
   display: block;
   margin-top: 5px;
   color: #657783;
-  font-size: 8px;
+  font-size: 10px;
   line-height: 1.35;
 }
 
@@ -437,7 +437,7 @@
   border: 1px solid rgba(48,208,248,.22);
   border-radius: 6px;
   color: #30d0f8;
-  font-size: 7px;
+  font-size: 9px;
   font-weight: 800;
 }
 
@@ -452,13 +452,13 @@
 
 .quickActions strong {
   color: #d4dfe5;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .quickActions small {
   margin-top: 2px;
   color: #61737f;
-  font-size: 7.8px;
+  font-size: 9.8px;
 }
 
 .performanceGrid {
@@ -476,7 +476,7 @@
 }
 
 .panelHeader > strong {
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .chartWrap {
@@ -512,11 +512,11 @@
   justify-content: space-between;
   pointer-events: none;
   color: #526671;
-  font-size: 7.5px;
+  font-size: 9.5px;
 }
 
 .chartScale strong {
-  font-size: 8px;
+  font-size: 10px;
 }
 
 .chartEmpty {
@@ -524,7 +524,7 @@
   display: grid;
   place-items: center;
   color: #5f727e;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .performancePanel {
@@ -552,7 +552,7 @@
 
 .performanceStats strong {
   margin-top: 8px;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .bottomGrid {
@@ -599,7 +599,7 @@
   place-items: center;
   border: 1px solid;
   border-radius: 6px;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 800;
 }
 
@@ -627,32 +627,32 @@
 
 .activityText strong {
   color: #ccd7de;
-  font-size: 9.5px;
+  font-size: 11.5px;
 }
 
 .activityText small {
   margin-top: 3px;
   overflow: hidden;
   color: #657681;
-  font-size: 8px;
+  font-size: 10px;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 .activityDate {
   color: #81909a;
-  font-size: 8.5px;
+  font-size: 10.5px;
 }
 
 .activityDate small {
   margin-top: 2px;
   color: #5f707c;
-  font-size: 7.5px;
+  font-size: 9.5px;
 }
 
 .activityRow > strong:last-child {
   text-align: right;
-  font-size: 9.5px;
+  font-size: 11.5px;
 }
 
 .empty {
@@ -660,7 +660,7 @@
   display: grid;
   place-items: center;
   color: #61737e;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .moneyBody {
@@ -671,14 +671,14 @@
 .moneyBody > strong {
   display: block;
   margin-top: 8px;
-  font-size: clamp(24px, 2.3vw, 34px);
+  font-size: calc(clamp(24px, 2.3vw, 34px) + 2px);
   line-height: 1;
 }
 
 .moneyBody p {
   margin: 9px 0 0;
   color: #657681;
-  font-size: 8.5px;
+  font-size: 10.5px;
   line-height: 1.45;
 }
 
@@ -700,7 +700,7 @@
 }
 
 .moneyStats strong {
-  font-size: 10px;
+  font-size: 12px;
 }
 
 @media (max-width: 1260px) {

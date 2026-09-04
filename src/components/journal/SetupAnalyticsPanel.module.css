@@ -32,7 +32,7 @@
 .sectionTitle span,
 .timeRow span {
   color: #81919c;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: .09em;
 }
@@ -43,7 +43,7 @@
 
 .header > div > strong {
   color: #eef5f8;
-  font-size: 19px;
+  font-size: 21px;
   letter-spacing: -.01em;
 }
 
@@ -51,7 +51,7 @@
   grid-column: 1 / -1;
   max-width: 780px;
   color: #788994;
-  font-size: 10.5px;
+  font-size: 12.5px;
   line-height: 1.5;
 }
 
@@ -63,7 +63,7 @@
   color: #30d0f8;
   background: rgba(48,208,248,.045);
   font: inherit;
-  font-size: 9.5px;
+  font-size: 11.5px;
   font-weight: 800;
   letter-spacing: .06em;
 }
@@ -110,12 +110,12 @@
 
 .sectionTitle span {
   color: #dce7ec;
-  font-size: 10.5px;
+  font-size: 12.5px;
 }
 
 .sectionTitle small {
   color: #758792;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .tableScroll {
@@ -125,7 +125,7 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 10.5px;
+  font-size: 12.5px;
 }
 
 .table th,
@@ -144,7 +144,7 @@
 .table th {
   color: #6f818d;
   background: rgba(255,255,255,.012);
-  font-size: 9.5px;
+  font-size: 11.5px;
   font-weight: 800;
   letter-spacing: .06em;
 }
@@ -155,7 +155,7 @@
 
 .table td strong {
   color: #d5e1e7;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .table tbody tr:last-child td {
@@ -210,17 +210,17 @@
 
 .timeRow > div:first-child strong {
   color: #d5e1e7;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .timeRow > div:first-child small {
   color: #748691;
-  font-size: 9.5px;
+  font-size: 11.5px;
 }
 
 .timeRow > div:not(:first-child) strong {
   color: #aab8c0;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .positive { color: #45dbad !important; }
@@ -233,7 +233,7 @@
   display: grid;
   place-items: center;
   color: #73848f;
-  font-size: 10.5px;
+  font-size: 12.5px;
   line-height: 1.55;
   text-align: center;
 }

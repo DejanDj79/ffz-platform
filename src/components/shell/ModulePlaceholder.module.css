@@ -10,12 +10,12 @@
   border-radius: 11px;
   background: linear-gradient(180deg, rgba(10, 19, 28, .94), rgba(7, 14, 21, .94));
 }
-.kicker { color: #a070e8; font-size: 9px; font-weight: 800; letter-spacing: .17em; }
-.placeholder h2 { margin: 9px 0 7px; font-size: clamp(25px, 3vw, 38px); font-weight: 650; }
-.placeholder p { max-width: 660px; margin: 0; color: #8997a3; font-size: 13px; line-height: 1.7; }
+.kicker { color: #a070e8; font-size: 11px; font-weight: 800; letter-spacing: .17em; }
+.placeholder h2 { margin: 9px 0 7px; font-size: calc(clamp(25px, 3vw, 38px) + 2px); font-weight: 650; }
+.placeholder p { max-width: 660px; margin: 0; color: #8997a3; font-size: 15px; line-height: 1.7; }
 .statusRow { margin-top: 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
-.statusRow span { display: flex; align-items: center; gap: 7px; color: #c9d3da; font-size: 10px; font-weight: 700; letter-spacing: .06em; }
+.statusRow span { display: flex; align-items: center; gap: 7px; color: #c9d3da; font-size: 12px; font-weight: 700; letter-spacing: .06em; }
 .statusRow i { width: 8px; height: 8px; border-radius: 50%; background: #f1b84b; }
-.statusRow small { color: #687987; font-size: 10px; }
-.placeholder a { margin-top: 28px; color: #30d0f8; font-size: 11px; text-decoration: none; }
+.statusRow small { color: #687987; font-size: 12px; }
+.placeholder a { margin-top: 28px; color: #30d0f8; font-size: 13px; text-decoration: none; }
 .placeholder a:hover { text-decoration: underline; }

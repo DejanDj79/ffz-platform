@@ -63,6 +63,7 @@ const NAV_ITEMS: NavItem[] = [
       { href: "/journal/analytics", label: "Analytics" },
     ],
   },
+  { href: "/weekly-review", label: "Weekly Review", icon: "review", section: "tracking" },
   { href: "/ledger", label: "Real Money Ledger", icon: "ledger", section: "tracking" },
   { href: "/prop-journey", label: "Prop Journey", icon: "journey", section: "tracking" },
   { href: "/creator/episodes", label: "Episode Builder", icon: "journal", section: "creator" },
@@ -142,6 +143,12 @@ const PAGE_META: Array<{
     icon: "journal",
   },
   {
+    match: (pathname) => pathname.startsWith("/weekly-review"),
+    title: "Weekly Review",
+    subtitle: "Turn weekly performance and behavior into actionable trading lessons.",
+    icon: "review",
+  },
+  {
     match: (pathname) => pathname.startsWith("/ledger"),
     title: "Real Money Ledger",
     subtitle: "Track challenge fees, resets, platform costs and real payouts.",
@@ -186,6 +193,7 @@ function Icon({ name }: { name: string }) {
     calc: <><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11h.1M8 15h2M12 15h2M16 15h.1M8 18h2M12 18h4"/></>,
     flag: <><path d="M5 21V4"/><path d="M5 5h10l-1.5 3L15 11H5"/></>,
     journal: <><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H19v18H7.5A2.5 2.5 0 0 0 5 22V4.5Z"/><path d="M5 18.5A2.5 2.5 0 0 1 7.5 16H19M9 6h6M9 10h6"/></>,
+    review: <><path d="M9 4h6M9 2h6v4H9z"/><path d="M7 4H5v17h14V4h-2"/><path d="m8 12 2 2 5-5M8 18h8"/></>,
     calendar: <><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M7 14h2M11 14h2M15 14h2M7 18h2M11 18h2"/></>,
     ledger: <><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h4M7 16h6M16 14v4M14 16h4"/></>,
     journey: <><path d="M4 18V6M4 18h16"/><path d="m7 15 4-4 3 2 5-6"/><path d="M16 7h3v3"/></>,
@@ -391,14 +399,6 @@ export function AppShell({ children }: { children: ReactNode }) {
               {/* <p>{page.subtitle}</p> */}
             </div>
           </div>
-
-          {/* <div className={styles.dataChip}>
-            <span className={styles.dataDot} />
-            <span>
-              <strong>POSTGRESQL</strong>
-              <small>Authenticated account data</small>
-            </span>
-          </div> */}
         </header>
 
         {!pathname.startsWith("/economic-calendar") && (
@@ -412,23 +412,104 @@ export function AppShell({ children }: { children: ReactNode }) {
 }
 
 function NavSection({ title, items, pathname }: { title: string; items: NavItem[]; pathname: string }) {
+  const activeGroups = items
+    .filter((item) => item.children?.some((child) => isSubActive(pathname, child.href)))
+    .map((item) => item.href);
+  const activeKey = activeGroups.join("|");
+  const [openItems, setOpenItems] = useState<string[]>(activeGroups);
+
+  useEffect(() => {
+    if (!activeKey) return;
+    setOpenItems((current) => {
+      const missing = activeGroups.filter((href) => !current.includes(href));
+      return missing.length === 0 ? current : [...current, ...missing];
+    });
+  }, [activeKey, pathname]);
+
+  function toggleGroup(href: string) {
+    setOpenItems((current) =>
+      current.includes(href)
+        ? current.filter((item) => item !== href)
+        : [...current, href],
+    );
+  }
+
   return (
     <div className={styles.navSection}>
       <div className={styles.navTitle}>{title}</div>
       <div className={styles.navList}>
         {items.map((item) => {
           const active = isActive(pathname, item.href) || item.children?.some((child) => isSubActive(pathname, child.href));
+          const open = item.children ? openItems.includes(item.href) : false;
+          const subNavHeight = item.children ? item.children.length * 36 + 8 : 0;
 
           return (
             <div key={`${item.section}-${item.href}`} className={styles.navEntry}>
-              <Link href={item.href} className={`${styles.navItem} ${active ? styles.active : ""}`}>
-                <span className={styles.navIcon}><Icon name={item.icon} /></span>
-                <span>{item.label}</span>
-                <span className={styles.navChevron}><Icon name="chevron" /></span>
-              </Link>
+              <div style={{ position: "relative" }}>
+                <Link
+                  href={item.href}
+                  className={`${styles.navItem} ${active ? styles.active : ""}`}
+                  style={{
+                    gridTemplateColumns: "31px minmax(0, 1fr)",
+                    paddingRight: item.children ? 38 : 10,
+                  }}
+                >
+                  <span className={styles.navIcon}><Icon name={item.icon} /></span>
+                  <span>{item.label}</span>
+                </Link>
+
+                {item.children && (
+                  <button
+                    type="button"
+                    aria-label={`${open ? "Collapse" : "Expand"} ${item.label}`}
+                    aria-expanded={open}
+                    onClick={() => toggleGroup(item.href)}
+                    style={{
+                      position: "absolute",
+                      right: 7,
+                      top: "50%",
+                      width: 28,
+                      height: 30,
+                      display: "grid",
+                      placeItems: "center",
+                      padding: 0,
+                      border: 0,
+                      borderRadius: 6,
+                      cursor: "pointer",
+                      color: open ? "#30d0f8" : "#52636e",
+                      background: "transparent",
+                      transform: "translateY(-50%)",
+                    }}
+                  >
+                    <span
+                      style={{
+                        display: "grid",
+                        placeItems: "center",
+                        transform: open ? "rotate(90deg)" : "rotate(0deg)",
+                        transition: "transform 160ms ease, color 160ms ease",
+                      }}
+                    >
+                      <Icon name="chevron" />
+                    </span>
+                  </button>
+                )}
+              </div>
 
               {item.children && (
-                <div className={styles.subNav} aria-label={`${item.label} navigation`}>
+                <div
+                  className={styles.subNav}
+                  aria-label={`${item.label} navigation`}
+                  aria-hidden={!open}
+                  style={{
+                    maxHeight: open ? subNavHeight : 0,
+                    opacity: open ? 1 : 0,
+                    overflow: "hidden",
+                    marginTop: open ? 1 : 0,
+                    marginBottom: open ? 4 : 0,
+                    pointerEvents: open ? "auto" : "none",
+                    transition: "max-height 180ms ease, opacity 140ms ease, margin 180ms ease",
+                  }}
+                >
                   {item.children.map((child) => {
                     const childActive = isSubActive(pathname, child.href);
 
@@ -436,6 +517,7 @@ function NavSection({ title, items, pathname }: { title: string; items: NavItem[
                       <Link
                         key={child.href}
                         href={child.href}
+                        tabIndex={open ? 0 : -1}
                         className={`${styles.subNavItem} ${childActive ? styles.subNavActive : ""}`}
                       >
                         {child.label}

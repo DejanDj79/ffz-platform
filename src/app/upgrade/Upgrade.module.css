@@ -36,7 +36,7 @@
 
 .eyebrow {
   color: #30d0f8;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 800;
   letter-spacing: .13em;
 }
@@ -45,7 +45,7 @@
   max-width: 900px;
   margin: 9px 0 0;
   color: #f4f7f9;
-  font-size: clamp(28px, 3vw, 44px);
+  font-size: calc(clamp(28px, 3vw, 44px) + 2px);
   line-height: 1.12;
 }
 
@@ -53,7 +53,7 @@
   max-width: 930px;
   margin: 15px 0 0;
   color: #96a3ae;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.75;
 }
 
@@ -67,14 +67,14 @@
   border-radius: 8px;
   color: #99a8b4;
   background: rgba(48,208,248,.045);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: .08em;
 }
 
 .current strong {
   color: #30d0f8;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .grid {
@@ -123,7 +123,7 @@
   right: 16px;
   padding: 5px 9px;
   border-radius: 999px;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: .08em;
 }
@@ -150,7 +150,7 @@
 
 .planKicker {
   color: #8d9aa6;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 800;
   letter-spacing: .13em;
 }
@@ -166,7 +166,7 @@
 .cardHeader h2 {
   margin: 0;
   color: #f4f7f9;
-  font-size: clamp(34px, 3vw, 42px);
+  font-size: calc(clamp(34px, 3vw, 42px) + 2px);
   line-height: 1;
   font-weight: 800;
   letter-spacing: -.03em;
@@ -178,13 +178,13 @@
 
 .founderCard .cardHeader h2 {
   color: #bcefff;
-  font-size: clamp(31px, 2.7vw, 39px);
+  font-size: calc(clamp(31px, 2.7vw, 39px) + 2px);
 }
 
 .founderName {
   margin-top: -2px;
   color: #8da5af;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 800;
   letter-spacing: .2em;
 }
@@ -198,14 +198,14 @@
 
 .priceRow strong {
   color: #dce5eb;
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 650;
   letter-spacing: -.02em;
 }
 
 .priceRow small {
   color: #758590;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -216,7 +216,7 @@
 .cardHeader p {
   margin: 3px 0 0;
   color: #7f8e99;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.55;
 }
 
@@ -230,7 +230,7 @@
 
 .features li {
   color: #d0d9df;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.45;
 }
 
@@ -263,7 +263,7 @@
   color: #a4b0b9;
   background: #09121a;
   text-align: center;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.5;
 }
 
@@ -279,7 +279,7 @@
 
 .planState.active small {
   color: #9d8eae;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: .04em;
 }
@@ -307,7 +307,7 @@
   background: #09121a;
   cursor: pointer;
   font: inherit;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 800;
   letter-spacing: .06em;
   transition: border-color .16s ease, transform .16s ease, background .16s ease;
@@ -347,7 +347,7 @@
 .billingError {
   margin: 0;
   text-align: center;
-  font-size: 10.5px;
+  font-size: 12.5px;
   line-height: 1.5;
 }
 
@@ -380,20 +380,20 @@
 
 .footerCard span {
   color: #30d0f8;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: .12em;
 }
 
 .footerCard strong {
   color: #dfe6eb;
-  font-size: 15px;
+  font-size: 17px;
 }
 
 .footerCard p {
   margin: 0;
   color: #84929e;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .footerCard a {
@@ -404,7 +404,7 @@
   color: #eef2f5;
   background: #09121a;
   text-decoration: none;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 800;
 }
 

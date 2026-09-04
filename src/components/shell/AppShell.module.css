@@ -80,7 +80,7 @@
 .navTitle {
   padding: 0 11px 9px;
   color: #61717f;
-  font-size: 9.5px;
+  font-size: 11.5px;
   font-weight: 700;
   letter-spacing: .16em;
 }
@@ -100,7 +100,7 @@
   border-radius: 8px;
   color: #9aa7b2;
   text-decoration: none;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   transition: background .15s ease, border-color .15s ease, color .15s ease;
 }
@@ -155,7 +155,7 @@
   border-radius: 6px;
   color: #788995;
   text-decoration: none;
-  font-size: 11.5px;
+  font-size: 13.5px;
   font-weight: 600;
   transition: color .15s ease, background .15s ease;
 }
@@ -206,8 +206,8 @@
 .modeIcon { display: grid; place-items: center; color: #a070e8; }
 .modeIcon svg { width: 18px; height: 18px; }
 .modeCard > span:nth-child(2) { display: grid; gap: 1px; }
-.modeCard strong { color: #cfd8df; font-size: 9.5px; letter-spacing: .07em; }
-.modeCard small { color: #687987; font-size: 9px; }
+.modeCard strong { color: #cfd8df; font-size: 11.5px; letter-spacing: .07em; }
+.modeCard small { color: #687987; font-size: 11px; }
 .modeCard i {
   width: 8px;
   height: 8px;
@@ -230,7 +230,7 @@
   color: #82929e;
   background: rgba(8, 16, 23, .55);
   font: inherit;
-  font-size: 10px;
+  font-size: 12px;
   transition: color .15s ease, border-color .15s ease, background .15s ease;
 }
 
@@ -248,7 +248,7 @@
 .sidebarBottom p {
   margin: 10px 4px 0;
   color: #53636f;
-  font-size: 9px;
+  font-size: 11px;
 }
 .sidebarBottom p span { color: #72828e; }
 
@@ -298,7 +298,7 @@
   display: block;
   margin-bottom: 3px;
   color: #627482;
-  font-size: 8.5px;
+  font-size: 10.5px;
   font-weight: 700;
   letter-spacing: .16em;
 }
@@ -306,7 +306,7 @@
 .pageIdentity h1 {
   margin: 0;
   color: #f1f6fa;
-  font-size: clamp(24px, 2vw, 33px);
+  font-size: calc(clamp(24px, 2vw, 33px) + 2px);
   line-height: 1.05;
   font-weight: 700;
   letter-spacing: -.025em;
@@ -315,7 +315,7 @@
 .pageIdentity p {
   margin: 6px 0 0;
   color: #7f8d99;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .dataChip {
@@ -339,8 +339,8 @@
   box-shadow: 0 0 9px rgba(48, 208, 248, .25);
 }
 .dataChip > span:last-child { display: grid; gap: 1px; }
-.dataChip strong { color: #cbd5dc; font-size: 9.5px; letter-spacing: .08em; }
-.dataChip small { color: #667683; font-size: 9px; }
+.dataChip strong { color: #cbd5dc; font-size: 11.5px; letter-spacing: .08em; }
+.dataChip small { color: #667683; font-size: 11px; }
 
 .content {
   width: min(1600px, 100%);
@@ -443,8 +443,8 @@
   .pageHeader { min-height: 90px; }
   .pageIcon { flex-basis: 42px; width: 42px; height: 42px; }
   .pageIcon svg { width: 22px; height: 22px; }
-  .pageIdentity h1 { font-size: 23px; }
-  .pageIdentity p { font-size: 10px; }
+  .pageIdentity h1 { font-size: 25px; }
+  .pageIdentity p { font-size: 12px; }
   .dataChip { display: none; }
 }
 
@@ -478,13 +478,13 @@
 
 .authLoading strong {
   margin-top: 4px;
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: .15em;
 }
 
 .authLoading small {
   color: #697986;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 @keyframes ffzAuthSpin {

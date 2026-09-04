@@ -34,7 +34,7 @@
 .statCard > span {
   display: block;
   color: #6f818f;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: .12em;
 }
@@ -42,7 +42,7 @@
 .statCard strong {
   display: block;
   margin-top: 8px;
-  font-size: clamp(20px, 1.8vw, 29px);
+  font-size: calc(clamp(20px, 1.8vw, 29px) + 2px);
   line-height: 1;
   letter-spacing: -.025em;
 }
@@ -51,7 +51,7 @@
   display: block;
   margin-top: 7px;
   color: #687985;
-  font-size: 9.5px;
+  font-size: 11.5px;
 }
 
 .positive { color: #45dbad !important; }
@@ -91,14 +91,14 @@
 
 .panelTitle span {
   color: #dce7ed;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: .13em;
 }
 
 .panelTitle small {
   color: #6c7d89;
-  font-size: 9.5px;
+  font-size: 11.5px;
 }
 
 .textButton {
@@ -109,7 +109,7 @@
   color: #30d0f8;
   background: transparent;
   font: inherit;
-  font-size: 9.5px;
+  font-size: 11.5px;
   font-weight: 600;
 }
 
@@ -133,7 +133,7 @@
 .formGrid label > span,
 .typeField > span {
   color: #7e8e99;
-  font-size: 9.5px;
+  font-size: 11.5px;
   font-weight: 600;
 }
 
@@ -150,7 +150,7 @@
   color: #eef4f8;
   background: linear-gradient(180deg, #101b24, #0b141c);
   font: inherit;
-  font-size: 11px;
+  font-size: 13px;
   transition: border-color .15s ease, box-shadow .15s ease;
 }
 
@@ -203,7 +203,7 @@
   color: #687985;
   background: transparent;
   font: inherit;
-  font-size: 9.5px;
+  font-size: 11.5px;
   font-weight: 800;
 }
 
@@ -228,7 +228,7 @@
   z-index: 1;
   transform: translateY(-50%);
   color: #657783;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 500;
 }
 
@@ -248,7 +248,7 @@
   border-radius: 7px;
   cursor: pointer;
   font: inherit;
-  font-size: 9.5px;
+  font-size: 11.5px;
   font-weight: 800;
   letter-spacing: .08em;
 }
@@ -280,7 +280,7 @@
   border-radius: 7px;
   color: #ff9ca4;
   background: rgba(255, 115, 127, .055);
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .filters {
@@ -294,7 +294,7 @@
 .filters select {
   height: 33px;
   padding: 0 9px;
-  font-size: 9.5px;
+  font-size: 11.5px;
 }
 
 .tableWrap {
@@ -315,7 +315,7 @@
   border-bottom: 1px solid rgba(66, 87, 103, .36);
   color: #5f7280;
   background: rgba(255,255,255,.012);
-  font-size: 8.5px;
+  font-size: 10.5px;
   font-weight: 800;
   letter-spacing: .09em;
   white-space: nowrap;
@@ -325,7 +325,7 @@
   padding: 11px 12px;
   border-bottom: 1px solid rgba(63, 83, 98, .22);
   color: #b8c4cc;
-  font-size: 10.5px;
+  font-size: 12.5px;
   white-space: nowrap;
   vertical-align: middle;
 }
@@ -341,13 +341,13 @@
 
 .table td strong {
   color: #dce6ec;
-  font-size: 10.5px;
+  font-size: 12.5px;
 }
 
 .table td small {
   margin-top: 3px;
   color: #60727f;
-  font-size: 8.5px;
+  font-size: 10.5px;
 }
 
 .categoryCell,
@@ -372,7 +372,7 @@
   padding: 0 7px;
   border: 1px solid;
   border-radius: 5px;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 800;
 }
 
@@ -400,7 +400,7 @@
   color: #788a96;
   background: transparent;
   font: inherit;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .rowActions button:hover:first-child { color: #30d0f8; }
@@ -411,7 +411,7 @@
   display: grid;
   place-items: center;
   color: #647582;
-  font-size: 10.5px;
+  font-size: 12.5px;
 }
 
 @media (max-width: 1250px) {
