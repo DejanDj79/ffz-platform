@@ -62,7 +62,6 @@ function entry(
 describe("Public FFZ Journey", () => {
   it("publishes aggregate economics without raw account or ledger details", () => {
     const data = buildPublicJourneyData(
-      "Private Creator Name",
       [
         entry("private-fee-id", {
           challengeId: "private-challenge-id",
@@ -80,6 +79,7 @@ describe("Public FFZ Journey", () => {
       [challenge("private-challenge-id")],
     );
 
+    expect(data.displayName).toBe("Futures From Zero");
     expect(data.totalCosts).toBe(100);
     expect(data.totalPayouts).toBe(350);
     expect(data.netJourneyPnl).toBe(250);
@@ -98,7 +98,6 @@ describe("Public FFZ Journey", () => {
 
   it("uses the most recently updated active account as the current mission", () => {
     const data = buildPublicJourneyData(
-      null,
       [],
       [
         challenge("old", {
@@ -122,7 +121,6 @@ describe("Public FFZ Journey", () => {
 
   it("prefers USD for the public economics view when multiple currencies exist", () => {
     const data = buildPublicJourneyData(
-      null,
       [
         entry("eur", {
           entryType: "EXPENSE",
