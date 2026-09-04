@@ -9,6 +9,7 @@ import {
   type TradeReviewPerformancePoint,
 } from "@/lib/journal/trade-review-performance";
 import type { TradeApiModel } from "@/lib/journal/types";
+import scoreStyles from "./TradeReviewScoreRadar.module.css";
 import styles from "./TradeReviewPerformance.module.css";
 
 const PERIODS: TradeReviewPerformancePeriod[] = ["DAY", "WEEK", "MONTH"];
@@ -91,11 +92,11 @@ function FfzScoreChart({ score, trades }: { score: FfzScore; trades: number }) {
     .join(" ");
 
   return (
-    <div className={styles.scoreBody}>
-      <div className={styles.scoreRadarWrap}>
+    <div className={scoreStyles.scoreBody}>
+      <div className={scoreStyles.scoreRadarWrap}>
         <svg
           viewBox="0 0 220 220"
-          className={styles.scoreRadar}
+          className={scoreStyles.scoreRadar}
           role="img"
           aria-label={`FFZ Score ${score.value} out of 100`}
         >
@@ -103,7 +104,7 @@ function FfzScoreChart({ score, trades }: { score: FfzScore; trades: number }) {
             <polygon
               key={level}
               points={polygonFor(level)}
-              className={level === 1 ? styles.scoreGridOuter : styles.scoreGrid}
+              className={level === 1 ? scoreStyles.scoreGridOuter : scoreStyles.scoreGrid}
             />
           ))}
 
@@ -116,13 +117,13 @@ function FfzScoreChart({ score, trades }: { score: FfzScore; trades: number }) {
                 y1={center}
                 x2={outer.x}
                 y2={outer.y}
-                className={styles.scoreAxis}
+                className={scoreStyles.scoreAxis}
               />
             );
           })}
 
-          <polygon points={scorePolygon} className={styles.scoreArea} />
-          <polygon points={scorePolygon} className={styles.scoreOutline} />
+          <polygon points={scorePolygon} className={scoreStyles.scoreArea} />
+          <polygon points={scorePolygon} className={scoreStyles.scoreOutline} />
 
           {axes.map((axis) => {
             const coord = point(axis.angle, axis.value / 100);
@@ -132,34 +133,34 @@ function FfzScoreChart({ score, trades }: { score: FfzScore; trades: number }) {
                 cx={coord.x}
                 cy={coord.y}
                 r="3.5"
-                className={styles.scoreDot}
+                className={scoreStyles.scoreDot}
               >
                 <title>{`${axis.label}: ${Math.round(axis.value)}`}</title>
               </circle>
             );
           })}
 
-          <text x="110" y="17" textAnchor="middle" className={styles.scoreAxisLabel}>PERFORMANCE</text>
-          <text x="110" y="30" textAnchor="middle" className={styles.scoreAxisValue}>{Math.round(score.breakdown.performance)}</text>
+          <text x="110" y="17" textAnchor="middle" className={scoreStyles.scoreAxisLabel}>PERFORMANCE</text>
+          <text x="110" y="30" textAnchor="middle" className={scoreStyles.scoreAxisValue}>{Math.round(score.breakdown.performance)}</text>
 
-          <text x="206" y="107" textAnchor="end" className={styles.scoreAxisLabel}>RISK</text>
-          <text x="206" y="120" textAnchor="end" className={styles.scoreAxisValue}>{Math.round(score.breakdown.risk)}</text>
+          <text x="206" y="107" textAnchor="end" className={scoreStyles.scoreAxisLabel}>RISK</text>
+          <text x="206" y="120" textAnchor="end" className={scoreStyles.scoreAxisValue}>{Math.round(score.breakdown.risk)}</text>
 
-          <text x="110" y="203" textAnchor="middle" className={styles.scoreAxisLabel}>CONSISTENCY</text>
-          <text x="110" y="216" textAnchor="middle" className={styles.scoreAxisValue}>{Math.round(score.breakdown.consistency)}</text>
+          <text x="110" y="203" textAnchor="middle" className={scoreStyles.scoreAxisLabel}>CONSISTENCY</text>
+          <text x="110" y="216" textAnchor="middle" className={scoreStyles.scoreAxisValue}>{Math.round(score.breakdown.consistency)}</text>
 
-          <text x="14" y="107" textAnchor="start" className={styles.scoreAxisLabel}>DISCIPLINE</text>
-          <text x="14" y="120" textAnchor="start" className={styles.scoreAxisValue}>{Math.round(score.breakdown.discipline)}</text>
+          <text x="14" y="107" textAnchor="start" className={scoreStyles.scoreAxisLabel}>DISCIPLINE</text>
+          <text x="14" y="120" textAnchor="start" className={scoreStyles.scoreAxisValue}>{Math.round(score.breakdown.discipline)}</text>
         </svg>
       </div>
 
-      <div className={styles.scoreSummary}>
-        <div className={styles.scoreNumber}>
+      <div className={scoreStyles.scoreSummary}>
+        <div className={scoreStyles.scoreNumber}>
           <strong>{score.value}</strong>
           <span>/ 100</span>
         </div>
-        <div className={styles.scoreMeta}>
-          <div className={styles.scoreStatus}>
+        <div className={scoreStyles.scoreMeta}>
+          <div className={scoreStyles.scoreStatus}>
             <strong>{statusLabel}</strong>
             <span>{trades < 10 ? `${trades}/10 trades` : `${trades} trades`}</span>
           </div>
