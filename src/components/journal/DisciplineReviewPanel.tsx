@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type WheelEvent } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   EXECUTION_REVIEW_OPTIONS,
   MINDSET_REVIEW_OPTIONS,
@@ -41,21 +41,6 @@ function reviewFromDraft(draft: ReviewDraft) {
   };
 }
 
-function chainPageScrollAtListEdge(event: WheelEvent<HTMLDivElement>) {
-  const list = event.currentTarget;
-  const atTop = list.scrollTop <= 0;
-  const atBottom =
-    list.scrollTop + list.clientHeight >= list.scrollHeight - 1;
-
-  if (
-    (event.deltaY < 0 && atTop) ||
-    (event.deltaY > 0 && atBottom)
-  ) {
-    event.preventDefault();
-    window.scrollBy(0, event.deltaY);
-  }
-}
-
 export function DisciplineReviewPanel() {
   const [trades, setTrades] = useState<TradeApiModel[]>([]);
   const [drafts, setDrafts] = useState<Record<string, ReviewDraft>>({});
@@ -63,6 +48,7 @@ export function DisciplineReviewPanel() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const listRef = useRef<HTMLDivElement | null>(null);
 
   async function load() {
     setLoading(true);
@@ -91,6 +77,40 @@ export function DisciplineReviewPanel() {
   useEffect(() => {
     void load();
   }, []);
+
+  useEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+
+    function onWheel(event: globalThis.WheelEvent) {
+      const target = event.target;
+
+      if (
+        target instanceof Element &&
+        target.closest("select, option, button, input, textarea")
+      ) {
+        return;
+      }
+
+      const atTop = list.scrollTop <= 0;
+      const atBottom =
+        list.scrollTop + list.clientHeight >= list.scrollHeight - 1;
+
+      if (
+        (event.deltaY < 0 && atTop) ||
+        (event.deltaY > 0 && atBottom)
+      ) {
+        event.preventDefault();
+        window.scrollBy({ top: event.deltaY, behavior: "auto" });
+      }
+    }
+
+    list.addEventListener("wheel", onWheel, { passive: false });
+
+    return () => {
+      list.removeEventListener("wheel", onWheel);
+    };
+  }, [trades.length, loading]);
 
   const reviewedCount = useMemo(
     () =>
@@ -165,7 +185,7 @@ export function DisciplineReviewPanel() {
           Close a trade in the Journal to start collecting discipline data.
         </div>
       ) : (
-        <div className={styles.list} onWheel={chainPageScrollAtListEdge}>
+        <div ref={listRef} className={styles.list}>
           {trades.map((trade) => {
             const draft = drafts[trade.id] ?? draftFromTrade(trade);
             const persistedStatus = disciplineReviewStatus(
