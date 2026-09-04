@@ -24,6 +24,7 @@ import {
   type TradeApiModel,
   type TradeAttachmentApiModel,
 } from "@/lib/journal/types";
+import detailStyles from "./TradeReviewDetails.module.css";
 import styles from "./TradeReviewViewer.module.css";
 
 type ReviewTab = "DETAILS" | "REVIEW" | "ATTACHMENTS" | "NOTES";
@@ -79,13 +80,9 @@ function challengeLabel(challengeId: string | null, challenges: Challenge[]) {
   return challenges.find((challenge) => challenge.id === challengeId)?.name ?? "Unknown challenge";
 }
 
-function Metric({ label, value, tone }: { label: string; value: string; tone?: "positive" | "negative" }) {
-  return (
-    <div className={styles.metric}>
-      <span>{label}</span>
-      <strong className={tone ? styles[tone] : undefined}>{value}</strong>
-    </div>
-  );
+function pnlTone(value: number | null) {
+  if (value == null || value === 0) return undefined;
+  return value > 0 ? detailStyles.positive : detailStyles.negative;
 }
 
 export function TradeReviewViewer() {
@@ -313,36 +310,27 @@ export function TradeReviewViewer() {
             <div className={styles.tabBody}>
               {activeTab === "DETAILS" && (
                 <div className={styles.details}>
-                  <div className={styles.metricGrid}>
-                    <Metric label="ENTRY" value={number.format(trade.entryPrice)} />
-                    <Metric label="EXIT" value={trade.exitPrice == null ? "—" : number.format(trade.exitPrice)} />
-                    <Metric label="STOP" value={trade.stopPrice == null ? "—" : number.format(trade.stopPrice)} />
-                    <Metric label="TARGET" value={trade.targetPrice == null ? "—" : number.format(trade.targetPrice)} />
-                    <Metric label="CONTRACTS" value={String(trade.contracts)} />
-                    <Metric label="DURATION" value={formatDuration(trade)} />
-                    <Metric
-                      label="NET P&L"
-                      value={trade.netPnl == null ? "—" : money.format(trade.netPnl)}
-                      tone={trade.netPnl == null ? undefined : trade.netPnl > 0 ? "positive" : trade.netPnl < 0 ? "negative" : undefined}
-                    />
-                    <Metric
-                      label="GROSS P&L"
-                      value={trade.grossPnl == null ? "—" : money.format(trade.grossPnl)}
-                      tone={trade.grossPnl == null ? undefined : trade.grossPnl > 0 ? "positive" : trade.grossPnl < 0 ? "negative" : undefined}
-                    />
-                    <Metric label="FEES" value={money.format(trade.commissionFees)} />
-                    <Metric label="INITIAL RISK" value={trade.initialRisk == null ? "—" : money.format(trade.initialRisk)} />
-                    <Metric
-                      label="R MULTIPLE"
-                      value={trade.rMultiple == null ? "—" : `${number.format(trade.rMultiple)}R`}
-                      tone={trade.rMultiple == null ? undefined : trade.rMultiple > 0 ? "positive" : trade.rMultiple < 0 ? "negative" : undefined}
-                    />
+                  <div className={detailStyles.pnlHero}>
+                    <span>NET P&amp;L</span>
+                    <strong className={pnlTone(trade.netPnl)}>
+                      {trade.netPnl == null ? "—" : money.format(trade.netPnl)}
+                    </strong>
                   </div>
 
-                  <div className={styles.detailRows}>
-                    <div><span>SETUP</span><strong>{trade.setup || "Not set"}</strong></div>
-                    <div><span>CHALLENGE</span><strong>{challengeLabel(trade.challengeId, challenges)}</strong></div>
-                    <div><span>OUTCOME</span><strong>{trade.outcome ?? "—"}</strong></div>
+                  <div className={detailStyles.rows}>
+                    <div className={detailStyles.row}><span>ENTRY</span><strong>{number.format(trade.entryPrice)}</strong></div>
+                    <div className={detailStyles.row}><span>EXIT</span><strong>{trade.exitPrice == null ? "—" : number.format(trade.exitPrice)}</strong></div>
+                    <div className={detailStyles.row}><span>STOP</span><strong>{trade.stopPrice == null ? "—" : number.format(trade.stopPrice)}</strong></div>
+                    <div className={detailStyles.row}><span>TARGET</span><strong>{trade.targetPrice == null ? "—" : number.format(trade.targetPrice)}</strong></div>
+                    <div className={detailStyles.row}><span>CONTRACTS</span><strong>{trade.contracts}</strong></div>
+                    <div className={detailStyles.row}><span>DURATION</span><strong>{formatDuration(trade)}</strong></div>
+                    <div className={detailStyles.row}><span>GROSS P&amp;L</span><strong className={pnlTone(trade.grossPnl)}>{trade.grossPnl == null ? "—" : money.format(trade.grossPnl)}</strong></div>
+                    <div className={detailStyles.row}><span>FEES</span><strong>{money.format(trade.commissionFees)}</strong></div>
+                    <div className={detailStyles.row}><span>INITIAL RISK</span><strong>{trade.initialRisk == null ? "—" : money.format(trade.initialRisk)}</strong></div>
+                    <div className={detailStyles.row}><span>R MULTIPLE</span><strong className={pnlTone(trade.rMultiple)}>{trade.rMultiple == null ? "—" : `${number.format(trade.rMultiple)}R`}</strong></div>
+                    <div className={detailStyles.row}><span>SETUP</span><strong>{trade.setup || "Not set"}</strong></div>
+                    <div className={detailStyles.row}><span>CHALLENGE</span><strong>{challengeLabel(trade.challengeId, challenges)}</strong></div>
+                    <div className={detailStyles.row}><span>OUTCOME</span><strong>{trade.outcome ?? "—"}</strong></div>
                   </div>
                 </div>
               )}
