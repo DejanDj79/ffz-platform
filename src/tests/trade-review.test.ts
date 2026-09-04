@@ -98,6 +98,40 @@ describe("trade review performance", () => {
     expect(result.points.map((point) => point.cumulativePnl)).toEqual([100, 50]);
   });
 
+  it("damps FFZ score when a tiny sample produces an extreme profit factor", () => {
+    const anchor = new Date(2026, 8, 4, 14);
+    const result = calculateTradeReviewPerformance(
+      [
+        trade("win-a", {
+          closedAt: localIso(2026, 8, 4, 10),
+          netPnl: 60,
+          outcome: "WIN",
+          tags: ["FFZ:execution:on-plan", "FFZ:mindset:calm", "FFZ:planned"],
+        }),
+        trade("win-b", {
+          closedAt: localIso(2026, 8, 4, 11),
+          netPnl: 49,
+          outcome: "WIN",
+          tags: ["FFZ:execution:on-plan", "FFZ:mindset:focused", "FFZ:planned"],
+        }),
+        trade("tiny-loss", {
+          closedAt: localIso(2026, 8, 4, 12),
+          netPnl: -1,
+          outcome: "LOSS",
+          tags: ["FFZ:execution:deviated", "FFZ:mindset:fear"],
+        }),
+      ],
+      "DAY",
+      anchor,
+    );
+
+    expect(result.profitFactor).toBe(109);
+    expect(result.ffzScore.status).toBe("PRELIMINARY");
+    expect(result.ffzScore.confidence).toBe(0.3);
+    expect(result.ffzScore.value).toBeLessThan(70);
+    expect(result.ffzScore.breakdown?.performance).toBeGreaterThan(80);
+  });
+
   it("uses Monday through Sunday for week periods and keeps zero-trade days", () => {
     const anchor = new Date(2026, 8, 9, 12);
     const result = calculateTradeReviewPerformance(
