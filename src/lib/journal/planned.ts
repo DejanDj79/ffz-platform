@@ -1,6 +1,7 @@
 import type { TradeApiModel, UpdateTradeInput } from "./types";
 
 export const PLANNED_TRADE_TAG = "__FFZ_PLANNED__";
+export const STARTED_FROM_PLAN_TAG = "FFZ:planned";
 
 export function isPlannedTrade(trade: Pick<TradeApiModel, "tags">) {
   return trade.tags.includes(PLANNED_TRADE_TAG);
@@ -29,7 +30,10 @@ export function buildStartedTradeUpdate(
     contracts: plan.contracts,
     commissionFees: plan.commissionFees,
     setup: plan.setup,
-    tags: withoutPlannedTradeTag(plan.tags),
+    tags: [...new Set([
+      ...withoutPlannedTradeTag(plan.tags),
+      STARTED_FROM_PLAN_TAG,
+    ])],
     notes: [plan.notes, startedNote].filter(Boolean).join("\n\n"),
   };
 }
