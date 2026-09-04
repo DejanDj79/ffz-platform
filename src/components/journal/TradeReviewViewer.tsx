@@ -30,6 +30,8 @@ import styles from "./TradeReviewViewer.module.css";
 
 type ReviewTab = "DETAILS" | "REVIEW" | "ATTACHMENTS" | "NOTES";
 
+const REVIEW_TABS: ReviewTab[] = ["DETAILS", "REVIEW", "ATTACHMENTS", "NOTES"];
+
 const money = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
@@ -295,17 +297,23 @@ export function TradeReviewViewer() {
             </header>
 
             <nav className={tabStyles.tabs} aria-label="Trade review sections">
-              {(["DETAILS", "REVIEW", "ATTACHMENTS", "NOTES"] as ReviewTab[]).map((tab) => (
-                <button
-                  key={tab}
-                  type="button"
-                  className={`${tabStyles.tab} ${activeTab === tab ? tabStyles.active : ""}`}
-                  onClick={() => setActiveTab(tab)}
-                >
-                  {tab}
-                  {tab === "ATTACHMENTS" && attachments.length > 0 ? ` (${attachments.length})` : ""}
-                </button>
-              ))}
+              <div
+                className={tabStyles.track}
+                data-active-index={REVIEW_TABS.indexOf(activeTab)}
+              >
+                {REVIEW_TABS.map((tab) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    className={`${tabStyles.tab} ${activeTab === tab ? tabStyles.active : ""}`}
+                    onClick={() => setActiveTab(tab)}
+                  >
+                    {tab}
+                    {tab === "ATTACHMENTS" && attachments.length > 0 ? ` (${attachments.length})` : ""}
+                  </button>
+                ))}
+                <span className={tabStyles.indicator} aria-hidden="true" />
+              </div>
             </nav>
 
             <div className={styles.tabBody}>
