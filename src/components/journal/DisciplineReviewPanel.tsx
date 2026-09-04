@@ -54,9 +54,9 @@ export function DisciplineReviewPanel() {
     setError(null);
 
     try {
-      const next = (await fetchTrades())
-        .filter((trade) => trade.status === "CLOSED")
-        .slice(0, 5);
+      const next = (await fetchTrades()).filter(
+        (trade) => trade.status === "CLOSED",
+      );
 
       setTrades(next);
       setDrafts(
