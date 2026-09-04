@@ -389,6 +389,12 @@
   gap: 16px;
 }
 
+.splitGrid > .panel {
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+}
+
 .monthList,
 .milestones,
 .firmList {
