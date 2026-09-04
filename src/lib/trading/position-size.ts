@@ -103,7 +103,7 @@ export function calculatePositionSize(input: PositionSizeInput): PositionSizeRes
     unusedRiskBudget: round(unusedRiskBudget),
     rewardDistancePoints: rewardDistancePoints == null ? null : round(rewardDistancePoints),
     rewardRiskRatio: rewardRiskRatio == null ? null : round(rewardRiskRatio, 4),
-    drawdownUsagePct: drawdownUsagePct == null ? null : round(drawdownUsagePct, 2),
+    drawdownUsagePct: drawdownUsagePct == null ? null : round(drawdownUsagePct, 1),
     dailyLossUsagePct: dailyLossUsagePct == null ? null : round(dailyLossUsagePct, 2),
     riskLevel: classifyRiskLevel(drawdownUsagePct == null ? null : round(drawdownUsagePct, 2)),
     warnings,
