@@ -1,3 +1,8 @@
+import {
+  EXECUTION_REVIEW_OPTIONS,
+  MINDSET_REVIEW_OPTIONS,
+  readDisciplineReview,
+} from "./discipline";
 import type {
   JournalInstrument,
   TradeApiModel,
@@ -65,6 +70,8 @@ export type JournalAnalytics = {
   byWeekday: JournalBreakdownRow[];
   bySetup: JournalBreakdownRow[];
   byTag: JournalBreakdownRow[];
+  byExecution: JournalBreakdownRow[];
+  byMindset: JournalBreakdownRow[];
 };
 
 function round(value: number, digits = 2) {
@@ -276,12 +283,19 @@ export function calculateJournalAnalytics(
   }
 
   const weekdayLabels = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const executionLabels = new Map<string, string>(
+    EXECUTION_REVIEW_OPTIONS.map((option) => [option.value, option.label]),
+  );
+  const mindsetLabels = new Map<string, string>(
+    MINDSET_REVIEW_OPTIONS.map((option) => [option.value, option.label]),
+  );
   const { maxWinStreak, maxLossStreak } = calculateStreaks(closedTrades);
 
   const tagTrades: TradeApiModel[] = [];
   for (const trade of closedTrades) {
     if (trade.tags.length === 0) continue;
     for (const tag of new Set(trade.tags.map((item) => item.trim()).filter(Boolean))) {
+      if (tag.startsWith("FFZ:")) continue;
       tagTrades.push({ ...trade, setup: `__TAG__${tag}` });
     }
   }
@@ -337,6 +351,16 @@ export function calculateJournalAnalytics(
       tagTrades,
       (trade) => trade.setup?.startsWith("__TAG__") ? trade.setup.slice(7) : null,
       (key) => key,
+    ),
+    byExecution: breakdown(
+      closedTrades,
+      (trade) => readDisciplineReview(trade.tags).execution,
+      (key) => executionLabels.get(key) ?? key,
+    ),
+    byMindset: breakdown(
+      closedTrades,
+      (trade) => readDisciplineReview(trade.tags).mindset,
+      (key) => mindsetLabels.get(key) ?? key,
     ),
   };
 }

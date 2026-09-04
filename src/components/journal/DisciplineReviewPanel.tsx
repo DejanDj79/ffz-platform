@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   EXECUTION_REVIEW_OPTIONS,
   MINDSET_REVIEW_OPTIONS,
@@ -10,7 +10,12 @@ import {
   type ExecutionReview,
   type MindsetReview,
 } from "@/lib/journal/discipline";
-import { fetchTrades, updateTradeViaApi } from "@/lib/journal/api-client";
+import {
+  JOURNAL_TRADES_CHANGED_EVENT,
+  fetchTrade,
+  fetchTrades,
+  saveDisciplineReviewViaApi,
+} from "@/lib/journal/api-client";
 import { STARTED_FROM_PLAN_TAG } from "@/lib/journal/planned";
 import type { TradeApiModel } from "@/lib/journal/types";
 import styles from "./DisciplineReviewPanel.module.css";
@@ -19,6 +24,8 @@ type ReviewDraft = {
   execution: ExecutionReview | "";
   mindset: MindsetReview | "";
 };
+
+const SUCCESS_MESSAGE_MS = 3000;
 
 const money = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -41,6 +48,13 @@ function reviewFromDraft(draft: ReviewDraft) {
   };
 }
 
+function isPendingReview(trade: TradeApiModel) {
+  return (
+    trade.status === "CLOSED" &&
+    disciplineReviewStatus(readDisciplineReview(trade.tags)) !== "REVIEWED"
+  );
+}
+
 export function DisciplineReviewPanel() {
   const [trades, setTrades] = useState<TradeApiModel[]>([]);
   const [drafts, setDrafts] = useState<Record<string, ReviewDraft>>({});
@@ -49,15 +63,14 @@ export function DisciplineReviewPanel() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
+  const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   async function load() {
     setLoading(true);
     setError(null);
 
     try {
-      const next = (await fetchTrades()).filter(
-        (trade) => trade.status === "CLOSED",
-      );
+      const next = (await fetchTrades()).filter(isPendingReview);
 
       setTrades(next);
       setDrafts(
@@ -76,6 +89,24 @@ export function DisciplineReviewPanel() {
 
   useEffect(() => {
     void load();
+
+    function onTradesChanged() {
+      void load();
+    }
+
+    window.addEventListener(JOURNAL_TRADES_CHANGED_EVENT, onTradesChanged);
+
+    return () => {
+      window.removeEventListener(JOURNAL_TRADES_CHANGED_EVENT, onTradesChanged);
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (successTimerRef.current) {
+        clearTimeout(successTimerRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -114,32 +145,51 @@ export function DisciplineReviewPanel() {
     };
   }, [trades.length, loading]);
 
-  const reviewedCount = useMemo(
-    () =>
-      trades.filter(
-        (trade) =>
-          disciplineReviewStatus(readDisciplineReview(trade.tags)) === "REVIEWED",
-      ).length,
-    [trades],
-  );
-
-  async function saveReview(trade: TradeApiModel) {
-    const draft = drafts[trade.id] ?? draftFromTrade(trade);
-    const tags = applyDisciplineReview(trade.tags, reviewFromDraft(draft));
-
-    if (tags.length > 20) {
-      setError(
-        "This trade already has too many tags to add discipline metadata. Remove one or more normal tags first.",
-      );
-      return;
+  function scheduleQueueRefresh() {
+    if (successTimerRef.current) {
+      clearTimeout(successTimerRef.current);
     }
 
+    successTimerRef.current = setTimeout(() => {
+      successTimerRef.current = null;
+      setMessage(null);
+      void load();
+    }, SUCCESS_MESSAGE_MS);
+  }
+
+  async function saveReview(trade: TradeApiModel) {
     setSavingId(trade.id);
     setError(null);
     setMessage(null);
 
     try {
-      const updated = await updateTradeViaApi(trade.id, { tags });
+      const latestTrade = await fetchTrade(trade.id);
+
+      if (latestTrade.status !== "CLOSED") {
+        setTrades((current) => current.filter((item) => item.id !== trade.id));
+        setError("Only closed trades can receive a post-trade discipline review.");
+        return;
+      }
+
+      const draft = drafts[trade.id] ?? draftFromTrade(latestTrade);
+      const tags = applyDisciplineReview(
+        latestTrade.tags,
+        reviewFromDraft(draft),
+      );
+
+      if (tags.length > 20) {
+        setError(
+          "This trade already has too many tags to add discipline metadata. Remove one or more normal tags first.",
+        );
+        return;
+      }
+
+      const updated = await saveDisciplineReviewViaApi(latestTrade.id, tags);
+
+      if (updated.status !== "CLOSED") {
+        throw new Error("Discipline review did not preserve the closed trade state.");
+      }
+
       setTrades((current) =>
         current.map((item) => (item.id === updated.id ? updated : item)),
       );
@@ -148,6 +198,7 @@ export function DisciplineReviewPanel() {
         [updated.id]: draftFromTrade(updated),
       }));
       setMessage(`${updated.instrument} discipline review saved.`);
+      scheduleQueueRefresh();
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Unable to save discipline review.",
@@ -164,13 +215,13 @@ export function DisciplineReviewPanel() {
           <span className={styles.eyebrow}>DISCIPLINE DATA</span>
           <strong>Post-Trade Discipline Review</strong>
           <small>
-            Review recent closed trades while the context is fresh. FFZ stores these as
-            structured tags so Tag Analytics can use them immediately.
+            Review recent closed trades while the context is fresh. Completed reviews
+            leave this queue automatically and feed Discipline Analytics.
           </small>
         </div>
 
         <div className={styles.headerActions}>
-          <span>{reviewedCount} / {trades.length} reviewed</span>
+          <span>{trades.length} pending</span>
           <button type="button" onClick={() => void load()} disabled={loading}>
             {loading ? "LOADING..." : "REFRESH"}
           </button>
@@ -184,7 +235,7 @@ export function DisciplineReviewPanel() {
         <div className={styles.empty}>Loading recent closed trades...</div>
       ) : trades.length === 0 ? (
         <div className={styles.empty}>
-          Close a trade in the Journal to start collecting discipline data.
+          No closed trades are waiting for a discipline review.
         </div>
       ) : (
         <div ref={listRef} className={styles.list}>

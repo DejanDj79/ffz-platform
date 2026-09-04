@@ -7,6 +7,8 @@ import type {
   UpdateTradeInput,
 } from "./types";
 
+export const JOURNAL_TRADES_CHANGED_EVENT = "ffz:journal-trades-changed";
+
 async function parseResponse<T>(response: Response): Promise<T> {
   const json = await response.json();
 
@@ -22,6 +24,11 @@ async function parseResponse<T>(response: Response): Promise<T> {
   return json as T;
 }
 
+function notifyJournalTradesChanged() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(JOURNAL_TRADES_CHANGED_EVENT));
+}
+
 export async function fetchTrades(
   options: { includePlanned?: boolean } = {},
 ): Promise<TradeApiModel[]> {
@@ -31,6 +38,15 @@ export async function fetchTrades(
   });
 
   const json = await parseResponse<{ data: TradeApiModel[] }>(response);
+  return json.data;
+}
+
+export async function fetchTrade(tradeId: string): Promise<TradeApiModel> {
+  const response = await fetch(`/api/journal/trades/${tradeId}`, {
+    cache: "no-store",
+  });
+
+  const json = await parseResponse<{ data: TradeApiModel }>(response);
   return json.data;
 }
 
@@ -49,6 +65,7 @@ export async function createTradeViaApi(
   });
 
   const json = await parseResponse<{ data: TradeApiModel }>(response);
+  notifyJournalTradesChanged();
   return json.data;
 }
 
@@ -63,6 +80,25 @@ export async function updateTradeViaApi(
   });
 
   const json = await parseResponse<{ data: TradeApiModel }>(response);
+
+  if ("closedAt" in input || "exitPrice" in input) {
+    notifyJournalTradesChanged();
+  }
+
+  return json.data;
+}
+
+export async function saveDisciplineReviewViaApi(
+  tradeId: string,
+  tags: string[],
+): Promise<TradeApiModel> {
+  const response = await fetch(`/api/journal/trades/${tradeId}/discipline`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ tags }),
+  });
+
+  const json = await parseResponse<{ data: TradeApiModel }>(response);
   return json.data;
 }
 
@@ -72,8 +108,8 @@ export async function deleteTradeViaApi(tradeId: string): Promise<void> {
   });
 
   await parseResponse<{ ok: true; id: string }>(response);
+  notifyJournalTradesChanged();
 }
-
 
 export async function fetchTradeAttachments(
   tradeId: string,

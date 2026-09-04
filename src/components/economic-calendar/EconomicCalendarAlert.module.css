@@ -1,8 +1,8 @@
 .alert {
   width: min(1600px, 100%);
-  min-height: 37px;
-  margin: 10px auto 0;
-  padding: 7px 11px;
+  min-height: 41px;
+  margin: 14px auto 16px;
+  padding: 8px 11px;
   display: grid;
   grid-template-columns:
     auto
@@ -41,7 +41,7 @@
   align-items: center;
   gap: 7px;
   color: #ff7580;
-  font-size: 7.5px;
+  font-size: 9.5px;
   font-weight: 800;
   letter-spacing: .09em;
 }
@@ -59,14 +59,14 @@
   min-width: 0;
   overflow: hidden;
   color: #dfe8ec;
-  font-size: 9px;
+  font-size: 11px;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 .alertCountdown {
   color: #ff8490;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -74,7 +74,7 @@
 
 .alert > small {
   color: #6e818d;
-  font-size: 7px;
+  font-size: 9px;
   font-weight: 700;
   white-space: nowrap;
 }

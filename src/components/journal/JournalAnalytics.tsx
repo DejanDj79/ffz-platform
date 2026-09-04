@@ -387,6 +387,21 @@ export function JournalAnalytics() {
         onSelectSetup={setSelectedSetup}
       />
 
+      <section className={styles.breakdownGrid}>
+        <BreakdownTable
+          title="EXECUTION DISCIPLINE"
+          subtitle="Performance when you follow, bend or ignore the plan"
+          rows={analytics.byExecution}
+          empty="Review closed trades in Journal to compare on-plan, deviated and unplanned execution."
+        />
+        <BreakdownTable
+          title="MINDSET PERFORMANCE"
+          subtitle="Results grouped by your post-trade mindset review"
+          rows={analytics.byMindset}
+          empty="Add mindset reviews in Journal to see how state and performance relate."
+        />
+      </section>
+
       <section className={styles.chartGrid}>
         <article className={styles.panel}>
           <header className={styles.panelHeader}>
@@ -454,10 +469,10 @@ export function JournalAnalytics() {
           <div className={styles.readoutBody}>
             <div><span>SAMPLE SIZE</span><strong>{analytics.closedCount}</strong><small>closed trades in current filters</small></div>
             <p>
-              Setup, tag, instrument, direction and weekday statistics use only closed trades. Open trades stay visible in the total count but do not affect P&amp;L metrics.
+              Setup, tag, instrument, direction, weekday and discipline statistics use only closed trades. Open trades stay visible in the total count but do not affect P&amp;L metrics.
             </p>
             <p>
-              Time-of-day analytics use each trade&apos;s entry timestamp converted to America/New_York. Psychology analytics still need explicit Journal metadata before we can measure them reliably.
+              Time-of-day analytics use each trade&apos;s entry timestamp converted to America/New_York. Discipline analytics only include trades with an explicit Execution or Mindset review, so missing reviews are never guessed.
             </p>
             {loading && <small className={styles.loading}>Refreshing journal data…</small>}
           </div>

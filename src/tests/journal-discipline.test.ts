@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   applyDisciplineReview,
+  clearDisciplineReviewTags,
   disciplineReviewStatus,
   readDisciplineReview,
 } from "@/lib/journal/discipline";
@@ -52,6 +53,17 @@ describe("journal discipline metadata", () => {
 
     expect(tags).toEqual(["trend"]);
     expect(disciplineReviewStatus(readDisciplineReview(tags))).toBe("UNREVIEWED");
+  });
+
+  it("clears only execution and mindset metadata when trade state changes", () => {
+    expect(
+      clearDisciplineReviewTags([
+        "A+",
+        "FFZ:planned",
+        "FFZ:execution:on-plan",
+        "FFZ:mindset:focused",
+      ]),
+    ).toEqual(["A+", "FFZ:planned"]);
   });
 
   it("reports partial and complete review states", () => {

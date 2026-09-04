@@ -422,6 +422,10 @@
   align-items: stretch;
 }
 
+.breakdownGrid + .chartGrid {
+  margin-top: 16px;
+}
+
 .breakdownGrid > .panel {
   align-self: stretch;
 }
