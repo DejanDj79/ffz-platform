@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { DisciplineReviewPanel } from "./DisciplineReviewPanel";
 import { PlannedTradesPanel } from "./PlannedTradesPanel";
 import { TradeJournal } from "./TradeJournal";
 
@@ -12,7 +13,8 @@ export function JournalWorkspace() {
       <PlannedTradesPanel
         onTradeStarted={() => setJournalVersion((current) => current + 1)}
       />
-      <TradeJournal key={journalVersion} />
+      <DisciplineReviewPanel key={`discipline-${journalVersion}`} />
+      <TradeJournal key={`journal-${journalVersion}`} />
     </>
   );
 }
