@@ -1,6 +1,6 @@
 .panel {
   --review-row-height: 82px;
-  margin: 0 0 18px;
+  margin: 0;
   border: 1px solid rgba(84, 145, 184, 0.22);
   border-radius: 18px;
   background:
@@ -92,7 +92,7 @@
   display: grid;
   max-height: calc(var(--review-row-height) * 3);
   overflow-y: auto;
-  overscroll-behavior: contain;
+  overscroll-behavior-y: auto;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color: rgba(94, 170, 204, 0.42) rgba(7, 18, 29, 0.65);
