@@ -21,9 +21,5 @@ export async function getPublicJourneyData() {
     listChallenges(creator.id, { syncFromJournal: false }),
   ]);
 
-  return buildPublicJourneyData(
-    null,
-    entries,
-    challenges,
-  );
+  return buildPublicJourneyData(entries, challenges);
 }
