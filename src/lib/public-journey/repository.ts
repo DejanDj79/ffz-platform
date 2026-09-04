@@ -7,10 +7,7 @@ import { buildPublicJourneyData } from "./data";
 
 export async function getPublicJourneyData() {
   const creatorRows = await db
-    .select({
-      id: users.id,
-      displayName: users.displayName,
-    })
+    .select({ id: users.id })
     .from(users)
     .where(eq(users.role, "CREATOR"))
     .orderBy(asc(users.createdAt))
@@ -25,7 +22,7 @@ export async function getPublicJourneyData() {
   ]);
 
   return buildPublicJourneyData(
-    creator.displayName,
+    null,
     entries,
     challenges,
   );
