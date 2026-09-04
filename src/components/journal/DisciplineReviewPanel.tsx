@@ -82,6 +82,8 @@ export function DisciplineReviewPanel() {
     const list = listRef.current;
     if (!list) return;
 
+    const scrollList = list;
+
     function onWheel(event: globalThis.WheelEvent) {
       const target = event.target;
 
@@ -92,9 +94,9 @@ export function DisciplineReviewPanel() {
         return;
       }
 
-      const atTop = list.scrollTop <= 0;
+      const atTop = scrollList.scrollTop <= 0;
       const atBottom =
-        list.scrollTop + list.clientHeight >= list.scrollHeight - 1;
+        scrollList.scrollTop + scrollList.clientHeight >= scrollList.scrollHeight - 1;
 
       if (
         (event.deltaY < 0 && atTop) ||
@@ -105,10 +107,10 @@ export function DisciplineReviewPanel() {
       }
     }
 
-    list.addEventListener("wheel", onWheel, { passive: false });
+    scrollList.addEventListener("wheel", onWheel, { passive: false });
 
     return () => {
-      list.removeEventListener("wheel", onWheel);
+      scrollList.removeEventListener("wheel", onWheel);
     };
   }, [trades.length, loading]);
 
