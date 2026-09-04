@@ -21,6 +21,10 @@ function riskLevelFromUsage(drawdownUsagePct: number | null): RiskLevel {
   return "HIGH";
 }
 
+function roundPercent(value: number) {
+  return Math.round((value + Number.EPSILON) * 10) / 10;
+}
+
 export function applyChallengeContractLimit(
   result: PositionSizeResult,
   contractLimit: number | null,
@@ -43,7 +47,7 @@ export function applyChallengeContractLimit(
     maxContracts,
     actualRisk,
     unusedRiskBudget: Math.max(0, result.effectiveRiskBudget - actualRisk),
-    drawdownUsagePct,
+    drawdownUsagePct: drawdownUsagePct == null ? null : roundPercent(drawdownUsagePct),
     dailyLossUsagePct,
     riskLevel: riskLevelFromUsage(drawdownUsagePct),
     warnings: [
