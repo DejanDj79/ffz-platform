@@ -58,6 +58,7 @@ const NAV_ITEMS: NavItem[] = [
     section: "tracking",
     children: [
       { href: "/journal", label: "Trades" },
+      { href: "/journal/review", label: "Trade Review" },
       { href: "/journal/import", label: "CSV Import" },
       { href: "/journal/analytics", label: "Analytics" },
     ],
@@ -115,6 +116,12 @@ const PAGE_META: Array<{
     title: "Challenge / Funded",
     subtitle: "Track evaluation progress, funded protection and payout readiness.",
     icon: "flag",
+  },
+  {
+    match: (pathname) => pathname.startsWith("/journal/review"),
+    title: "Trade Review",
+    subtitle: "Review closed trades from chart screenshots and journal context.",
+    icon: "journal",
   },
   {
     match: (pathname) => pathname.startsWith("/journal/import"),
