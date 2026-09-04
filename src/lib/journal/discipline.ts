@@ -61,16 +61,19 @@ export function readDisciplineReview(tags: string[]): DisciplineReview {
   return { execution, mindset };
 }
 
-export function applyDisciplineReview(
-  tags: string[],
-  review: DisciplineReview,
-): string[] {
-  const preserved = tags.filter(
+export function clearDisciplineReviewTags(tags: string[]): string[] {
+  return tags.filter(
     (tag) =>
       !tag.startsWith(EXECUTION_TAG_PREFIX) &&
       !tag.startsWith(MINDSET_TAG_PREFIX),
   );
+}
 
+export function applyDisciplineReview(
+  tags: string[],
+  review: DisciplineReview,
+): string[] {
+  const preserved = clearDisciplineReviewTags(tags);
   const next = [...preserved];
 
   if (review.execution) next.push(EXECUTION_TAGS[review.execution]);
