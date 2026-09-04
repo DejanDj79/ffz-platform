@@ -4,6 +4,7 @@ import { centsToDollars, dollarsToCents } from "@/db/money";
 import { challenges, trades, tradingAccounts } from "@/db/schema";
 import { syncChallengesFromJournal } from "@/lib/challenges/journal-sync";
 import { calculateTradeMetrics } from "./calculations";
+import { clearDisciplineReviewTags } from "./discipline";
 import { isPlannedTrade } from "./planned";
 import type {
   JournalInstrument,
@@ -194,6 +195,10 @@ export async function updateTrade(
 
   await assertOwnedRelations(userId, merged.challengeId, merged.tradingAccountId);
   const m = metrics(merged);
+
+  if (current.status !== m.status) {
+    merged.tags = clearDisciplineReviewTags(merged.tags);
+  }
 
   const rows = await db.update(trades).set({
     challengeId: merged.challengeId,
