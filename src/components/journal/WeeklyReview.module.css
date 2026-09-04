@@ -1,0 +1,499 @@
+.page {
+  width: min(1600px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 14px;
+}
+
+.state {
+  width: min(1600px, 100%);
+  min-height: 320px;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(68, 91, 109, .36);
+  border-radius: 12px;
+  color: #7f919d;
+  background: rgba(6, 13, 19, .72);
+  font-size: 12px;
+}
+
+.error,
+.inlineError {
+  color: #ff8a94;
+}
+
+.inlineError {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 115, 127, .25);
+  border-radius: 8px;
+  background: rgba(255, 115, 127, .045);
+  font-size: 10px;
+}
+
+.weekToolbar {
+  min-height: 84px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border: 1px solid rgba(68, 91, 109, .4);
+  border-radius: 11px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(160, 112, 232, .04), transparent 34%),
+    linear-gradient(180deg, rgba(13, 24, 33, .92), rgba(7, 14, 21, .96));
+}
+
+.weekToolbar > div:first-child {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.weekToolbar span,
+.metric span,
+.panelHeader span,
+.highlight > span,
+.postLossMetrics span {
+  color: #72848f;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: .075em;
+}
+
+.weekToolbar > div:first-child > strong {
+  color: #edf5f8;
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.weekToolbar small,
+.panelHeader small {
+  color: #6d7f8a;
+  font-size: 9px;
+}
+
+.weekNavigator {
+  flex: 0 0 auto;
+  min-height: 38px;
+  display: grid;
+  grid-template-columns: 38px 92px 38px;
+  align-items: stretch;
+  border: 1px solid rgba(72, 94, 110, .42);
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(4, 10, 15, .36);
+}
+
+.weekNavigator button {
+  border: 0;
+  cursor: pointer;
+  color: #30d0f8;
+  background: transparent;
+  font: inherit;
+  transition: background .15s ease, color .15s ease;
+}
+
+.weekNavigator button:first-child,
+.weekNavigator button:last-child {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.weekNavigator button:hover:not(:disabled) {
+  background: rgba(48, 208, 248, .055);
+}
+
+.weekNavigator .thisWeek {
+  border-left: 1px solid rgba(72, 94, 110, .32);
+  border-right: 1px solid rgba(72, 94, 110, .32);
+  color: #9fb0ba;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .06em;
+}
+
+.weekNavigator .thisWeek:disabled {
+  cursor: default;
+  color: #52636e;
+}
+
+.scorecard {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.metric {
+  min-height: 82px;
+  padding: 11px 12px;
+  display: grid;
+  align-content: center;
+  gap: 7px;
+  border: 1px solid rgba(65, 86, 101, .33);
+  border-radius: 9px;
+  background: rgba(7, 15, 22, .78);
+}
+
+.metric strong {
+  color: #e6eef2;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 600;
+}
+
+.metric small {
+  color: #677984;
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+}
+
+.overviewGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.75fr) minmax(300px, .85fr);
+  gap: 10px;
+}
+
+.behaviorGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.lowerGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, .8fr);
+  gap: 10px;
+}
+
+.panel {
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid rgba(65, 86, 101, .34);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(11, 21, 29, .88), rgba(6, 13, 19, .92));
+}
+
+.panelHeader {
+  margin-bottom: 11px;
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.panelHeader > div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.panelHeader > strong {
+  flex: 0 0 auto;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pnlPanel {
+  overflow: hidden;
+}
+
+.pnlChart {
+  min-height: 238px;
+  display: grid;
+  align-content: end;
+}
+
+.pnlChart svg {
+  width: 100%;
+  height: 210px;
+  display: block;
+  overflow: visible;
+}
+
+.gridLine {
+  stroke: rgba(116, 139, 154, .1);
+  stroke-width: 1;
+}
+
+.zeroLine {
+  stroke: rgba(145, 163, 174, .28);
+  stroke-width: 1;
+  stroke-dasharray: 4 5;
+}
+
+.chartBarPositive {
+  fill: #45dbad;
+  opacity: .9;
+}
+
+.chartBarNegative {
+  fill: #ff737f;
+  opacity: .9;
+}
+
+.chartBarNeutral {
+  fill: #61737f;
+  opacity: .65;
+}
+
+.dayLabels {
+  padding: 0 3.7%;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+  color: #5f727e;
+  font-size: 8px;
+  font-weight: 600;
+}
+
+.dayLabels .tradedDay {
+  color: #9aabb5;
+}
+
+.chartEmpty,
+.panelEmpty {
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  color: #667985;
+  font-size: 9.5px;
+  text-align: center;
+}
+
+.highlights {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.highlight {
+  min-height: 96px;
+  padding: 11px;
+  display: grid;
+  align-content: center;
+  gap: 7px;
+  border: 1px solid rgba(67, 88, 103, .28);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .012);
+}
+
+.highlight strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.highlight small {
+  color: #71838e;
+  font-size: 8.5px;
+}
+
+.breakdownRows {
+  display: grid;
+  gap: 5px;
+}
+
+.breakdownRow {
+  min-height: 53px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid rgba(67, 88, 103, .24);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, .01);
+}
+
+.breakdownRow > div {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.breakdownRow > div:last-child {
+  text-align: right;
+}
+
+.breakdownRow strong {
+  color: #cdd8de;
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.breakdownRow small,
+.breakdownRow span {
+  color: #6f828e;
+  font-size: 8px;
+}
+
+.breakdownRow > div:last-child strong {
+  font-size: 10px;
+}
+
+.postLossMetrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.postLossMetrics > div {
+  min-height: 82px;
+  padding: 10px;
+  display: grid;
+  align-content: center;
+  gap: 6px;
+  border: 1px solid rgba(67, 88, 103, .27);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .01);
+}
+
+.postLossMetrics strong {
+  color: #dce6eb;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.postLossMetrics small {
+  color: #667985;
+  font-size: 8px;
+}
+
+.findingsPanel {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(160, 112, 232, .045), transparent 34%),
+    linear-gradient(180deg, rgba(11, 21, 29, .88), rgba(6, 13, 19, .92));
+}
+
+.findings {
+  display: grid;
+  gap: 7px;
+}
+
+.finding {
+  min-height: 48px;
+  padding: 8px 10px;
+  display: grid;
+  grid-template-columns: 7px 1fr;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid rgba(67, 88, 103, .24);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, .01);
+}
+
+.finding i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #61737f;
+}
+
+.finding p {
+  margin: 0;
+  color: #9cacb5;
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.finding.positive i {
+  background: #45dbad;
+  box-shadow: 0 0 7px rgba(69, 219, 173, .25);
+}
+
+.finding.warning i {
+  background: #f0b75f;
+  box-shadow: 0 0 7px rgba(240, 183, 95, .22);
+}
+
+.finding.warning p {
+  color: #c3ad89;
+}
+
+.warningText {
+  color: #f0b75f !important;
+}
+
+.positive {
+  color: #45dbad !important;
+}
+
+.negative {
+  color: #ff737f !important;
+}
+
+.neutral {
+  color: #dce6eb !important;
+}
+
+@media (max-width: 1380px) {
+  .scorecard {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .behaviorGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .behaviorGrid > :last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 1120px) {
+  .overviewGrid,
+  .lowerGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .behaviorGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .behaviorGrid > :last-child {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .weekToolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .weekNavigator {
+    width: 100%;
+    grid-template-columns: 42px 1fr 42px;
+  }
+
+  .scorecard {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .highlights,
+  .postLossMetrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .scorecard,
+  .highlights,
+  .postLossMetrics {
+    grid-template-columns: 1fr;
+  }
+
+  .panel,
+  .weekToolbar {
+    padding: 11px;
+  }
+}
