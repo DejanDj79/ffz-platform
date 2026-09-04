@@ -9,6 +9,7 @@ const PUBLIC_RISK_CALCULATOR_PATH = "/tools/risk-calculator";
 export function RouteShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const isPublicRiskCalculator = pathname === PUBLIC_RISK_CALCULATOR_PATH;
+  const isPublicJourney = pathname === "/journey" || pathname.startsWith("/journey/");
   const [calculatorAuthState, setCalculatorAuthState] = useState<
     "checking" | "authenticated" | "guest"
   >("checking");
@@ -37,6 +38,10 @@ export function RouteShell({ children }: { children: ReactNode }) {
       cancelled = true;
     };
   }, [isPublicRiskCalculator]);
+
+  if (isPublicJourney) {
+    return <>{children}</>;
+  }
 
   if (!isPublicRiskCalculator) {
     return <AppShell>{children}</AppShell>;
