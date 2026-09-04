@@ -1,0 +1,484 @@
+.section {
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid rgba(68,91,109,.42);
+  border-radius: 11px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(160,112,232,.035), transparent 34%),
+    linear-gradient(180deg, rgba(14,26,35,.95), rgba(7,15,22,.98));
+  box-shadow: inset 0 1px rgba(255,255,255,.02), 0 10px 30px rgba(0,0,0,.08);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.heading {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.heading span {
+  color: #83939d;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+
+.heading strong {
+  color: #e7eff4;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.heading small {
+  color: #71838f;
+  font-size: 9.5px;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.periods {
+  padding: 3px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  border: 1px solid rgba(72,94,110,.4);
+  border-radius: 7px;
+  background: rgba(4,10,15,.36);
+}
+
+.periods button,
+.navigator button {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.periods button {
+  min-width: 58px;
+  min-height: 29px;
+  padding: 0 8px;
+  border-radius: 5px;
+  color: #788b96;
+  background: transparent;
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  transition: color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+}
+
+.periods button:hover {
+  color: #b8c5cc;
+  background: rgba(255,255,255,.018);
+}
+
+.periods .activePeriod {
+  color: #eaf7fb;
+  background: rgba(48,208,248,.09);
+  box-shadow: inset 0 0 0 1px rgba(48,208,248,.22);
+}
+
+.navigator {
+  min-height: 36px;
+  display: grid;
+  grid-template-columns: 32px minmax(154px, auto) 32px;
+  align-items: center;
+  border: 1px solid rgba(72,94,110,.4);
+  border-radius: 7px;
+  overflow: hidden;
+  background: rgba(4,10,15,.28);
+}
+
+.navigator button {
+  height: 100%;
+  color: #30d0f8;
+  background: transparent;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.navigator button:hover {
+  background: rgba(48,208,248,.055);
+}
+
+.navigator span {
+  padding: 0 10px;
+  color: #9dabb4;
+  text-align: center;
+  font-size: 9px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.metrics {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.metric {
+  min-height: 72px;
+  padding: 11px 12px;
+  display: grid;
+  align-content: center;
+  gap: 7px;
+  border: 1px solid rgba(65,86,101,.32);
+  border-radius: 8px;
+  background: rgba(255,255,255,.01);
+}
+
+.metric span {
+  color: #748792;
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: .06em;
+}
+
+.metric strong {
+  color: #dce6eb;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.charts {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: minmax(250px, .82fr) repeat(2, minmax(0, 1.3fr));
+  gap: 10px;
+}
+
+.chartCard {
+  min-width: 0;
+  padding: 13px 13px 10px;
+  border: 1px solid rgba(65,86,101,.32);
+  border-radius: 9px;
+  background: rgba(4,10,15,.24);
+}
+
+.scoreCard {
+  background:
+    radial-gradient(circle at 50% 24%, rgba(48,208,248,.055), transparent 34%),
+    rgba(4,10,15,.24);
+}
+
+.chartHeader {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.chartHeader > div {
+  display: grid;
+  gap: 4px;
+}
+
+.chartHeader span {
+  color: #8a99a3;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .06em;
+}
+
+.chartHeader small {
+  color: #697c88;
+  font-size: 8.5px;
+}
+
+.chartHeader strong {
+  flex: 0 0 auto;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.scoreBody {
+  min-height: 236px;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  align-content: start;
+  gap: 9px;
+}
+
+.scoreGauge {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  margin: 0 auto;
+}
+
+.scoreGauge svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  transform: rotate(-90deg);
+}
+
+.scoreTrack,
+.scoreProgress {
+  fill: none;
+  stroke-width: 9;
+}
+
+.scoreTrack {
+  stroke: rgba(93,116,132,.18);
+}
+
+.scoreProgress {
+  stroke: #30d0f8;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 4px rgba(48,208,248,.28));
+}
+
+.scoreValue {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+}
+
+.scoreValue strong {
+  color: #eef7fa;
+  font-size: 30px;
+  line-height: 1;
+  font-weight: 600;
+}
+
+.scoreValue span {
+  margin-top: 4px;
+  color: #718591;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: .05em;
+}
+
+.scoreMeta {
+  display: grid;
+  gap: 4px;
+  text-align: center;
+}
+
+.scoreStatus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.scoreStatus strong {
+  padding: 3px 6px;
+  border: 1px solid rgba(48,208,248,.25);
+  border-radius: 999px;
+  color: #a8eafb;
+  background: rgba(48,208,248,.055);
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+}
+
+.scoreStatus span,
+.scoreMeta small {
+  color: #70838e;
+  font-size: 8px;
+}
+
+.scoreMeta small {
+  line-height: 1.45;
+}
+
+.scoreBreakdown {
+  margin-top: 2px;
+  display: grid;
+  gap: 6px;
+}
+
+.scoreRow {
+  display: grid;
+  gap: 3px;
+}
+
+.scoreRow > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.scoreRow span,
+.scoreRow strong {
+  font-size: 7.5px;
+  font-weight: 600;
+}
+
+.scoreRow span {
+  color: #667985;
+  letter-spacing: .045em;
+}
+
+.scoreRow strong {
+  color: #a9bac4;
+}
+
+.scoreBar {
+  height: 3px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(98,119,133,.15);
+}
+
+.scoreBar > span {
+  height: 100%;
+  display: block;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(48,208,248,.62), rgba(160,112,232,.72));
+}
+
+.chartWrap {
+  position: relative;
+  min-height: 220px;
+}
+
+.chart {
+  width: 100%;
+  height: 210px;
+  display: block;
+  overflow: visible;
+}
+
+.gridLine {
+  stroke: rgba(116,139,154,.11);
+  stroke-width: 1;
+}
+
+.zeroLine {
+  stroke: rgba(145,163,174,.28);
+  stroke-width: 1;
+  stroke-dasharray: 4 5;
+}
+
+.axisLabels {
+  margin-top: 3px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: #60737f;
+  font-size: 8px;
+}
+
+.axisLabels span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chartEmpty {
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+  color: #6f818c;
+  font-size: 9.5px;
+  text-align: center;
+}
+
+.positive { color: #45dbad !important; }
+.negative { color: #ff737f !important; }
+.neutral { color: #dce6eb !important; }
+
+@media (max-width: 1380px) {
+  .charts {
+    grid-template-columns: minmax(230px, .78fr) repeat(2, minmax(0, 1.15fr));
+  }
+}
+
+@media (max-width: 1180px) {
+  .charts {
+    grid-template-columns: 1fr;
+  }
+
+  .scoreBody {
+    grid-template-columns: 170px minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    align-items: center;
+  }
+
+  .scoreGauge {
+    grid-row: 1 / span 2;
+  }
+
+  .scoreMeta {
+    text-align: left;
+  }
+
+  .scoreStatus {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 760px) {
+  .section {
+    padding: 12px;
+  }
+
+  .header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .controls {
+    justify-content: space-between;
+  }
+
+  .metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .periods button {
+    min-width: 0;
+  }
+
+  .navigator {
+    grid-template-columns: 32px 1fr 32px;
+  }
+
+  .metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .scoreBody {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .scoreGauge {
+    grid-row: auto;
+  }
+
+  .scoreMeta {
+    text-align: center;
+  }
+
+  .scoreStatus {
+    justify-content: center;
+  }
+}
