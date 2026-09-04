@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   calculateTradeReviewPerformance,
   shiftTradeReviewPerformanceAnchor,
+  type FfzScore,
   type TradeReviewPerformancePeriod,
   type TradeReviewPerformancePoint,
 } from "@/lib/journal/trade-review-performance";
@@ -49,6 +50,70 @@ function axisLabels(points: TradeReviewPerformancePoint[]) {
   ];
 
   return Array.from(new Set(indexes)).map((index) => points[index]?.label ?? "");
+}
+
+function FfzScoreChart({ score, trades }: { score: FfzScore; trades: number }) {
+  if (score.value == null || !score.breakdown) {
+    return <div className={styles.chartEmpty}>No closed trades to score in this period.</div>;
+  }
+
+  const radius = 58;
+  const circumference = 2 * Math.PI * radius;
+  const progress = circumference * (score.value / 100);
+  const statusLabel = score.status === "PRELIMINARY" ? "PRELIMINARY" : "ESTABLISHED";
+  const breakdown = [
+    ["PERFORMANCE", score.breakdown.performance],
+    ["RISK", score.breakdown.risk],
+    ["CONSISTENCY", score.breakdown.consistency],
+    ["DISCIPLINE", score.breakdown.discipline],
+  ] as const;
+
+  return (
+    <div className={styles.scoreBody}>
+      <div className={styles.scoreGauge}>
+        <svg viewBox="0 0 150 150" aria-hidden="true">
+          <circle cx="75" cy="75" r={radius} className={styles.scoreTrack} />
+          <circle
+            cx="75"
+            cy="75"
+            r={radius}
+            className={styles.scoreProgress}
+            strokeDasharray={`${progress} ${circumference - progress}`}
+          />
+        </svg>
+        <div className={styles.scoreValue}>
+          <strong>{score.value}</strong>
+          <span>/ 100</span>
+        </div>
+      </div>
+
+      <div className={styles.scoreMeta}>
+        <div className={styles.scoreStatus}>
+          <strong>{statusLabel}</strong>
+          <span>{trades < 10 ? `${trades}/10 trades` : `${trades} trades`}</span>
+        </div>
+        <small>
+          {score.status === "PRELIMINARY"
+            ? `Sample confidence ${Math.round(score.confidence * 100)}%. Score is damped toward 50 until 10 closed trades.`
+            : "Full sample weighting is active for this period."}
+        </small>
+      </div>
+
+      <div className={styles.scoreBreakdown}>
+        {breakdown.map(([label, value]) => (
+          <div key={label} className={styles.scoreRow}>
+            <div>
+              <span>{label}</span>
+              <strong>{Math.round(value)}</strong>
+            </div>
+            <div className={styles.scoreBar}>
+              <span style={{ width: `${value}%` }} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function CumulativeChart({ points }: { points: TradeReviewPerformancePoint[] }) {
@@ -318,6 +383,16 @@ export function TradeReviewPerformance({
       </div>
 
       <div className={styles.charts}>
+        <article className={`${styles.chartCard} ${styles.scoreCard}`}>
+          <header className={styles.chartHeader}>
+            <div>
+              <span>FFZ SCORE</span>
+              <small>Performance · risk · consistency · discipline</small>
+            </div>
+          </header>
+          <FfzScoreChart score={performance.ffzScore} trades={performance.tradeCount} />
+        </article>
+
         <article className={styles.chartCard}>
           <header className={styles.chartHeader}>
             <div>
