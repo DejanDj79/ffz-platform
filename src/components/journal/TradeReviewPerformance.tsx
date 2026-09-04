@@ -57,60 +57,118 @@ function FfzScoreChart({ score, trades }: { score: FfzScore; trades: number }) {
     return <div className={styles.chartEmpty}>No closed trades to score in this period.</div>;
   }
 
-  const radius = 58;
-  const circumference = 2 * Math.PI * radius;
-  const progress = circumference * (score.value / 100);
   const statusLabel = score.status === "PRELIMINARY" ? "PRELIMINARY" : "ESTABLISHED";
-  const breakdown = [
-    ["PERFORMANCE", score.breakdown.performance],
-    ["RISK", score.breakdown.risk],
-    ["CONSISTENCY", score.breakdown.consistency],
-    ["DISCIPLINE", score.breakdown.discipline],
+  const center = 110;
+  const radius = 70;
+  const axes = [
+    { label: "PERFORMANCE", value: score.breakdown.performance, angle: -Math.PI / 2 },
+    { label: "RISK", value: score.breakdown.risk, angle: 0 },
+    { label: "CONSISTENCY", value: score.breakdown.consistency, angle: Math.PI / 2 },
+    { label: "DISCIPLINE", value: score.breakdown.discipline, angle: Math.PI },
   ] as const;
+
+  function point(angle: number, scale: number) {
+    return {
+      x: center + Math.cos(angle) * radius * scale,
+      y: center + Math.sin(angle) * radius * scale,
+    };
+  }
+
+  function polygonFor(scale: number) {
+    return axes
+      .map((axis) => {
+        const coord = point(axis.angle, scale);
+        return `${coord.x},${coord.y}`;
+      })
+      .join(" ");
+  }
+
+  const scorePolygon = axes
+    .map((axis) => {
+      const coord = point(axis.angle, axis.value / 100);
+      return `${coord.x},${coord.y}`;
+    })
+    .join(" ");
 
   return (
     <div className={styles.scoreBody}>
-      <div className={styles.scoreGauge}>
-        <svg viewBox="0 0 150 150" aria-hidden="true">
-          <circle cx="75" cy="75" r={radius} className={styles.scoreTrack} />
-          <circle
-            cx="75"
-            cy="75"
-            r={radius}
-            className={styles.scoreProgress}
-            strokeDasharray={`${progress} ${circumference - progress}`}
-          />
+      <div className={styles.scoreRadarWrap}>
+        <svg
+          viewBox="0 0 220 220"
+          className={styles.scoreRadar}
+          role="img"
+          aria-label={`FFZ Score ${score.value} out of 100`}
+        >
+          {[0.25, 0.5, 0.75, 1].map((level) => (
+            <polygon
+              key={level}
+              points={polygonFor(level)}
+              className={level === 1 ? styles.scoreGridOuter : styles.scoreGrid}
+            />
+          ))}
+
+          {axes.map((axis) => {
+            const outer = point(axis.angle, 1);
+            return (
+              <line
+                key={axis.label}
+                x1={center}
+                y1={center}
+                x2={outer.x}
+                y2={outer.y}
+                className={styles.scoreAxis}
+              />
+            );
+          })}
+
+          <polygon points={scorePolygon} className={styles.scoreArea} />
+          <polygon points={scorePolygon} className={styles.scoreOutline} />
+
+          {axes.map((axis) => {
+            const coord = point(axis.angle, axis.value / 100);
+            return (
+              <circle
+                key={`${axis.label}-point`}
+                cx={coord.x}
+                cy={coord.y}
+                r="3.5"
+                className={styles.scoreDot}
+              >
+                <title>{`${axis.label}: ${Math.round(axis.value)}`}</title>
+              </circle>
+            );
+          })}
+
+          <text x="110" y="17" textAnchor="middle" className={styles.scoreAxisLabel}>PERFORMANCE</text>
+          <text x="110" y="30" textAnchor="middle" className={styles.scoreAxisValue}>{Math.round(score.breakdown.performance)}</text>
+
+          <text x="206" y="107" textAnchor="end" className={styles.scoreAxisLabel}>RISK</text>
+          <text x="206" y="120" textAnchor="end" className={styles.scoreAxisValue}>{Math.round(score.breakdown.risk)}</text>
+
+          <text x="110" y="203" textAnchor="middle" className={styles.scoreAxisLabel}>CONSISTENCY</text>
+          <text x="110" y="216" textAnchor="middle" className={styles.scoreAxisValue}>{Math.round(score.breakdown.consistency)}</text>
+
+          <text x="14" y="107" textAnchor="start" className={styles.scoreAxisLabel}>DISCIPLINE</text>
+          <text x="14" y="120" textAnchor="start" className={styles.scoreAxisValue}>{Math.round(score.breakdown.discipline)}</text>
         </svg>
-        <div className={styles.scoreValue}>
+      </div>
+
+      <div className={styles.scoreSummary}>
+        <div className={styles.scoreNumber}>
           <strong>{score.value}</strong>
           <span>/ 100</span>
         </div>
-      </div>
-
-      <div className={styles.scoreMeta}>
-        <div className={styles.scoreStatus}>
-          <strong>{statusLabel}</strong>
-          <span>{trades < 10 ? `${trades}/10 trades` : `${trades} trades`}</span>
-        </div>
-        <small>
-          {score.status === "PRELIMINARY"
-            ? `Sample confidence ${Math.round(score.confidence * 100)}%. Score is damped toward 50 until 10 closed trades.`
-            : "Full sample weighting is active for this period."}
-        </small>
-      </div>
-
-      <div className={styles.scoreBreakdown}>
-        {breakdown.map(([label, value]) => (
-          <div key={label} className={styles.scoreRow}>
-            <div>
-              <span>{label}</span>
-              <strong>{Math.round(value)}</strong>
-            </div>
-            <div className={styles.scoreBar}>
-              <span style={{ width: `${value}%` }} />
-            </div>
+        <div className={styles.scoreMeta}>
+          <div className={styles.scoreStatus}>
+            <strong>{statusLabel}</strong>
+            <span>{trades < 10 ? `${trades}/10 trades` : `${trades} trades`}</span>
           </div>
-        ))}
+          <small>
+            {score.status === "PRELIMINARY"
+              ? `Sample confidence ${Math.round(score.confidence * 100)}%. Score is damped toward 50 until 10 closed trades.`
+              : "Full sample weighting is active for this period."}
+          </small>
+        </div>
       </div>
     </div>
   );
