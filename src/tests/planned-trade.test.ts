@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { buildStartedTradeUpdate, PLANNED_TRADE_TAG } from "@/lib/journal/planned";
+import {
+  buildStartedTradeUpdate,
+  PLANNED_TRADE_TAG,
+  STARTED_FROM_PLAN_TAG,
+} from "@/lib/journal/planned";
 import type { TradeApiModel } from "@/lib/journal/types";
 
 function plannedTrade(): TradeApiModel {
@@ -32,7 +36,7 @@ function plannedTrade(): TradeApiModel {
 }
 
 describe("buildStartedTradeUpdate", () => {
-  it("preserves stop and target when a planned trade is started", () => {
+  it("preserves stop, target and planned provenance when a planned trade is started", () => {
     const update = buildStartedTradeUpdate(
       plannedTrade(),
       "2026-09-03T01:00:00.000Z",
@@ -44,7 +48,20 @@ describe("buildStartedTradeUpdate", () => {
     expect(update.targetPrice).toBe(18990.25);
     expect(update.contracts).toBe(2);
     expect(update.commissionFees).toBe(4.5);
-    expect(update.tags).toEqual(["A+"]);
+    expect(update.tags).toEqual(["A+", STARTED_FROM_PLAN_TAG]);
     expect(update.openedAt).toBe("2026-09-03T01:00:00.000Z");
+  });
+
+  it("does not duplicate planned provenance if a plan already carries it", () => {
+    const plan = plannedTrade();
+    plan.tags.push(STARTED_FROM_PLAN_TAG);
+
+    const update = buildStartedTradeUpdate(
+      plan,
+      "2026-09-03T01:00:00.000Z",
+      "Trade started from FFZ plan.",
+    );
+
+    expect(update.tags).toEqual(["A+", STARTED_FROM_PLAN_TAG]);
   });
 });
