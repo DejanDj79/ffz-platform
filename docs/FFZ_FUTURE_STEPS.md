@@ -11,15 +11,7 @@ Ovaj dokument je živi handoff/checklist za FFZ Platform. Kada završimo stavku,
 - Production: `~/apps/FFZ`
 - Brand: **FFZ Platform / Futures From Zero**
 - Positioning: **FFZ is a prop futures trader operating system.**
-
-Stack:
-- Next.js 16.3.3
-- React 19.2
-- TypeScript 5.9
-- Tailwind 4.3
-- Drizzle + PostgreSQL
-- Zod
-- Vitest
+- Stack: Next.js 16.3.3, React 19.2, TypeScript 5.9, Tailwind 4.3, Drizzle/PostgreSQL, Zod, Vitest
 
 ---
 
@@ -37,36 +29,31 @@ Founder model:
 - `$199` one-time
 - lifetime PRO
 - hard cap: **150 traders**
-- same commercial feature entitlement as PRO
+- same commercial entitlement as PRO
 - Creator-only tools excluded
-- refund does **not** reopen Founder seat
+- refund does **not** reopen a Founder seat
 - “Lifetime” means lifetime of the FFZ product/service
 
 Hard-cap implementation:
-- `founder_slots` table
-- exactly 150 pre-created slots
+- `founder_slots` table with exactly 150 pre-created slots
 - states: `AVAILABLE`, `RESERVED`, `PURCHASED`, `REFUNDED`
 - PostgreSQL advisory transaction lock prevents oversell
-- checkout reservation: 35 minutes
-- Lemon checkout: 30 minutes + 5 minute webhook grace
-- expired reservations can be reused
-- refunded slots never return to `AVAILABLE`
+- checkout reservation: 35 min
+- Lemon checkout: 30 min + 5 min webhook grace
+- expired reservation can be reused
+- refunded seat never returns to `AVAILABLE`
 
-Entitlement behavior:
+Entitlement:
 - successful Founder order => effective PRO
-- Founder entitlement cannot be downgraded by later subscription lifecycle events
-- existing Monthly/Annual PRO subscription is marked cancelled after Founder purchase so it ends at the end of the already-paid period
-- CREATOR users cannot consume Founder seats
+- later subscription lifecycle events cannot downgrade active Founder
+- existing Monthly/Annual subscription is cancelled for future renewal after Founder purchase
+- Creator cannot consume Founder seats
 
-Refund behavior:
-- full refund => Founder entitlement removed
-- slot => `REFUNDED`
-- remaining Founder count does **not** increase
+Refund:
+- full refund => Founder entitlement removed, slot => `REFUNDED`
 - partial refund => Founder remains active
 
----
-
-## Founder end-to-end test — PASSED
+### Founder E2E test — PASSED
 
 Test Mode Founder Variant ID:
 
@@ -74,93 +61,53 @@ Test Mode Founder Variant ID:
 2088460
 ```
 
-**Important:** this is a TEST MODE ID. Do not use it in production.
+**Do not use this Test Mode ID in production.**
 
 Confirmed locally:
-1. `/upgrade` shows 150 Founder spots.
-2. Regular USER can start Founder checkout.
-3. Lemon checkout is `$199` one-time Founder.
-4. `order_created` webhook activates Founder.
-5. Upgrade plan changes `FREE -> FOUNDER`.
-6. Remaining spots change `150 -> 149`.
-7. Full refund was tested via Lemon API.
-8. `order_refunded` webhook changes `FOUNDER -> FREE`.
-9. Slot #1 becomes `REFUNDED`.
-10. Remaining spots stay at `149`.
+- `/upgrade` showed 150 spots
+- regular USER completed `$199` one-time checkout
+- `order_created` activated Founder
+- `FREE -> FOUNDER`
+- remaining spots `150 -> 149`
+- full refund tested through Lemon API
+- `order_refunded` changed `FOUNDER -> FREE`
+- refunded slot stayed consumed, so remaining spots stayed `149`
 
-Important Lemon webhook lesson:
-- `order_created` was initially not selected in Lemon webhook settings.
-- Checkout completed but FFZ remained FREE until `order_created` was enabled and delivered.
+Important webhook lesson:
+- `order_created` must be explicitly selected in Lemon webhook configuration
+- `order_refunded` must also be selected
+- keep subscription lifecycle webhook events enabled
 
-Required order events:
-- `order_created`
-- `order_refunded`
+### Production Founder deploy — DONE
 
-Keep existing subscription lifecycle events enabled too.
-
----
-
-## Local Founder database note
-
-Local DB is `ffz_platform`.
-
-During E2E testing, `founder_slots` was manually created from:
-
-```text
-drizzle/0005_founder_slots.sql
-```
-
-The local DB already has this table. Do not blindly run that SQL again.
-
-There may be one local test slot in `REFUNDED` state because of the Founder E2E test.
-
----
-
-## Production Founder deploy — DONE
-
-Production deploy completed successfully on 2026-09-04.
-
-Completed:
-- [x] backup taken before schema migration
+Completed 2026-09-04:
+- [x] backup before migration
 - [x] latest `main` deployed to `~/apps/FFZ`
 - [x] `drizzle-production/0004_founder_slots.sql` applied
-- [x] `founder_slots` exists in production
 - [x] production verification confirmed exactly **150 Founder slots**
 
-**Never run `db:push` in production.**
-
-For future schema deployments:
-
-```bash
-cd ~/apps/FFZ
-git switch main
-git pull --ff-only origin main
-./scripts/backup-production.sh
-./scripts/deploy-production.sh
-```
+**Never use `db:push` in production.**
 
 ---
 
-## Founder Live Mode — REQUIRED BEFORE PUBLIC BILLING LAUNCH
+## Founder Live Mode — TODO BEFORE PUBLIC BILLING LAUNCH
 
-This is intentionally deferred until public billing launch.
+Intentionally deferred until public billing launch.
 
-When real billing is ready, create a Lemon **Live Mode** Founder variant:
+Create Lemon Live Mode Founder variant:
 - Name: `Founder Trader`
 - `$199`
 - one-time / single payment
 - no trial
 
-Set on production server:
+Set in production:
 
 ```env
 LEMONSQUEEZY_FOUNDER_VARIANT_ID=<LIVE_VARIANT_ID>
 LEMONSQUEEZY_TEST_MODE=false
 ```
 
-Do not use Test Variant ID `2088460` in production.
-
-Live webhook URL must point to:
+Live webhook must point to:
 
 ```text
 https://<ffz-domain>/api/billing/webhook
@@ -174,9 +121,7 @@ Required events:
 - `subscription_cancelled`
 - `subscription_expired`
 
----
-
-## Founder pre-launch UX polish — TODO, NOT A BLOCKER
+### Founder pre-launch UX polish — TODO, NOT A BLOCKER
 
 Checkout already redirects to something like:
 
@@ -184,53 +129,40 @@ Checkout already redirects to something like:
 /upgrade?checkout=founder-success
 ```
 
-Before public billing launch, recommended:
+Before public launch, recommended:
 - show `Payment received. Activating your Founder access...`
-- auto-refresh/poll briefly after returning from Lemon
-- when webhook finishes, show `FOUNDER`, `FOUNDER ACTIVE`, and slot number
-- show a fallback message if activation is delayed
+- poll/refresh briefly while waiting for webhook
+- after activation show `FOUNDER`, `FOUNDER ACTIVE`, slot number
+- fallback message if activation is delayed
 
-This is not required for functional correctness and can stay for final launch polish.
+### Additional manual tests recommended before live
 
----
+Existing PRO -> Founder:
+- Monthly/Annual USER buys Founder
+- Founder becomes effective plan
+- Lemon subscription becomes `cancelled: true`
+- already-paid period remains valid
+- no future double billing
 
-## Additional Founder manual tests — RECOMMENDED BEFORE LIVE
+Partial refund:
+- Founder remains active
+- slot remains `PURCHASED`
 
-### Existing PRO -> Founder
+### Billing live-launch checklist
 
-Test with a real Lemon Test Mode subscription:
-1. USER has Monthly or Annual PRO.
-2. USER buys Founder.
-3. Effective plan becomes Founder/PRO.
-4. Existing Lemon subscription becomes `cancelled: true`.
-5. Already-paid access remains until the period end.
-6. There is no future double billing.
+Infrastructure complete:
+- [x] Founder backend deployed
+- [x] production migration passed
+- [x] `founder_slots` = exactly 150 rows
 
-### Partial refund
-
-1. Founder is `PURCHASED`.
-2. Issue a partial refund.
-3. `order_refunded` arrives.
-4. Founder entitlement stays active.
-5. Slot stays `PURCHASED`.
-
----
-
-## Billing live-launch checklist
-
-Infrastructure already complete:
-- [x] Founder backend deployed to production
-- [x] production DB migration passed
-- [x] `founder_slots` has exactly 150 rows
-
-Deferred until public billing launch:
+Deferred until live launch:
 - [ ] Live Founder variant created
 - [ ] Live Founder Variant ID added to server
 - [ ] `LEMONSQUEEZY_TEST_MODE=false`
 - [ ] Live webhook URL verified
 - [ ] `order_created` selected
 - [ ] `order_refunded` selected
-- [ ] subscription webhook events selected
+- [ ] subscription events selected
 - [ ] Founder purchase smoke test
 - [ ] Monthly PRO smoke test
 - [ ] Annual PRO smoke test
@@ -243,44 +175,84 @@ Deferred until public billing launch:
 
 ---
 
-# ACTIVE NEXT ROADMAP ITEM — Public FFZ Journey
+## Public FFZ Journey MVP — DONE
 
-Status: **NEXT TO BUILD**
+PR #23: **Add public FFZ Journey**
 
-This is separate from authenticated PRO `/prop-journey`.
+Merged commit:
 
-## Goal
+```text
+5ec6565db2b8e375647277e8cafca6398c0fec3f
+```
 
-Create a public-facing page connected to the real FFZ trading journey, suitable for viewers coming from YouTube and for documenting progress transparently.
+Public route:
 
-Possible public data:
-- current challenge/funded status
+```text
+/journey
+```
+
+Purpose:
+- public-facing FFZ trading journey for YouTube viewers and followers
+- separate from authenticated PRO `/prop-journey`
+- powered by real Creator challenge + Real Money Ledger data
+
+MVP shows:
+- current mission / prop account phase
 - prop firm
 - account size
-- starting balance / current balance
-- P&L
-- progress toward target
-- challenge/reset/activation costs
+- aggregate challenge P&L / progress toward target
+- real prop costs
 - payouts
-- real-money net result
+- net journey result
+- evaluation -> funded -> payout funnel
+- recent 6-month cash flow
 - milestones
-- related/latest YouTube episode
-- basic journey statistics
+- aggregate prop-firm economics
 
-## Decision required before implementation
+Privacy rules implemented:
+- no account numbers
+- no challenge/account IDs
+- no private account labels
+- no journal/ledger notes
+- no order references
+- no raw trade details
+- no Creator personal display name
+- public UI receives a sanitized aggregate model only
 
-Define what may be public and what remains private:
-- which account/challenge can be public
-- whether exact balances are public
-- whether daily/trade-level P&L is public
-- whether account numbers or provider IDs are always hidden
-- whether real-time data is shown or delayed
-- whether trade entries are public or only aggregate stats
-- whether historical failed challenges remain visible
+Data behavior:
+- reuses existing Prop Journey analytics so private/public financial math stays consistent
+- primary Creator is used as FFZ owner journey source
+- public read does not journal-sync or mutate challenge data
+- USD is preferred when multiple currencies exist
 
-Recommended privacy default:
-- never expose credentials, internal IDs, account numbers, emails, provider customer/order IDs, or private notes
-- public page should use aggregated trading data rather than raw private records unless explicitly enabled
+Tests cover:
+- aggregate output
+- private IDs/notes/references never serialized into public model
+- current mission selection
+- currency selection
+
+Local visual/function test: **PASSED**.
+
+### Public Journey production deploy — NEXT INFRA STEP
+
+PR #23 is merged but still needs deployment to the server.
+
+No DB migration is required.
+
+```bash
+cd ~/apps/FFZ
+git switch main
+git pull --ff-only origin main
+./scripts/deploy-production.sh
+```
+
+After deploy, verify the public route in a logged-out/private browser:
+
+```text
+https://<ffz-domain>/journey
+```
+
+Check that it loads without authentication and contains no private identifiers or notes.
 
 ---
 
@@ -297,7 +269,32 @@ Creator-only:
 - Episode Builder
 - Scoreboard
 
-Do not make these commercial PRO features.
+Do not turn these into commercial PRO features.
+
+---
+
+# ACTIVE NEXT ROADMAP ITEM — Real-usage improvements / Psychology Analytics
+
+Status: **NEXT AFTER PUBLIC JOURNEY PRODUCTION DEPLOY**
+
+The platform now has the core operating system, monetization foundation, private Prop Journey and public journey. The next development should be driven by actual trading usage rather than adding broad surface area.
+
+Recommended first direction:
+- psychology / discipline analytics from Journal data
+- identify repeated rule violations and emotional patterns
+- performance before/after loss streaks
+- revenge-trading / overtrading signals
+- quality of planned vs unplanned trades
+- adherence to daily risk limits
+- actionable weekly review insights rather than generic stats
+
+Also useful after real data starts accumulating:
+- deeper Journal insights
+- Public Journey enhancements
+- Creator Episode Builder improvements based on actual YouTube workflow
+- YouTube explainer/content integration
+
+Do not overbuild this before real trading data exists.
 
 ---
 
@@ -308,8 +305,6 @@ Do not make these commercial PRO features.
 - PRO Yearly: `$99/year`
 - Founder: `$199 one-time`, lifetime PRO, first 150
 - Creator: internal/owner role, effective PRO, no Founder seat
-
----
 
 ## Product gating summary
 
@@ -434,20 +429,12 @@ YouTube:
 
 ## Recommended next order of work
 
-1. **Public FFZ Journey — active next task.**
-2. Define public/private data policy and MVP layout.
-3. Implement Public FFZ Journey through normal branch -> draft PR -> CI -> local test workflow.
-4. Before public billing launch, return to:
-   - Founder success/activation UX
-   - Live Lemon Founder variant
-   - Live webhook setup
-   - final billing smoke tests
-   - final Upgrade/pricing copy polish
-5. After real usage begins, consider:
-   - psychology analytics
-   - deeper Journal insights
-   - creator episode workflow improvements
-   - public journey enhancements
+1. Deploy merged Public FFZ Journey to production and smoke-test `/journey` logged out.
+2. Keep Founder Live Mode / final billing launch tasks deferred until the actual public billing launch.
+3. Start real trading usage and let real data accumulate.
+4. Build psychology/discipline analytics from actual Journal behavior.
+5. Iterate Public Journey and Creator Episode workflow based on real use.
+6. Before public billing launch return to Founder success UX + Live Lemon configuration + billing smoke tests.
 
 ---
 
