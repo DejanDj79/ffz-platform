@@ -1,5 +1,5 @@
 .tabs {
-  min-height: 48px;
+  min-height: 46px;
   padding: 0 12px;
   display: flex;
   align-items: stretch;
@@ -9,23 +9,26 @@
 
 .track {
   position: relative;
-  width: min(100%, 400px);
+  width: min(100%, 360px);
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   align-items: stretch;
 }
 
 .tab {
   min-width: 0;
-  padding: 0 6px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 0;
   cursor: pointer;
   color: #748690;
   background: transparent;
   font: inherit;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .045em;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: .025em;
   white-space: nowrap;
   transition: color 180ms ease;
 }
@@ -53,8 +56,8 @@
 .indicator::after {
   content: "";
   position: absolute;
-  left: 14px;
-  right: 14px;
+  left: 20px;
+  right: 20px;
   top: 0;
   height: 2px;
   border-radius: 999px;
@@ -90,12 +93,11 @@
   }
 
   .tab {
-    padding: 0 3px;
-    font-size: 9.5px;
+    font-size: 8.5px;
   }
 
   .indicator::after {
-    left: 9px;
-    right: 9px;
+    left: 14px;
+    right: 14px;
   }
 }
