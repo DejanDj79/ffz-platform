@@ -7,14 +7,11 @@
 }
 
 /* FFZ scrollbar theme.
-   Internal scroll areas stay quiet until the pointer enters them. Firefox
-   uses scrollbar-color; Chromium/WebKit use the pseudo elements below. */
+   Keep scrollbars consistently themed without a universal :hover restyle.
+   Chromium native form popups can be destabilized by document-wide hover
+   style invalidation, so scrollbar visibility is static instead. */
 * {
   scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
-}
-
-*:hover {
   scrollbar-color: rgba(75, 96, 111, .52) transparent;
 }
 
@@ -31,16 +28,11 @@
 *::-webkit-scrollbar-thumb {
   border: 2px solid transparent;
   border-radius: 999px;
-  background: transparent;
-  background-clip: padding-box;
-}
-
-*:hover::-webkit-scrollbar-thumb {
   background: rgba(75, 96, 111, .48);
   background-clip: padding-box;
 }
 
-*:hover::-webkit-scrollbar-thumb:hover {
+*::-webkit-scrollbar-thumb:hover {
   background: rgba(48, 208, 248, .34);
   background-clip: padding-box;
 }
