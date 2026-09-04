@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import { RouteShell } from "@/components/shell/RouteShell";
 import "./globals.css";
 import "./ui-tweaks.css";
 
-const poppins = Poppins({
+const montserrat = Montserrat({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-poppins",
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-montserrat",
   display: "swap",
 });
 
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className={poppins.variable}>
+      <body className={`${montserrat.variable} ${montserrat.className}`}>
         <RouteShell>{children}</RouteShell>
       </body>
     </html>
