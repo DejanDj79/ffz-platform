@@ -1,17 +1,23 @@
 .tabs {
-  min-height: 46px;
-  padding: 0 14px;
+  min-height: 48px;
+  padding: 0 12px;
   display: flex;
   align-items: stretch;
-  gap: 20px;
-  border-bottom: 1px solid rgba(66,87,103,.32);
-  background: rgba(255,255,255,.006);
+  justify-content: center;
+  background: rgba(255,255,255,.004);
+}
+
+.track {
+  position: relative;
+  width: min(100%, 400px);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: stretch;
 }
 
 .tab {
-  position: relative;
   min-width: 0;
-  padding: 0;
+  padding: 0 6px;
   border: 0;
   cursor: pointer;
   color: #748690;
@@ -21,17 +27,7 @@
   font-weight: 700;
   letter-spacing: .045em;
   white-space: nowrap;
-}
-
-.tab::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: 2px;
-  border-radius: 2px 2px 0 0;
-  background: transparent;
+  transition: color 180ms ease;
 }
 
 .tab:hover {
@@ -42,18 +38,64 @@
   color: #eef5f8;
 }
 
-.active::after {
+.indicator {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 25%;
+  height: 2px;
+  pointer-events: none;
+  transform: translateX(0);
+  transition: transform 280ms cubic-bezier(.22, 1, .36, 1);
+  will-change: transform;
+}
+
+.indicator::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 0;
+  height: 2px;
+  border-radius: 999px;
   background: #30d0f8;
-  box-shadow: 0 0 10px rgba(48,208,248,.28);
+  box-shadow: 0 0 10px rgba(48,208,248,.3);
+}
+
+.track[data-active-index="1"] .indicator {
+  transform: translateX(100%);
+}
+
+.track[data-active-index="2"] .indicator {
+  transform: translateX(200%);
+}
+
+.track[data-active-index="3"] .indicator {
+  transform: translateX(300%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .indicator {
+    transition: none;
+  }
 }
 
 @media (max-width: 680px) {
   .tabs {
-    gap: 18px;
-    overflow-x: auto;
+    padding: 0 6px;
+  }
+
+  .track {
+    width: 100%;
   }
 
   .tab {
-    flex: 0 0 auto;
+    padding: 0 3px;
+    font-size: 9.5px;
+  }
+
+  .indicator::after {
+    left: 9px;
+    right: 9px;
   }
 }
