@@ -180,21 +180,26 @@
   color: #dfbf6b;
 }
 
-.row label {
+.reviewField {
   display: grid;
   gap: 6px;
+  min-width: 0;
 }
 
-.row label > span {
+.reviewField > span {
   color: #8298aa;
   font-size: 0.67rem;
   font-weight: 800;
   letter-spacing: 0.08em;
 }
 
-.row select {
+.selectTrigger {
   width: 100%;
   min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   border: 1px solid rgba(107, 151, 179, 0.24);
   border-radius: 10px;
   background: #0b1a28;
@@ -202,12 +207,57 @@
   padding: 0 10px;
   font: inherit;
   font-size: 0.82rem;
+  text-align: left;
+  cursor: pointer;
   outline: none;
 }
 
-.row select:focus {
+.selectTrigger:hover,
+.selectTriggerOpen,
+.selectTrigger:focus-visible {
   border-color: rgba(68, 211, 242, 0.55);
   box-shadow: 0 0 0 3px rgba(68, 211, 242, 0.08);
+}
+
+.selectCaret {
+  color: #6f91a5;
+  font-size: 0.92rem;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+
+.selectMenu {
+  position: fixed;
+  z-index: 2000;
+  display: grid;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 5px;
+  border: 1px solid rgba(86, 151, 187, 0.38);
+  border-radius: 10px;
+  background: #0a1825;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.46);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(94, 170, 204, 0.42) rgba(7, 18, 29, 0.65);
+}
+
+.selectMenu button {
+  min-height: 34px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #c9d8e2;
+  padding: 7px 9px;
+  font: inherit;
+  font-size: 0.8rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.selectMenu button:hover,
+.selectOptionActive {
+  background: rgba(68, 211, 242, 0.12) !important;
+  color: #78e1f8 !important;
 }
 
 .saveButton {
