@@ -124,14 +124,17 @@ export function TradeReviewViewer() {
       setError(null);
 
       try {
-        const [nextTrades, nextChallenges] = await Promise.all([
-          fetchTrades(),
-          fetchChallenges(),
-        ]);
-
+        const nextTrades = await fetchTrades();
         if (cancelled) return;
         setAllTrades(nextTrades);
-        setChallenges(nextChallenges);
+
+        void fetchChallenges()
+          .then((nextChallenges) => {
+            if (!cancelled) setChallenges(nextChallenges);
+          })
+          .catch(() => {
+            if (!cancelled) setChallenges([]);
+          });
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : "Unable to load trade review data.");
@@ -322,6 +325,13 @@ export function TradeReviewViewer() {
                       value={trade.netPnl == null ? "—" : money.format(trade.netPnl)}
                       tone={trade.netPnl == null ? undefined : trade.netPnl > 0 ? "positive" : trade.netPnl < 0 ? "negative" : undefined}
                     />
+                    <Metric
+                      label="GROSS P&L"
+                      value={trade.grossPnl == null ? "—" : money.format(trade.grossPnl)}
+                      tone={trade.grossPnl == null ? undefined : trade.grossPnl > 0 ? "positive" : trade.grossPnl < 0 ? "negative" : undefined}
+                    />
+                    <Metric label="FEES" value={money.format(trade.commissionFees)} />
+                    <Metric label="INITIAL RISK" value={trade.initialRisk == null ? "—" : money.format(trade.initialRisk)} />
                     <Metric
                       label="R MULTIPLE"
                       value={trade.rMultiple == null ? "—" : `${number.format(trade.rMultiple)}R`}
