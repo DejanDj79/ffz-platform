@@ -233,26 +233,16 @@ Tests cover:
 
 Local visual/function test: **PASSED**.
 
-### Public Journey production deploy — NEXT INFRA STEP
+### Public Journey production deploy — DONE
 
-PR #23 is merged but still needs deployment to the server.
+Completed 2026-09-04:
+- [x] latest `main` deployed to production
+- [x] `/journey` smoke-tested logged out
+- [x] no authentication redirect
+- [x] public layout verified after split-panel width fix
+- [x] no private identifiers or notes exposed
 
-No DB migration is required.
-
-```bash
-cd ~/apps/FFZ
-git switch main
-git pull --ff-only origin main
-./scripts/deploy-production.sh
-```
-
-After deploy, verify the public route in a logged-out/private browser:
-
-```text
-https://<ffz-domain>/journey
-```
-
-Check that it loads without authentication and contains no private identifiers or notes.
+No DB migration was required.
 
 ---
 
@@ -275,7 +265,7 @@ Do not turn these into commercial PRO features.
 
 # ACTIVE NEXT ROADMAP ITEM — Real-usage improvements / Psychology Analytics
 
-Status: **NEXT AFTER PUBLIC JOURNEY PRODUCTION DEPLOY**
+Status: **IN PROGRESS**
 
 The platform now has the core operating system, monetization foundation, private Prop Journey and public journey. The next development should be driven by actual trading usage rather than adding broad surface area.
 
@@ -287,6 +277,9 @@ Recommended first direction:
 - quality of planned vs unplanned trades
 - adherence to daily risk limits
 - actionable weekly review insights rather than generic stats
+
+First data-foundation step:
+- preserve durable `FFZ:planned` provenance when a Planned Trade is started, so planned-vs-other performance can accumulate from real usage
 
 Also useful after real data starts accumulating:
 - deeper Journal insights
@@ -429,12 +422,11 @@ YouTube:
 
 ## Recommended next order of work
 
-1. Deploy merged Public FFZ Journey to production and smoke-test `/journey` logged out.
-2. Keep Founder Live Mode / final billing launch tasks deferred until the actual public billing launch.
-3. Start real trading usage and let real data accumulate.
-4. Build psychology/discipline analytics from actual Journal behavior.
-5. Iterate Public Journey and Creator Episode workflow based on real use.
-6. Before public billing launch return to Founder success UX + Live Lemon configuration + billing smoke tests.
+1. Start real trading usage and let real data accumulate.
+2. Preserve and extend reliable discipline metadata as actual usage exposes what is useful.
+3. Build psychology/discipline analytics from actual Journal behavior.
+4. Iterate Public Journey and Creator Episode workflow based on real use.
+5. Before public billing launch return to Founder success UX + Live Lemon configuration + billing smoke tests.
 
 ---
 
