@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_TRADING_GUARDRAILS,
+  applyPersonalContractLimit,
   calculateDailyTradingStats,
   evaluateNewsGuardrails,
   evaluatePersonalGuardrails,
@@ -128,6 +129,19 @@ describe("trading guardrails", () => {
 
   it("uses the configured personal contract sizing cap", () => {
     expect(personalContractLimit(DEFAULT_TRADING_GUARDRAILS)).toBe(1);
+  });
+
+  it("rounds drawdown usage after a personal contract cap", () => {
+    const adjusted = applyPersonalContractLimit(
+      result({ maxContracts: 4, riskPerContract: 40, actualRisk: 160 }),
+      2,
+      1450,
+      null,
+    );
+
+    expect(adjusted.maxContracts).toBe(2);
+    expect(adjusted.actualRisk).toBe(80);
+    expect(adjusted.drawdownUsagePct).toBe(5.5);
   });
 
   it("blocks inside the wider major-release CPI window", () => {

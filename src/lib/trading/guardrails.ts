@@ -42,6 +42,10 @@ function roundMoney(value: number) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
+function roundPercent(value: number) {
+  return Math.round((value + Number.EPSILON) * 10) / 10;
+}
+
 function check(
   code: string,
   source: TradeGuardrailCheck["source"],
@@ -135,7 +139,7 @@ export function applyPersonalContractLimit(
     maxContracts,
     actualRisk,
     unusedRiskBudget: Math.max(0, result.effectiveRiskBudget - actualRisk),
-    drawdownUsagePct,
+    drawdownUsagePct: drawdownUsagePct == null ? null : roundPercent(drawdownUsagePct),
     dailyLossUsagePct,
     riskLevel: riskLevelFromUsage(drawdownUsagePct),
   };

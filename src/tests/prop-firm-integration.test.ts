@@ -88,7 +88,7 @@ describe("Blue Guardian Standard 25K calculator integration", () => {
     const adjusted = applyChallengeContractLimit(result(14, 40), 10, 1500, null);
     expect(adjusted.maxContracts).toBe(10);
     expect(adjusted.actualRisk).toBe(400);
-    expect(adjusted.drawdownUsagePct).toBeCloseTo(26.666666, 4);
+    expect(adjusted.drawdownUsagePct).toBe(26.7);
     expect(adjusted.warnings.some((warning) => warning.includes("capped"))).toBe(true);
   });
 

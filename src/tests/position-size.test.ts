@@ -84,6 +84,20 @@ describe("calculatePositionSize", () => {
     expectClose(result.actualRisk, 40);
   });
 
+  it("rounds drawdown usage to one decimal for display", () => {
+    const result = calculatePositionSize({
+      instrument: "MNQ",
+      entry: 19000,
+      stop: 18980,
+      maxRisk: 100,
+      accountType: "PROP",
+      remainingDrawdown: 1450,
+    });
+
+    expect(result.actualRisk).toBe(80);
+    expect(result.drawdownUsagePct).toBe(5.5);
+  });
+
   it("calculates R:R from a valid target", () => {
     const result = calculatePositionSize({
       instrument: "MNQ",
