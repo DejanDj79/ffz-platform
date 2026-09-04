@@ -28,7 +28,7 @@
   color: #83939d;
   background: rgba(255,255,255,.008);
   font: inherit;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 500;
   letter-spacing: 0;
   white-space: nowrap;
@@ -75,6 +75,6 @@
   .tab {
     min-height: 32px;
     padding: 0 1px;
-    font-size: 7.5px;
+    font-size: 9.5px;
   }
 }

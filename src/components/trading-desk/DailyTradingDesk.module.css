@@ -16,7 +16,7 @@
   border-radius: 9px;
   color: #ff9ca4;
   background: rgba(255,115,127,.055);
-  font-size: 11.5px;
+  font-size: 13.5px;
 }
 
 .errorBanner button {
@@ -25,7 +25,7 @@
   color: #30d0f8;
   background: transparent;
   font: inherit;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -59,20 +59,20 @@
 
 .eyebrow {
   color: #30d0f8;
-  font-size: 10.5px;
+  font-size: 12.5px;
   font-weight: 800;
   letter-spacing: .14em;
 }
 
 .monitorIdentity > strong {
   color: #edf5f9;
-  font-size: 21px;
+  font-size: 23px;
   line-height: 1.15;
 }
 
 .monitorIdentity > small {
   color: #7d8e99;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .monitorIdentity > small i {
@@ -100,7 +100,7 @@
 .ruleSummary > span,
 .instrumentSection > span {
   color: #81919c;
-  font-size: 10.5px;
+  font-size: 12.5px;
   font-weight: 800;
   letter-spacing: .08em;
 }
@@ -116,7 +116,7 @@
   color: #d8e2e8;
   background: #0c171f;
   font: inherit;
-  font-size: 11.5px;
+  font-size: 13.5px;
   color-scheme: dark;
 }
 
@@ -139,7 +139,7 @@
 
 .syncBlock small {
   color: #6f818c;
-  font-size: 9.5px;
+  font-size: 11.5px;
 }
 
 .syncBlock button {
@@ -151,7 +151,7 @@
   color: #9babb5;
   background: rgba(255,255,255,.018);
   font: inherit;
-  font-size: 10.5px;
+  font-size: 12.5px;
   font-weight: 800;
   letter-spacing: .06em;
 }
@@ -189,20 +189,20 @@
 
 .guardrailBanner span {
   color: #80929e;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: .12em;
 }
 
 .guardrailBanner strong {
-  font-size: 13px;
+  font-size: 15px;
   letter-spacing: .04em;
 }
 
 .guardrailBanner p {
   margin: 0;
   color: #8b9aa4;
-  font-size: 11px;
+  font-size: 13px;
   text-align: right;
 }
 
@@ -240,7 +240,7 @@
 
 .kpiCard > span {
   color: #81919c;
-  font-size: 10.5px;
+  font-size: 12.5px;
   font-weight: 800;
   letter-spacing: .09em;
 }
@@ -250,7 +250,7 @@
   margin-top: 8px;
   overflow: hidden;
   color: #e6eef3;
-  font-size: clamp(19px, 1.5vw, 25px);
+  font-size: calc(clamp(19px, 1.5vw, 25px) + 2px);
   line-height: 1.05;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -260,7 +260,7 @@
   display: block;
   margin-top: 8px;
   color: #748691;
-  font-size: 10.5px;
+  font-size: 12.5px;
   line-height: 1.4;
 }
 
@@ -320,14 +320,14 @@
 
 .panelHeader span {
   color: #e0eaf0;
-  font-size: 11.5px;
+  font-size: 13.5px;
   font-weight: 800;
   letter-spacing: .11em;
 }
 
 .panelHeader small {
   color: #778994;
-  font-size: 10.5px;
+  font-size: 12.5px;
 }
 
 .panelHeader > strong {
@@ -359,14 +359,14 @@
 
 .outcomeGrid span {
   color: #758792;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: .08em;
 }
 
 .outcomeGrid strong {
   color: #dbe5ea;
-  font-size: 22px;
+  font-size: 24px;
 }
 
 .instrumentSection {
@@ -392,7 +392,7 @@
   border-radius: 7px;
   color: #72ddf8;
   background: rgba(48,208,248,.035);
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .instrumentChips i {
@@ -405,12 +405,12 @@
   color: #b6c5cd;
   background: rgba(255,255,255,.06);
   font-style: normal;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .instrumentChips small {
   color: #6f818c;
-  font-size: 10.5px;
+  font-size: 12.5px;
 }
 
 .quickLinks {
@@ -430,7 +430,7 @@
   color: #72ddf8;
   background: rgba(48,208,248,.035);
   text-decoration: none;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -459,7 +459,7 @@
   z-index: 2;
   transform: translateY(-50%);
   color: #657783;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -480,12 +480,12 @@
 
 .ruleSummary strong {
   color: #d9c8f5;
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .ruleSummary small {
   color: #7b6e8f;
-  font-size: 9.5px;
+  font-size: 11.5px;
 }
 
 .guardrailsBody {
@@ -502,12 +502,12 @@
 }
 
 .guardrailRow:last-child { border-bottom: 0; }
-.guardrailRow span { color: #788a95; font-size: 10.5px; }
-.guardrailRow strong { color: #d5e0e6; font-size: 11.5px; text-align: right; }
+.guardrailRow span { color: #788a95; font-size: 12.5px; }
+.guardrailRow strong { color: #d5e0e6; font-size: 13.5px; text-align: right; }
 
 .nextEvent {
   color: #ffb6bc;
-  font-size: 10.5px;
+  font-size: 12.5px;
   text-transform: uppercase;
 }
 
@@ -535,11 +535,11 @@
   gap: 3px;
 }
 
-.newsTime strong { color: #ff8e98; font-size: 11px; }
-.newsTime small { color: #667985; font-size: 9.5px; }
-.newsTitle strong { overflow: hidden; color: #d3dee4; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
-.newsTitle small { color: #6f818c; font-size: 9.5px; }
-.newsItem > span { color: #8a9aa4; font-size: 9.5px; font-weight: 800; }
+.newsTime strong { color: #ff8e98; font-size: 13px; }
+.newsTime small { color: #667985; font-size: 11.5px; }
+.newsTitle strong { overflow: hidden; color: #d3dee4; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.newsTitle small { color: #6f818c; font-size: 11.5px; }
+.newsItem > span { color: #8a9aa4; font-size: 11.5px; font-weight: 800; }
 
 .newsEmpty {
   min-height: 67px;
@@ -547,7 +547,7 @@
   place-items: center;
   padding: 12px 18px;
   color: #6f818c;
-  font-size: 10.5px;
+  font-size: 12.5px;
   text-align: center;
 }
 

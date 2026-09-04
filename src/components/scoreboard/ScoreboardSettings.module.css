@@ -35,14 +35,14 @@
 
 .panelHeader span {
   color: #dce7ed;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: .13em;
 }
 
 .panelHeader small {
   color: #697b87;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .scoreboardStage {
@@ -77,7 +77,7 @@
   align-items: center;
   gap: 7px;
   color: #93a4af;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .enableToggle input {
@@ -101,7 +101,7 @@
 .metrics > span,
 .obs label > span {
   color: #7c8e99;
-  font-size: 9.5px;
+  font-size: 11.5px;
   font-weight: 600;
 }
 
@@ -121,7 +121,7 @@
       #0b141c
     );
   font: inherit;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .form input,
@@ -191,7 +191,7 @@
   color: #687b87;
   background: transparent;
   font: inherit;
-  font-size: 8.5px;
+  font-size: 10.5px;
   font-weight: 800;
 }
 
@@ -230,7 +230,7 @@
 
 .metrics label span {
   color: #a2b1bb;
-  font-size: 8.5px;
+  font-size: 10.5px;
 }
 
 .saveButton,
@@ -244,7 +244,7 @@
   color: #041117;
   background: #30d0f8;
   font: inherit;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: .08em;
 }
@@ -254,7 +254,7 @@
   margin: 13px 0 0;
   padding: 9px 10px;
   border-radius: 7px;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .error {
@@ -285,14 +285,14 @@
 
 .explainer strong {
   color: #b8c5cd;
-  font-size: 8.5px;
+  font-size: 10.5px;
   letter-spacing: .07em;
 }
 
 .explainer span,
 .obsSetup span {
   color: #687b86;
-  font-size: 8.5px;
+  font-size: 10.5px;
   line-height: 1.45;
 }
 
@@ -318,7 +318,7 @@
 .obsSetup strong {
   margin-bottom: 2px;
   color: #b1bec6;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .rotateButton {
@@ -331,7 +331,7 @@
   color: #ff8691;
   background: rgba(255,119,132,.035);
   font: inherit;
-  font-size: 8.5px;
+  font-size: 10.5px;
 }
 
 .loading {
@@ -339,7 +339,7 @@
   display: grid;
   place-items: center;
   color: #6b7d88;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 @media (max-width: 1100px) {

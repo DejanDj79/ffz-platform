@@ -47,7 +47,7 @@
 .challengeCard span,
 .metricCard span {
   color: #30d0f8;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: .12em;
 }
@@ -56,7 +56,7 @@
   max-width: 840px;
   margin: 8px 0 0;
   color: #f3f7fa;
-  font-size: clamp(26px, 2.8vw, 40px);
+  font-size: calc(clamp(26px, 2.8vw, 40px) + 2px);
   line-height: 1.12;
 }
 
@@ -64,7 +64,7 @@
   max-width: 900px;
   margin: 13px 0 0;
   color: #8f9da8;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.7;
 }
 
@@ -75,7 +75,7 @@
   border-radius: 999px;
   color: #d8c6ff;
   background: rgba(160,112,232,.1);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: .08em;
 }
@@ -95,7 +95,7 @@
 
 .filters label > span {
   color: #788894;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: .11em;
 }
@@ -132,7 +132,7 @@
   border-radius: 8px;
   color: #031018;
   background: linear-gradient(180deg, #45dafc, #29bce9);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 850;
   letter-spacing: .06em;
 }
@@ -157,19 +157,19 @@
 
 .metricCard strong {
   color: #eef4f7;
-  font-size: clamp(22px, 2vw, 30px);
+  font-size: calc(clamp(22px, 2vw, 30px) + 2px);
   line-height: 1.05;
   letter-spacing: -.02em;
 }
 
 .metricCard small {
   color: #74838f;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.4;
 }
 
 .metricCard .setupValue {
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1.25;
 }
 
@@ -197,12 +197,12 @@
 
 .challengeCard strong {
   color: #e8eef2;
-  font-size: 17px;
+  font-size: 19px;
 }
 
 .challengeCard small {
   color: #7c8b96;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .contentGrid {
@@ -233,7 +233,7 @@
 .panelHeader h2 {
   margin: 0;
   color: #edf3f7;
-  font-size: 20px;
+  font-size: 22px;
 }
 
 .talkingPoints {
@@ -248,7 +248,7 @@
   position: relative;
   padding-left: 22px;
   color: #c8d2d9;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.55;
 }
 
@@ -288,31 +288,31 @@
 
 .tradeRow span {
   color: #a070e8;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 850;
   letter-spacing: .1em;
 }
 
 .tradeRow strong {
   color: #dde5ea;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .tradeRow small {
   color: #73828e;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .tradeRow b {
   flex: 0 0 auto;
   color: #eaf0f4;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .empty {
   margin: 18px 0 0;
   color: #71808b;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .copyButton {
@@ -330,7 +330,7 @@
   color: #bdc9d1;
   background: #071018;
   font-family: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.65;
   white-space: pre-wrap;
 }
@@ -343,13 +343,13 @@
 
 .experimentNote strong {
   color: #d7c5fb;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .experimentNote p {
   margin: 5px 0 0;
   color: #8b8198;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.55;
 }
 

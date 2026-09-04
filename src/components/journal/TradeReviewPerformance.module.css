@@ -24,20 +24,20 @@
 
 .heading span {
   color: #83939d;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: .08em;
 }
 
 .heading strong {
   color: #e7eff4;
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 600;
 }
 
 .heading small {
   color: #71838f;
-  font-size: 9.5px;
+  font-size: 11.5px;
 }
 
 .controls {
@@ -72,7 +72,7 @@
   border-radius: 5px;
   color: #788b96;
   background: transparent;
-  font-size: 8.5px;
+  font-size: 10.5px;
   font-weight: 600;
   letter-spacing: .04em;
   transition: color 150ms ease, background 150ms ease, box-shadow 150ms ease;
@@ -104,7 +104,7 @@
   height: 100%;
   color: #30d0f8;
   background: transparent;
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1;
 }
 
@@ -116,7 +116,7 @@
   padding: 0 10px;
   color: #9dabb4;
   text-align: center;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -141,14 +141,14 @@
 
 .metric span {
   color: #748792;
-  font-size: 8.5px;
+  font-size: 10.5px;
   font-weight: 600;
   letter-spacing: .06em;
 }
 
 .metric strong {
   color: #dce6eb;
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 600;
 }
 
@@ -188,19 +188,19 @@
 
 .chartHeader span {
   color: #8a99a3;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: .06em;
 }
 
 .chartHeader small {
   color: #697c88;
-  font-size: 8.5px;
+  font-size: 10.5px;
 }
 
 .chartHeader strong {
   flex: 0 0 auto;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
 }
 
@@ -252,7 +252,7 @@
 
 .scoreValue strong {
   color: #eef7fa;
-  font-size: 30px;
+  font-size: 32px;
   line-height: 1;
   font-weight: 600;
 }
@@ -260,7 +260,7 @@
 .scoreValue span {
   margin-top: 4px;
   color: #718591;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: .05em;
 }
@@ -284,7 +284,7 @@
   border-radius: 999px;
   color: #a8eafb;
   background: rgba(48,208,248,.055);
-  font-size: 7.5px;
+  font-size: 9.5px;
   font-weight: 700;
   letter-spacing: .06em;
 }
@@ -292,7 +292,7 @@
 .scoreStatus span,
 .scoreMeta small {
   color: #70838e;
-  font-size: 8px;
+  font-size: 10px;
 }
 
 .scoreMeta small {
@@ -319,7 +319,7 @@
 
 .scoreRow span,
 .scoreRow strong {
-  font-size: 7.5px;
+  font-size: 9.5px;
   font-weight: 600;
 }
 
@@ -375,7 +375,7 @@
   justify-content: space-between;
   gap: 8px;
   color: #60737f;
-  font-size: 8px;
+  font-size: 10px;
 }
 
 .axisLabels span {
@@ -390,7 +390,7 @@
   display: grid;
   place-items: center;
   color: #6f818c;
-  font-size: 9.5px;
+  font-size: 11.5px;
   text-align: center;
 }
 

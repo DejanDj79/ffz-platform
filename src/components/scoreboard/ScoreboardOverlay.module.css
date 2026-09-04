@@ -168,7 +168,7 @@
     0 3px 0 #6e7479,
     0 6px 15px rgba(0, 0, 0, 0.55);
 
-  font-size: clamp(32px, 2.2vw, 76px);
+  font-size: calc(clamp(32px, 2.2vw, 76px) + 2px);
   line-height: 0.9;
 
   font-weight: 900;
@@ -206,7 +206,7 @@
 .titleBlock span {
   color: #17bdfa;
 
-  font-size: clamp(10px, 1.25vw, 22px);
+  font-size: calc(clamp(10px, 1.25vw, 22px) + 2px);
   letter-spacing: 0.36em;
 
   white-space: nowrap;
@@ -236,7 +236,7 @@
 .dayBlock span {
   color: #f4f5f6;
 
-  font-size: clamp(8px, 0.85vw, 15px);
+  font-size: calc(clamp(8px, 0.85vw, 15px) + 2px);
   font-weight: 800;
   letter-spacing: 0.08em;
 }
@@ -246,7 +246,7 @@
 
   color: #f7f7f7;
 
-  font-size: clamp(18px, 2vw, 34px);
+  font-size: calc(clamp(18px, 2vw, 34px) + 2px);
   line-height: 1;
 }
 
@@ -285,7 +285,7 @@
 .summaryTile span {
   display: block;
   color: currentColor;
-  font-size: clamp(8px, .85vw, 15px);
+  font-size: calc(clamp(8px, .85vw, 15px) + 2px);
   font-weight: 800;
   letter-spacing: .03em;
   white-space: nowrap;
@@ -296,7 +296,7 @@
   margin-top: 6%;
   overflow: hidden;
   color: #f1f2f3;
-  font-size: clamp(13px, 1.25vw, 28px);
+  font-size: calc(clamp(13px, 1.25vw, 28px) + 2px);
   line-height: 1;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -306,7 +306,7 @@
   display: block;
   margin-top: 7%;
   color: currentColor;
-  font-size: clamp(6px, .65vw, 11px);
+  font-size: calc(clamp(6px, .65vw, 11px) + 2px);
   letter-spacing: .11em;
 }
 
@@ -378,14 +378,14 @@
 
 .panel > header strong {
   color: currentColor;
-  font-size: clamp(11px, 1.35vw, 24px);
+  font-size: calc(clamp(11px, 1.35vw, 24px) + 2px);
   font-weight: 800;
   letter-spacing: .02em;
 }
 
 .panel > header > span {
   color: #667c88;
-  font-size: clamp(6px, .65vw, 11px);
+  font-size: calc(clamp(6px, .65vw, 11px) + 2px);
   letter-spacing: .12em;
 }
 
@@ -412,7 +412,7 @@
 
 .detailsRow > span {
   color: #f0f2f3;
-  font-size: clamp(7px, .87vw, 15px);
+  font-size: calc(clamp(7px, .87vw, 15px) + 2px);
   letter-spacing: .03em;
   white-space: nowrap;
 }
@@ -426,7 +426,7 @@
   overflow: hidden;
   color: #21d5f5;
   text-align: left;
-  font-size: clamp(7px, .88vw, 15px);
+  font-size: calc(clamp(7px, .88vw, 15px) + 2px);
   font-weight: 500;
   font-style: normal;
   white-space: nowrap;
@@ -470,14 +470,14 @@
 .performanceMetric span {
   margin-top: 8%;
   color: #f0f1f2;
-  font-size: clamp(6px, .72vw, 12px);
+  font-size: calc(clamp(6px, .72vw, 12px) + 2px);
   white-space: nowrap;
 }
 
 .performanceMetric strong {
   margin-top: 8%;
   color: currentColor;
-  font-size: clamp(10px, 1.2vw, 21px);
+  font-size: calc(clamp(10px, 1.2vw, 21px) + 2px);
   font-weight: 500;
   white-space: nowrap;
 }
@@ -508,7 +508,7 @@
   border: 1px solid rgba(121, 142, 154, .45);
   border-right: 0;
   color: #e6eaed;
-  font-size: clamp(5px, .55vw, 9px);
+  font-size: calc(clamp(5px, .55vw, 9px) + 2px);
 }
 
 .calendarDays > div:last-child,
@@ -553,7 +553,7 @@
   display: flex;
   gap: 3.5%;
   color: #bdc6cb;
-  font-size: clamp(5px, .57vw, 10px);
+  font-size: calc(clamp(5px, .57vw, 10px) + 2px);
 }
 
 .legend span {
@@ -586,7 +586,7 @@
 .notes span {
   overflow: hidden;
   color: #bbc5ca;
-  font-size: clamp(6px, .67vw, 11px);
+  font-size: calc(clamp(6px, .67vw, 11px) + 2px);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -602,12 +602,12 @@
 
 .realMoneyMini span {
   color: #607985;
-  font-size: clamp(5px, .55vw, 9px);
+  font-size: calc(clamp(5px, .55vw, 9px) + 2px);
   letter-spacing: .08em;
 }
 
 .realMoneyMini strong {
-  font-size: clamp(7px, .72vw, 12px);
+  font-size: calc(clamp(7px, .72vw, 12px) + 2px);
 }
 
 .boardFooter {
@@ -619,7 +619,7 @@
 .boardFooter > span,
 .footerBrand > span {
   color: #758995;
-  font-size: clamp(5px, .62vw, 11px);
+  font-size: calc(clamp(5px, .62vw, 11px) + 2px);
   letter-spacing: .2em;
   white-space: nowrap;
 }
@@ -649,7 +649,7 @@
 
 .footerCenter strong {
   color: #21bee8;
-  font-size: clamp(5px, .62vw, 11px);
+  font-size: calc(clamp(5px, .62vw, 11px) + 2px);
   letter-spacing: .12em;
   white-space: nowrap;
 }
@@ -715,7 +715,7 @@
 .compactHeader span {
   display: block;
   color: #21bdea;
-  font-size: 7px;
+  font-size: 9px;
   letter-spacing: .13em;
 }
 
@@ -723,7 +723,7 @@
   display: block;
   margin-top: 3px;
   color: #dce7ec;
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: .07em;
 }
 
@@ -746,7 +746,7 @@
 .miniStat span,
 .compactProgress span {
   color: #667c87;
-  font-size: 7px;
+  font-size: 9px;
   font-weight: 800;
   letter-spacing: .1em;
 }
@@ -756,7 +756,7 @@
   margin-top: 3px;
   overflow: hidden;
   color: #e8f0f3;
-  font-size: 11px;
+  font-size: 13px;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -765,12 +765,12 @@
   display: block;
   margin-top: 2px;
   color: #667985;
-  font-size: 7px;
+  font-size: 9px;
 }
 
 .compactChallenge > b {
   flex: 0 0 auto;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .compactStats {
@@ -791,7 +791,7 @@
   display: block;
   margin-top: 4px;
   color: #e6eef2;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .compactProgress {
@@ -805,7 +805,7 @@
 
 .compactProgress strong {
   color: #d9e4e9;
-  font-size: 8px;
+  font-size: 10px;
 }
 
 .compactProgress > div:last-child {

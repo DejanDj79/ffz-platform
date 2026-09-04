@@ -32,7 +32,7 @@
 .tagSection > span,
 .mediaHeader span {
   color: #81919c;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: .09em;
 }
@@ -47,7 +47,7 @@
   background: linear-gradient(180deg, #101c25, #0a151d);
   color-scheme: dark;
   font: inherit;
-  font-size: 10.5px;
+  font-size: 12.5px;
 }
 
 .navigator {
@@ -60,7 +60,7 @@
   min-width: 120px;
   color: #9aaab4;
   text-align: center;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .navigator button {
@@ -74,7 +74,7 @@
   color: #30d0f8;
   background: rgba(48,208,248,.045);
   font: inherit;
-  font-size: 24px;
+  font-size: 26px;
   line-height: 1;
 }
 
@@ -132,14 +132,14 @@
 
 .mediaHeader strong {
   color: #e8f0f4;
-  font-size: 15px;
+  font-size: 17px;
 }
 
 .mediaHeader small {
   max-width: 42%;
   overflow: hidden;
   color: #748691;
-  font-size: 9.5px;
+  font-size: 11.5px;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -182,11 +182,11 @@
 
 .imagePlaceholder strong {
   color: #aab8c0;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .imagePlaceholder span {
-  font-size: 10.5px;
+  font-size: 12.5px;
   line-height: 1.55;
 }
 
@@ -215,25 +215,25 @@
 
 .tradeHeader > div > span {
   color: #30d0f8;
-  font-size: 9.5px;
+  font-size: 11.5px;
   font-weight: 800;
   letter-spacing: .09em;
 }
 
 .tradeHeader > div > strong {
   color: #edf5f9;
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .tradeHeader small {
   color: #778994;
-  font-size: 9.5px;
+  font-size: 11.5px;
   line-height: 1.45;
 }
 
 .tradeHeader > strong {
   flex: 0 0 auto;
-  font-size: 17px;
+  font-size: 19px;
 }
 
 .tabs {
@@ -253,7 +253,7 @@
   color: #71838e;
   background: transparent;
   font: inherit;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: .045em;
   white-space: nowrap;
@@ -306,7 +306,7 @@
 .metric strong {
   margin-top: 7px;
   color: #d7e2e8;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .detailRows {
@@ -330,7 +330,7 @@
 
 .detailRows strong {
   color: #cedae0;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.45;
 }
 
@@ -352,7 +352,7 @@
 
 .reviewCards strong {
   color: #d6e1e7;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .tagSection {
@@ -374,7 +374,7 @@
   border-radius: 5px;
   color: #94a9b4;
   background: rgba(48,208,248,.035);
-  font-size: 9.5px;
+  font-size: 11.5px;
   font-style: normal;
 }
 
@@ -382,7 +382,7 @@
   display: block;
   margin-top: 8px;
   color: #6f818d;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .attachmentList {
@@ -433,14 +433,14 @@
 
 .attachmentList strong {
   color: #cbd8df;
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: .05em;
 }
 
 .attachmentList small {
   overflow: hidden;
   color: #758792;
-  font-size: 9.5px;
+  font-size: 11.5px;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -448,7 +448,7 @@
 .notes p {
   margin: 0;
   color: #a3b1b9;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.75;
   white-space: pre-wrap;
 }
@@ -459,7 +459,7 @@
   place-items: center;
   padding: 24px;
   color: #71838e;
-  font-size: 10.5px;
+  font-size: 12.5px;
   line-height: 1.55;
   text-align: center;
 }
@@ -470,7 +470,7 @@
   display: grid;
   place-items: center;
   color: #748691;
-  font-size: 11px;
+  font-size: 13px;
   text-align: center;
 }
 
@@ -481,7 +481,7 @@
   border-radius: 8px;
   color: #ff9ca4;
   background: rgba(255,115,127,.055);
-  font-size: 10.5px;
+  font-size: 12.5px;
 }
 
 .error {

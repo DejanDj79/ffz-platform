@@ -34,7 +34,7 @@
 .statCard > span {
   display: block;
   color: #6f818f;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: .12em;
 }
@@ -42,7 +42,7 @@
 .statCard strong {
   display: block;
   margin-top: 8px;
-  font-size: clamp(20px, 1.8vw, 29px);
+  font-size: calc(clamp(20px, 1.8vw, 29px) + 2px);
   line-height: 1;
   letter-spacing: -.025em;
 }
@@ -51,7 +51,7 @@
   display: block;
   margin-top: 7px;
   color: #687985;
-  font-size: 9.5px;
+  font-size: 11.5px;
 }
 
 .positive { color: #45dbad !important; }
@@ -91,14 +91,14 @@
 
 .panelTitle span {
   color: #dce7ed;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: .13em;
 }
 
 .panelTitle small {
   color: #6c7d89;
-  font-size: 9.5px;
+  font-size: 11.5px;
 }
 
 .textButton {
@@ -109,7 +109,7 @@
   color: #30d0f8;
   background: transparent;
   font: inherit;
-  font-size: 9.5px;
+  font-size: 11.5px;
   font-weight: 600;
 }
 
@@ -133,7 +133,7 @@
 .formGrid label > span,
 .directionField > span {
   color: #7e8e99;
-  font-size: 9.5px;
+  font-size: 11.5px;
   font-weight: 600;
 }
 
@@ -150,7 +150,7 @@
   color: #eef4f8;
   background: linear-gradient(180deg, #101b24, #0b141c);
   font: inherit;
-  font-size: 11px;
+  font-size: 13px;
   transition: border-color .15s ease, box-shadow .15s ease;
 }
 
@@ -203,7 +203,7 @@
   color: #687985;
   background: transparent;
   font: inherit;
-  font-size: 9.5px;
+  font-size: 11.5px;
   font-weight: 800;
 }
 
@@ -228,7 +228,7 @@
   z-index: 1;
   transform: translateY(-50%);
   color: #657783;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 500;
 }
 
@@ -248,7 +248,7 @@
   border-radius: 7px;
   cursor: pointer;
   font: inherit;
-  font-size: 9.5px;
+  font-size: 11.5px;
   font-weight: 800;
   letter-spacing: .08em;
 }
@@ -280,7 +280,7 @@
   border-radius: 7px;
   color: #ff9ca4;
   background: rgba(255, 115, 127, .055);
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .filters {
@@ -294,7 +294,7 @@
 .filters select {
   height: 33px;
   padding: 0 9px;
-  font-size: 9.5px;
+  font-size: 11.5px;
 }
 
 .tableWrap {
@@ -315,7 +315,7 @@
   border-bottom: 1px solid rgba(66, 87, 103, .36);
   color: #5f7280;
   background: rgba(255,255,255,.012);
-  font-size: 8.5px;
+  font-size: 10.5px;
   font-weight: 800;
   letter-spacing: .09em;
   white-space: nowrap;
@@ -325,7 +325,7 @@
   padding: 11px 12px;
   border-bottom: 1px solid rgba(63, 83, 98, .22);
   color: #b8c4cc;
-  font-size: 10.5px;
+  font-size: 12.5px;
   white-space: nowrap;
   vertical-align: middle;
 }
@@ -341,13 +341,13 @@
 
 .table td strong {
   color: #dce6ec;
-  font-size: 10.5px;
+  font-size: 12.5px;
 }
 
 .table td small {
   margin-top: 3px;
   color: #60727f;
-  font-size: 8.5px;
+  font-size: 10.5px;
 }
 
 .challengeCell {
@@ -368,7 +368,7 @@
   padding: 0 7px;
   border: 1px solid;
   border-radius: 5px;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 800;
 }
 
@@ -420,7 +420,7 @@
   color: #788a96;
   background: transparent;
   font: inherit;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .rowActions button:hover:nth-child(1),
@@ -432,7 +432,7 @@
   display: grid;
   place-items: center;
   color: #647582;
-  font-size: 10.5px;
+  font-size: 12.5px;
 }
 
 @media (max-width: 1250px) {
@@ -490,13 +490,13 @@
 
 .screenshotHeader span {
   color: #7e8e99;
-  font-size: 9.5px;
+  font-size: 11.5px;
   font-weight: 600;
 }
 
 .screenshotHeader small {
   color: #61737f;
-  font-size: 8.5px;
+  font-size: 10.5px;
 }
 
 .fileInput {
@@ -523,12 +523,12 @@
 
 .dropZone > strong {
   color: #aab8c1;
-  font-size: 9.5px;
+  font-size: 11.5px;
 }
 
 .dropZone > span {
   color: #556873;
-  font-size: 8px;
+  font-size: 10px;
 }
 
 .dropZone > button {
@@ -541,7 +541,7 @@
   color: #30d0f8;
   background: rgba(48,208,248,.06);
   font: inherit;
-  font-size: 8.5px;
+  font-size: 10.5px;
   font-weight: 800;
   letter-spacing: .07em;
 }
@@ -553,7 +553,7 @@
 
 .dropZone > small {
   color: #52646f;
-  font-size: 7.8px;
+  font-size: 9.8px;
 }
 
 .thumbnailGrid {
@@ -600,7 +600,7 @@
   border-radius: 4px;
   color: #68e1ff;
   background: rgba(4,16,23,.84);
-  font-size: 6.5px;
+  font-size: 8.5px;
   font-style: normal;
   font-weight: 800;
   letter-spacing: .08em;
@@ -619,7 +619,7 @@
   flex: 1 1 auto;
   overflow: hidden;
   color: #71838f;
-  font-size: 7.5px;
+  font-size: 9.5px;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -635,7 +635,7 @@
   color: #8a9aa4;
   background: transparent;
   font: inherit;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1;
 }
 
@@ -698,14 +698,14 @@
 .tradeScreenshotsTitle > span,
 .tradeNarrative span {
   color: #667b87;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: .12em;
 }
 
 .tradeModal > header strong {
   color: #e6eef2;
-  font-size: 17px;
+  font-size: 19px;
   letter-spacing: -.01em;
 }
 
@@ -718,7 +718,7 @@
   color: #8495a0;
   background: rgba(255,255,255,.018);
   font: inherit;
-  font-size: 20px;
+  font-size: 22px;
 }
 
 .tradeModal > header > button:hover {
@@ -748,7 +748,7 @@
 .detail span {
   display: block;
   color: #617480;
-  font-size: 7.5px;
+  font-size: 9.5px;
   font-weight: 700;
   letter-spacing: .07em;
   text-transform: uppercase;
@@ -759,7 +759,7 @@
   margin-top: 5px;
   overflow: hidden;
   color: #dce6eb;
-  font-size: 10px;
+  font-size: 12px;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -777,7 +777,7 @@
 .tradeNarrative p {
   margin: 4px 0 0;
   color: #a9b6be;
-  font-size: 9.5px;
+  font-size: 11.5px;
   line-height: 1.55;
   white-space: pre-wrap;
 }
@@ -803,7 +803,7 @@
   border-radius: 5px;
   color: #30d0f8;
   background: rgba(48,208,248,.07);
-  font-size: 7.5px;
+  font-size: 9.5px;
 }
 
 .detailThumbnailGrid {
@@ -840,7 +840,7 @@
   align-items: center;
   overflow: hidden;
   color: #71838f;
-  font-size: 7.5px;
+  font-size: 9.5px;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -852,7 +852,7 @@
   border: 1px dashed rgba(66,87,103,.3);
   border-radius: 7px;
   color: #5f727e;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .tradeModal > footer {
@@ -873,7 +873,7 @@
   color: #30d0f8;
   background: rgba(48,208,248,.05);
   font: inherit;
-  font-size: 8.5px;
+  font-size: 10.5px;
   font-weight: 800;
   letter-spacing: .07em;
 }
@@ -925,7 +925,7 @@
   width: 42px;
   height: 42px;
   border-radius: 7px;
-  font-size: 25px;
+  font-size: 27px;
 }
 
 .lightboxPrev,
@@ -935,7 +935,7 @@
   height: 72px;
   transform: translateY(-50%);
   border-radius: 8px;
-  font-size: 37px;
+  font-size: 39px;
   line-height: 1;
 }
 
@@ -968,7 +968,7 @@
   min-width: 0;
   overflow: hidden;
   color: #9dacb5;
-  font-size: 8.5px;
+  font-size: 10.5px;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -976,7 +976,7 @@
 .lightboxCaption strong {
   flex: 0 0 auto;
   color: #30d0f8;
-  font-size: 8.5px;
+  font-size: 10.5px;
 }
 
 @media (max-width: 820px) {

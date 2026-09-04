@@ -31,7 +31,7 @@
   margin-bottom: 6px;
   text-align: center;
   color: #30d0f8;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: .16em;
 }
@@ -39,14 +39,14 @@
 .card h1 {
   margin: 0;
   text-align: center;
-  font-size: 27px;
+  font-size: 29px;
 }
 
 .intro {
   margin: 9px 0 23px;
   text-align: center;
   color: #7f8d99;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .form { display: grid; gap: 15px; }
@@ -58,7 +58,7 @@
 
 .field span {
   color: #aab6bf;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -102,14 +102,14 @@
   border-radius: 7px;
   color: #ffb4b4;
   background: rgba(239, 94, 94, .07);
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .switch {
   margin: 20px 0 0;
   text-align: center;
   color: #758591;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .switch a {
