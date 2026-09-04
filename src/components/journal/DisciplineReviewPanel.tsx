@@ -10,7 +10,12 @@ import {
   type ExecutionReview,
   type MindsetReview,
 } from "@/lib/journal/discipline";
-import { fetchTrades, updateTradeViaApi } from "@/lib/journal/api-client";
+import {
+  JOURNAL_TRADES_CHANGED_EVENT,
+  fetchTrade,
+  fetchTrades,
+  updateTradeViaApi,
+} from "@/lib/journal/api-client";
 import { STARTED_FROM_PLAN_TAG } from "@/lib/journal/planned";
 import type { TradeApiModel } from "@/lib/journal/types";
 import styles from "./DisciplineReviewPanel.module.css";
@@ -76,6 +81,16 @@ export function DisciplineReviewPanel() {
 
   useEffect(() => {
     void load();
+
+    function onTradesChanged() {
+      void load();
+    }
+
+    window.addEventListener(JOURNAL_TRADES_CHANGED_EVENT, onTradesChanged);
+
+    return () => {
+      window.removeEventListener(JOURNAL_TRADES_CHANGED_EVENT, onTradesChanged);
+    };
   }, []);
 
   useEffect(() => {
@@ -124,22 +139,33 @@ export function DisciplineReviewPanel() {
   );
 
   async function saveReview(trade: TradeApiModel) {
-    const draft = drafts[trade.id] ?? draftFromTrade(trade);
-    const tags = applyDisciplineReview(trade.tags, reviewFromDraft(draft));
-
-    if (tags.length > 20) {
-      setError(
-        "This trade already has too many tags to add discipline metadata. Remove one or more normal tags first.",
-      );
-      return;
-    }
-
     setSavingId(trade.id);
     setError(null);
     setMessage(null);
 
     try {
-      const updated = await updateTradeViaApi(trade.id, { tags });
+      const latestTrade = await fetchTrade(trade.id);
+
+      if (latestTrade.status !== "CLOSED") {
+        setTrades((current) => current.filter((item) => item.id !== trade.id));
+        setError("Only closed trades can receive a post-trade discipline review.");
+        return;
+      }
+
+      const draft = drafts[trade.id] ?? draftFromTrade(latestTrade);
+      const tags = applyDisciplineReview(
+        latestTrade.tags,
+        reviewFromDraft(draft),
+      );
+
+      if (tags.length > 20) {
+        setError(
+          "This trade already has too many tags to add discipline metadata. Remove one or more normal tags first.",
+        );
+        return;
+      }
+
+      const updated = await updateTradeViaApi(latestTrade.id, { tags });
       setTrades((current) =>
         current.map((item) => (item.id === updated.id ? updated : item)),
       );
