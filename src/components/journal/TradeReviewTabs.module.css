@@ -1,6 +1,6 @@
 .tabs {
   min-height: 54px;
-  padding: 9px 12px;
+  padding: 9px 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -8,28 +8,29 @@
 }
 
 .track {
-  width: min(100%, 380px);
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 7px;
+  gap: 5px;
 }
 
 .tab {
   min-width: 0;
   min-height: 34px;
-  padding: 0 7px;
+  padding: 0 2px;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   border: 1px solid rgba(84, 104, 119, .44);
   border-radius: 6px;
   cursor: pointer;
   color: #83939d;
   background: rgba(255,255,255,.008);
   font: inherit;
-  font-size: 8.5px;
+  font-size: 8px;
   font-weight: 500;
-  letter-spacing: .015em;
+  letter-spacing: 0;
   white-space: nowrap;
   transition:
     color 160ms ease,
@@ -64,17 +65,16 @@
 
 @media (max-width: 680px) {
   .tabs {
-    padding: 8px 6px;
+    padding: 8px 4px;
   }
 
   .track {
-    width: 100%;
-    gap: 5px;
+    gap: 4px;
   }
 
   .tab {
     min-height: 32px;
-    padding: 0 4px;
-    font-size: 8px;
+    padding: 0 1px;
+    font-size: 7.5px;
   }
 }
