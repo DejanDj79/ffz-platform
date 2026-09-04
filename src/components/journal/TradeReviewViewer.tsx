@@ -25,6 +25,7 @@ import {
   type TradeAttachmentApiModel,
 } from "@/lib/journal/types";
 import detailStyles from "./TradeReviewDetails.module.css";
+import tabStyles from "./TradeReviewTabs.module.css";
 import styles from "./TradeReviewViewer.module.css";
 
 type ReviewTab = "DETAILS" | "REVIEW" | "ATTACHMENTS" | "NOTES";
@@ -293,12 +294,12 @@ export function TradeReviewViewer() {
               </strong>
             </header>
 
-            <nav className={styles.tabs} aria-label="Trade review sections">
+            <nav className={tabStyles.tabs} aria-label="Trade review sections">
               {(["DETAILS", "REVIEW", "ATTACHMENTS", "NOTES"] as ReviewTab[]).map((tab) => (
                 <button
                   key={tab}
                   type="button"
-                  className={activeTab === tab ? styles.activeTab : undefined}
+                  className={`${tabStyles.tab} ${activeTab === tab ? tabStyles.active : ""}`}
                   onClick={() => setActiveTab(tab)}
                 >
                   {tab}
