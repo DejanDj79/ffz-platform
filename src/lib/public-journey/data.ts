@@ -21,7 +21,7 @@ export type PublicJourneyMilestone = {
 };
 
 export type PublicJourneyData = {
-  displayName: string;
+  displayName: "Futures From Zero";
   currency: string;
   lastUpdatedAt: string | null;
   currentAccount: PublicJourneyCurrentAccount | null;
@@ -87,7 +87,6 @@ function latestUpdate(entries: LedgerEntryApiModel[], challenges: ChallengeApiMo
 }
 
 export function buildPublicJourneyData(
-  displayName: string | null,
   entries: LedgerEntryApiModel[],
   challenges: ChallengeApiModel[],
 ): PublicJourneyData {
@@ -119,7 +118,7 @@ export function buildPublicJourneyData(
     : null;
 
   return {
-    displayName: displayName?.trim() || "Futures From Zero",
+    displayName: "Futures From Zero",
     currency: journey.currency,
     lastUpdatedAt: latestUpdate(entries, challenges),
     currentAccount,
