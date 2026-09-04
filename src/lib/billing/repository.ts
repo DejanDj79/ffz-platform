@@ -5,6 +5,7 @@ import {
   planForLemonStatus,
   type LemonSubscriptionSnapshot,
 } from "./lemon";
+import { hasActiveFounderEntitlement } from "./founder-repository";
 
 export type BillingState = {
   provider: string | null;
@@ -77,7 +78,8 @@ export async function syncLemonSubscription(
   }
 
   const now = new Date();
-  const plan = planForLemonStatus(snapshot.status);
+  const founder = await hasActiveFounderEntitlement(userId);
+  const plan = founder ? "PRO" : planForLemonStatus(snapshot.status);
 
   await db
     .insert(userPlans)
