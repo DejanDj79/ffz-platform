@@ -297,10 +297,7 @@ export function TradeReviewViewer() {
             </header>
 
             <nav className={tabStyles.tabs} aria-label="Trade review sections">
-              <div
-                className={tabStyles.track}
-                data-active-index={REVIEW_TABS.indexOf(activeTab)}
-              >
+              <div className={tabStyles.track}>
                 {REVIEW_TABS.map((tab) => (
                   <button
                     key={tab}
@@ -309,10 +306,8 @@ export function TradeReviewViewer() {
                     onClick={() => setActiveTab(tab)}
                   >
                     {tab}
-                    {tab === "ATTACHMENTS" && attachments.length > 0 ? ` (${attachments.length})` : ""}
                   </button>
                 ))}
-                <span className={tabStyles.indicator} aria-hidden="true" />
               </div>
             </nav>
 
