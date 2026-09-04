@@ -6,6 +6,13 @@
   margin-block: 28px !important;
 }
 
+/* Chromium can close a native select popup on mouse-up when focus starts a
+   CSS transition on the select itself. Keep native selects visually unchanged
+   but disable their transitions so the browser popup remains stable. */
+select {
+  transition: none !important;
+}
+
 /* FFZ scrollbar theme.
    Keep scrollbars consistently themed without a universal :hover restyle.
    Chromium native form popups can be destabilized by document-wide hover
