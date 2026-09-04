@@ -88,6 +88,20 @@ export async function updateTradeViaApi(
   return json.data;
 }
 
+export async function saveDisciplineReviewViaApi(
+  tradeId: string,
+  tags: string[],
+): Promise<TradeApiModel> {
+  const response = await fetch(`/api/journal/trades/${tradeId}/discipline`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ tags }),
+  });
+
+  const json = await parseResponse<{ data: TradeApiModel }>(response);
+  return json.data;
+}
+
 export async function deleteTradeViaApi(tradeId: string): Promise<void> {
   const response = await fetch(`/api/journal/trades/${tradeId}`, {
     method: "DELETE",
@@ -96,7 +110,6 @@ export async function deleteTradeViaApi(tradeId: string): Promise<void> {
   await parseResponse<{ ok: true; id: string }>(response);
   notifyJournalTradesChanged();
 }
-
 
 export async function fetchTradeAttachments(
   tradeId: string,
