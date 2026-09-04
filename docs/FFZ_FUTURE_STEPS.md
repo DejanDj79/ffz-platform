@@ -2,7 +2,7 @@
 
 _Last updated: 2026-09-04_
 
-Ovaj fajl služi kao handoff za nastavak rada na FFZ Platform projektu u novom razgovoru.
+Ovaj dokument je živi handoff/checklist za FFZ Platform. Kada završimo stavku, ažurirati je ovde i označiti kao završenu.
 
 ## Current project context
 
@@ -20,6 +20,8 @@ Stack:
 - Drizzle + PostgreSQL
 - Zod
 - Vitest
+
+---
 
 ## Founder billing — DONE
 
@@ -62,6 +64,8 @@ Refund behavior:
 - remaining Founder count does **not** increase
 - partial refund => Founder remains active
 
+---
+
 ## Founder end-to-end test — PASSED
 
 Test Mode Founder Variant ID:
@@ -84,7 +88,7 @@ Confirmed locally:
 9. Slot #1 becomes `REFUNDED`.
 10. Remaining spots stay at `149`.
 
-Important Lemon webhook lesson from testing:
+Important Lemon webhook lesson:
 - `order_created` was initially not selected in Lemon webhook settings.
 - Checkout completed but FFZ remained FREE until `order_created` was enabled and delivered.
 
@@ -93,6 +97,8 @@ Required order events:
 - `order_refunded`
 
 Keep existing subscription lifecycle events enabled too.
+
+---
 
 ## Local Founder database note
 
@@ -108,11 +114,22 @@ The local DB already has this table. Do not blindly run that SQL again.
 
 There may be one local test slot in `REFUNDED` state because of the Founder E2E test.
 
-## Production Founder deploy — NEXT REQUIRED INFRA STEP
+---
 
-The Founder backend is merged. Production still needs the schema migration deployed.
+## Production Founder deploy — DONE
 
-Because this contains a DB migration, always back up first:
+Production deploy completed successfully on 2026-09-04.
+
+Completed:
+- [x] backup taken before schema migration
+- [x] latest `main` deployed to `~/apps/FFZ`
+- [x] `drizzle-production/0004_founder_slots.sql` applied
+- [x] `founder_slots` exists in production
+- [x] production verification confirmed exactly **150 Founder slots**
+
+**Never run `db:push` in production.**
+
+For future schema deployments:
 
 ```bash
 cd ~/apps/FFZ
@@ -122,19 +139,11 @@ git pull --ff-only origin main
 ./scripts/deploy-production.sh
 ```
 
-Production migration:
-
-```text
-drizzle-production/0004_founder_slots.sql
-```
-
-Deploy verification should confirm:
-- `founder_slots` exists
-- exactly 150 rows exist
-
-**Never run `db:push` in production.**
+---
 
 ## Founder Live Mode — REQUIRED BEFORE PUBLIC BILLING LAUNCH
+
+This is intentionally deferred until public billing launch.
 
 When real billing is ready, create a Lemon **Live Mode** Founder variant:
 - Name: `Founder Trader`
@@ -142,7 +151,7 @@ When real billing is ready, create a Lemon **Live Mode** Founder variant:
 - one-time / single payment
 - no trial
 
-Set on the production server:
+Set on production server:
 
 ```env
 LEMONSQUEEZY_FOUNDER_VARIANT_ID=<LIVE_VARIANT_ID>
@@ -165,6 +174,8 @@ Required events:
 - `subscription_cancelled`
 - `subscription_expired`
 
+---
+
 ## Founder pre-launch UX polish — TODO, NOT A BLOCKER
 
 Checkout already redirects to something like:
@@ -173,15 +184,15 @@ Checkout already redirects to something like:
 /upgrade?checkout=founder-success
 ```
 
-But the Upgrade UI does not yet have a dedicated “waiting for webhook” experience.
-
-Recommended before public launch:
-- show: `Payment received. Activating your Founder access...`
+Before public billing launch, recommended:
+- show `Payment received. Activating your Founder access...`
 - auto-refresh/poll briefly after returning from Lemon
 - when webhook finishes, show `FOUNDER`, `FOUNDER ACTIVE`, and slot number
 - show a fallback message if activation is delayed
 
-This is not required for functional correctness and can be done during final pre-launch polish.
+This is not required for functional correctness and can stay for final launch polish.
+
+---
 
 ## Additional Founder manual tests — RECOMMENDED BEFORE LIVE
 
@@ -203,11 +214,16 @@ Test with a real Lemon Test Mode subscription:
 4. Founder entitlement stays active.
 5. Slot stays `PURCHASED`.
 
+---
+
 ## Billing live-launch checklist
 
-- [ ] Founder backend deployed to production
-- [ ] production DB migration passed
-- [ ] `founder_slots` has exactly 150 rows
+Infrastructure already complete:
+- [x] Founder backend deployed to production
+- [x] production DB migration passed
+- [x] `founder_slots` has exactly 150 rows
+
+Deferred until public billing launch:
 - [ ] Live Founder variant created
 - [ ] Live Founder Variant ID added to server
 - [ ] `LEMONSQUEEZY_TEST_MODE=false`
@@ -225,34 +241,52 @@ Test with a real Lemon Test Mode subscription:
 - [ ] Founder success/activation UX polish
 - [ ] SOLD OUT behavior verified
 
-## Next major roadmap item
+---
 
-### Public FFZ Journey
+# ACTIVE NEXT ROADMAP ITEM — Public FFZ Journey
 
-Not built yet.
-
-Goal:
-- public page connected to the real trading journey
-- challenge/funded progress
-- P&L
-- real-money costs
-- payouts
-- milestones
-- YouTube link / episode connection
-
-Before implementation define:
-- which account/challenge can be public
-- which data is public vs hidden
-- privacy rules
-- whether some data should be delayed
+Status: **NEXT TO BUILD**
 
 This is separate from authenticated PRO `/prop-journey`.
 
-## Creator Episode Builder
+## Goal
 
-Already completed in PR #19.
+Create a public-facing page connected to the real FFZ trading journey, suitable for viewers coming from YouTube and for documenting progress transparently.
 
-Merged commit:
+Possible public data:
+- current challenge/funded status
+- prop firm
+- account size
+- starting balance / current balance
+- P&L
+- progress toward target
+- challenge/reset/activation costs
+- payouts
+- real-money net result
+- milestones
+- related/latest YouTube episode
+- basic journey statistics
+
+## Decision required before implementation
+
+Define what may be public and what remains private:
+- which account/challenge can be public
+- whether exact balances are public
+- whether daily/trade-level P&L is public
+- whether account numbers or provider IDs are always hidden
+- whether real-time data is shown or delayed
+- whether trade entries are public or only aggregate stats
+- whether historical failed challenges remain visible
+
+Recommended privacy default:
+- never expose credentials, internal IDs, account numbers, emails, provider customer/order IDs, or private notes
+- public page should use aggregated trading data rather than raw private records unless explicitly enabled
+
+---
+
+## Creator Episode Builder — DONE
+
+PR #19 merged commit:
 
 ```text
 e8ae68e990f1a69fcadead5f8c5429a55cd198d4
@@ -265,6 +299,8 @@ Creator-only:
 
 Do not make these commercial PRO features.
 
+---
+
 ## Current monetization
 
 - FREE: `$0`
@@ -272,6 +308,8 @@ Do not make these commercial PRO features.
 - PRO Yearly: `$99/year`
 - Founder: `$199 one-time`, lifetime PRO, first 150
 - Creator: internal/owner role, effective PRO, no Founder seat
+
+---
 
 ## Product gating summary
 
@@ -299,6 +337,8 @@ Creator-only:
 - Scoreboard
 - future internal creator tooling
 
+---
+
 ## GitHub workflow rules
 
 Use:
@@ -309,7 +349,7 @@ Use:
 5. user confirms behavior/visuals
 6. merge
 
-Once the user explicitly confirms the behavior/visuals and CI is green, merge immediately without asking again.
+Once the user explicitly confirms behavior/visuals and CI is green, merge immediately without asking again.
 
 After every merge provide:
 
@@ -341,6 +381,8 @@ If schema changes exist:
 
 Never use production `db:push`.
 
+---
+
 ## Production notes
 
 Hetzner:
@@ -357,8 +399,6 @@ FFZ:
 - upstream: `ffz-app:3000`
 - separate PostgreSQL
 
-Disk incident was previously resolved.
-
 Never run:
 
 ```bash
@@ -369,6 +409,8 @@ Do not remove named volumes such as:
 - `ffz-production_ffz_postgres_data`
 - `ffz-production_ffz_uploads`
 - AgarViz named volumes
+
+---
 
 ## User trading / YouTube context
 
@@ -388,13 +430,13 @@ YouTube:
 - script in English
 - FFZ/FZ logo: futuristic, minimalist
 
+---
+
 ## Recommended next order of work
 
-If work continues now:
-
-1. Deploy Founder backend to production with backup + migration.
-2. Live Founder variant does not need to be created yet if public billing launch is not imminent.
-3. Continue with **Public FFZ Journey**.
+1. **Public FFZ Journey — active next task.**
+2. Define public/private data policy and MVP layout.
+3. Implement Public FFZ Journey through normal branch -> draft PR -> CI -> local test workflow.
 4. Before public billing launch, return to:
    - Founder success/activation UX
    - Live Lemon Founder variant
@@ -407,12 +449,14 @@ If work continues now:
    - creator episode workflow improvements
    - public journey enhancements
 
+---
+
 ## How to continue in a new ChatGPT conversation
 
 Tell ChatGPT:
 
-> Nastavljamo FFZ Platform projekat. Otvori `docs/FFZ_FUTURE_STEPS.md` iz GitHub repoa i nastavi od sekcije “Recommended next order of work”.
+> Nastavljamo FFZ Platform projekat. Otvori `docs/FFZ_FUTURE_STEPS.md` iz GitHub repoa, proveri ACTIVE NEXT ROADMAP ITEM i nastavi odatle.
 
 For Founder-specific continuation:
 
-> Nastavljamo Founder billing. Core backend je završen i testiran. Otvori `docs/FFZ_FUTURE_STEPS.md` i kreni od production deploy / live-launch checklist dela.
+> Nastavljamo Founder billing. Otvori `docs/FFZ_FUTURE_STEPS.md` i pogledaj Founder Live Mode / Billing live-launch checklist.
