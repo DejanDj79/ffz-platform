@@ -441,13 +441,18 @@ function NavSection({ title, items, pathname }: { title: string; items: NavItem[
         {items.map((item) => {
           const active = isActive(pathname, item.href) || item.children?.some((child) => isSubActive(pathname, child.href));
           const open = item.children ? openItems.includes(item.href) : false;
+          const subNavHeight = item.children ? item.children.length * 36 + 8 : 0;
 
           return (
             <div key={`${item.section}-${item.href}`} className={styles.navEntry}>
-              <div className={styles.navParentRow}>
+              <div style={{ position: "relative" }}>
                 <Link
                   href={item.href}
-                  className={`${styles.navItem} ${item.children ? styles.hasChildren : ""} ${active ? styles.active : ""}`}
+                  className={`${styles.navItem} ${active ? styles.active : ""}`}
+                  style={{
+                    gridTemplateColumns: "31px minmax(0, 1fr)",
+                    paddingRight: item.children ? 38 : 10,
+                  }}
                 >
                   <span className={styles.navIcon}><Icon name={item.icon} /></span>
                   <span>{item.label}</span>
@@ -456,18 +461,55 @@ function NavSection({ title, items, pathname }: { title: string; items: NavItem[
                 {item.children && (
                   <button
                     type="button"
-                    className={`${styles.navToggle} ${open ? styles.navToggleOpen : ""}`}
                     aria-label={`${open ? "Collapse" : "Expand"} ${item.label}`}
                     aria-expanded={open}
                     onClick={() => toggleGroup(item.href)}
+                    style={{
+                      position: "absolute",
+                      right: 7,
+                      top: "50%",
+                      width: 28,
+                      height: 30,
+                      display: "grid",
+                      placeItems: "center",
+                      padding: 0,
+                      border: 0,
+                      borderRadius: 6,
+                      cursor: "pointer",
+                      color: open ? "#30d0f8" : "#52636e",
+                      background: "transparent",
+                      transform: "translateY(-50%)",
+                    }}
                   >
-                    <Icon name="chevron" />
+                    <span
+                      style={{
+                        display: "grid",
+                        placeItems: "center",
+                        transform: open ? "rotate(90deg)" : "rotate(0deg)",
+                        transition: "transform 160ms ease, color 160ms ease",
+                      }}
+                    >
+                      <Icon name="chevron" />
+                    </span>
                   </button>
                 )}
               </div>
 
               {item.children && (
-                <div className={`${styles.subNav} ${open ? styles.subNavOpen : ""}`} aria-label={`${item.label} navigation`} aria-hidden={!open}>
+                <div
+                  className={styles.subNav}
+                  aria-label={`${item.label} navigation`}
+                  aria-hidden={!open}
+                  style={{
+                    maxHeight: open ? subNavHeight : 0,
+                    opacity: open ? 1 : 0,
+                    overflow: "hidden",
+                    marginTop: open ? 1 : 0,
+                    marginBottom: open ? 4 : 0,
+                    pointerEvents: open ? "auto" : "none",
+                    transition: "max-height 180ms ease, opacity 140ms ease, margin 180ms ease",
+                  }}
+                >
                   {item.children.map((child) => {
                     const childActive = isSubActive(pathname, child.href);
 
