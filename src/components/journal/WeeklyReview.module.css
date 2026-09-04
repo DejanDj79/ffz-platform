@@ -15,7 +15,7 @@
   border-radius: 12px;
   color: #7f919d;
   background: rgba(6, 13, 19, .72);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .error,
@@ -29,7 +29,7 @@
   border: 1px solid rgba(255, 115, 127, .25);
   border-radius: 8px;
   background: rgba(255, 115, 127, .045);
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .weekToolbar {
@@ -58,21 +58,22 @@
 .highlight > span,
 .postLossMetrics span {
   color: #72848f;
-  font-size: 8.5px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: .075em;
+  letter-spacing: .065em;
 }
 
 .weekToolbar > div:first-child > strong {
   color: #edf5f8;
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 600;
 }
 
 .weekToolbar small,
 .panelHeader small {
   color: #6d7f8a;
-  font-size: 9px;
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 .weekNavigator {
@@ -110,9 +111,9 @@
   border-left: 1px solid rgba(72, 94, 110, .32);
   border-right: 1px solid rgba(72, 94, 110, .32);
   color: #9fb0ba;
-  font-size: 8px;
+  font-size: 10.5px;
   font-weight: 700;
-  letter-spacing: .06em;
+  letter-spacing: .05em;
 }
 
 .weekNavigator .thisWeek:disabled {
@@ -139,16 +140,16 @@
 
 .metric strong {
   color: #e6eef2;
-  font-size: 18px;
+  font-size: 19px;
   line-height: 1;
   font-weight: 600;
 }
 
 .metric small {
   color: #677984;
-  font-size: 7.5px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: .06em;
+  letter-spacing: .05em;
 }
 
 .overviewGrid {
@@ -194,7 +195,7 @@
 
 .panelHeader > strong {
   flex: 0 0 auto;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
 }
 
@@ -248,7 +249,7 @@
   gap: 4px;
   text-align: center;
   color: #5f727e;
-  font-size: 8px;
+  font-size: 10.5px;
   font-weight: 600;
 }
 
@@ -262,7 +263,7 @@
   display: grid;
   place-items: center;
   color: #667985;
-  font-size: 9.5px;
+  font-size: 11.5px;
   text-align: center;
 }
 
@@ -288,13 +289,14 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
 }
 
 .highlight small {
   color: #71838e;
-  font-size: 8.5px;
+  font-size: 10.5px;
+  line-height: 1.35;
 }
 
 .breakdownRows {
@@ -303,7 +305,7 @@
 }
 
 .breakdownRow {
-  min-height: 53px;
+  min-height: 57px;
   padding: 8px 10px;
   display: flex;
   align-items: center;
@@ -326,18 +328,18 @@
 
 .breakdownRow strong {
   color: #cdd8de;
-  font-size: 10.5px;
+  font-size: 12.5px;
   font-weight: 600;
 }
 
 .breakdownRow small,
 .breakdownRow span {
   color: #6f828e;
-  font-size: 8px;
+  font-size: 10.5px;
 }
 
 .breakdownRow > div:last-child strong {
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .postLossMetrics {
@@ -347,7 +349,7 @@
 }
 
 .postLossMetrics > div {
-  min-height: 82px;
+  min-height: 86px;
   padding: 10px;
   display: grid;
   align-content: center;
@@ -359,13 +361,14 @@
 
 .postLossMetrics strong {
   color: #dce6eb;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 600;
 }
 
 .postLossMetrics small {
   color: #667985;
-  font-size: 8px;
+  font-size: 10.5px;
+  line-height: 1.35;
 }
 
 .findingsPanel {
@@ -380,8 +383,8 @@
 }
 
 .finding {
-  min-height: 48px;
-  padding: 8px 10px;
+  min-height: 52px;
+  padding: 9px 10px;
   display: grid;
   grid-template-columns: 7px 1fr;
   align-items: center;
@@ -401,8 +404,8 @@
 .finding p {
   margin: 0;
   color: #9cacb5;
-  font-size: 9px;
-  line-height: 1.45;
+  font-size: 11.5px;
+  line-height: 1.5;
 }
 
 .finding.positive i {
