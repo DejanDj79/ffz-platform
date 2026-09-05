@@ -14,6 +14,7 @@ export default defineConfig({
     "./src/db/trading-guardrails-schema.ts",
     "./src/db/user-plans-schema.ts",
     "./src/db/founder-slots-schema.ts",
+    "./src/db/weekly-focus-schema.ts",
   ],
   out: "./drizzle",
   dialect: "postgresql",
