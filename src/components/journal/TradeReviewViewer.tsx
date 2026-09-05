@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fetchChallenges } from "@/lib/challenges/api-client";
 import type { Challenge } from "@/lib/challenges/types";
 import {
@@ -26,6 +26,7 @@ import {
 } from "@/lib/journal/types";
 import detailStyles from "./TradeReviewDetails.module.css";
 import { TradeReviewPerformance } from "./TradeReviewPerformance";
+import presentationStyles from "./TradeReviewPresentation.module.css";
 import tabStyles from "./TradeReviewTabs.module.css";
 import styles from "./TradeReviewViewer.module.css";
 
@@ -89,6 +90,16 @@ function pnlTone(value: number | null) {
   return value > 0 ? detailStyles.positive : detailStyles.negative;
 }
 
+function isKeyboardControlTarget(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) return false;
+
+  return (
+    target.isContentEditable ||
+    ["INPUT", "TEXTAREA", "SELECT", "BUTTON", "A"].includes(target.tagName) ||
+    target.closest("[contenteditable='true']") != null
+  );
+}
+
 export function TradeReviewViewer() {
   const [allTrades, setAllTrades] = useState<TradeApiModel[]>([]);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
@@ -100,6 +111,8 @@ export function TradeReviewViewer() {
   const [loading, setLoading] = useState(true);
   const [attachmentsLoading, setAttachmentsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [presentationMode, setPresentationMode] = useState(false);
+  const fullscreenRequestedRef = useRef(false);
 
   const trades = useMemo(
     () => selectTradeReviewTrades(allTrades, instrument),
@@ -194,12 +207,88 @@ export function TradeReviewViewer() {
     };
   }, [trade?.id]);
 
-  function moveTrade(offset: number) {
+  const moveTrade = useCallback((offset: number) => {
     if (!trade || trades.length < 2) return;
     const nextIndex = (currentIndex + offset + trades.length) % trades.length;
     setActiveTradeId(trades[nextIndex].id);
     setActiveTab("DETAILS");
-  }
+  }, [currentIndex, trade, trades]);
+
+  const exitPresentation = useCallback(() => {
+    fullscreenRequestedRef.current = false;
+    setPresentationMode(false);
+
+    if (document.fullscreenElement && document.exitFullscreen) {
+      void document.exitFullscreen().catch(() => undefined);
+    }
+  }, []);
+
+  const enterPresentation = useCallback(() => {
+    setPresentationMode(true);
+
+    if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+      void document.documentElement
+        .requestFullscreen()
+        .then(() => {
+          fullscreenRequestedRef.current = true;
+        })
+        .catch(() => {
+          fullscreenRequestedRef.current = false;
+        });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!presentationMode) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [presentationMode]);
+
+  useEffect(() => {
+    function onFullscreenChange() {
+      if (
+        presentationMode &&
+        fullscreenRequestedRef.current &&
+        !document.fullscreenElement
+      ) {
+        fullscreenRequestedRef.current = false;
+        setPresentationMode(false);
+      }
+    }
+
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
+  }, [presentationMode]);
+
+  useEffect(() => {
+    if (!presentationMode) return;
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        exitPresentation();
+        return;
+      }
+
+      if (isKeyboardControlTarget(event.target)) return;
+
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        moveTrade(1);
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        moveTrade(-1);
+      }
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [exitPresentation, moveTrade, presentationMode]);
 
   if (loading) {
     return <div className={styles.state}>Loading closed trades for review…</div>;
@@ -210,8 +299,8 @@ export function TradeReviewViewer() {
   }
 
   return (
-    <div className={styles.page}>
-      <section className={styles.toolbar}>
+    <div className={`${styles.page} ${presentationMode ? presentationStyles.presentationPage : ""}`}>
+      <section className={`${styles.toolbar} ${presentationMode ? presentationStyles.presentationToolbar : ""}`}>
         <div>
           <span>INSTRUMENT</span>
           <select
@@ -225,15 +314,30 @@ export function TradeReviewViewer() {
           </select>
         </div>
 
-        <div className={styles.navigator}>
-          <button type="button" onClick={() => moveTrade(1)} disabled={trades.length < 2} aria-label="Previous trade">
-            ‹
-          </button>
-          <span>
-            {trade ? `TRADE ${currentIndex + 1} OF ${trades.length}` : "NO CLOSED TRADES"}
-          </span>
-          <button type="button" onClick={() => moveTrade(-1)} disabled={trades.length < 2} aria-label="Next trade">
-            ›
+        <div className={presentationStyles.toolbarRight}>
+          <div className={styles.navigator}>
+            <button type="button" onClick={() => moveTrade(1)} disabled={trades.length < 2} aria-label="Previous trade">
+              ‹
+            </button>
+            <span>
+              {trade ? `TRADE ${currentIndex + 1} OF ${trades.length}` : "NO CLOSED TRADES"}
+            </span>
+            <button type="button" onClick={() => moveTrade(-1)} disabled={trades.length < 2} aria-label="Next trade">
+              ›
+            </button>
+          </div>
+
+          {presentationMode && (
+            <span className={presentationStyles.modeHint}>← / → TRADES · ESC EXIT</span>
+          )}
+
+          <button
+            type="button"
+            className={presentationMode ? presentationStyles.exitButton : presentationStyles.enterButton}
+            onClick={presentationMode ? exitPresentation : enterPresentation}
+            aria-pressed={presentationMode}
+          >
+            {presentationMode ? "EXIT PRESENTATION" : "PRESENTATION"}
           </button>
         </div>
       </section>
@@ -241,12 +345,12 @@ export function TradeReviewViewer() {
       {error && <p className={styles.inlineError}>{error}</p>}
 
       {!trade ? (
-        <div className={styles.state}>
+        <div className={`${styles.state} ${presentationMode ? presentationStyles.presentationState : ""}`}>
           No closed trades match this instrument filter.
         </div>
       ) : (
         <>
-          <section className={styles.viewer}>
+          <section className={`${styles.viewer} ${presentationMode ? presentationStyles.presentationViewer : ""}`}>
             <div className={styles.mediaPanel}>
               <header className={styles.mediaHeader}>
                 <div>
@@ -258,7 +362,7 @@ export function TradeReviewViewer() {
                 )}
               </header>
 
-              <div className={styles.imageStage}>
+              <div className={`${styles.imageStage} ${presentationMode ? presentationStyles.presentationImageStage : ""}`}>
                 {attachmentsLoading ? (
                   <div className={styles.imagePlaceholder}>Loading chart images…</div>
                 ) : activeAttachment ? (
@@ -415,11 +519,13 @@ export function TradeReviewViewer() {
             </aside>
           </section>
 
-          <TradeReviewPerformance
-            trades={trades}
-            anchorTimestamp={trade.closedAt ?? trade.openedAt}
-            scopeLabel={instrument === "ALL" ? "All instruments" : instrument}
-          />
+          {!presentationMode && (
+            <TradeReviewPerformance
+              trades={trades}
+              anchorTimestamp={trade.closedAt ?? trade.openedAt}
+              scopeLabel={instrument === "ALL" ? "All instruments" : instrument}
+            />
+          )}
         </>
       )}
     </div>
