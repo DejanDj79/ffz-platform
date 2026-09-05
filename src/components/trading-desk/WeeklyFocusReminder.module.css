@@ -18,7 +18,7 @@
 .focusColumn,
 .focusColumn + section,
 :global(main):has(> .focusColumn) > section:has(+ .focusColumn) > div:last-child {
-  grid-row: 2;
+  grid-row: 1;
   min-width: 0;
   min-height: 118px;
   margin-bottom: 14px;
