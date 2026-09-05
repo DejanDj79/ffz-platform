@@ -308,7 +308,9 @@ export function AppShell({ children }: { children: ReactNode }) {
     return <>{children}</>;
   }
 
-  if (isPublicCalculator && authState === "unauthenticated") {
+  // Public calculator remains immediately usable for guests/direct loads while
+  // authenticated client-side navigation keeps the already-mounted shell.
+  if (isPublicCalculator && authState !== "authenticated") {
     return <>{children}</>;
   }
 
