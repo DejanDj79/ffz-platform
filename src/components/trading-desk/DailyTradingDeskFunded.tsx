@@ -20,6 +20,7 @@ import {
   localDateKey,
   summarizeTradingDay,
 } from "@/lib/trading-desk/summary";
+import { WeeklyFocusReminder } from "./WeeklyFocusReminder";
 import styles from "./DailyTradingDesk.module.css";
 
 type DeskSettings = {
@@ -275,6 +276,8 @@ export function DailyTradingDeskFunded() {
           </div>
         </div>
       </section>
+
+      <WeeklyFocusReminder />
 
       <section className={`${styles.guardrailBanner} ${statusClass}`}>
         <div>
