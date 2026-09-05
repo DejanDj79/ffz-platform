@@ -36,6 +36,13 @@
       "when": 1788450000000,
       "tag": "0004_founder_slots",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788633900000,
+      "tag": "0005_weekly_focuses",
+      "breakpoints": true
     }
   ]
 }
