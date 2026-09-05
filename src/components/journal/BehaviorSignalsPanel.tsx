@@ -40,11 +40,26 @@ function preferredSignal(signals: WeeklyBehaviorSignal[]) {
     ?? null;
 }
 
-export function BehaviorSignalsPanel({ trades }: { trades: TradeApiModel[] }) {
-  const [guardrails, setGuardrails] = useState<TradingGuardrailSettings | null>(null);
+type BehaviorSignalsPanelProps = {
+  trades: TradeApiModel[];
+  guardrailsOverride?: TradingGuardrailSettings | null;
+  demoMode?: boolean;
+};
+
+export function BehaviorSignalsPanel({
+  trades,
+  guardrailsOverride,
+  demoMode = false,
+}: BehaviorSignalsPanelProps) {
+  const [guardrails, setGuardrails] = useState<TradingGuardrailSettings | null>(guardrailsOverride ?? null);
   const [selectedKey, setSelectedKey] = useState<WeeklyBehaviorSignalKey | null>(null);
 
   useEffect(() => {
+    if (guardrailsOverride !== undefined) {
+      setGuardrails(guardrailsOverride);
+      return;
+    }
+
     let cancelled = false;
 
     async function loadGuardrails() {
@@ -60,7 +75,7 @@ export function BehaviorSignalsPanel({ trades }: { trades: TradeApiModel[] }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [guardrailsOverride]);
 
   const signals = useMemo(
     () => calculateWeeklyBehaviorSignals(trades, guardrails),
@@ -84,9 +99,13 @@ export function BehaviorSignalsPanel({ trades }: { trades: TradeApiModel[] }) {
       <header className={styles.header}>
         <div>
           <span>BEHAVIOR SIGNALS</span>
-          <small>Objective patterns from actual trades and your enabled Guardrails. FFZ does not infer psychological intent.</small>
+          <small>
+            {demoMode
+              ? "Development demo data only. Synthetic trades are not saved and do not affect your real journal."
+              : "Objective patterns from actual trades and your enabled Guardrails. FFZ does not infer psychological intent."}
+          </small>
         </div>
-        <strong className={styles.objectiveBadge}>OBJECTIVE ONLY</strong>
+        <strong className={styles.objectiveBadge}>{demoMode ? "DEMO DATA" : "OBJECTIVE ONLY"}</strong>
       </header>
 
       <div className={styles.grid}>
