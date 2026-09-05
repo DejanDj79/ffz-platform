@@ -1,8 +1,16 @@
 import { PublicRiskCalculator } from "@/components/calculator/PublicRiskCalculator";
 import { RiskCalculator } from "@/components/calculator/RiskCalculator";
 import { getCurrentUser } from "@/lib/auth/session";
+import styles from "./RiskCalculatorPage.module.css";
 
 export default async function RiskCalculatorPage() {
   const user = await getCurrentUser();
-  return user ? <RiskCalculator /> : <PublicRiskCalculator />;
+
+  if (!user) return <PublicRiskCalculator />;
+
+  return (
+    <div className={styles.authenticatedCalculator}>
+      <RiskCalculator />
+    </div>
+  );
 }
