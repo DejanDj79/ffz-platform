@@ -599,16 +599,57 @@ No DB migration was required.
 
 ---
 
-# ACTIVE NEXT ROADMAP ITEM — Real-world workflow validation
+## Application UI polish — ACTIVE
 
-Status: **ACTIVE / OBSERVE BEFORE ADDING MORE FEATURES**
+The planned feature roadmap is complete enough for real use. The current development phase is a page-by-page visual polish pass driven directly by user review.
+
+### Dashboard polish — DONE / MERGED
+
+PR #40: **Dashboard polish — align Market Risk and remove duplicate header block**
+
+Merged commit:
+
+```text
+565eb7ce01bda8d3c6ba36237c96a12eba318594
+```
+
+Implemented:
+- removed the redundant in-page Dashboard title/description block beneath the global app header
+- removed the duplicate `CALCULATE RISK` / `LOG TRADE` action buttons from that block
+- Dashboard KPI cards now begin the page content immediately
+- `MARKET RISK` now stretches to the same row height as the Active Challenge/Funded card so their bottom edges align
+- no data or behavior changes
+
+Validation:
+- CI tests — PASSED
+- CI build — PASSED
+- local visual verification — PASSED by user
+
+No DB migration was required.
+
+---
+
+# ACTIVE NEXT ROADMAP ITEM — Application visual polish
+
+Status: **ACTIVE / PAGE-BY-PAGE REVIEW**
 
 Purpose:
-- use FFZ through a complete real trading week rather than inventing another feature immediately
-- validate the full operating loop with actual trades and actual creator work
-- let the next implementation PR come from proven friction instead of speculative scope
+- visually refine the existing application rather than adding speculative features
+- inspect each existing page for spacing, alignment, redundant UI, visual hierarchy and practical usability
+- keep functional behavior intact unless a concrete UX problem is discovered during the polish pass
 
-Real-world loop to validate:
+Current progress:
+- [x] Dashboard first polish pass — PR #40
+- [ ] Trading Desk review / polish as directed by user
+- [ ] continue page-by-page from actual visual review
+
+Do not invent a numbered feature PR until a concrete polish change is agreed.
+
+---
+
+## Real-world workflow validation — STILL REQUIRED
+
+After / alongside the polish pass, use FFZ through a complete real trading week and validate the actual operating loop:
 
 ```text
 Trading Desk
@@ -621,7 +662,7 @@ Trading Desk
 → Episode Brief / YouTube production
 ```
 
-During the next real trading week, note only concrete friction such as:
+During real use, note only concrete friction such as:
 - repeated manual work
 - missing data that is genuinely needed for review or recording
 - information shown too late or in the wrong place
@@ -629,7 +670,7 @@ During the next real trading week, note only concrete friction such as:
 - creator workflow steps that materially slow down recording
 - Public Journey gaps that become obvious from actual audience/channel use
 
-Do **not** create a new feature PR only to keep development moving. Once a real issue is identified, make that the next scoped PR and record it here.
+Do **not** create broad new features only to keep development moving.
 
 ---
 
@@ -803,18 +844,18 @@ YouTube:
 
 ## Recommended next order of work
 
-1. **Use FFZ through a complete real trading week and attempt the full Weekly Episode / recording workflow**
-2. **Create the next feature/fix PR only from concrete friction discovered in that real usage**
+1. **Continue the page-by-page application visual polish pass, starting with Trading Desk review**
+2. **Use FFZ through a complete real trading week and fix only proven workflow friction**
 3. **Resume Billing pre-launch / Founder Live Mode immediately after Lemon store activation**
 
 Completed immediately before this roadmap position:
-- [x] PR #33 — Objective Behavior Signals v1
 - [x] PR #34 — Weekly Review: Next Week Focus
 - [x] PR #35 — Trade Review fullscreen / presentation mode
 - [x] PR #36 — Build Episode from Weekly Review
 - [x] PR #38 — Weekly Episode auto-build
+- [x] PR #40 — Dashboard visual polish
 
-Keep development driven by real trading usage. Do not add broad surface area just to make the product look larger.
+Keep development driven by real usage and direct visual review. Do not add broad surface area just to make the product look larger.
 
 ---
 
