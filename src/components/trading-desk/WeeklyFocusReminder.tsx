@@ -27,19 +27,17 @@ export function WeeklyFocusReminder() {
     };
   }, []);
 
-  if (!focus || focus.status !== "ACTIVE") return null;
+  const activeFocus = focus?.status === "ACTIVE" ? focus : null;
 
   return (
-    <aside className={styles.reminder} aria-label="This week's trading focus">
-      <div className={styles.focusLine}>
-        <div className={styles.label}>
-          <span>THIS WEEK&apos;S FOCUS</span>
-          <b>ACTIVE</b>
-        </div>
-        <strong>{focus.primaryFocus}</strong>
-        <small>{focus.rule}</small>
+    <div className={styles.focusColumn} aria-label="This week's trading focus">
+      <div className={styles.label}>
+        <span>THIS WEEK&apos;S FOCUS</span>
+        {activeFocus && <b>ACTIVE</b>}
       </div>
+      <strong>{activeFocus?.primaryFocus ?? "No active focus"}</strong>
+      <small>{activeFocus?.rule ?? "Set one concrete behavior for this trading week."}</small>
       <Link className={styles.link} href="/weekly-review">Open Weekly Review →</Link>
-    </aside>
+    </div>
   );
 }
