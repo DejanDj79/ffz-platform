@@ -477,29 +477,26 @@ Trading Desk integration:
 - Week Focus column remains present even if there is no active focus (`No active focus`)
 - Trading Desk uses the global League Spartan font
 
-### PR #34 production status
+### PR #34 production status — DONE
 
-**Production deploy still needs explicit confirmation.**
+Production deployment was confirmed completed.
 
-Before production deploy:
-
-```bash
-cd ~/apps/FFZ
-git switch main
-git pull --ff-only origin main
-./scripts/backup-production.sh
-./scripts/deploy-production.sh
-```
-
-The deploy script should apply `drizzle-production/0005_weekly_focuses.sql`.
+- [x] production backup completed before migration
+- [x] latest `main` deployed
+- [x] `drizzle-production/0005_weekly_focuses.sql` applied
+- [x] Weekly Review / Trading Desk behavior verified after deploy
 
 Never use production `db:push`.
 
 ---
 
-# ACTIVE NEXT ROADMAP ITEM — PR #35 Trade Review fullscreen / presentation mode
+## Trade Review fullscreen / presentation mode — DONE / MERGED
 
-Status: **TODO / NEXT**
+PR #35 merged commit:
+
+```text
+63a9e066ff300f0246792d2c9247d86dbc7ce42e
+```
 
 Route:
 
@@ -507,55 +504,100 @@ Route:
 /journal/review
 ```
 
-Purpose:
-- distraction-free full-trade review
-- stronger screenshot viewing
-- make Trade Review useful while explaining trades during YouTube recording
-- keep the existing screenshot-first review philosophy
-
-V1 scope:
-- add a clear **Fullscreen / Presentation** control in Trade Review
-- hide sidebar, normal page header and non-essential application chrome while presentation mode is active
-- maximize screenshot viewing area
-- keep a compact panel with the most useful trade context visible
-- preserve `Previous / Next` trade navigation
+Implemented:
+- clear Presentation control in Trade Review
+- distraction-free viewport-filling review surface
+- screenshot area maximized without recreating chart data
+- compact trade context panel remains available
+- Previous / Next navigation preserved
+- keyboard `← / →` navigation in presentation mode
 - `Esc` exits presentation mode
-- keyboard `← / →` navigates previous/next trade when appropriate
-- keep Details / Review / Attachments / Notes accessible, but visually secondary to the screenshot
-- responsive behavior must remain usable on narrower screens
-- useful both for focused self-review and YouTube screen recording
+- Details / Review / Attachments / Notes remain accessible
+- Performance Overview hidden while presentation mode is active
+- browser Fullscreen API used as progressive enhancement
+- responsive single-column fallback on narrower screens
+- suitable for both focused self-review and YouTube screen recording
 
-Out of scope for PR #35 unless separately justified:
-- replay engine
-- OHLC data pipeline
-- external chart library
-- chart recreation from screenshots
-- broad editing/workspace redesign
+Local visual/function testing: **PASSED**.
 
-Expected DB status: **no migration**.
+No DB migration was required.
 
 ---
 
-## Planned follow-up roadmap
+## Creator / YouTube workflow improvements — DONE / MERGED
 
-### PR #36 — Creator / YouTube workflow improvements
+PR #36: **Build Episode from Weekly Review**
 
-Iterate based on actual channel usage:
-- Episode Builder improvements
-- tighter handoff from reviewed trades / Weekly Review into episode planning
-- creator-facing summaries or explainer assets where they genuinely save work
+Merged commit:
+
+```text
+ba49701e87815d532f8c8f2551e684cbfbdc4695
+```
+
+Implemented Creator-only Episode Handoff:
+- `/weekly-review` shows Episode Handoff only for `CREATOR`
+- creator can curate up to 5 closed trades from the selected week
+- best and worst trade are preselected when available
+- exact Monday–Sunday period is carried into `/creator/episodes`
+- selected trade IDs are carried in selection order
+- duplicate IDs are removed and selection is capped at 5
+- Episode Builder keeps full-week metrics and talking points
+- selected trades replace the automatic review queue when explicit handoff exists
+- selected trades are included in the copied episode brief
+- no saved-episode database model was introduced in V1
+- regular users do not see the handoff
+- Creator-only tooling remains excluded from Founder seat consumption
+
+Validation:
+- `npm test` — PASSED
+- `npm run build` — PASSED
+- local visual/function testing — PASSED
+
+No DB migration was required.
+
+---
+
+# ACTIVE NEXT ROADMAP ITEM — Billing pre-launch polish + Founder Live Mode
+
+Status: **TODO / NEXT**
+
+Purpose:
+- prepare Founder and PRO billing for public launch
+- make post-checkout activation understandable and resilient
+- switch from Lemon Test Mode to verified Live Mode configuration
+- validate the complete billing lifecycle before public traffic
+
+Recommended implementation order:
+1. Founder success / activation UX on `/upgrade?checkout=founder-success`
+2. poll/refresh while waiting for webhook activation
+3. display `FOUNDER`, `FOUNDER ACTIVE` and slot number after activation
+4. delayed-activation fallback copy
+5. final upgrade page copy review and SOLD OUT state verification
+6. create Lemon Live Mode Founder variant (`$199` one-time)
+7. configure production Live Mode environment values
+8. verify production webhook URL and required events
+9. run full billing smoke-test matrix:
+   - Founder purchase
+   - Monthly PRO
+   - Annual PRO
+   - Existing PRO -> Founder
+   - full refund
+   - partial refund
+10. confirm no double billing / entitlement downgrade edge cases
+
+Expected DB status: **no migration expected** unless implementation uncovers a concrete schema requirement.
+
+The detailed Founder Live Mode / billing launch checklist earlier in this document remains authoritative.
+
+---
+
+## Later product work
+
+After billing launch readiness:
 - improve Public Journey only from real audience/use feedback
-
-Creator-only tooling remains Creator-only and should not consume Founder seats.
-
-### After PR #36 — Billing pre-launch polish
-
-Return to the existing Founder Live Mode / billing launch checklist:
-- Founder activation UX
-- Live Lemon variant/configuration
-- production webhook verification
-- complete billing smoke-test matrix
-- final upgrade copy and SOLD OUT behavior
+- iterate Episode Builder only from actual channel workflow friction
+- add creator-facing summaries/assets only when they demonstrably save work
+- keep development driven by real trading usage rather than adding surface area for its own sake
 
 ---
 
@@ -591,6 +633,7 @@ PRO:
 Creator-only:
 - Episode Builder
 - Scoreboard
+- Weekly Review -> Episode Handoff
 - future internal creator tooling
 
 ---
@@ -604,8 +647,17 @@ Use:
 4. local test
 5. user confirms behavior/visuals
 6. merge
+7. **immediately update `docs/FFZ_FUTURE_STEPS.md` before considering the task fully complete**
 
 Once the user explicitly confirms behavior/visuals and CI is green, merge immediately without asking again.
+
+After every merge:
+- mark the completed PR / feature as DONE in this document
+- record the merge commit SHA
+- update production/migration status if known
+- move `ACTIVE NEXT ROADMAP ITEM` to the real next task
+- update `Recommended next order of work`
+- do not leave this file pointing at an already-completed PR
 
 After every merge provide:
 
@@ -686,18 +738,21 @@ YouTube:
 - script in English
 - FFZ/FZ logo: futuristic, minimalist
 - Trade Review presentation mode should be suitable for screen-recorded trade explanations
+- Weekly Review can hand curated trades directly into Episode Builder
 
 ---
 
 ## Recommended next order of work
 
-1. **PR #35 — Trade Review fullscreen / presentation mode**
-2. **PR #36 — Creator / YouTube workflow improvements**
-3. **Billing pre-launch polish + Live Lemon configuration and smoke tests**
+1. **Billing pre-launch polish + Founder success/activation UX**
+2. **Lemon Live Mode configuration + production webhook verification**
+3. **Complete billing smoke-test matrix and launch readiness review**
 
 Completed immediately before this roadmap position:
 - [x] PR #33 — Objective Behavior Signals v1
 - [x] PR #34 — Weekly Review: Next Week Focus
+- [x] PR #35 — Trade Review fullscreen / presentation mode
+- [x] PR #36 — Build Episode from Weekly Review
 
 Keep development driven by real trading usage. Do not add broad surface area just to make the product look larger.
 
