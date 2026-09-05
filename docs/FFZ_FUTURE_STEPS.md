@@ -1,6 +1,6 @@
 # FFZ Platform — Future Steps / Handoff
 
-_Last updated: 2026-09-05_
+_Last updated: 2026-09-06_
 
 Ovaj dokument je živi handoff/checklist za FFZ Platform. Kada završimo stavku, ažurirati je ovde i označiti kao završenu.
 
@@ -91,9 +91,11 @@ Completed 2026-09-04:
 
 ---
 
-## Founder Live Mode — TODO BEFORE PUBLIC BILLING LAUNCH
+## Founder Live Mode — BLOCKED / WAITING FOR LEMON STORE ACTIVATION
 
-Intentionally deferred until public billing launch.
+Current blocker: the Lemon Squeezy store is not active yet, so Live Mode configuration and end-to-end live billing verification cannot be completed now.
+
+Keep the existing billing implementation intact and resume this section as soon as Lemon activates the store.
 
 Create Lemon Live Mode Founder variant:
 - Name: `Founder Trader`
@@ -555,45 +557,61 @@ Validation:
 
 No DB migration was required.
 
+Important product decision after local testing:
+- the PR #36 manual-selection handoff is now considered an interim implementation
+- the actual YouTube workflow is one episode per trading week
+- every `CLOSED` trade present in Journal for that week must appear in the weekly episode
+- no manual inclusion selection and no exclude-from-episode control should exist
+- PR #38 will simplify #36 around this rule
+
 ---
 
-# ACTIVE NEXT ROADMAP ITEM — Billing pre-launch polish + Founder Live Mode
+# ACTIVE NEXT ROADMAP ITEM — PR #38 Weekly Episode auto-build
 
 Status: **TODO / NEXT**
 
 Purpose:
-- prepare Founder and PRO billing for public launch
-- make post-checkout activation understandable and resilient
-- switch from Lemon Test Mode to verified Live Mode configuration
-- validate the complete billing lifecycle before public traffic
+- make the Creator workflow match the real channel format: one episode per trading week
+- remove unnecessary manual trade curation introduced in PR #36
+- guarantee that the weekly episode represents the complete Journal record for that week
 
-Recommended implementation order:
-1. Founder success / activation UX on `/upgrade?checkout=founder-success`
-2. poll/refresh while waiting for webhook activation
-3. display `FOUNDER`, `FOUNDER ACTIVE` and slot number after activation
-4. delayed-activation fallback copy
-5. final upgrade page copy review and SOLD OUT state verification
-6. create Lemon Live Mode Founder variant (`$199` one-time)
-7. configure production Live Mode environment values
-8. verify production webhook URL and required events
-9. run full billing smoke-test matrix:
-   - Founder purchase
-   - Monthly PRO
-   - Annual PRO
-   - Existing PRO -> Founder
-   - full refund
-   - partial refund
-10. confirm no double billing / entitlement downgrade edge cases
+V1 product rules:
+- Weekly Review exposes one clear `BUILD WEEKLY EPISODE` action for `CREATOR`
+- Episode Builder receives the exact selected Monday–Sunday week
+- every `CLOSED` Journal trade whose effective close timestamp falls in that week is included automatically
+- trades are shown in chronological order
+- there is no manual trade-selection UI
+- there is no maximum-trade cap
+- there is no `Exclude from episode` feature
+- if a trade is in Journal and closed in the selected week, it must be in the episode
+- weekly metrics and talking points remain based on the full week
+- Episode brief includes the complete chronological trade list
+- keep Creator-only gating and do not consume Founder seats
+- no saved-episode database model unless a later real workflow requires persistence
 
-Expected DB status: **no migration expected** unless implementation uncovers a concrete schema requirement.
+Expected DB status: **no migration expected**.
 
-The detailed Founder Live Mode / billing launch checklist earlier in this document remains authoritative.
+---
+
+## Billing pre-launch / Founder Live Mode — BLOCKED
+
+Blocked until Lemon Squeezy activates the store.
+
+When the store becomes active, return to the existing Founder Live Mode checklist and complete:
+- Founder success / activation UX
+- Live Founder variant and production env configuration
+- production webhook verification
+- Founder / Monthly / Annual / upgrade / refund smoke tests
+- final upgrade copy and SOLD OUT verification
+
+Do not let this blocker stop unrelated product development.
 
 ---
 
 ## Later product work
 
-After billing launch readiness:
+After PR #38:
+- use the automatic weekly episode flow in real channel work
 - improve Public Journey only from real audience/use feedback
 - iterate Episode Builder only from actual channel workflow friction
 - add creator-facing summaries/assets only when they demonstrably save work
@@ -633,7 +651,7 @@ PRO:
 Creator-only:
 - Episode Builder
 - Scoreboard
-- Weekly Review -> Episode Handoff
+- Weekly Review -> automatic Weekly Episode handoff
 - future internal creator tooling
 
 ---
@@ -738,15 +756,16 @@ YouTube:
 - script in English
 - FFZ/FZ logo: futuristic, minimalist
 - Trade Review presentation mode should be suitable for screen-recorded trade explanations
-- Weekly Review can hand curated trades directly into Episode Builder
+- channel format is expected to be one episode per trading week
+- every CLOSED Journal trade from that week must automatically appear in the episode; no manual selection/exclusion
 
 ---
 
 ## Recommended next order of work
 
-1. **Billing pre-launch polish + Founder success/activation UX**
-2. **Lemon Live Mode configuration + production webhook verification**
-3. **Complete billing smoke-test matrix and launch readiness review**
+1. **PR #38 — Weekly Episode auto-build (all CLOSED trades, no selection/exclusion)**
+2. **Use the weekly episode workflow in real YouTube production and fix only proven friction**
+3. **Resume Billing pre-launch / Founder Live Mode immediately after Lemon store activation**
 
 Completed immediately before this roadmap position:
 - [x] PR #33 — Objective Behavior Signals v1
