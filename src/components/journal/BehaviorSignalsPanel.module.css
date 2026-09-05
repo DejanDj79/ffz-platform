@@ -1,0 +1,335 @@
+.panel {
+  display: grid;
+  gap: 18px;
+  padding: 18px;
+  border: 1px solid rgba(68, 91, 109, .4);
+  border-radius: 11px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(48, 208, 248, .04), transparent 32%),
+    linear-gradient(180deg, rgba(13, 24, 33, .92), rgba(7, 14, 21, .96));
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.header > div {
+  display: grid;
+  gap: 4px;
+}
+
+.header span {
+  color: #8295a1;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .075em;
+}
+
+.header small {
+  color: #71838e;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.objectiveBadge {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  border: 1px solid rgba(48, 208, 248, .2);
+  border-radius: 999px;
+  color: #7eddf5;
+  background: rgba(48, 208, 248, .045);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .06em;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.card {
+  min-width: 0;
+  min-height: 128px;
+  padding: 14px;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 8px;
+  text-align: left;
+  border: 1px solid rgba(75, 98, 115, .36);
+  border-radius: 9px;
+  cursor: pointer;
+  color: #dce8ed;
+  background: rgba(5, 12, 18, .48);
+  font: inherit;
+  transition: border-color .15s ease, background .15s ease, box-shadow .15s ease, outline-color .15s ease, transform .15s ease;
+}
+
+.card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(117, 145, 163, .5);
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cardTop span {
+  min-width: 0;
+  color: #8799a4;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: .055em;
+}
+
+.cardTop i {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+  background: #5f7480;
+  box-shadow: 0 0 0 3px rgba(95, 116, 128, .08);
+}
+
+.value {
+  align-self: center;
+  color: #eef7fa;
+  font-size: 28px;
+  font-weight: 650;
+  line-height: 1;
+}
+
+.caption {
+  color: #6f818c;
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+.warning {
+  border-color: rgba(255, 111, 122, .34);
+  background: linear-gradient(180deg, rgba(122, 35, 44, .17), rgba(5, 12, 18, .52));
+}
+
+.warning:hover {
+  border-color: rgba(255, 111, 122, .58);
+}
+
+.warning .cardTop i {
+  background: #ff6f7a;
+  box-shadow: 0 0 0 3px rgba(255, 111, 122, .12);
+}
+
+.warning .value { color: #ff929a; }
+
+.watch {
+  border-color: rgba(232, 190, 95, .28);
+  background: linear-gradient(180deg, rgba(98, 76, 25, .12), rgba(5, 12, 18, .52));
+}
+
+.watch:hover {
+  border-color: rgba(232, 190, 95, .5);
+}
+
+.watch .cardTop i {
+  background: #e5bd62;
+  box-shadow: 0 0 0 3px rgba(229, 189, 98, .1);
+}
+
+.watch .value { color: #ead18e; }
+
+.clear {
+  border-color: rgba(76, 185, 162, .22);
+  background: linear-gradient(180deg, rgba(32, 89, 76, .1), rgba(5, 12, 18, .5));
+}
+
+.clear:hover {
+  border-color: rgba(76, 185, 162, .44);
+}
+
+.clear .cardTop i {
+  background: #4cb9a2;
+  box-shadow: 0 0 0 3px rgba(76, 185, 162, .09);
+}
+
+.clear .value { color: #75cfb8; }
+
+.unavailable {
+  opacity: .62;
+  border-color: rgba(103, 120, 131, .24);
+  background: rgba(5, 12, 18, .38);
+}
+
+.card.cardSelected {
+  opacity: 1;
+  transform: translateY(-2px);
+  border-color: #30d0f8;
+  outline: 2px solid rgba(48, 208, 248, .52);
+  outline-offset: 2px;
+  box-shadow:
+    0 0 0 1px rgba(48, 208, 248, .28),
+    0 0 20px rgba(48, 208, 248, .16),
+    inset 0 1px 0 rgba(126, 221, 245, .12);
+}
+
+.card.cardSelected .cardTop span {
+  color: #8fe7fb;
+}
+
+.card.cardSelected .cardTop i {
+  background: #30d0f8;
+  box-shadow: 0 0 0 4px rgba(48, 208, 248, .14);
+}
+
+.detail {
+  display: grid;
+  gap: 14px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(68, 91, 109, .32);
+}
+
+.detailHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.detailHeader > div {
+  display: grid;
+  gap: 5px;
+}
+
+.detailHeader strong {
+  color: #e8f1f5;
+  font-size: 16px;
+  font-weight: 650;
+}
+
+.detailHeader p {
+  max-width: 880px;
+  margin: 0;
+  color: #91a2ac;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.detailValue {
+  flex: 0 0 auto;
+  color: #30d0f8;
+  font-size: 24px;
+  font-weight: 650;
+  line-height: 1;
+}
+
+.events {
+  display: grid;
+  gap: 9px;
+}
+
+.event {
+  display: grid;
+  gap: 10px;
+  padding: 12px 13px;
+  border: 1px solid rgba(70, 93, 110, .3);
+  border-radius: 8px;
+  background: rgba(4, 10, 15, .34);
+}
+
+.eventHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.eventHeader strong {
+  color: #dce7ec;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.eventHeader span {
+  color: #788b96;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: right;
+}
+
+.trades {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.trade {
+  min-width: 150px;
+  padding: 8px 10px;
+  display: grid;
+  gap: 3px;
+  border: 1px solid rgba(69, 91, 108, .28);
+  border-radius: 7px;
+  background: rgba(9, 18, 25, .58);
+}
+
+.tradeTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.tradeTop strong {
+  color: #cfdde3;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.tradeTop time {
+  color: #71838e;
+  font-size: 12px;
+}
+
+.tradeMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px 8px;
+  color: #758993;
+  font-size: 12.5px;
+}
+
+.positive { color: #65c9a9; }
+.negative { color: #ff8e95; }
+.neutral { color: #8799a4; }
+
+.emptyEvents {
+  color: #788b96;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+@media (max-width: 1260px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 720px) {
+  .panel { padding: 14px; }
+  .header,
+  .detailHeader,
+  .eventHeader {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .objectiveBadge { align-self: flex-start; }
+  .grid { grid-template-columns: 1fr; }
+  .card { min-height: 112px; }
+  .eventHeader span { text-align: left; }
+  .trade { flex: 1 1 100%; }
+}

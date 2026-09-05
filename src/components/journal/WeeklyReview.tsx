@@ -8,6 +8,7 @@ import {
   type WeeklyReviewBreakdownRow,
 } from "@/lib/journal/weekly-review";
 import type { TradeApiModel } from "@/lib/journal/types";
+import { BehaviorSignalsPanel } from "./BehaviorSignalsPanel";
 import styles from "./WeeklyReview.module.css";
 
 const money = new Intl.NumberFormat("en-US", {
@@ -305,6 +306,8 @@ export function WeeklyReview() {
           rows={review.origin}
         />
       </section>
+
+      <BehaviorSignalsPanel trades={review.closedTrades} />
 
       <section className={styles.lowerGrid}>
         <article className={styles.panel}>
