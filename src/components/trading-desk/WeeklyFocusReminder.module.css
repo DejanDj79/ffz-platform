@@ -1,71 +1,8 @@
-:global(main):has(> .reminder) {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
-}
-
-:global(main):has(> .reminder) > div:first-child {
-  flex: 0 0 100%;
-}
-
-:global(main) > section:has(+ .reminder) {
-  flex: 1 1 50%;
-  min-width: 600px;
-  margin-bottom: 14px;
-  border-right: 0;
-  border-radius: 11px 0 0 11px;
-  box-shadow: none;
-}
-
-.reminder {
-  flex: 1 1 28%;
-  min-width: 330px;
-  margin: 0 0 14px;
-  padding: 13px 16px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 14px;
-  border: 1px solid rgba(68, 91, 109, .42);
-  border-right: 0;
-  border-radius: 0;
-  background:
-    radial-gradient(circle at 0% 50%, rgba(48, 208, 248, .055), transparent 45%),
-    linear-gradient(180deg, rgba(14, 26, 35, .95), rgba(7, 15, 22, .98));
-  box-shadow: none;
-}
-
-.reminder + section {
-  flex: 1 1 22%;
-  min-width: 270px;
-  margin-bottom: 14px;
-  padding: 13px 16px;
+.focusColumn {
+  min-width: 0;
   display: grid;
   align-content: center;
   gap: 5px;
-  border-radius: 0 11px 11px 0;
-  box-shadow: none;
-}
-
-.reminder + section > div {
-  min-width: 0;
-}
-
-.reminder + section p {
-  margin: 0;
-  text-align: left;
-  line-height: 1.35;
-}
-
-.reminder + section ~ section {
-  flex: 0 0 100%;
-  width: 100%;
-}
-
-.focusLine {
-  min-width: 0;
-  display: grid;
-  gap: 4px;
 }
 
 .label {
@@ -76,10 +13,10 @@
 }
 
 .label span {
-  color: #6f8995;
+  color: #7f919c;
   font-size: 11.5px;
-  font-weight: 750;
-  letter-spacing: .07em;
+  font-weight: 800;
+  letter-spacing: .08em;
 }
 
 .label b {
@@ -93,27 +30,30 @@
   letter-spacing: .05em;
 }
 
-.focusLine > strong {
+.focusColumn > strong {
   min-width: 0;
   overflow: hidden;
   color: #e9f3f6;
   font-size: 15px;
   font-weight: 650;
+  line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.focusLine > small {
+.focusColumn > small {
   min-width: 0;
   overflow: hidden;
   color: #879aa4;
   font-size: 12.5px;
+  line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .link {
-  flex: 0 0 auto;
+  width: fit-content;
+  margin-top: 2px;
   color: #7eddf5;
   font-size: 12px;
   font-weight: 700;
@@ -123,47 +63,9 @@
 
 .link:hover { color: #b8effb; }
 
-@media (max-width: 1260px) {
-  :global(main) > section:has(+ .reminder) {
-    flex: 0 0 100%;
-    min-width: 0;
-    margin-bottom: 0;
-    border-right: 1px solid rgba(68, 91, 109, .42);
-    border-bottom: 0;
-    border-radius: 11px 11px 0 0;
-  }
-
-  .reminder {
-    flex: 1 1 60%;
-    min-width: 0;
-    border-radius: 0 0 0 11px;
-  }
-
-  .reminder + section {
-    flex: 1 1 40%;
-    min-width: 0;
-    border-radius: 0 0 11px 0;
-  }
-}
-
 @media (max-width: 760px) {
-  .reminder {
-    flex: 0 0 100%;
-    margin-bottom: 0;
-    grid-template-columns: 1fr;
-    align-items: start;
-    border-right: 1px solid rgba(68, 91, 109, .42);
-    border-bottom: 0;
-    border-radius: 0;
-  }
-
-  .reminder + section {
-    flex: 0 0 100%;
-    border-radius: 0 0 11px 11px;
-  }
-
-  .focusLine > strong,
-  .focusLine > small {
+  .focusColumn > strong,
+  .focusColumn > small {
     overflow: visible;
     white-space: normal;
   }
