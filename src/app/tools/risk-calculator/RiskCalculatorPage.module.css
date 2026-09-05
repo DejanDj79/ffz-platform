@@ -60,7 +60,7 @@
   height: 25px;
 }
 
-.authenticatedCalculator :global(.field-icon svg) {
+.authenticatedCalculator :global(.field-icon) svg {
   width: 19px;
   height: 19px;
 }
@@ -77,9 +77,9 @@
   width: min(100%, 205px);
 }
 
-.authenticatedCalculator :global(.field-control input),
-.authenticatedCalculator :global(.field-control select),
-.authenticatedCalculator :global(.money-input > span),
+.authenticatedCalculator :global(.field-control) input,
+.authenticatedCalculator :global(.field-control) select,
+.authenticatedCalculator :global(.money-input) > span,
 .authenticatedCalculator :global(.account-toggle) {
   height: 32px;
 }
@@ -89,13 +89,13 @@
   margin: 11px 4px 0;
 }
 
-.authenticatedCalculator :global(.input-actions button) {
+.authenticatedCalculator :global(.input-actions) button {
   height: 42px;
   font-size: 12px;
   letter-spacing: .04em;
 }
 
-.authenticatedCalculator :global(.input-actions svg) {
+.authenticatedCalculator :global(.input-actions) svg {
   width: 18px;
   height: 18px;
 }
@@ -119,8 +119,8 @@
   border-radius: 8px;
 }
 
-.authenticatedCalculator :global(.result-card::after),
-.authenticatedCalculator :global(.health-card::after) {
+.authenticatedCalculator :global(.result-card)::after,
+.authenticatedCalculator :global(.health-card)::after {
   height: 3px;
 }
 
@@ -131,8 +131,8 @@
   font-size: 11.5px;
 }
 
-.authenticatedCalculator :global(.result-title svg),
-.authenticatedCalculator :global(.health-title svg) {
+.authenticatedCalculator :global(.result-title) svg,
+.authenticatedCalculator :global(.health-title) svg {
   width: 18px;
   height: 18px;
 }
@@ -155,7 +155,7 @@
   font-size: 11.5px;
 }
 
-.authenticatedCalculator :global(.health-card > strong) {
+.authenticatedCalculator :global(.health-card) > strong {
   margin-top: 12px;
   font-size: clamp(24px, 2vw, 32px);
 }
@@ -164,7 +164,7 @@
   margin-top: 8px;
 }
 
-.authenticatedCalculator :global(.health-shield svg) {
+.authenticatedCalculator :global(.health-shield) svg {
   width: 34px;
   height: 34px;
 }
@@ -180,7 +180,7 @@
   font-size: 13px;
 }
 
-.authenticatedCalculator :global(.summary-header svg) {
+.authenticatedCalculator :global(.summary-header) svg {
   width: 18px;
   height: 18px;
 }
@@ -189,20 +189,20 @@
   padding: 8px 0;
 }
 
-.authenticatedCalculator :global(.summary-stats > div) {
+.authenticatedCalculator :global(.summary-stats) > div {
   min-height: 48px;
 }
 
-.authenticatedCalculator :global(.summary-stats span) {
+.authenticatedCalculator :global(.summary-stats) span {
   font-size: 12px;
 }
 
-.authenticatedCalculator :global(.summary-stats strong) {
+.authenticatedCalculator :global(.summary-stats) strong {
   margin-top: 4px;
   font-size: 19px;
 }
 
-.authenticatedCalculator :global(.trade-summary p) {
+.authenticatedCalculator :global(.trade-summary) p {
   padding: 8px 12px;
   font-size: 11.5px;
   line-height: 1.35;
