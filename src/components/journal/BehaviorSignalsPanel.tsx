@@ -6,6 +6,10 @@ import {
   type WeeklyBehaviorSignal,
   type WeeklyBehaviorSignalKey,
 } from "@/lib/journal/behavior-signals";
+import {
+  BEHAVIOR_DEMO_GUARDRAILS,
+  createBehaviorDemoTrades,
+} from "@/lib/journal/behavior-signals-demo";
 import type { TradeApiModel } from "@/lib/journal/types";
 import { fetchTradingGuardrailSettings } from "@/lib/trading/guardrails-api-client";
 import type { TradingGuardrailSettings } from "@/lib/trading/guardrails-types";
@@ -40,6 +44,15 @@ function preferredSignal(signals: WeeklyBehaviorSignal[]) {
     ?? null;
 }
 
+function currentWeekStart() {
+  const value = new Date();
+  const day = value.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  value.setDate(value.getDate() + diff);
+  value.setHours(0, 0, 0, 0);
+  return value;
+}
+
 type BehaviorSignalsPanelProps = {
   trades: TradeApiModel[];
   guardrailsOverride?: TradingGuardrailSettings | null;
@@ -53,8 +66,22 @@ export function BehaviorSignalsPanel({
 }: BehaviorSignalsPanelProps) {
   const [guardrails, setGuardrails] = useState<TradingGuardrailSettings | null>(guardrailsOverride ?? null);
   const [selectedKey, setSelectedKey] = useState<WeeklyBehaviorSignalKey | null>(null);
+  const [queryDemoMode, setQueryDemoMode] = useState(false);
 
   useEffect(() => {
+    if (process.env.NODE_ENV !== "development") return;
+    const params = new URLSearchParams(window.location.search);
+    setQueryDemoMode(params.get("behaviorDemo") === "1");
+  }, []);
+
+  const activeDemoMode = demoMode || queryDemoMode;
+
+  useEffect(() => {
+    if (activeDemoMode) {
+      setGuardrails(BEHAVIOR_DEMO_GUARDRAILS);
+      return;
+    }
+
     if (guardrailsOverride !== undefined) {
       setGuardrails(guardrailsOverride);
       return;
@@ -75,11 +102,16 @@ export function BehaviorSignalsPanel({
     return () => {
       cancelled = true;
     };
-  }, [guardrailsOverride]);
+  }, [activeDemoMode, guardrailsOverride]);
+
+  const effectiveTrades = useMemo(
+    () => activeDemoMode ? createBehaviorDemoTrades(currentWeekStart()) : trades,
+    [activeDemoMode, trades],
+  );
 
   const signals = useMemo(
-    () => calculateWeeklyBehaviorSignals(trades, guardrails),
-    [trades, guardrails],
+    () => calculateWeeklyBehaviorSignals(effectiveTrades, guardrails),
+    [effectiveTrades, guardrails],
   );
 
   const signature = useMemo(
@@ -100,12 +132,12 @@ export function BehaviorSignalsPanel({
         <div>
           <span>BEHAVIOR SIGNALS</span>
           <small>
-            {demoMode
+            {activeDemoMode
               ? "Development demo data only. Synthetic trades are not saved and do not affect your real journal."
               : "Objective patterns from actual trades and your enabled Guardrails. FFZ does not infer psychological intent."}
           </small>
         </div>
-        <strong className={styles.objectiveBadge}>{demoMode ? "DEMO DATA" : "OBJECTIVE ONLY"}</strong>
+        <strong className={styles.objectiveBadge}>{activeDemoMode ? "DEMO DATA" : "OBJECTIVE ONLY"}</strong>
       </header>
 
       <div className={styles.grid}>
