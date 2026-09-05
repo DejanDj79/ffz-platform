@@ -1,0 +1,181 @@
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.enterButton,
+.exitButton {
+  min-height: 36px;
+  padding: 0 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-radius: 7px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
+}
+
+.enterButton {
+  border: 1px solid rgba(160,112,232,.42);
+  color: #cbb4f0;
+  background: rgba(160,112,232,.07);
+}
+
+.enterButton:hover {
+  border-color: rgba(160,112,232,.68);
+  color: #eadfff;
+  background: rgba(160,112,232,.12);
+}
+
+.exitButton {
+  border: 1px solid rgba(48,208,248,.44);
+  color: #7be3fb;
+  background: rgba(48,208,248,.075);
+}
+
+.exitButton:hover {
+  border-color: rgba(48,208,248,.7);
+  color: #d9f8ff;
+  background: rgba(48,208,248,.12);
+}
+
+.modeHint {
+  color: #667a87;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  white-space: nowrap;
+}
+
+.presentationPage {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  width: 100vw;
+  height: 100dvh;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 85% 0%, rgba(160,112,232,.045), transparent 32%),
+    linear-gradient(180deg, #071017, #040a0f 72%);
+}
+
+.presentationPage :global(*) {
+  box-sizing: border-box;
+}
+
+.presentationPage .presentationToolbar {
+  flex: 0 0 auto;
+  min-height: 48px;
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  align-items: center;
+}
+
+.presentationPage .presentationToolbar > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.presentationPage .presentationToolbar > div:first-child > span {
+  font-size: 10px;
+}
+
+.presentationPage .presentationToolbar select {
+  min-width: 130px;
+  min-height: 32px;
+  font-size: 11.5px;
+}
+
+.presentationPage .presentationToolbar .toolbarRight {
+  min-width: 0;
+  flex: 1;
+}
+
+.presentationPage .presentationViewer {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
+  grid-template-columns: minmax(0, 1fr) minmax(330px, 370px);
+  gap: 10px;
+}
+
+.presentationPage .presentationViewer > * {
+  min-height: 0;
+  height: 100%;
+}
+
+.presentationPage .presentationImageStage {
+  min-height: 0;
+}
+
+.presentationPage .presentationState {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+@media (max-width: 980px) {
+  .presentationPage {
+    overflow-y: auto;
+  }
+
+  .presentationPage .presentationViewer {
+    flex: none;
+    min-height: calc(100dvh - 78px);
+    grid-template-columns: 1fr;
+  }
+
+  .presentationPage .presentationViewer > * {
+    height: auto;
+  }
+
+  .presentationPage .presentationImageStage {
+    min-height: 58dvh;
+  }
+
+  .presentationPage .presentationViewer aside {
+    min-height: 430px;
+  }
+}
+
+@media (max-width: 680px) {
+  .toolbarRight {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .modeHint {
+    display: none;
+  }
+
+  .presentationPage {
+    padding: 7px;
+  }
+
+  .presentationPage .presentationToolbar {
+    gap: 7px;
+  }
+
+  .presentationPage .presentationToolbar > div:first-child {
+    width: 100%;
+  }
+
+  .presentationPage .presentationToolbar select {
+    flex: 1;
+    width: auto;
+  }
+
+  .presentationPage .presentationImageStage {
+    min-height: 50dvh;
+  }
+}
