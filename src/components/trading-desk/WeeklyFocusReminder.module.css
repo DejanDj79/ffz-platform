@@ -1,8 +1,102 @@
-.focusColumn {
+:global(main):has(> .focusColumn) {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr) minmax(0, 1.25fr) minmax(0, 1.15fr);
+  align-items: stretch;
+  column-gap: 0;
+}
+
+:global(main):has(> .focusColumn) > div:not(.focusColumn) {
+  grid-column: 1 / -1;
+}
+
+:global(main):has(> .focusColumn) > section:has(+ .focusColumn) {
+  display: contents;
+}
+
+:global(main):has(> .focusColumn) > section:has(+ .focusColumn) > div:first-child,
+.focusColumn,
+.focusColumn + section,
+:global(main):has(> .focusColumn) > section:has(+ .focusColumn) > div:last-child {
+  grid-row: 2;
   min-width: 0;
+  min-height: 118px;
+  margin-bottom: 14px;
+  padding: 15px 17px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(160, 112, 232, .035), transparent 42%),
+    linear-gradient(180deg, rgba(14, 26, 35, .96), rgba(7, 15, 22, .985));
+  border-top: 1px solid rgba(68, 91, 109, .42);
+  border-bottom: 1px solid rgba(68, 91, 109, .42);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
+}
+
+:global(main):has(> .focusColumn) > section:has(+ .focusColumn) > div:first-child {
+  grid-column: 1;
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  border-left: 1px solid rgba(68, 91, 109, .42);
+  border-radius: 11px 0 0 11px;
+}
+
+.focusColumn + section {
+  grid-column: 2;
+  padding-left: 17px;
   display: grid;
   align-content: center;
   gap: 5px;
+  position: relative;
+  overflow: hidden;
+  border-left: 1px solid rgba(68, 91, 109, .28);
+  border-right: 0;
+  border-radius: 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
+}
+
+.focusColumn + section::before {
+  content: "";
+  position: absolute;
+  inset: 17px auto 17px 0;
+  width: 3px;
+  border-radius: 2px;
+}
+
+.focusColumn + section > div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.focusColumn + section span {
+  color: #7f919c;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.focusColumn + section strong {
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.focusColumn + section p {
+  margin: 0;
+  color: #879aa4;
+  font-size: 12.5px;
+  line-height: 1.35;
+  text-align: left;
+}
+
+.focusColumn + section[class*="goStatus"]::before { background: #45dbad; }
+.focusColumn + section[class*="cautionStatus"]::before { background: #e7b85d; }
+.focusColumn + section[class*="stopStatus"]::before { background: #ff737f; }
+
+.focusColumn {
+  grid-column: 3;
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  border-left: 1px solid rgba(68, 91, 109, .28);
 }
 
 .label {
@@ -63,10 +157,80 @@
 
 .link:hover { color: #b8effb; }
 
+:global(main):has(> .focusColumn) > section:has(+ .focusColumn) > div:last-child {
+  grid-column: 4;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-content: center;
+  align-items: end;
+  gap: 8px;
+  border-left: 1px solid rgba(68, 91, 109, .28);
+  border-right: 1px solid rgba(68, 91, 109, .42);
+  border-radius: 0 11px 11px 0;
+}
+
+:global(main):has(> .focusColumn) > section:has(+ .focusColumn) > div:last-child > label {
+  min-width: 0;
+}
+
+:global(main):has(> .focusColumn) > section:has(+ .focusColumn) > div:last-child > div:last-child {
+  min-width: 84px;
+  align-self: end;
+}
+
+.focusColumn + section ~ section {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+@media (max-width: 1180px) {
+  :global(main):has(> .focusColumn) {
+    grid-template-columns: 1fr;
+  }
+
+  :global(main):has(> .focusColumn) > section:has(+ .focusColumn) > div:first-child,
+  .focusColumn + section,
+  .focusColumn,
+  :global(main):has(> .focusColumn) > section:has(+ .focusColumn) > div:last-child {
+    grid-column: 1;
+    grid-row: auto;
+    min-height: 0;
+    margin-bottom: 0;
+    border-left: 1px solid rgba(68, 91, 109, .42);
+    border-right: 1px solid rgba(68, 91, 109, .42);
+    border-top: 0;
+    border-bottom: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  :global(main):has(> .focusColumn) > section:has(+ .focusColumn) > div:first-child {
+    border-top: 1px solid rgba(68, 91, 109, .42);
+    border-radius: 11px 11px 0 0;
+  }
+
+  :global(main):has(> .focusColumn) > section:has(+ .focusColumn) > div:last-child {
+    margin-bottom: 14px;
+    border-bottom: 1px solid rgba(68, 91, 109, .42);
+    border-radius: 0 0 11px 11px;
+  }
+
+  .focusColumn + section,
+  .focusColumn,
+  :global(main):has(> .focusColumn) > section:has(+ .focusColumn) > div:last-child {
+    border-top: 1px solid rgba(68, 91, 109, .22);
+  }
+}
+
 @media (max-width: 760px) {
   .focusColumn > strong,
   .focusColumn > small {
     overflow: visible;
     white-space: normal;
+  }
+
+  :global(main):has(> .focusColumn) > section:has(+ .focusColumn) > div:last-child {
+    grid-template-columns: 1fr;
+    align-items: stretch;
   }
 }
