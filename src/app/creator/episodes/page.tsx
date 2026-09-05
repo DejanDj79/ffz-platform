@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
 import { canAccessCreatorTools } from "@/lib/auth/roles";
 import { buildEpisodeSnapshot } from "@/lib/creator/episode-builder";
+import { normalizeEpisodeTradeIds } from "@/lib/creator/episode-selection";
 import { CopyEpisodeBrief } from "./CopyEpisodeBrief";
 import styles from "./EpisodeBuilder.module.css";
 
@@ -9,6 +10,8 @@ type SearchParams = Promise<{
   from?: string;
   to?: string;
   challenge?: string;
+  trades?: string;
+  source?: string;
 }>;
 
 function dateInputValue(date: Date) {
@@ -49,11 +52,14 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
   const to = parseDate(params.to, defaultTo, true);
   const safeFrom = from.getTime() <= to.getTime() ? from : defaultFrom;
   const safeTo = from.getTime() <= to.getTime() ? to : defaultTo;
+  const selectedTradeIds = normalizeEpisodeTradeIds(params.trades);
+  const fromWeeklyReview = params.source === "weekly-review" && selectedTradeIds.length > 0;
 
   const snapshot = await buildEpisodeSnapshot(user.id, {
     from: safeFrom,
     to: safeTo,
     challengeId: params.challenge || null,
+    selectedTradeIds,
   });
 
   const challengePnl = snapshot.challenge
@@ -70,14 +76,21 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
           <span className={styles.eyebrow}>CREATOR · EPISODE BUILDER</span>
           <h1>Turn a trading period into a usable video brief.</h1>
           <p>
-            This first version does not create or save episodes. Pick a period and optionally one challenge;
-            FFZ builds the numbers, review trades and talking points from data you already entered.
+            {fromWeeklyReview
+              ? "This snapshot came from Weekly Review. The weekly metrics stay intact while your selected trades are carried into the review queue and copied episode brief."
+              : "Pick a period and optionally one challenge; FFZ builds the numbers, review trades and talking points from data you already entered."}
           </p>
         </div>
-        <div className={styles.mvpBadge}>CREATOR ONLY · MVP</div>
+        <div className={styles.mvpBadge}>
+          {fromWeeklyReview ? "CREATOR ONLY · WEEKLY REVIEW" : "CREATOR ONLY · MVP"}
+        </div>
       </section>
 
       <form className={styles.filters} method="get">
+        {selectedTradeIds.length > 0 && (
+          <input type="hidden" name="trades" value={selectedTradeIds.join(",")} />
+        )}
+        {fromWeeklyReview && <input type="hidden" name="source" value="weekly-review" />}
         <label>
           <span>FROM</span>
           <input type="date" name="from" defaultValue={dateInputValue(safeFrom)} />
@@ -169,8 +182,8 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
         <article className={styles.panel}>
           <div className={styles.panelHeader}>
             <div>
-              <span>REVIEW QUEUE</span>
-              <h2>Trades worth opening</h2>
+              <span>{snapshot.explicitTradeSelection ? "WEEKLY REVIEW SELECTION" : "REVIEW QUEUE"}</span>
+              <h2>{snapshot.explicitTradeSelection ? "Selected trades" : "Trades worth opening"}</h2>
             </div>
           </div>
           {snapshot.featuredTrades.length > 0 ? (
@@ -187,7 +200,11 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
               ))}
             </div>
           ) : (
-            <p className={styles.empty}>No closed trades in this selection.</p>
+            <p className={styles.empty}>
+              {snapshot.explicitTradeSelection
+                ? "None of the selected trades match the current period / account filter."
+                : "No closed trades in this selection."}
+            </p>
           )}
         </article>
       </section>
@@ -206,8 +223,8 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
       <section className={styles.experimentNote}>
         <strong>Why this is intentionally small</strong>
         <p>
-          Use this a few times before we add saved episodes, statuses, thumbnails, YouTube URLs or a dedicated episode database.
-          If the snapshot itself is not useful in your channel workflow, we can remove it without carrying unused infrastructure.
+          Weekly Review can now hand a curated set of trades into this snapshot without introducing saved episodes or a new database model.
+          Use the handoff in real channel work before we add episode statuses, thumbnails, YouTube URLs or other creator infrastructure.
         </p>
       </section>
     </main>

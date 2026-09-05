@@ -1,11 +1,13 @@
 import { listChallenges } from "@/lib/challenges/repository";
 import { listTrades } from "@/lib/journal/repository";
 import { listLedgerEntries } from "@/lib/ledger/repository";
+import { orderSelectedEpisodeTrades } from "./episode-selection";
 
 export type EpisodeBuilderFilters = {
   from: Date;
   to: Date;
   challengeId: string | null;
+  selectedTradeIds: string[];
 };
 
 type EpisodeTrade = Awaited<ReturnType<typeof listTrades>>[number];
@@ -40,6 +42,7 @@ export type EpisodeSnapshot = {
   realMoneyNet: number;
   topSetup: string | null;
   featuredTrades: FeaturedTrade[];
+  explicitTradeSelection: boolean;
   talkingPoints: string[];
   brief: string;
 };
@@ -79,7 +82,7 @@ function mostCommonSetup(trades: EpisodeTrade[]) {
   return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
 }
 
-function featuredTrades(trades: EpisodeTrade[]): FeaturedTrade[] {
+function automaticFeaturedTrades(trades: EpisodeTrade[]): FeaturedTrade[] {
   const withPnl = trades
     .filter((trade) => trade.netPnl != null)
     .sort((a, b) => (b.netPnl ?? 0) - (a.netPnl ?? 0));
@@ -112,6 +115,28 @@ function featuredTrades(trades: EpisodeTrade[]): FeaturedTrade[] {
     setup: trade.setup,
     label,
   }));
+}
+
+function selectedFeaturedTrades(
+  trades: EpisodeTrade[],
+  selectedTradeIds: string[],
+): FeaturedTrade[] {
+  return orderSelectedEpisodeTrades(trades, selectedTradeIds).map((trade, index) => ({
+    id: trade.id,
+    instrument: trade.instrument,
+    direction: trade.direction,
+    closedAt: trade.closedAt,
+    netPnl: trade.netPnl ?? 0,
+    rMultiple: trade.rMultiple,
+    setup: trade.setup,
+    label: `SELECTED TRADE ${index + 1}`,
+  }));
+}
+
+function selectedTradeBriefLine(trade: FeaturedTrade) {
+  const setup = trade.setup ? ` · ${trade.setup}` : "";
+  const rMultiple = trade.rMultiple == null ? "" : ` · ${trade.rMultiple.toFixed(2)}R`;
+  return `- ${trade.instrument} ${trade.direction} · ${money(trade.netPnl)}${rMultiple}${setup}`;
 }
 
 export async function buildEpisodeSnapshot(
@@ -164,7 +189,11 @@ export async function buildEpisodeSnapshot(
     .reduce((sum, entry) => sum + entry.amount, 0);
   const realMoneyNet = payouts + otherIncome - costs;
   const topSetup = mostCommonSetup(trades);
-  const featured = featuredTrades(trades);
+  const automaticFeatured = automaticFeaturedTrades(trades);
+  const explicitTradeSelection = filters.selectedTradeIds.length > 0;
+  const featured = explicitTradeSelection
+    ? selectedFeaturedTrades(trades, filters.selectedTradeIds)
+    : automaticFeatured;
 
   const talkingPoints: string[] = [];
   if (trades.length === 0) {
@@ -173,8 +202,8 @@ export async function buildEpisodeSnapshot(
     talkingPoints.push(`${trades.length} closed trades produced ${money(netPnl)} net P&L with a ${percent(winRate)} win rate.`);
     if (averageR != null) talkingPoints.push(`Average result was ${averageR.toFixed(2)}R across trades with recorded risk.`);
     if (topSetup) talkingPoints.push(`${topSetup} was the most-used setup in this period.`);
-    if (featured[0]) talkingPoints.push(`Best trade: ${featured[0].instrument} ${featured[0].direction} for ${money(featured[0].netPnl)}.`);
-    const worst = featured.find((trade) => trade.label === "WORST TRADE");
+    if (automaticFeatured[0]) talkingPoints.push(`Best trade: ${automaticFeatured[0].instrument} ${automaticFeatured[0].direction} for ${money(automaticFeatured[0].netPnl)}.`);
+    const worst = automaticFeatured.find((trade) => trade.label === "WORST TRADE");
     if (worst) talkingPoints.push(`Trade worth reviewing: ${worst.instrument} ${worst.direction} for ${money(worst.netPnl)}.`);
   }
 
@@ -194,6 +223,16 @@ export async function buildEpisodeSnapshot(
     ? `${challenge.propFirm} — ${challenge.name}`
     : "All FFZ trading activity";
 
+  const selectionLines = explicitTradeSelection
+    ? [
+        "",
+        "SELECTED TRADES",
+        ...(featured.length > 0
+          ? featured.map(selectedTradeBriefLine)
+          : ["- No selected trades matched the current period / account filter."]),
+      ]
+    : [];
+
   const brief = [
     "FFZ EPISODE BRIEF",
     `${dateLabel(filters.from)} → ${dateLabel(filters.to)}`,
@@ -211,6 +250,7 @@ export async function buildEpisodeSnapshot(
     "",
     "TALKING POINTS",
     ...talkingPoints.map((point) => `- ${point}`),
+    ...selectionLines,
   ].filter((line): line is string => line != null).join("\n");
 
   return {
@@ -231,6 +271,7 @@ export async function buildEpisodeSnapshot(
     realMoneyNet,
     topSetup,
     featuredTrades: featured,
+    explicitTradeSelection,
     talkingPoints,
     brief,
   };

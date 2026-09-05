@@ -10,6 +10,7 @@ import {
 import type { TradeApiModel } from "@/lib/journal/types";
 import { BehaviorSignalsPanel } from "./BehaviorSignalsPanel";
 import { NextWeekFocusPanel } from "./NextWeekFocusPanel";
+import { WeeklyReviewEpisodeHandoff } from "./WeeklyReviewEpisodeHandoff";
 import styles from "./WeeklyReview.module.css";
 
 const money = new Intl.NumberFormat("en-US", {
@@ -155,7 +156,7 @@ function BreakdownPanel({
   );
 }
 
-export function WeeklyReview() {
+export function WeeklyReview({ creatorMode = false }: { creatorMode?: boolean }) {
   const [trades, setTrades] = useState<TradeApiModel[]>([]);
   const [anchor, setAnchor] = useState(() => new Date());
   const [loading, setLoading] = useState(true);
@@ -371,6 +372,15 @@ export function WeeklyReview() {
           </div>
         </article>
       </section>
+
+      {creatorMode && (
+        <WeeklyReviewEpisodeHandoff
+          key={review.start.toISOString()}
+          trades={review.closedTrades}
+          weekStart={review.start}
+          weekEnd={review.end}
+        />
+      )}
 
       <NextWeekFocusPanel
         selectedWeekStart={review.start}
