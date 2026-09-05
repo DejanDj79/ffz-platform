@@ -221,7 +221,6 @@ export function NextWeekFocusPanel({
                     <button
                       type="button"
                       disabled={!canAssess || assessing}
-                      className={currentFocus.status === "ACTIVE" ? styles.selectedActive : ""}
                       onClick={() => void assess("ACTIVE")}
                     >
                       RESET
