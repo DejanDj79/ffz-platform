@@ -1,17 +1,29 @@
+:global(main) > section:has(+ .reminder) {
+  margin-bottom: 0;
+  border-bottom: 0;
+  border-radius: 11px 11px 0 0;
+}
+
 .reminder {
   width: 100%;
-  margin: 0 0 12px;
+  margin: 0;
   padding: 11px 14px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 16px;
-  border: 1px solid rgba(48, 208, 248, .28);
-  border-radius: 9px;
+  border: 1px solid rgba(68, 91, 109, .42);
+  border-bottom: 0;
+  border-radius: 0;
   background:
-    radial-gradient(circle at 0% 50%, rgba(48, 208, 248, .07), transparent 38%),
-    linear-gradient(180deg, rgba(13, 27, 36, .95), rgba(7, 15, 22, .98));
-  box-shadow: inset 3px 0 rgba(48, 208, 248, .58);
+    radial-gradient(circle at 0% 50%, rgba(48, 208, 248, .065), transparent 38%),
+    linear-gradient(180deg, rgba(14, 26, 35, .95), rgba(7, 15, 22, .98));
+  box-shadow: inset 3px 0 rgba(48, 208, 248, .5);
+}
+
+.reminder + section {
+  margin-bottom: 14px;
+  border-radius: 0 0 10px 10px;
 }
 
 .focusLine {
