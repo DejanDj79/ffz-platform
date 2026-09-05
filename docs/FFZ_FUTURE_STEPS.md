@@ -12,6 +12,7 @@ Ovaj dokument je živi handoff/checklist za FFZ Platform. Kada završimo stavku,
 - Brand: **FFZ Platform / Futures From Zero**
 - Positioning: **FFZ is a prop futures trader operating system.**
 - Stack: Next.js 16.3.3, React 19.2, TypeScript 5.9, Tailwind 4.3, Drizzle/PostgreSQL, Zod, Vitest
+- Global app font: **League Spartan**
 
 ---
 
@@ -365,7 +366,8 @@ Implemented:
 - rapid re-entry metric within 15 minutes
 - deterministic Weekly Findings
 - no AI-generated behavioral conclusions in v1
-- no persisted Next Week Focus goals yet
+
+Note: PR #32 itself did not yet persist Next Week Focus goals; that feedback loop was added later in PR #34.
 
 Navigation changes:
 - Risk Calculator, Challenge/Funded and Journal groups are collapsible
@@ -381,78 +383,160 @@ No DB migration was required.
 
 ---
 
-# ACTIVE NEXT ROADMAP ITEM — PR #33 Objective Behavior Signals v1
+## Objective Behavior Signals v1 — DONE
 
-Status: **TODO / NEXT**
-
-Goal: move FFZ from passive statistics toward objective, explainable trader-behavior detection without making psychological claims the data cannot support.
-
-Planned signals:
-- **Rapid Re-entry** — trade entered within a defined short interval after a losing trade; initial reference threshold is 15 minutes
-- **Loss Chase** — repeated additional entries after a loss / first daily loss
-- **Overtrading** — trade count exceeds the trader's configured Trading Guardrail
-- **Daily Loss Limit Pressure** — trader approaches or exceeds their own configured daily loss boundary
-- **Loss Streak** — objective consecutive losing-trade sequence
-- **Plan Breakdown** — Deviated / Unplanned frequency worsens after losses
-- **Emotional deterioration** — compare selected mindset metadata before/after losses without inventing an emotion that was not selected
-- **Risk Escalation** — when reliable initial-risk data exists, detect increased risk after a loss
-
-Presentation principles:
-- show observable facts and numbers, not accusatory labels
-- never automatically call behavior “revenge trading”
-- every signal should be explainable and traceable to the trades that triggered it
-- prefer examples like:
+PR #33 merged commit:
 
 ```text
-RAPID RE-ENTRY
-3 trades were entered within 15 min after a losing trade.
-Average result: -$24.30.
+bdeebea649a5513d1112fc13b22cbb69c4128951
 ```
+
+Goal achieved: move FFZ from passive statistics toward objective, explainable trader-behavior detection without making psychological claims the data cannot support.
+
+Implemented Weekly Review signals:
+- **Rapid Re-entry** — immediate same-day next trade after a loss within 15 minutes
+- **Post-loss Activity** — days with multiple extra trades after the first loss
+- **Loss Streak** — maximum stored consecutive-loss run
+- **Overtrading** — daily trade count above configured `maxTradesPerDay`
+- **Daily Loss Count** — pressure against configured maximum number of losing trades
+- **Plan Breakdown** — immediate post-loss next trade explicitly marked Deviated / Unplanned
+- **Mindset Shift** — explicit selected mindset deterioration after a loss; no invented emotion
+- **Risk Escalation** — immediate post-loss next trade has higher recorded initial risk
+
+Presentation principles implemented:
+- objective facts and counts, not accusatory labels
+- no automatic “revenge trading” label
+- drill-down to concrete triggering trades
+- status tones: clear / watch / warning / unavailable
+- all signals deterministic; no AI and no persistence
+
+Development-only demo mode:
 
 ```text
-LOSS-CHASE PATTERN
-After the first daily loss, you averaged 2.4 additional trades.
-Those trades produced -$86 this week.
+/weekly-review?behaviorDemo=1
 ```
 
-Primary UI location:
-- add **Behavior Signals** to Weekly Review
-- allow drill-down to the concrete trades behind each signal
+- synthetic trades activate all 8 signal categories
+- no DB writes
+- ignored in production
+- used only to visually test the Behavior Signals UI when real data is insufficient
 
-Useful secondary location:
-- surface relevant guardrail/state warnings in Trading Desk where they can help before another trade is taken
-- FFZ should inform and warn; it does not control or block DeepCharts execution
-
-Prefer no schema migration for v1 if all signals can be derived deterministically from existing Journal + Guardrail data.
+No DB migration was required.
 
 ---
 
-## Planned follow-up roadmap
+## Weekly Review: Next Week Focus — DONE / MERGED
 
-### PR #34 — Weekly Review: Next Week Focus
+PR #34 merged commit:
 
-Close the weekly feedback loop by letting the trader define a small number of concrete rules/focus items for the next week.
+```text
+d996311717321390ff8e82969839a721a6c2290d
+```
 
-Examples:
-- max 2 losing trades per day
-- no immediate re-entry after a loss
-- only A-quality setups
+Local visual/function testing: **PASSED**.
 
-Desired future workflow:
+Goal achieved: close the weekly feedback loop:
 
 ```text
 trade -> behavior detected -> weekly insight -> next-week focus -> Trading Desk reminder
 ```
 
-Persisting these goals will probably require a small schema change; define the model before implementation and use a production migration, never `db:push`.
+Implemented:
+- one persisted weekly focus per user/week
+- `Primary Focus`
+- concrete `Rule`
+- `Why It Matters`
+- optional link to an objective Behavior Signal
+- history by Monday week-start key
+- current-week commitment display
+- next-week focus editor
+- completed-week assessment:
+  - `ACHIEVED`
+  - `PARTIAL`
+  - `MISSED`
+- current week remains `ACTIVE` and cannot be assessed until the week is complete
+- focus is personal across FFZ, not tied to a challenge
 
-### PR #35 — Trade Review fullscreen / presentation mode
+Persistence:
+- table: `weekly_focuses`
+- unique per user + week
+- development migration: `drizzle/0006_weekly_focuses.sql`
+- production migration: `drizzle-production/0005_weekly_focuses.sql`
+- additive migration only; no destructive existing-table mutation
+
+Trading Desk integration:
+- active weekly focus is surfaced directly on `/trading-desk`
+- top control area was consolidated into **one 4-column card**
+- final desktop column order:
+  1. date + local/NY time
+  2. Risk State
+  3. This Week's Focus
+  4. Account / Challenge selector + sync
+- no internal borders between the four columns; only the outer card frame
+- the 4-column control card is the first Trading Desk content block
+- Week Focus column remains present even if there is no active focus (`No active focus`)
+- Trading Desk uses the global League Spartan font
+
+### PR #34 production status
+
+**Production deploy still needs explicit confirmation.**
+
+Before production deploy:
+
+```bash
+cd ~/apps/FFZ
+git switch main
+git pull --ff-only origin main
+./scripts/backup-production.sh
+./scripts/deploy-production.sh
+```
+
+The deploy script should apply `drizzle-production/0005_weekly_focuses.sql`.
+
+Never use production `db:push`.
+
+---
+
+# ACTIVE NEXT ROADMAP ITEM — PR #35 Trade Review fullscreen / presentation mode
+
+Status: **TODO / NEXT**
+
+Route:
+
+```text
+/journal/review
+```
 
 Purpose:
 - distraction-free full-trade review
 - stronger screenshot viewing
-- useful for explaining trades during YouTube recording
-- maintain screenshot-first philosophy; do not introduce replay/OHLC/chart-library scope unless separately justified
+- make Trade Review useful while explaining trades during YouTube recording
+- keep the existing screenshot-first review philosophy
+
+V1 scope:
+- add a clear **Fullscreen / Presentation** control in Trade Review
+- hide sidebar, normal page header and non-essential application chrome while presentation mode is active
+- maximize screenshot viewing area
+- keep a compact panel with the most useful trade context visible
+- preserve `Previous / Next` trade navigation
+- `Esc` exits presentation mode
+- keyboard `← / →` navigates previous/next trade when appropriate
+- keep Details / Review / Attachments / Notes accessible, but visually secondary to the screenshot
+- responsive behavior must remain usable on narrower screens
+- useful both for focused self-review and YouTube screen recording
+
+Out of scope for PR #35 unless separately justified:
+- replay engine
+- OHLC data pipeline
+- external chart library
+- chart recreation from screenshots
+- broad editing/workspace redesign
+
+Expected DB status: **no migration**.
+
+---
+
+## Planned follow-up roadmap
 
 ### PR #36 — Creator / YouTube workflow improvements
 
@@ -601,16 +685,19 @@ YouTube:
 - first video planned around 15–20 minutes
 - script in English
 - FFZ/FZ logo: futuristic, minimalist
+- Trade Review presentation mode should be suitable for screen-recorded trade explanations
 
 ---
 
 ## Recommended next order of work
 
-1. **PR #33 — Objective Behavior Signals v1**
-2. **PR #34 — Weekly Review: Next Week Focus**
-3. **PR #35 — Trade Review fullscreen / presentation mode**
-4. **PR #36 — Creator / YouTube workflow improvements**
-5. **Billing pre-launch polish + Live Lemon configuration and smoke tests**
+1. **PR #35 — Trade Review fullscreen / presentation mode**
+2. **PR #36 — Creator / YouTube workflow improvements**
+3. **Billing pre-launch polish + Live Lemon configuration and smoke tests**
+
+Completed immediately before this roadmap position:
+- [x] PR #33 — Objective Behavior Signals v1
+- [x] PR #34 — Weekly Review: Next Week Focus
 
 Keep development driven by real trading usage. Do not add broad surface area just to make the product look larger.
 
