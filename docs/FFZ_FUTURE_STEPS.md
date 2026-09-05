@@ -557,39 +557,79 @@ Validation:
 
 No DB migration was required.
 
-Important product decision after local testing:
-- the PR #36 manual-selection handoff is now considered an interim implementation
-- the actual YouTube workflow is one episode per trading week
-- every `CLOSED` trade present in Journal for that week must appear in the weekly episode
-- no manual inclusion selection and no exclude-from-episode control should exist
-- PR #38 will simplify #36 around this rule
+Important follow-up:
+- PR #36 manual-selection behavior was intentionally superseded by PR #38 after defining the actual channel workflow
+- the product rule is now one episode per trading week with every CLOSED Journal trade included automatically
 
 ---
 
-# ACTIVE NEXT ROADMAP ITEM — PR #38 Weekly Episode auto-build
+## Weekly Episode auto-build — DONE / MERGED
 
-Status: **TODO / NEXT**
+PR #38: **Weekly Episode auto-build**
+
+Merged commit:
+
+```text
+4551e623daad0e6edba0335553240270b0669a18
+```
+
+Goal achieved: align the Creator workflow with the real YouTube format — one complete episode per trading week.
+
+Implemented:
+- Weekly Review exposes one `BUILD WEEKLY EPISODE` action for `CREATOR`
+- exact Monday–Sunday period is carried into Episode Builder
+- every `CLOSED` Journal trade in that week is included automatically
+- trades are shown in chronological order
+- no manual trade-selection UI
+- no maximum-trade cap
+- no `Exclude from episode` behavior
+- Weekly Review sourced episodes are locked to all Journal activity so challenge/account filtering cannot hide trades
+- Episode Builder shows the complete ordered trade list
+- copied Episode Brief includes `TRADES IN ORDER` with every closed trade
+- legacy selection query/helper/tests from PR #36 were removed
+- Creator-only gating remains authoritative and does not consume Founder seats
+- episode data remains generated live from Journal data; no saved-episode DB model was introduced
+
+Validation:
+- `npm test` — PASSED in CI
+- `npm run build` — PASSED in CI
+- local visual/function testing — PASSED by user
+
+No DB migration was required.
+
+---
+
+# ACTIVE NEXT ROADMAP ITEM — Real-world workflow validation
+
+Status: **ACTIVE / OBSERVE BEFORE ADDING MORE FEATURES**
 
 Purpose:
-- make the Creator workflow match the real channel format: one episode per trading week
-- remove unnecessary manual trade curation introduced in PR #36
-- guarantee that the weekly episode represents the complete Journal record for that week
+- use FFZ through a complete real trading week rather than inventing another feature immediately
+- validate the full operating loop with actual trades and actual creator work
+- let the next implementation PR come from proven friction instead of speculative scope
 
-V1 product rules:
-- Weekly Review exposes one clear `BUILD WEEKLY EPISODE` action for `CREATOR`
-- Episode Builder receives the exact selected Monday–Sunday week
-- every `CLOSED` Journal trade whose effective close timestamp falls in that week is included automatically
-- trades are shown in chronological order
-- there is no manual trade-selection UI
-- there is no maximum-trade cap
-- there is no `Exclude from episode` feature
-- if a trade is in Journal and closed in the selected week, it must be in the episode
-- weekly metrics and talking points remain based on the full week
-- Episode brief includes the complete chronological trade list
-- keep Creator-only gating and do not consume Founder seats
-- no saved-episode database model unless a later real workflow requires persistence
+Real-world loop to validate:
 
-Expected DB status: **no migration expected**.
+```text
+Trading Desk
+→ trade execution / Journal
+→ Trade Review
+→ Weekly Review
+→ Next Week Focus
+→ Build Weekly Episode
+→ Trade Review Presentation while recording
+→ Episode Brief / YouTube production
+```
+
+During the next real trading week, note only concrete friction such as:
+- repeated manual work
+- missing data that is genuinely needed for review or recording
+- information shown too late or in the wrong place
+- confusing transitions between Journal, Trade Review, Weekly Review and Episode Builder
+- creator workflow steps that materially slow down recording
+- Public Journey gaps that become obvious from actual audience/channel use
+
+Do **not** create a new feature PR only to keep development moving. Once a real issue is identified, make that the next scoped PR and record it here.
 
 ---
 
@@ -610,10 +650,10 @@ Do not let this blocker stop unrelated product development.
 
 ## Later product work
 
-After PR #38:
-- use the automatic weekly episode flow in real channel work
-- improve Public Journey only from real audience/use feedback
-- iterate Episode Builder only from actual channel workflow friction
+Only after real usage identifies a need:
+- fix proven friction in the automatic weekly episode workflow
+- improve Public Journey from real audience/use feedback
+- iterate Episode Builder from actual channel workflow friction
 - add creator-facing summaries/assets only when they demonstrably save work
 - keep development driven by real trading usage rather than adding surface area for its own sake
 
@@ -652,7 +692,7 @@ Creator-only:
 - Episode Builder
 - Scoreboard
 - Weekly Review -> automatic Weekly Episode handoff
-- future internal creator tooling
+- future internal creator tooling only when justified by real workflow
 
 ---
 
@@ -763,8 +803,8 @@ YouTube:
 
 ## Recommended next order of work
 
-1. **PR #38 — Weekly Episode auto-build (all CLOSED trades, no selection/exclusion)**
-2. **Use the weekly episode workflow in real YouTube production and fix only proven friction**
+1. **Use FFZ through a complete real trading week and attempt the full Weekly Episode / recording workflow**
+2. **Create the next feature/fix PR only from concrete friction discovered in that real usage**
 3. **Resume Billing pre-launch / Founder Live Mode immediately after Lemon store activation**
 
 Completed immediately before this roadmap position:
@@ -772,6 +812,7 @@ Completed immediately before this roadmap position:
 - [x] PR #34 — Weekly Review: Next Week Focus
 - [x] PR #35 — Trade Review fullscreen / presentation mode
 - [x] PR #36 — Build Episode from Weekly Review
+- [x] PR #38 — Weekly Episode auto-build
 
 Keep development driven by real trading usage. Do not add broad surface area just to make the product look larger.
 
