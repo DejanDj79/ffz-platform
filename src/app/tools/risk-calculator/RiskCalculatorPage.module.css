@@ -218,6 +218,11 @@
   font-size: 10.5px;
 }
 
+/* Nine result tiles now form a balanced 3 × 3 matrix instead of a 4 + 4 + 1 grid. */
+.authenticatedCalculator :global(.results-grid) > * {
+  height: 100%;
+}
+
 @media (max-width: 1320px) {
   .authenticatedCalculator :global(.workspace) {
     grid-template-columns: 1fr;
