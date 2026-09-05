@@ -6,6 +6,8 @@ import styles from "./RiskCalculatorPage.module.css";
 export default async function RiskCalculatorPage() {
   const user = await getCurrentUser();
 
+  // Keep the guest calculator standalone. Authenticated users get the same
+  // calculations inside the shared FFZ shell and its page-level polish.
   if (!user) return <PublicRiskCalculator />;
 
   return (
