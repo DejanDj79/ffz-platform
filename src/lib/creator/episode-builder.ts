@@ -1,19 +1,18 @@
 import { listChallenges } from "@/lib/challenges/repository";
 import { listTrades } from "@/lib/journal/repository";
 import { listLedgerEntries } from "@/lib/ledger/repository";
-import { orderSelectedEpisodeTrades } from "./episode-selection";
+import { orderEpisodeTrades } from "./episode-trades";
 
 export type EpisodeBuilderFilters = {
   from: Date;
   to: Date;
   challengeId: string | null;
-  selectedTradeIds: string[];
 };
 
 type EpisodeTrade = Awaited<ReturnType<typeof listTrades>>[number];
 type EpisodeChallenge = Awaited<ReturnType<typeof listChallenges>>[number];
 
-type FeaturedTrade = {
+type EpisodeTradeSummary = {
   id: string;
   instrument: string;
   direction: "LONG" | "SHORT";
@@ -41,8 +40,7 @@ export type EpisodeSnapshot = {
   otherIncome: number;
   realMoneyNet: number;
   topSetup: string | null;
-  featuredTrades: FeaturedTrade[];
-  explicitTradeSelection: boolean;
+  episodeTrades: EpisodeTradeSummary[];
   talkingPoints: string[];
   brief: string;
 };
@@ -82,30 +80,8 @@ function mostCommonSetup(trades: EpisodeTrade[]) {
   return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
 }
 
-function automaticFeaturedTrades(trades: EpisodeTrade[]): FeaturedTrade[] {
-  const withPnl = trades
-    .filter((trade) => trade.netPnl != null)
-    .sort((a, b) => (b.netPnl ?? 0) - (a.netPnl ?? 0));
-
-  if (withPnl.length === 0) return [];
-
-  const picks: Array<{ trade: EpisodeTrade; label: string }> = [
-    { trade: withPnl[0], label: "BEST TRADE" },
-  ];
-
-  if (withPnl.length > 1) {
-    picks.push({ trade: withPnl[withPnl.length - 1], label: "WORST TRADE" });
-  }
-
-  const biggestR = [...withPnl]
-    .filter((trade) => trade.rMultiple != null)
-    .sort((a, b) => Math.abs(b.rMultiple ?? 0) - Math.abs(a.rMultiple ?? 0))[0];
-
-  if (biggestR && !picks.some(({ trade }) => trade.id === biggestR.id)) {
-    picks.push({ trade: biggestR, label: "BIGGEST R MOVE" });
-  }
-
-  return picks.slice(0, 3).map(({ trade, label }) => ({
+function episodeTradeSummaries(trades: EpisodeTrade[]): EpisodeTradeSummary[] {
+  return orderEpisodeTrades(trades).map((trade, index) => ({
     id: trade.id,
     instrument: trade.instrument,
     direction: trade.direction,
@@ -113,30 +89,14 @@ function automaticFeaturedTrades(trades: EpisodeTrade[]): FeaturedTrade[] {
     netPnl: trade.netPnl ?? 0,
     rMultiple: trade.rMultiple,
     setup: trade.setup,
-    label,
+    label: `TRADE ${index + 1}`,
   }));
 }
 
-function selectedFeaturedTrades(
-  trades: EpisodeTrade[],
-  selectedTradeIds: string[],
-): FeaturedTrade[] {
-  return orderSelectedEpisodeTrades(trades, selectedTradeIds).map((trade, index) => ({
-    id: trade.id,
-    instrument: trade.instrument,
-    direction: trade.direction,
-    closedAt: trade.closedAt,
-    netPnl: trade.netPnl ?? 0,
-    rMultiple: trade.rMultiple,
-    setup: trade.setup,
-    label: `SELECTED TRADE ${index + 1}`,
-  }));
-}
-
-function selectedTradeBriefLine(trade: FeaturedTrade) {
+function tradeBriefLine(trade: EpisodeTradeSummary) {
   const setup = trade.setup ? ` · ${trade.setup}` : "";
   const rMultiple = trade.rMultiple == null ? "" : ` · ${trade.rMultiple.toFixed(2)}R`;
-  return `- ${trade.instrument} ${trade.direction} · ${money(trade.netPnl)}${rMultiple}${setup}`;
+  return `- ${trade.label}: ${trade.instrument} ${trade.direction} · ${money(trade.netPnl)}${rMultiple}${setup}`;
 }
 
 export async function buildEpisodeSnapshot(
@@ -189,11 +149,13 @@ export async function buildEpisodeSnapshot(
     .reduce((sum, entry) => sum + entry.amount, 0);
   const realMoneyNet = payouts + otherIncome - costs;
   const topSetup = mostCommonSetup(trades);
-  const automaticFeatured = automaticFeaturedTrades(trades);
-  const explicitTradeSelection = filters.selectedTradeIds.length > 0;
-  const featured = explicitTradeSelection
-    ? selectedFeaturedTrades(trades, filters.selectedTradeIds)
-    : automaticFeatured;
+  const episodeTrades = episodeTradeSummaries(trades);
+
+  const rankedByPnl = [...trades]
+    .filter((trade) => trade.netPnl != null)
+    .sort((a, b) => (b.netPnl ?? 0) - (a.netPnl ?? 0));
+  const bestTrade = rankedByPnl[0] ?? null;
+  const worstTrade = rankedByPnl.length > 1 ? rankedByPnl[rankedByPnl.length - 1] : null;
 
   const talkingPoints: string[] = [];
   if (trades.length === 0) {
@@ -202,9 +164,8 @@ export async function buildEpisodeSnapshot(
     talkingPoints.push(`${trades.length} closed trades produced ${money(netPnl)} net P&L with a ${percent(winRate)} win rate.`);
     if (averageR != null) talkingPoints.push(`Average result was ${averageR.toFixed(2)}R across trades with recorded risk.`);
     if (topSetup) talkingPoints.push(`${topSetup} was the most-used setup in this period.`);
-    if (automaticFeatured[0]) talkingPoints.push(`Best trade: ${automaticFeatured[0].instrument} ${automaticFeatured[0].direction} for ${money(automaticFeatured[0].netPnl)}.`);
-    const worst = automaticFeatured.find((trade) => trade.label === "WORST TRADE");
-    if (worst) talkingPoints.push(`Trade worth reviewing: ${worst.instrument} ${worst.direction} for ${money(worst.netPnl)}.`);
+    if (bestTrade) talkingPoints.push(`Best trade: ${bestTrade.instrument} ${bestTrade.direction} for ${money(bestTrade.netPnl ?? 0)}.`);
+    if (worstTrade) talkingPoints.push(`Trade worth reviewing: ${worstTrade.instrument} ${worstTrade.direction} for ${money(worstTrade.netPnl ?? 0)}.`);
   }
 
   if (costs > 0 || payouts > 0 || otherIncome > 0) {
@@ -223,16 +184,6 @@ export async function buildEpisodeSnapshot(
     ? `${challenge.propFirm} — ${challenge.name}`
     : "All FFZ trading activity";
 
-  const selectionLines = explicitTradeSelection
-    ? [
-        "",
-        "SELECTED TRADES",
-        ...(featured.length > 0
-          ? featured.map(selectedTradeBriefLine)
-          : ["- No selected trades matched the current period / account filter."]),
-      ]
-    : [];
-
   const brief = [
     "FFZ EPISODE BRIEF",
     `${dateLabel(filters.from)} → ${dateLabel(filters.to)}`,
@@ -250,7 +201,11 @@ export async function buildEpisodeSnapshot(
     "",
     "TALKING POINTS",
     ...talkingPoints.map((point) => `- ${point}`),
-    ...selectionLines,
+    "",
+    "TRADES IN ORDER",
+    ...(episodeTrades.length > 0
+      ? episodeTrades.map(tradeBriefLine)
+      : ["- No closed trades in this period."]),
   ].filter((line): line is string => line != null).join("\n");
 
   return {
@@ -270,8 +225,7 @@ export async function buildEpisodeSnapshot(
     otherIncome,
     realMoneyNet,
     topSetup,
-    featuredTrades: featured,
-    explicitTradeSelection,
+    episodeTrades,
     talkingPoints,
     brief,
   };

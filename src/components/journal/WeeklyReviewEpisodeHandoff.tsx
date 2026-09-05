@@ -1,8 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { MAX_EPISODE_TRADE_SELECTION } from "@/lib/creator/episode-selection";
 import type { TradeApiModel } from "@/lib/journal/types";
 import styles from "./WeeklyReviewEpisodeHandoff.module.css";
 
@@ -33,21 +31,6 @@ function tradeDateLabel(trade: TradeApiModel) {
   });
 }
 
-function defaultTradeIds(trades: TradeApiModel[]) {
-  if (trades.length === 0) return [];
-
-  const ranked = trades
-    .filter((trade) => trade.netPnl != null)
-    .sort((a, b) => (b.netPnl ?? 0) - (a.netPnl ?? 0));
-
-  if (ranked.length === 0) return trades.slice(0, 2).map((trade) => trade.id);
-
-  const ids = [ranked[0].id];
-  const worst = ranked[ranked.length - 1];
-  if (worst.id !== ranked[0].id) ids.push(worst.id);
-  return ids;
-}
-
 function pnlClass(value: number | null) {
   if (value == null || value === 0) return styles.neutral;
   return value > 0 ? styles.positive : styles.negative;
@@ -62,92 +45,64 @@ export function WeeklyReviewEpisodeHandoff({
   weekStart: Date;
   weekEnd: Date;
 }) {
-  const [selectedTradeIds, setSelectedTradeIds] = useState<string[]>(() => defaultTradeIds(trades));
-  const selectedSet = useMemo(() => new Set(selectedTradeIds), [selectedTradeIds]);
-
-  const episodeHref = useMemo(() => {
-    if (selectedTradeIds.length === 0) return null;
-
-    const inclusiveWeekEnd = new Date(weekEnd.getTime() - 1);
-    const params = new URLSearchParams({
-      from: localDateInputValue(weekStart),
-      to: localDateInputValue(inclusiveWeekEnd),
-      trades: selectedTradeIds.join(","),
-      source: "weekly-review",
-    });
-
-    return `/creator/episodes?${params.toString()}`;
-  }, [selectedTradeIds, weekEnd, weekStart]);
-
-  function toggleTrade(tradeId: string) {
-    setSelectedTradeIds((current) => {
-      if (current.includes(tradeId)) {
-        return current.filter((id) => id !== tradeId);
-      }
-      if (current.length >= MAX_EPISODE_TRADE_SELECTION) return current;
-      return [...current, tradeId];
-    });
-  }
+  const orderedTrades = [...trades].sort(
+    (a, b) => tradeTimestamp(a).getTime() - tradeTimestamp(b).getTime(),
+  );
+  const inclusiveWeekEnd = new Date(weekEnd.getTime() - 1);
+  const params = new URLSearchParams({
+    from: localDateInputValue(weekStart),
+    to: localDateInputValue(inclusiveWeekEnd),
+    source: "weekly-review",
+  });
+  const episodeHref = `/creator/episodes?${params.toString()}`;
 
   return (
     <section className={styles.panel} aria-label="Build creator episode from Weekly Review">
       <header className={styles.header}>
         <div>
-          <span>CREATOR · EPISODE HANDOFF</span>
-          <strong>Build episode from this week</strong>
+          <span>CREATOR · WEEKLY EPISODE</span>
+          <strong>Build this week&apos;s episode</strong>
           <small>
-            Pick the trades you want to explain. FFZ carries this week and your selection into Episode Builder.
+            Every CLOSED Journal trade from this Monday–Sunday period is included automatically, in chronological order.
           </small>
         </div>
-        <div className={styles.selectionCount}>
-          <strong>{selectedTradeIds.length}</strong>
-          <span>/ {MAX_EPISODE_TRADE_SELECTION} SELECTED</span>
+        <div className={styles.tradeCount}>
+          <strong>{orderedTrades.length}</strong>
+          <span>CLOSED TRADES</span>
         </div>
       </header>
 
-      {trades.length === 0 ? (
-        <div className={styles.empty}>No closed trades in this week to send to Episode Builder.</div>
+      {orderedTrades.length === 0 ? (
+        <div className={styles.empty}>No closed trades in this week yet.</div>
       ) : (
         <div className={styles.tradeGrid}>
-          {trades.map((trade) => {
-            const selected = selectedSet.has(trade.id);
-            const limitReached = !selected && selectedTradeIds.length >= MAX_EPISODE_TRADE_SELECTION;
-
-            return (
-              <button
-                key={trade.id}
-                type="button"
-                className={`${styles.tradeCard} ${selected ? styles.selected : ""}`}
-                onClick={() => toggleTrade(trade.id)}
-                aria-pressed={selected}
-                disabled={limitReached}
-              >
-                <span className={styles.check}>{selected ? "✓" : ""}</span>
-                <span className={styles.tradeIdentity}>
-                  <strong>{trade.instrument} · {trade.direction}</strong>
-                  <small>{tradeDateLabel(trade)}</small>
-                  <small>{trade.setup || "No setup"}{trade.rMultiple == null ? "" : ` · ${trade.rMultiple.toFixed(2)}R`}</small>
-                </span>
-                <b className={pnlClass(trade.netPnl)}>
-                  {trade.netPnl == null ? "—" : money.format(trade.netPnl)}
-                </b>
-              </button>
-            );
-          })}
+          {orderedTrades.map((trade, index) => (
+            <div className={styles.tradeCard} key={trade.id}>
+              <span className={styles.tradeNumber}>{index + 1}</span>
+              <span className={styles.tradeIdentity}>
+                <strong>{trade.instrument} · {trade.direction}</strong>
+                <small>{tradeDateLabel(trade)}</small>
+                <small>{trade.setup || "No setup"}{trade.rMultiple == null ? "" : ` · ${trade.rMultiple.toFixed(2)}R`}</small>
+              </span>
+              <b className={pnlClass(trade.netPnl)}>
+                {trade.netPnl == null ? "—" : money.format(trade.netPnl)}
+              </b>
+            </div>
+          ))}
         </div>
       )}
 
       <footer className={styles.footer}>
         <p>
-          Weekly metrics stay based on the full week; only the review queue is curated by your selected trades.
+          Weekly episodes are complete by design: trades cannot be manually added, removed or excluded.
         </p>
-        {episodeHref ? (
+        {orderedTrades.length > 0 ? (
           <Link className={styles.openButton} href={episodeHref}>
-            OPEN IN EPISODE BUILDER →
+            BUILD WEEKLY EPISODE →
           </Link>
         ) : (
           <span className={`${styles.openButton} ${styles.disabledButton}`} aria-disabled="true">
-            SELECT AT LEAST ONE TRADE
+            NO CLOSED TRADES YET
           </span>
         )}
       </footer>
