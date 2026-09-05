@@ -562,11 +562,11 @@ Important product decision after local testing:
 - the actual YouTube workflow is one episode per trading week
 - every `CLOSED` trade present in Journal for that week must appear in the weekly episode
 - no manual inclusion selection and no exclude-from-episode control should exist
-- PR #37 will simplify #36 around this rule
+- PR #38 will simplify #36 around this rule
 
 ---
 
-# ACTIVE NEXT ROADMAP ITEM — PR #37 Weekly Episode auto-build
+# ACTIVE NEXT ROADMAP ITEM — PR #38 Weekly Episode auto-build
 
 Status: **TODO / NEXT**
 
@@ -610,7 +610,7 @@ Do not let this blocker stop unrelated product development.
 
 ## Later product work
 
-After PR #37:
+After PR #38:
 - use the automatic weekly episode flow in real channel work
 - improve Public Journey only from real audience/use feedback
 - iterate Episode Builder only from actual channel workflow friction
@@ -763,7 +763,7 @@ YouTube:
 
 ## Recommended next order of work
 
-1. **PR #37 — Weekly Episode auto-build (all CLOSED trades, no selection/exclusion)**
+1. **PR #38 — Weekly Episode auto-build (all CLOSED trades, no selection/exclusion)**
 2. **Use the weekly episode workflow in real YouTube production and fix only proven friction**
 3. **Resume Billing pre-launch / Founder Live Mode immediately after Lemon store activation**
 
