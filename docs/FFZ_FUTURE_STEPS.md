@@ -1,6 +1,6 @@
 # FFZ Platform — Future Steps / Handoff
 
-_Last updated: 2026-09-04_
+_Last updated: 2026-09-05_
 
 Ovaj dokument je živi handoff/checklist za FFZ Platform. Kada završimo stavku, ažurirati je ovde i označiti kao završenu.
 
@@ -263,31 +263,215 @@ Do not turn these into commercial PRO features.
 
 ---
 
-# ACTIVE NEXT ROADMAP ITEM — Real-usage improvements / Psychology Analytics
+## Psychology / Discipline foundation — DONE
 
-Status: **IN PROGRESS**
+Completed through PR #28 and PR #29.
 
-The platform now has the core operating system, monetization foundation, private Prop Journey and public journey. The next development should be driven by actual trading usage rather than adding broad surface area.
+Merged commits:
 
-Recommended first direction:
-- psychology / discipline analytics from Journal data
-- identify repeated rule violations and emotional patterns
-- performance before/after loss streaks
-- revenge-trading / overtrading signals
-- quality of planned vs unplanned trades
-- adherence to daily risk limits
-- actionable weekly review insights rather than generic stats
+```text
+PR #28  2e7740354fcb4845869df13c7b4ce86ccc17e72d
+PR #29  a4a2c2b5112943a956e5156c23af1964fb0c4c21
+```
 
-First data-foundation step:
-- preserve durable `FFZ:planned` provenance when a Planned Trade is started, so planned-vs-other performance can accumulate from real usage
+Implemented:
+- deterministic execution metadata: On Plan / Deviated / Unplanned
+- deterministic mindset metadata: Calm / Focused / FOMO / Revenge / Fear / Frustrated / Tired
+- durable `FFZ:planned` provenance when a Planned Trade is started
+- discipline analytics and reserved-tag handling
+- reserved metadata is kept separate from user-facing tags
+- psychology/discipline data is available for later behavior analysis
 
-Also useful after real data starts accumulating:
-- deeper Journal insights
-- Public Journey enhancements
-- Creator Episode Builder improvements based on actual YouTube workflow
-- YouTube explainer/content integration
+Important rule:
+- never infer **Revenge** unless the trader explicitly selected Revenge
+- objective behavior signals may indicate rapid re-entry, loss chasing or overtrading, but should not label those as revenge trading automatically
 
-Do not overbuild this before real trading data exists.
+---
+
+## Trade Review — DONE
+
+PR #30 merged commit:
+
+```text
+9f38fa0eb9233f2f2001bd6f59b30ac8eebfcd8a
+```
+
+Route:
+
+```text
+/journal/review
+```
+
+Implemented:
+- screenshot-first closed-trade review viewer
+- instrument filtering and previous/next trade navigation
+- screenshot attachment selection
+- Details / Review / Attachments / Notes tabs
+- execution, mindset and planned-origin review metadata
+- TradeZella-inspired details layout without cloning TradeZella
+- responsive review layout
+
+The screenshot + review panel remain the primary above-the-fold experience.
+
+---
+
+## Trade Review Performance + FFZ Score — DONE
+
+PR #31 merged commit:
+
+```text
+f36bc92bf9555a13a95f96652e51a1cbf95b73d7
+```
+
+Implemented below the primary Trade Review block:
+- Day / Week / Month performance periods
+- Net P&L
+- Profit Factor
+- Win Rate
+- trade count
+- cumulative P&L charts
+- daily/trade P&L charts
+- deterministic FFZ Score `0–100`
+- FFZ Score breakdown: Performance / Risk / Consistency / Discipline
+- small-sample confidence damping toward neutral 50 before 10 closed trades
+- four-axis FFZ radar/spider visualization
+
+FFZ Score formula is original and transparent; do not copy proprietary Zella Score logic.
+
+---
+
+## Weekly Review + collapsible navigation — DONE
+
+PR #32 merged commit:
+
+```text
+a70242171eb42dc8cad5ce605561cec9b9ddbab4
+```
+
+Route:
+
+```text
+/weekly-review
+```
+
+Implemented:
+- Weekly Review as a visible top-level TRACKING item, not hidden under Journal
+- Monday–Sunday week navigation
+- weekly scorecard: Net P&L, FFZ Score, Profit Factor, Win Rate, Trades, Avg R, Max Drawdown
+- daily net P&L
+- best/worst day, best setup and planned-origin highlights
+- Execution / Mindset / Trade Origin breakdowns
+- objective post-loss behavior metrics
+- rapid re-entry metric within 15 minutes
+- deterministic Weekly Findings
+- no AI-generated behavioral conclusions in v1
+- no persisted Next Week Focus goals yet
+
+Navigation changes:
+- Risk Calculator, Challenge/Funded and Journal groups are collapsible
+- parent labels remain navigable
+- active group auto-opens on route changes
+- Weekly Review remains a separate top-level item
+
+Global UI typography finalized during this PR:
+- League Spartan is the application-wide font
+- existing application font sizes were increased by approximately 2 px for readability
+
+No DB migration was required.
+
+---
+
+# ACTIVE NEXT ROADMAP ITEM — PR #33 Objective Behavior Signals v1
+
+Status: **TODO / NEXT**
+
+Goal: move FFZ from passive statistics toward objective, explainable trader-behavior detection without making psychological claims the data cannot support.
+
+Planned signals:
+- **Rapid Re-entry** — trade entered within a defined short interval after a losing trade; initial reference threshold is 15 minutes
+- **Loss Chase** — repeated additional entries after a loss / first daily loss
+- **Overtrading** — trade count exceeds the trader's configured Trading Guardrail
+- **Daily Loss Limit Pressure** — trader approaches or exceeds their own configured daily loss boundary
+- **Loss Streak** — objective consecutive losing-trade sequence
+- **Plan Breakdown** — Deviated / Unplanned frequency worsens after losses
+- **Emotional deterioration** — compare selected mindset metadata before/after losses without inventing an emotion that was not selected
+- **Risk Escalation** — when reliable initial-risk data exists, detect increased risk after a loss
+
+Presentation principles:
+- show observable facts and numbers, not accusatory labels
+- never automatically call behavior “revenge trading”
+- every signal should be explainable and traceable to the trades that triggered it
+- prefer examples like:
+
+```text
+RAPID RE-ENTRY
+3 trades were entered within 15 min after a losing trade.
+Average result: -$24.30.
+```
+
+```text
+LOSS-CHASE PATTERN
+After the first daily loss, you averaged 2.4 additional trades.
+Those trades produced -$86 this week.
+```
+
+Primary UI location:
+- add **Behavior Signals** to Weekly Review
+- allow drill-down to the concrete trades behind each signal
+
+Useful secondary location:
+- surface relevant guardrail/state warnings in Trading Desk where they can help before another trade is taken
+- FFZ should inform and warn; it does not control or block DeepCharts execution
+
+Prefer no schema migration for v1 if all signals can be derived deterministically from existing Journal + Guardrail data.
+
+---
+
+## Planned follow-up roadmap
+
+### PR #34 — Weekly Review: Next Week Focus
+
+Close the weekly feedback loop by letting the trader define a small number of concrete rules/focus items for the next week.
+
+Examples:
+- max 2 losing trades per day
+- no immediate re-entry after a loss
+- only A-quality setups
+
+Desired future workflow:
+
+```text
+trade -> behavior detected -> weekly insight -> next-week focus -> Trading Desk reminder
+```
+
+Persisting these goals will probably require a small schema change; define the model before implementation and use a production migration, never `db:push`.
+
+### PR #35 — Trade Review fullscreen / presentation mode
+
+Purpose:
+- distraction-free full-trade review
+- stronger screenshot viewing
+- useful for explaining trades during YouTube recording
+- maintain screenshot-first philosophy; do not introduce replay/OHLC/chart-library scope unless separately justified
+
+### PR #36 — Creator / YouTube workflow improvements
+
+Iterate based on actual channel usage:
+- Episode Builder improvements
+- tighter handoff from reviewed trades / Weekly Review into episode planning
+- creator-facing summaries or explainer assets where they genuinely save work
+- improve Public Journey only from real audience/use feedback
+
+Creator-only tooling remains Creator-only and should not consume Founder seats.
+
+### After PR #36 — Billing pre-launch polish
+
+Return to the existing Founder Live Mode / billing launch checklist:
+- Founder activation UX
+- Live Lemon variant/configuration
+- production webhook verification
+- complete billing smoke-test matrix
+- final upgrade copy and SOLD OUT behavior
 
 ---
 
@@ -422,11 +606,13 @@ YouTube:
 
 ## Recommended next order of work
 
-1. Start real trading usage and let real data accumulate.
-2. Preserve and extend reliable discipline metadata as actual usage exposes what is useful.
-3. Build psychology/discipline analytics from actual Journal behavior.
-4. Iterate Public Journey and Creator Episode workflow based on real use.
-5. Before public billing launch return to Founder success UX + Live Lemon configuration + billing smoke tests.
+1. **PR #33 — Objective Behavior Signals v1**
+2. **PR #34 — Weekly Review: Next Week Focus**
+3. **PR #35 — Trade Review fullscreen / presentation mode**
+4. **PR #36 — Creator / YouTube workflow improvements**
+5. **Billing pre-launch polish + Live Lemon configuration and smoke tests**
+
+Keep development driven by real trading usage. Do not add broad surface area just to make the product look larger.
 
 ---
 
