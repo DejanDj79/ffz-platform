@@ -1,6 +1,7 @@
 import { listChallenges } from "@/lib/challenges/repository";
 import { listTrades } from "@/lib/journal/repository";
 import { listLedgerEntries } from "@/lib/ledger/repository";
+import { orderEpisodeTrades } from "./episode-trades";
 
 export type EpisodeBuilderFilters = {
   from: Date;
@@ -50,10 +51,6 @@ function inRange(value: string | null, from: Date, to: Date) {
   return time >= from.getTime() && time <= to.getTime();
 }
 
-function tradeTimestamp(trade: EpisodeTrade) {
-  return new Date(trade.closedAt ?? trade.openedAt).getTime();
-}
-
 function money(value: number) {
   const sign = value > 0 ? "+" : value < 0 ? "-" : "";
   return `${sign}$${Math.abs(value).toFixed(2)}`;
@@ -84,18 +81,16 @@ function mostCommonSetup(trades: EpisodeTrade[]) {
 }
 
 function episodeTradeSummaries(trades: EpisodeTrade[]): EpisodeTradeSummary[] {
-  return [...trades]
-    .sort((a, b) => tradeTimestamp(a) - tradeTimestamp(b))
-    .map((trade, index) => ({
-      id: trade.id,
-      instrument: trade.instrument,
-      direction: trade.direction,
-      closedAt: trade.closedAt,
-      netPnl: trade.netPnl ?? 0,
-      rMultiple: trade.rMultiple,
-      setup: trade.setup,
-      label: `TRADE ${index + 1}`,
-    }));
+  return orderEpisodeTrades(trades).map((trade, index) => ({
+    id: trade.id,
+    instrument: trade.instrument,
+    direction: trade.direction,
+    closedAt: trade.closedAt,
+    netPnl: trade.netPnl ?? 0,
+    rMultiple: trade.rMultiple,
+    setup: trade.setup,
+    label: `TRADE ${index + 1}`,
+  }));
 }
 
 function tradeBriefLine(trade: EpisodeTradeSummary) {
