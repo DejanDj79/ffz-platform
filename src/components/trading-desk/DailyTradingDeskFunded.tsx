@@ -249,19 +249,13 @@ export function DailyTradingDeskFunded() {
     <main className={styles.page}>
       {error && <div className={styles.errorBanner}><span>{error}</span><button type="button" onClick={() => void load(true)}>Retry</button></div>}
 
-      <section className={styles.monitorHeader}>
-        <div className={styles.monitorIdentity}>
-          <span className={styles.eyebrow}>LIVE RISK MONITOR</span>
-          <strong>{now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}</strong>
-          <small>
-            Local {now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}<i>·</i>
-            NY {new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit", second: "2-digit" }).format(now)}
-          </small>
-        </div>
-
-        <div className={styles.headerControls}>
+      <section className={styles.sessionControlGrid}>
+        <div className={`${styles.controlCell} ${styles.accountCell}`}>
           <label className={styles.accountPicker}>
-            <span>ACCOUNT / CHALLENGE</span>
+            <div className={styles.controlLabelRow}>
+              <span>ACCOUNT / CHALLENGE</span>
+              <small>{lastSyncedAt ? `Synced ${formatTime(lastSyncedAt)}` : "Waiting for data"}</small>
+            </div>
             <select value={settings.accountId} onChange={(event) => updateSettings("accountId", event.target.value)}>
               {!settings.accountId && <option value="">Loading account…</option>}
               <option value="ALL">All Journal accounts</option>
@@ -269,65 +263,51 @@ export function DailyTradingDeskFunded() {
               {challenges.map((challenge) => <option key={challenge.id} value={challenge.id}>{challenge.name} · {challenge.status.replaceAll("_", " ")}</option>)}
             </select>
           </label>
-
-          <div className={styles.syncBlock}>
-            <small>{lastSyncedAt ? `Synced ${formatTime(lastSyncedAt)}` : "Waiting for data"}</small>
-            <button type="button" onClick={() => void load(true)} disabled={refreshing}>{refreshing ? "SYNCING…" : "SYNC DATA"}</button>
+          <div className={styles.sessionMeta}>
+            <div>
+              <strong>{now.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}</strong>
+              <small>
+                Local {now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} · NY {new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" }).format(now)}
+              </small>
+            </div>
+            <button type="button" onClick={() => void load(true)} disabled={refreshing}>{refreshing ? "SYNCING…" : "SYNC"}</button>
           </div>
         </div>
-      </section>
 
-      <WeeklyFocusReminder />
-
-      <section className={`${styles.guardrailBanner} ${statusClass}`}>
-        <div>
-          <span>RISK STATE</span>
+        <div className={`${styles.controlCell} ${styles.riskCell} ${statusClass}`}>
+          <span className={styles.controlEyebrow}>RISK STATE</span>
           <strong>{guardrails.status === "STOP" ? "STOP TRADING" : guardrails.status === "CAUTION" ? "CAUTION — PROTECT THE DAY" : "INSIDE DAILY RISK LIMITS"}</strong>
+          <small>{guardrails.reasons[0]}</small>
         </div>
-        <p>{guardrails.reasons[0]}</p>
+
+        <div className={styles.focusSlot}>
+          <WeeklyFocusReminder />
+        </div>
+
+        <div className={`${styles.controlCell} ${styles.capacityCell}`}>
+          <span className={styles.controlEyebrow}>TRADING CAPACITY</span>
+          <div className={styles.capacityMetrics}>
+            <div>
+              <strong className={guardrails.remainingLossSlots === 0 ? styles.negative : ""}>{guardrails.remainingLossSlots}</strong>
+              <small>LOSS SLOTS LEFT</small>
+            </div>
+            <div>
+              <strong>{money.format(guardrails.grossLossRemaining)}</strong>
+              <small>LOSS BUDGET LEFT</small>
+            </div>
+          </div>
+          <small>{settings.maxLosingTrades} planned losses × {money.format(settings.maxRiskPerTrade)} max risk</small>
+        </div>
       </section>
 
       <section className={styles.kpiGrid}>
         <article className={styles.kpiCard}><span>TODAY P&amp;L</span><strong className={daySummary.netPnl > 0 ? styles.positive : daySummary.netPnl < 0 ? styles.negative : ""}>{signedMoney(daySummary.netPnl)}</strong><small>Closed Journal trades</small></article>
         <article className={styles.kpiCard}><span>TRADES TODAY</span><strong>{daySummary.totalTrades}</strong><small>{daySummary.closedTrades} closed · {daySummary.openTrades} open</small></article>
-        <article className={styles.kpiCard}><span>LOSING TRADES</span><strong className={daySummary.losses >= settings.maxLosingTrades ? styles.negative : ""}>{daySummary.losses} / {settings.maxLosingTrades}</strong><small>{guardrails.remainingLossSlots} loss slot{guardrails.remainingLossSlots === 1 ? "" : "s"} remaining</small></article>
-        <article className={styles.kpiCard}><span>LOSS BUDGET</span><strong>{money.format(guardrails.grossLossRemaining)}</strong><small>{money.format(daySummary.grossLoss)} used of {money.format(guardrails.maxPlannedLoss)}</small></article>
         <article className={styles.kpiCard}><span>REMAINING DD</span><strong>{challengeMetrics ? money.format(challengeMetrics.remainingDrawdown) : "—"}</strong><small>{selectedChallenge ? selectedChallenge.name : "No single challenge selected"}</small></article>
         <article className={styles.kpiCard}><span>{fundedSummary?.isFunded ? "PAYOUT STATUS" : "DAILY LOSS BUFFER"}</span><strong>{fundedSummary?.isFunded ? (fundedSummary.eligible ? "ELIGIBLE" : `${fundedSummary.readinessPct}%`) : (challengeDailyLossRemaining == null ? "NO RULE" : money.format(challengeDailyLossRemaining))}</strong><small>{fundedSummary?.isFunded ? `${money.format(fundedSummary.estimatedTraderPayout)} est. take-home` : (selectedChallenge?.dailyLossLimit ? `${money.format(selectedChallenge.dailyLossLimit)} firm limit` : "No firm daily-loss rule")}</small></article>
       </section>
 
       <section className={styles.workspace}>
-        <div className={styles.leftColumn}>
-          <article className={styles.panel}>
-            <header className={styles.panelHeader}><div><span>TODAY AT A GLANCE</span><small>Automatically derived from Journal trades for the selected account.</small></div></header>
-            <div className={styles.todayBody}>
-              <div className={styles.outcomeGrid}>
-                <div><span>WINS</span><strong className={styles.positive}>{daySummary.wins}</strong></div>
-                <div><span>LOSSES</span><strong className={styles.negative}>{daySummary.losses}</strong></div>
-                <div><span>BREAKEVEN</span><strong>{daySummary.breakeven}</strong></div>
-                <div><span>OPEN</span><strong>{daySummary.openTrades}</strong></div>
-              </div>
-              <div className={styles.instrumentSection}>
-                <span>INSTRUMENTS TRADED TODAY</span>
-                <div className={styles.instrumentChips}>
-                  {tradedInstruments.length === 0 && <small>No trades recorded today.</small>}
-                  {tradedInstruments.map(([instrument, count]) => <b key={instrument}>{instrument}<i>{count}</i></b>)}
-                </div>
-              </div>
-              <div className={styles.quickLinks}><Link href="/journal">Open Journal</Link><Link href="/tools/risk-calculator">Risk Calculator</Link><Link href="/economic-calendar">Full Calendar</Link></div>
-            </div>
-          </article>
-
-          <article className={`${styles.panel} ${styles.compactPanel}`}>
-            <header className={styles.panelHeader}><div><span>PERSONAL RISK RULES</span><small>Set these once. They stay saved and are applied automatically every day.</small></div></header>
-            <div className={styles.rulesBody}>
-              <label><span>MAX RISK / TRADE</span><div className={styles.moneyField}><b>$</b><input type="number" min="0" step="10" value={settings.maxRiskPerTrade} onChange={(event) => updateSettings("maxRiskPerTrade", Math.max(0, Number(event.target.value) || 0))} /></div></label>
-              <label><span>MAX LOSING TRADES / DAY</span><input type="number" min="1" max="10" step="1" value={settings.maxLosingTrades} onChange={(event) => updateSettings("maxLosingTrades", Math.max(1, Math.floor(Number(event.target.value) || 1)))} /></label>
-              <div className={styles.ruleSummary}><span>PLANNED DAILY LOSS BUDGET</span><strong>{money.format(settings.maxRiskPerTrade * settings.maxLosingTrades)}</strong><small>{settings.maxLosingTrades} × {money.format(settings.maxRiskPerTrade)}</small></div>
-            </div>
-          </article>
-        </div>
-
         <div className={styles.rightColumn}>
           <article className={styles.panel}>
             <header className={styles.panelHeader}><div><span>{fundedSummary?.isFunded ? "FUNDED PROTECTION" : "CHALLENGE PROTECTION"}</span><small>Current prop-firm limits for the selected account.</small></div></header>
@@ -353,6 +333,37 @@ export function DailyTradingDeskFunded() {
                   <span>{countdownLabel(nextHighEvent.date, now)}</span>
                 </div>
               )}
+            </div>
+          </article>
+        </div>
+
+        <div className={styles.leftColumn}>
+          <article className={styles.panel}>
+            <header className={styles.panelHeader}><div><span>TODAY AT A GLANCE</span><small>Secondary session detail from Journal trades for the selected account.</small></div></header>
+            <div className={styles.todayBody}>
+              <div className={styles.outcomeGrid}>
+                <div><span>WINS</span><strong className={styles.positive}>{daySummary.wins}</strong></div>
+                <div><span>LOSSES</span><strong className={styles.negative}>{daySummary.losses}</strong></div>
+                <div><span>BREAKEVEN</span><strong>{daySummary.breakeven}</strong></div>
+                <div><span>OPEN</span><strong>{daySummary.openTrades}</strong></div>
+              </div>
+              <div className={styles.instrumentSection}>
+                <span>INSTRUMENTS TRADED TODAY</span>
+                <div className={styles.instrumentChips}>
+                  {tradedInstruments.length === 0 && <small>No trades recorded today.</small>}
+                  {tradedInstruments.map(([instrument, count]) => <b key={instrument}>{instrument}<i>{count}</i></b>)}
+                </div>
+              </div>
+              <div className={styles.quickLinks}><Link href="/journal">Open Journal</Link><Link href="/tools/risk-calculator">Risk Calculator</Link><Link href="/economic-calendar">Full Calendar</Link></div>
+            </div>
+          </article>
+
+          <article className={`${styles.panel} ${styles.compactPanel}`}>
+            <header className={styles.panelHeader}><div><span>PERSONAL RISK RULES</span><small>Set these once. Trading Capacity and Risk State use them automatically every day.</small></div></header>
+            <div className={styles.rulesBody}>
+              <label><span>MAX RISK / TRADE</span><div className={styles.moneyField}><b>$</b><input type="number" min="0" step="10" value={settings.maxRiskPerTrade} onChange={(event) => updateSettings("maxRiskPerTrade", Math.max(0, Number(event.target.value) || 0))} /></div></label>
+              <label><span>MAX LOSING TRADES / DAY</span><input type="number" min="1" max="10" step="1" value={settings.maxLosingTrades} onChange={(event) => updateSettings("maxLosingTrades", Math.max(1, Math.floor(Number(event.target.value) || 1)))} /></label>
+              <div className={styles.ruleSummary}><span>PLANNED DAILY LOSS BUDGET</span><strong>{money.format(settings.maxRiskPerTrade * settings.maxLosingTrades)}</strong><small>{settings.maxLosingTrades} × {money.format(settings.maxRiskPerTrade)}</small></div>
             </div>
           </article>
         </div>
