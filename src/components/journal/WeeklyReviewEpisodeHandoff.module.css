@@ -24,7 +24,7 @@
 }
 
 .header span,
-.selectionCount span {
+.tradeCount span {
   color: #a070e8;
   font-size: 12px;
   font-weight: 800;
@@ -44,25 +44,24 @@
   line-height: 1.45;
 }
 
-.selectionCount {
+.tradeCount {
   flex: 0 0 auto;
-  min-width: 104px;
+  min-width: 118px;
   padding: 8px 10px;
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 5px;
+  display: grid;
+  justify-items: center;
+  gap: 1px;
   border: 1px solid rgba(160, 112, 232, .28);
   border-radius: 8px;
   background: rgba(160, 112, 232, .055);
 }
 
-.selectionCount strong {
+.tradeCount strong {
   color: #e5d9ff;
   font-size: 19px;
 }
 
-.selectionCount span {
+.tradeCount span {
   color: #9985bd;
   font-size: 9.5px;
 }
@@ -79,49 +78,25 @@
   min-height: 72px;
   padding: 10px 11px;
   display: grid;
-  grid-template-columns: 22px minmax(0, 1fr) auto;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
   align-items: center;
   gap: 9px;
   border: 1px solid rgba(67, 88, 103, .3);
   border-radius: 8px;
-  cursor: pointer;
-  text-align: left;
-  font: inherit;
   background: rgba(255, 255, 255, .012);
-  transition: border-color 150ms ease, background 150ms ease, opacity 150ms ease;
 }
 
-.tradeCard:hover:not(:disabled) {
-  border-color: rgba(160, 112, 232, .48);
-  background: rgba(160, 112, 232, .035);
-}
-
-.tradeCard:disabled {
-  cursor: not-allowed;
-  opacity: .42;
-}
-
-.selected {
-  border-color: rgba(48, 208, 248, .42);
-  background: rgba(48, 208, 248, .035);
-}
-
-.check {
-  width: 20px;
-  height: 20px;
+.tradeNumber {
+  width: 22px;
+  height: 22px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(92, 114, 128, .55);
-  border-radius: 5px;
-  color: #071017;
-  background: rgba(7, 16, 23, .65);
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.selected .check {
-  border-color: #30d0f8;
-  background: #30d0f8;
+  border: 1px solid rgba(48, 208, 248, .32);
+  border-radius: 50%;
+  color: #30d0f8;
+  background: rgba(48, 208, 248, .05);
+  font-size: 11px;
+  font-weight: 800;
 }
 
 .tradeIdentity {
@@ -217,7 +192,7 @@
     flex-direction: column;
   }
 
-  .selectionCount {
+  .tradeCount {
     align-self: flex-start;
   }
 
