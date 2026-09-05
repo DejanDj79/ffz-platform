@@ -45,7 +45,7 @@
   gap: 5px;
   position: relative;
   overflow: hidden;
-  border-left: 1px solid rgba(68, 91, 109, .28);
+  border-left: 0;
   border-right: 0;
   border-radius: 0;
 }
@@ -93,7 +93,7 @@
   display: grid;
   align-content: center;
   gap: 5px;
-  border-left: 1px solid rgba(68, 91, 109, .28);
+  border-left: 0;
 }
 
 .label {
@@ -161,7 +161,7 @@
   align-content: center;
   align-items: end;
   gap: 8px;
-  border-left: 1px solid rgba(68, 91, 109, .28);
+  border-left: 0;
   border-right: 1px solid rgba(68, 91, 109, .42);
   border-radius: 0 11px 11px 0;
 }
@@ -210,12 +210,6 @@
     margin-bottom: 14px;
     border-bottom: 1px solid rgba(68, 91, 109, .42);
     border-radius: 0 0 11px 11px;
-  }
-
-  .focusColumn + section,
-  .focusColumn,
-  :global(main):has(> .focusColumn) > section:has(+ .focusColumn) > div:last-child {
-    border-top: 1px solid rgba(68, 91, 109, .22);
   }
 }
 
