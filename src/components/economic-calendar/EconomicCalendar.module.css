@@ -37,16 +37,16 @@
 
 .summaryCard > span {
   color: #667984;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
-  letter-spacing: .12em;
+  letter-spacing: .1em;
 }
 
 .summaryCard > strong {
   margin-top: 8px;
   overflow: hidden;
   color: #e7eef2;
-  font-size: 22px;
+  font-size: 24px;
   line-height: 1.05;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -55,7 +55,7 @@
 .summaryCard > small {
   margin-top: 6px;
   color: #637681;
-  font-size: 10.5px;
+  font-size: 12px;
 }
 
 .riskHigh {
@@ -95,7 +95,7 @@
 }
 
 .nextHighCard > strong {
-  font-size: 17px;
+  font-size: 19px;
 }
 
 .calendarPanel {
@@ -120,14 +120,14 @@
 
 .calendarHeader > div:first-child > span {
   color: #dfe8ed;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 800;
-  letter-spacing: .12em;
+  letter-spacing: .11em;
 }
 
 .calendarHeader > div:first-child > small {
   color: #667985;
-  font-size: 11px;
+  font-size: 12.5px;
 }
 
 .sourceStatus {
@@ -155,7 +155,7 @@
 
 .sourceStatus span {
   color: #93a2ab;
-  font-size: 10px;
+  font-size: 11.5px;
   font-weight: 800;
   letter-spacing: .08em;
 }
@@ -163,7 +163,7 @@
 .sourceStatus small {
   grid-column: 2;
   color: #5d707b;
-  font-size: 9.5px;
+  font-size: 11px;
 }
 
 .filters {
@@ -188,7 +188,7 @@
 
 .filterGroup > span {
   color: #667985;
-  font-size: 10px;
+  font-size: 11.5px;
   font-weight: 700;
   letter-spacing: .08em;
 }
@@ -221,7 +221,7 @@
   color: #71838e;
   background: transparent;
   font: inherit;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -254,7 +254,7 @@
   color: #30d0f8;
   background: rgba(48, 208, 248, .04);
   font: inherit;
-  font-size: 10px;
+  font-size: 11.5px;
   font-weight: 800;
   letter-spacing: .07em;
 }
@@ -312,7 +312,7 @@
 
 .dateDivider > span {
   color: #a9b7bf;
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: .08em;
@@ -329,7 +329,7 @@
 
 .dateDivider > small {
   color: #5e717c;
-  font-size: 9.5px;
+  font-size: 11px;
 }
 
 .eventTableHeader,
@@ -346,13 +346,13 @@
 }
 
 .eventTableHeader {
-  min-height: 28px;
+  min-height: 30px;
   align-items: center;
   border-bottom: 1px solid rgba(72, 94, 109, .31);
   color: #586b77;
-  font-size: 9px;
+  font-size: 10.5px;
   font-weight: 800;
-  letter-spacing: .1em;
+  letter-spacing: .09em;
 }
 
 .eventTableHeader span:nth-last-child(-n + 3) {
@@ -365,7 +365,7 @@
 
 .eventRow {
   position: relative;
-  min-height: 62px;
+  min-height: 64px;
   align-items: center;
   border-top: 1px solid rgba(72, 94, 109, .18);
   background: rgba(255, 255, 255, .005);
@@ -419,12 +419,12 @@
 
 .timeCell strong {
   color: #d7e2e7;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .timeCell small {
   color: #ff7a84;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -436,7 +436,7 @@
 
 .impactCell > span {
   color: #8fa0aa;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .eventCell {
@@ -447,7 +447,7 @@
 .eventCell strong {
   overflow: hidden;
   color: #e1e9ed;
-  font-size: 12px;
+  font-size: 13.5px;
   font-weight: 600;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -455,13 +455,13 @@
 
 .eventCell small {
   color: #60747f;
-  font-size: 9.5px;
+  font-size: 11.5px;
 }
 
 .valueCell {
   color: #8797a0;
   text-align: right;
-  font-size: 11.5px;
+  font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -478,12 +478,12 @@
   align-content: center;
   gap: 8px;
   color: #60737e;
-  font-size: 11px;
+  font-size: 12.5px;
 }
 
 .errorState strong {
   color: #ff7883;
-  font-size: 12px;
+  font-size: 13px;
   letter-spacing: .08em;
 }
 
@@ -498,7 +498,7 @@
   border-radius: 6px;
   color: #30d0f8;
   background: rgba(48, 208, 248, .035);
-  font-size: 10.5px;
+  font-size: 11.5px;
 }
 
 @media (max-width: 1150px) {
