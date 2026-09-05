@@ -12,9 +12,9 @@ export function RouteShell({ children }: { children: ReactNode }) {
     return <>{children}</>;
   }
 
-  // Keep the shared shell mounted across authenticated navigation, including
-  // Risk Calculator. AppShell already handles the calculator's guest/public
-  // fallback, so a second auth check here only causes the sidebar to unmount
-  // briefly while navigating to /tools/risk-calculator.
+  // Keep the shared shell mounted across application navigation, including
+  // Risk Calculator. AppShell already owns the authenticated-vs-guest decision
+  // for that public-capable route, so duplicating the auth check here caused
+  // the sidebar/header to disappear briefly during client-side navigation.
   return <AppShell>{children}</AppShell>;
 }
