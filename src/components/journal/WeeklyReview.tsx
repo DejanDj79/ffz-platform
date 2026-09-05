@@ -9,6 +9,7 @@ import {
 } from "@/lib/journal/weekly-review";
 import type { TradeApiModel } from "@/lib/journal/types";
 import { BehaviorSignalsPanel } from "./BehaviorSignalsPanel";
+import { NextWeekFocusPanel } from "./NextWeekFocusPanel";
 import styles from "./WeeklyReview.module.css";
 
 const money = new Intl.NumberFormat("en-US", {
@@ -370,6 +371,11 @@ export function WeeklyReview() {
           </div>
         </article>
       </section>
+
+      <NextWeekFocusPanel
+        selectedWeekStart={review.start}
+        selectedWeekEnd={review.end}
+      />
     </main>
   );
 }
