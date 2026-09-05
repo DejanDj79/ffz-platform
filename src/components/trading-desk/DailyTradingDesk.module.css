@@ -1,6 +1,6 @@
 .page {
   width: 100%;
-  padding: 18px 0 8px;
+  padding: 0 0 8px;
   color: #eef4f8;
 }
 
@@ -313,7 +313,6 @@
 }
 
 .leftColumn > .panel {
-  height: 100%;
   align-self: stretch;
 }
 
@@ -360,6 +359,7 @@
 }
 
 .todayBody {
+  flex: 1;
   padding: 12px 13px 13px;
   display: grid;
   gap: 10px;
@@ -460,6 +460,7 @@
 }
 
 .rulesBody {
+  flex: 1;
   padding: 12px 13px 13px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -600,20 +601,14 @@
       "rules";
   }
 
+  .panel,
+  .compactPanel,
   .leftColumn > .panel {
-    width: 100%;
-    height: auto;
-    align-self: start;
-  }
-
-  .compactPanel {
     height: auto;
   }
 }
 
 @media (max-width: 720px) {
-  .page { padding-top: 12px; }
-
   .sessionControlGrid {
     grid-template-columns: 1fr;
   }
