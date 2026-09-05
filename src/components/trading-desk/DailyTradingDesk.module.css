@@ -288,8 +288,7 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-template-areas:
     "challenge news"
-    "today today"
-    "rules rules";
+    "today rules";
   gap: 14px;
   align-items: stretch;
 }
@@ -313,8 +312,13 @@
   border-radius: 11px;
 }
 
+.leftColumn > .panel {
+  height: auto;
+  align-self: start;
+}
+
 .compactPanel {
-  height: 100%;
+  height: auto;
 }
 
 .panelHeader {
@@ -326,6 +330,11 @@
   gap: 14px;
   border-bottom: 1px solid rgba(66,87,103,.38);
   background: rgba(255,255,255,.012);
+}
+
+.leftColumn > .panel .panelHeader {
+  min-height: 54px;
+  padding: 10px 13px;
 }
 
 .panelHeader > div {
@@ -351,24 +360,23 @@
 }
 
 .todayBody {
-  flex: 1;
-  padding: 15px;
+  padding: 12px 13px 13px;
   display: grid;
-  gap: 16px;
+  gap: 10px;
 }
 
 .outcomeGrid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 9px;
+  gap: 7px;
 }
 
 .outcomeGrid > div {
-  min-height: 82px;
-  padding: 11px 12px;
+  min-height: 64px;
+  padding: 8px 10px;
   display: grid;
   align-content: center;
-  gap: 6px;
+  gap: 4px;
   border: 1px solid rgba(66,87,103,.28);
   border-radius: 8px;
   background: rgba(255,255,255,.009);
@@ -376,45 +384,45 @@
 
 .outcomeGrid span {
   color: #758792;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 800;
   letter-spacing: .08em;
 }
 
 .outcomeGrid strong {
   color: #dbe5ea;
-  font-size: 24px;
+  font-size: 21px;
 }
 
 .instrumentSection {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 .instrumentChips {
-  min-height: 38px;
+  min-height: 32px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   flex-wrap: wrap;
 }
 
 .instrumentChips b {
-  min-height: 31px;
-  padding: 0 9px;
+  min-height: 28px;
+  padding: 0 8px;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   border: 1px solid rgba(48,208,248,.22);
   border-radius: 7px;
   color: #72ddf8;
   background: rgba(48,208,248,.035);
-  font-size: 13px;
+  font-size: 12.5px;
 }
 
 .instrumentChips i {
-  min-width: 19px;
-  height: 19px;
+  min-width: 18px;
+  height: 18px;
   padding: 0 5px;
   display: grid;
   place-items: center;
@@ -422,7 +430,7 @@
   color: #b6c5cd;
   background: rgba(255,255,255,.06);
   font-style: normal;
-  font-size: 11px;
+  font-size: 10.5px;
 }
 
 .instrumentChips small {
@@ -433,13 +441,13 @@
 .quickLinks {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   flex-wrap: wrap;
 }
 
 .quickLinks a {
-  min-height: 32px;
-  padding: 0 10px;
+  min-height: 29px;
+  padding: 0 9px;
   display: inline-flex;
   align-items: center;
   border: 1px solid rgba(48,208,248,.22);
@@ -447,16 +455,15 @@
   color: #72ddf8;
   background: rgba(48,208,248,.035);
   text-decoration: none;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
 }
 
 .rulesBody {
-  flex: 1;
-  padding: 15px;
+  padding: 12px 13px 13px;
   display: grid;
-  grid-template-columns: minmax(170px, .7fr) minmax(190px, .7fr) minmax(230px, 1fr);
-  gap: 11px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
   align-items: end;
 }
 
@@ -486,11 +493,12 @@
 }
 
 .ruleSummary {
-  min-height: 64px;
-  padding: 10px 12px;
+  grid-column: 1 / -1;
+  min-height: 54px;
+  padding: 8px 10px;
   display: grid;
   align-content: center;
-  gap: 3px;
+  gap: 2px;
   border: 1px solid rgba(160,112,232,.24);
   border-radius: 8px;
   background: rgba(160,112,232,.035);
@@ -498,12 +506,12 @@
 
 .ruleSummary strong {
   color: #d9c8f5;
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .ruleSummary small {
   color: #7b6e8f;
-  font-size: 11.5px;
+  font-size: 11px;
 }
 
 .guardrailsBody {
@@ -592,8 +600,9 @@
       "rules";
   }
 
-  .rulesBody { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .ruleSummary { grid-column: 1 / -1; }
+  .leftColumn > .panel {
+    width: 100%;
+  }
 }
 
 @media (max-width: 720px) {
