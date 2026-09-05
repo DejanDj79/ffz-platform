@@ -313,12 +313,12 @@
 }
 
 .leftColumn > .panel {
-  height: auto;
-  align-self: start;
+  height: 100%;
+  align-self: stretch;
 }
 
 .compactPanel {
-  height: auto;
+  height: 100%;
 }
 
 .panelHeader {
@@ -602,6 +602,12 @@
 
   .leftColumn > .panel {
     width: 100%;
+    height: auto;
+    align-self: start;
+  }
+
+  .compactPanel {
+    height: auto;
   }
 }
 
