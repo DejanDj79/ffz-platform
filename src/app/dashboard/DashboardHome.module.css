@@ -2,6 +2,11 @@
   width: 100%;
 }
 
+/* AppShell owns the shared top spacing below the page header. */
+.dashboardPolish :global(main) {
+  padding-top: 0;
+}
+
 /* Remove the redundant in-page Dashboard hero/actions block. */
 .dashboardPolish :global(main > section:first-of-type) {
   display: none;
