@@ -31,15 +31,13 @@ export function WeeklyFocusReminder() {
 
   return (
     <aside className={styles.reminder} aria-label="This week's trading focus">
-      <div className={styles.content}>
+      <div className={styles.focusLine}>
         <div className={styles.label}>
           <span>THIS WEEK&apos;S FOCUS</span>
           <b>ACTIVE</b>
         </div>
-        <div className={styles.focus}>
-          <strong>{focus.primaryFocus}</strong>
-          <small>{focus.rule}</small>
-        </div>
+        <strong>{focus.primaryFocus}</strong>
+        <small>{focus.rule}</small>
       </div>
       <Link className={styles.link} href="/weekly-review">Open Weekly Review →</Link>
     </aside>
