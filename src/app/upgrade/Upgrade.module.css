@@ -7,11 +7,85 @@
 
 .hero,
 .card,
-.footerCard {
+.footerCard,
+.activationBanner {
   border: 1px solid rgba(62,82,98,.68);
   border-radius: 12px;
   background: linear-gradient(180deg, rgba(13,24,34,.96), rgba(8,16,23,.96));
   box-shadow: inset 0 1px 0 rgba(255,255,255,.018);
+}
+
+.activationBanner {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 17px;
+  border-color: rgba(48,208,248,.42);
+  background:
+    radial-gradient(circle at 5% 50%, rgba(48,208,248,.1), transparent 22rem),
+    linear-gradient(180deg, rgba(11,25,34,.97), rgba(8,17,24,.97));
+}
+
+.activationReady {
+  border-color: rgba(49,215,161,.45);
+}
+
+.activationPulse {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #30d0f8;
+  box-shadow: 0 0 12px rgba(48,208,248,.38);
+  animation: activationPulse 1.2s ease-in-out infinite alternate;
+}
+
+.activationReady .activationPulse {
+  background: #31d7a1;
+  box-shadow: 0 0 12px rgba(49,215,161,.34);
+  animation: none;
+}
+
+.activationBanner > div:nth-child(2) {
+  display: grid;
+  gap: 3px;
+}
+
+.activationBanner span {
+  color: #6d8797;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .13em;
+}
+
+.activationBanner strong {
+  color: #e7f5fb;
+  font-size: 15px;
+}
+
+.activationBanner small {
+  color: #7f909c;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.activationBanner button {
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid rgba(48,208,248,.46);
+  border-radius: 8px;
+  cursor: pointer;
+  color: #c8f3ff;
+  background: rgba(48,208,248,.06);
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: .05em;
+}
+
+@keyframes activationPulse {
+  from { opacity: .45; transform: scale(.86); }
+  to { opacity: 1; transform: scale(1.06); }
 }
 
 .hero {
@@ -57,11 +131,20 @@
   line-height: 1.75;
 }
 
-.current {
-  display: inline-flex;
+.heroMeta {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   margin-top: 22px;
+}
+
+.current,
+.contextChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 38px;
   padding: 9px 12px;
   border: 1px solid rgba(48,208,248,.34);
   border-radius: 8px;
@@ -77,9 +160,29 @@
   font-size: 14px;
 }
 
+.contextChip {
+  border-color: rgba(160,112,232,.34);
+  color: #8f9ca7;
+  background: rgba(160,112,232,.055);
+  letter-spacing: .06em;
+}
+
+.contextChip strong {
+  color: #d9c7ff;
+  font-size: 13px;
+}
+
+.contextChip span {
+  padding-left: 10px;
+  border-left: 1px solid rgba(160,112,232,.28);
+  color: #71818d;
+  font-size: 11.5px;
+  letter-spacing: 0;
+}
+
 .grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
   align-items: stretch;
 }
@@ -92,17 +195,13 @@
 }
 
 .proCard {
-  border-color: rgba(160,112,232,.58);
+  border-color: rgba(160,112,232,.72);
   background:
-    radial-gradient(circle at 90% 10%, rgba(160,112,232,.13), transparent 20rem),
+    radial-gradient(circle at 90% 10%, rgba(160,112,232,.15), transparent 20rem),
     linear-gradient(180deg, rgba(15,23,36,.98), rgba(9,15,24,.98));
-}
-
-.yearlyCard {
-  border-color: rgba(160,112,232,.78);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.02),
-    0 0 0 1px rgba(160,112,232,.08);
+    0 0 0 1px rgba(160,112,232,.07);
 }
 
 .founderCard {
@@ -116,7 +215,7 @@
     0 0 0 1px rgba(48,208,248,.06);
 }
 
-.savingsBadge,
+.recommendedBadge,
 .founderBadge {
   position: absolute;
   top: 16px;
@@ -128,7 +227,7 @@
   letter-spacing: .08em;
 }
 
-.savingsBadge {
+.recommendedBadge {
   border: 1px solid rgba(160,112,232,.6);
   color: #dfceff;
   background: rgba(160,112,232,.13);
@@ -289,6 +388,77 @@
   color: #c2b5d1;
 }
 
+.proChoice {
+  display: grid;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.billingToggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  padding: 4px;
+  border: 1px solid rgba(82,101,117,.5);
+  border-radius: 9px;
+  background: rgba(6,13,20,.72);
+}
+
+.billingToggle button {
+  min-height: 39px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #758590;
+  background: transparent;
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: .06em;
+}
+
+.billingToggle button span {
+  display: block;
+  margin-top: 1px;
+  color: #8c72b5;
+  font-size: 9.5px;
+  letter-spacing: .03em;
+}
+
+.billingToggle .billingToggleActive {
+  border-color: rgba(160,112,232,.48);
+  color: #e1d3ff;
+  background: rgba(160,112,232,.1);
+}
+
+.selectedPrice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(84,102,117,.38);
+  border-radius: 8px;
+  background: rgba(8,16,23,.64);
+}
+
+.selectedPrice > div {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.selectedPrice strong {
+  color: #e7deff;
+  font-size: 19px;
+}
+
+.selectedPrice small,
+.selectedPrice > span {
+  color: #758590;
+  font-size: 11.5px;
+}
+
 .subscribeArea,
 .activeBilling,
 .manageArea {
@@ -404,19 +574,28 @@
   color: #eef2f5;
   background: #09121a;
   text-decoration: none;
+  text-align: center;
   font-size: 13px;
   font-weight: 800;
 }
 
-@media (max-width: 1240px) {
+@media (max-width: 1120px) {
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .founderCard {
+    grid-column: 1 / -1;
   }
 }
 
 @media (max-width: 820px) {
   .grid {
     grid-template-columns: 1fr;
+  }
+
+  .founderCard {
+    grid-column: auto;
   }
 
   .cardHeader {
@@ -427,8 +606,37 @@
     align-items: stretch;
     flex-direction: column;
   }
+}
 
-  .footerCard a {
-    text-align: center;
+@media (max-width: 620px) {
+  .activationBanner {
+    grid-template-columns: 12px minmax(0, 1fr);
+  }
+
+  .activationBanner button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .hero {
+    padding: 24px 20px;
+  }
+
+  .contextChip {
+    width: 100%;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .contextChip span {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .selectedPrice {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
   }
 }
