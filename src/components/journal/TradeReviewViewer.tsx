@@ -152,6 +152,11 @@ export function TradeReviewViewer() {
         if (cancelled) return;
         setAllTrades(nextTrades);
 
+        const requestedTradeId = new URLSearchParams(window.location.search).get("trade");
+        if (requestedTradeId && nextTrades.some((item) => item.id === requestedTradeId)) {
+          setActiveTradeId(requestedTradeId);
+        }
+
         void fetchChallenges()
           .then((nextChallenges) => {
             if (!cancelled) setChallenges(nextChallenges);
