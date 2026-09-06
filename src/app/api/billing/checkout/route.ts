@@ -5,6 +5,10 @@ import {
   createLemonCheckout,
   type BillingInterval,
 } from "@/lib/billing/lemon";
+import {
+  safeFeatureName,
+  safeInternalReturnPath,
+} from "@/lib/navigation/safe-return";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -38,7 +42,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const body = await request.json() as { interval?: unknown };
+    const body = await request.json() as {
+      interval?: unknown;
+      returnTo?: unknown;
+      feature?: unknown;
+    };
     if (!isBillingInterval(body.interval)) {
       return NextResponse.json(
         { error: "Choose a valid FFZ Pro billing interval." },
@@ -46,9 +54,13 @@ export async function POST(request: Request) {
       );
     }
 
+    const returnTo = safeInternalReturnPath(body.returnTo);
+    const feature = safeFeatureName(body.feature);
     const requestOrigin = request.headers.get("origin") || new URL(request.url).origin;
     const redirectUrl = new URL("/upgrade", requestOrigin);
     redirectUrl.searchParams.set("checkout", "success");
+    if (returnTo) redirectUrl.searchParams.set("from", returnTo);
+    if (feature) redirectUrl.searchParams.set("feature", feature);
 
     const url = await createLemonCheckout({
       userId: user.id,
