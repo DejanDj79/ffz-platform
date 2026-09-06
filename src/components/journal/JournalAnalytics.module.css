@@ -1,6 +1,6 @@
 .page {
   width: 100%;
-  padding: 18px 0 8px;
+  padding: 0 0 8px;
   color: #eef4f8;
 }
 
@@ -43,50 +43,32 @@
 }
 
 .filterPanel {
-  padding: 18px;
-  display: grid;
-  grid-template-columns: minmax(185px, .34fr) minmax(0, 1.66fr);
-  align-items: end;
-  gap: 18px;
+  margin-bottom: 14px;
+  padding: 13px 14px;
   border-radius: 11px;
-  margin-bottom: 16px;
-}
-
-.filterPanel > div:first-child {
-  min-width: 0;
-  display: grid;
-  gap: 5px;
-}
-
-.eyebrow {
-  display: none;
-}
-
-.filterPanel > div:first-child > strong {
-  color: #edf5f9;
-  font-size: 22px;
-  line-height: 1.15;
-}
-
-.filterPanel > div:first-child > small {
-  max-width: 360px;
-  color: #7c8d98;
-  font-size: 13px;
-  line-height: 1.5;
 }
 
 .filters {
   min-width: 0;
   display: grid;
   grid-template-columns:
-    minmax(94px, .82fr)
-    minmax(116px, 1.12fr)
-    minmax(96px, .92fr)
-    minmax(86px, .76fr)
-    minmax(104px, .96fr)
+    minmax(120px, .85fr)
+    minmax(170px, 1.25fr)
+    minmax(145px, 1fr)
+    minmax(110px, .8fr)
+    minmax(135px, .9fr)
     auto;
-  gap: 7px;
+  gap: 9px;
   align-items: end;
+}
+
+.freeFilters {
+  grid-template-columns:
+    minmax(140px, .9fr)
+    minmax(190px, 1.25fr)
+    minmax(130px, .85fr)
+    minmax(150px, .9fr)
+    auto;
 }
 
 .filters label {
@@ -100,7 +82,7 @@
 .performanceStrip span,
 .readoutBody span {
   color: #81919c;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: .09em;
 }
@@ -119,7 +101,7 @@
 .filters select {
   width: 100%;
   min-width: 0;
-  padding: 0 8px;
+  padding: 0 9px;
   color-scheme: dark;
 }
 
@@ -131,8 +113,8 @@
 }
 
 .filters button {
-  min-width: 64px;
-  padding: 0 10px;
+  min-width: 70px;
+  padding: 0 11px;
   cursor: pointer;
   color: #30d0f8;
   border-color: rgba(48,208,248,.32);
@@ -148,15 +130,15 @@
 
 .kpiGrid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 11px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .kpiCard {
   min-width: 0;
-  min-height: 118px;
-  padding: 16px 15px 15px;
+  min-height: 108px;
+  padding: 14px 14px 13px;
   border-radius: 10px;
   position: relative;
   overflow: hidden;
@@ -173,18 +155,18 @@
 
 .kpiCard strong {
   display: block;
-  margin-top: 9px;
-  font-size: calc(clamp(19px, 1.55vw, 25px) + 2px);
+  margin-top: 8px;
+  font-size: calc(clamp(19px, 1.45vw, 24px) + 2px);
   line-height: 1;
   letter-spacing: -.02em;
 }
 
 .kpiCard small {
   display: block;
-  margin-top: 9px;
+  margin-top: 8px;
   color: #758792;
-  font-size: 12.5px;
-  line-height: 1.45;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .positive { color: #45dbad !important; }
@@ -192,12 +174,12 @@
 .neutral { color: #9aa7b0 !important; }
 
 .proGateSpacing {
-  margin-bottom: 28px;
+  margin: 16px 0 28px;
 }
 
 .chartGrid {
   display: grid;
-  grid-template-columns: minmax(300px, 1fr) minmax(620px, 2fr);
+  grid-template-columns: minmax(0, 1.35fr) minmax(420px, .85fr);
   gap: 14px;
   margin-bottom: 14px;
   align-items: stretch;
@@ -215,8 +197,8 @@
 }
 
 .panelHeader {
-  min-height: 64px;
-  padding: 13px 16px;
+  min-height: 62px;
+  padding: 12px 15px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -233,14 +215,14 @@
 
 .panelHeader span {
   color: #e0eaf0;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 800;
-  letter-spacing: .11em;
+  letter-spacing: .1em;
 }
 
 .panelHeader small {
   color: #7b8b96;
-  font-size: 12.5px;
+  font-size: 12px;
   line-height: 1.4;
 }
 
@@ -251,9 +233,9 @@
 
 .chartWrap {
   flex: 1 1 auto;
-  min-height: 340px;
+  min-height: 320px;
   position: relative;
-  padding: 18px 14px;
+  padding: 17px 14px;
   background: linear-gradient(180deg, rgba(255,255,255,.006), transparent);
 }
 
@@ -277,7 +259,7 @@
 
 .chartLabels {
   position: absolute;
-  inset: 18px 16px auto;
+  inset: 17px 16px auto;
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -395,14 +377,14 @@
 
 .performanceStrip {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 11px;
   margin-bottom: 16px;
 }
 
 .performanceStrip article {
-  min-height: 78px;
-  padding: 14px 15px;
+  min-height: 72px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -411,8 +393,8 @@
 
 .performanceStrip strong {
   display: block;
-  margin-top: 7px;
-  font-size: 19px;
+  margin-top: 6px;
+  font-size: 18px;
 }
 
 .breakdownGrid {
@@ -422,7 +404,7 @@
   align-items: stretch;
 }
 
-.breakdownGrid + .chartGrid {
+.secondaryBreakdowns {
   margin-top: 16px;
 }
 
@@ -483,20 +465,20 @@
 }
 
 .readoutPanel {
-  display: flex;
-  flex-direction: column;
+  margin-top: 16px;
+  margin-bottom: 0;
 }
 
 .readoutBody {
-  flex: 1;
-  padding: 16px;
+  padding: 14px 15px;
   display: grid;
-  align-content: start;
-  gap: 13px;
+  grid-template-columns: minmax(160px, .45fr) minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 14px;
 }
 
 .readoutBody > div {
-  padding: 14px;
+  padding: 12px 13px;
   border: 1px solid rgba(61,82,97,.32);
   border-radius: 8px;
   background: linear-gradient(180deg, rgba(255,255,255,.018), rgba(255,255,255,.006));
@@ -504,24 +486,115 @@
 
 .readoutBody strong {
   display: block;
-  margin-top: 6px;
-  font-size: 25px;
+  margin-top: 5px;
+  font-size: 23px;
 }
 
 .readoutBody small {
   display: block;
-  margin-top: 5px;
+  margin-top: 4px;
   color: #778994;
-  font-size: 12.5px;
+  font-size: 12px;
 }
 
 .readoutBody p {
   margin: 0;
   color: #8797a1;
-  font-size: 13px;
-  line-height: 1.65;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.readoutBody > .loading {
+  grid-column: 1 / -1;
+  margin: -3px 0 0;
 }
 
 .loading {
   color: #30d0f8 !important;
+}
+
+@media (max-width: 1280px) {
+  .filters {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .freeFilters {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .filters button {
+    width: 100%;
+  }
+
+  .kpiGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .chartGrid {
+    grid-template-columns: minmax(0, 1.15fr) minmax(360px, .85fr);
+  }
+
+  .performanceStrip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 980px) {
+  .chartGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .breakdownGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .readoutBody {
+    grid-template-columns: minmax(150px, .4fr) minmax(0, 1fr);
+  }
+
+  .readoutBody p:last-of-type {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .filterPanel {
+    padding: 12px;
+  }
+
+  .filters,
+  .freeFilters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .kpiGrid,
+  .performanceStrip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .panelHeader {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .chartWrap {
+    min-height: 270px;
+  }
+
+  .readoutBody {
+    grid-template-columns: 1fr;
+  }
+
+  .readoutBody p:last-of-type {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .filters,
+  .freeFilters,
+  .kpiGrid,
+  .performanceStrip {
+    grid-template-columns: 1fr;
+  }
 }
