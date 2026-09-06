@@ -94,6 +94,33 @@ Validation:
 - local visual/behavior verification — PASSED by user
 - no DB migration required
 
+### Trade Review chart/navigation usability fixes — DONE / MERGED
+
+PR #45: **Fix signed P&L chart fills and Trade Review navigation**
+
+Merged commit:
+
+```text
+b8f62411f8e3cccba7d6789b8aaa6f136f8db961
+```
+
+Implemented:
+- Journal Analytics equity fill now terminates at the zero baseline instead of the chart floor
+- positive cumulative P&L area uses the positive fill and negative cumulative P&L area uses the downside red fill
+- the same signed-area behavior is applied to FREE Analytics and Trade Review `CUMULATIVE NET P&L`
+- Trade Review navigation direction is corrected: right advances `1 → 2 → 3`, left moves backward
+- Presentation-mode `ArrowRight` / `ArrowLeft` follows the same direction
+- newest-first trade ordering is preserved
+- Trade Review top toolbar stays sticky while reviewing lower performance charts
+- sticky behavior is disabled on very narrow mobile screens
+- conflict with PR #46 was reconciled so Dashboard `?trade=<id>` deep-links remain intact
+
+Validation:
+- FFZ CI #348 — PASSED after conflict reconciliation
+- navigation behavior was locally confirmed by user
+- user explicitly requested final completion/merge
+- no DB migration required
+
 ### Authenticated workspace polish — DONE / MERGED
 
 PR #42: **Workspace polish — Trading Desk, Journal, Analytics, Weekly Review, Ledger, Prop Journey, Episode Builder and Scoreboard**
@@ -655,6 +682,7 @@ Completed immediately before this roadmap position:
 - [x] PR #38 — Weekly Episode auto-build
 - [x] PR #40 — Dashboard visual polish
 - [x] PR #42 — authenticated workspace page-by-page polish
+- [x] PR #45 — signed P&L fills + Trade Review navigation/sticky toolbar
 - [x] PR #46 — Dashboard Recent Trades quick-review modal
 
 Keep development driven by real usage and direct visual review. Do not add broad surface area just to make the product look larger.
