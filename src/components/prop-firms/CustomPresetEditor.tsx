@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   createCustomRulePresetViaApi,
   updateCustomRulePresetViaApi,
@@ -126,8 +126,7 @@ export function CustomPresetEditor({
     setMessage(null);
   }
 
-  async function save(event: FormEvent) {
-    event.preventDefault();
+  async function save() {
     setMessage(null);
 
     if (!name.trim() || !propFirm.trim()) {
@@ -171,7 +170,16 @@ export function CustomPresetEditor({
   if (!selected) return null;
 
   return (
-    <form id="custom-preset-editor" className={styles.editor} onSubmit={save}>
+    <div
+      id="custom-preset-editor"
+      className={styles.editor}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" && event.target instanceof HTMLInputElement) {
+          event.preventDefault();
+          void save();
+        }
+      }}
+    >
       <div className={styles.editorHeader}>
         <div>
           <span className={styles.customEyebrow}>{initialPreset ? "EDIT CUSTOM PRESET" : "CREATE CUSTOM PRESET"}</span>
@@ -250,8 +258,8 @@ export function CustomPresetEditor({
 
       <div className={styles.editorFooter}>
         <span>{variants.length} size{variants.length === 1 ? "" : "s"} in this card</span>
-        <button className={styles.primary} type="submit" disabled={saving}>{saving ? "SAVING..." : "SAVE PRESET"}</button>
+        <button className={styles.primary} type="button" disabled={saving} onClick={() => void save()}>{saving ? "SAVING..." : "SAVE PRESET"}</button>
       </div>
-    </form>
+    </div>
   );
 }
