@@ -203,6 +203,7 @@ function CumulativeChart({ points }: { points: TradeReviewPerformancePoint[] }) 
   }));
 
   const zeroY = padY + ((max - 0) / span) * (height - padY * 2);
+  const zeroOffset = ((zeroY - padY) / (height - padY * 2)) * 100;
   const path = coords
     .map((point, index) => `${index === 0 ? "M" : "L"}${point.x},${point.y}`)
     .join(" ");
@@ -219,9 +220,18 @@ function CumulativeChart({ points }: { points: TradeReviewPerformancePoint[] }) 
               <stop offset="0%" stopColor="#30d0f8" />
               <stop offset="100%" stopColor="#a070e8" />
             </linearGradient>
-            <linearGradient id="tradeReviewCumulativeFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#30d0f8" stopOpacity="0.15" />
-              <stop offset="100%" stopColor="#30d0f8" stopOpacity="0" />
+            <linearGradient
+              id="tradeReviewCumulativeFill"
+              x1="0"
+              y1={padY}
+              x2="0"
+              y2={height - padY}
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop offset="0%" stopColor="#31d7a1" stopOpacity="0.15" />
+              <stop offset={`${zeroOffset}%`} stopColor="#31d7a1" stopOpacity="0.04" />
+              <stop offset={`${zeroOffset}%`} stopColor="#ff6675" stopOpacity="0.04" />
+              <stop offset="100%" stopColor="#ff6675" stopOpacity="0.15" />
             </linearGradient>
           </defs>
 

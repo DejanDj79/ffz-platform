@@ -303,10 +303,10 @@ export function TradeReviewViewer() {
 
       if (event.key === "ArrowLeft") {
         event.preventDefault();
-        moveTrade(1);
+        moveTrade(-1);
       } else if (event.key === "ArrowRight") {
         event.preventDefault();
-        moveTrade(-1);
+        moveTrade(1);
       }
     }
 
@@ -362,11 +362,11 @@ export function TradeReviewViewer() {
 
         <div className={presentationStyles.toolbarRight}>
           <div className={styles.navigator}>
-            <button type="button" onClick={() => moveTrade(1)} disabled={trades.length < 2} aria-label="Previous trade">
+            <button type="button" onClick={() => moveTrade(-1)} disabled={trades.length < 2} aria-label="Previous trade">
               ‹
             </button>
             <span>{trade ? `${currentIndex + 1} OF ${trades.length}` : "NO TRADES"}</span>
-            <button type="button" onClick={() => moveTrade(-1)} disabled={trades.length < 2} aria-label="Next trade">
+            <button type="button" onClick={() => moveTrade(1)} disabled={trades.length < 2} aria-label="Next trade">
               ›
             </button>
           </div>
