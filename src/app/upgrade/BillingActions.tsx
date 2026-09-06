@@ -7,6 +7,7 @@ import styles from "./Upgrade.module.css";
 
 type BillingInterval = "MONTHLY" | "ANNUAL";
 type CheckoutKind = "success" | "founder-success";
+type AccessLabel = "FREE" | "PRO" | "FOUNDER" | "CREATOR";
 
 type ApiResponse = {
   data?: { url?: string };
@@ -14,7 +15,10 @@ type ApiResponse = {
 };
 
 type AuthResponse = {
-  data?: { plan?: "FREE" | "PRO" };
+  data?: {
+    plan?: "FREE" | "PRO";
+    access?: AccessLabel;
+  };
 };
 
 async function redirectFromApi(path: string, body?: object) {
@@ -50,6 +54,7 @@ export function UpgradeActivationBanner({
     let cancelled = false;
     let attempts = 0;
     let timeout: ReturnType<typeof setTimeout> | null = null;
+    const requiresFounder = checkout === "founder-success";
 
     async function check() {
       if (cancelled) return;
@@ -58,8 +63,12 @@ export function UpgradeActivationBanner({
       try {
         const response = await fetch("/api/auth/me", { cache: "no-store" });
         const json = await response.json() as AuthResponse;
+        const access = json.data?.access;
+        const activated = requiresFounder
+          ? access === "FOUNDER"
+          : access === "PRO" || access === "FOUNDER" || access === "CREATOR";
 
-        if (response.ok && json.data?.plan === "PRO") {
+        if (response.ok && activated) {
           setPhase("active");
           const safeReturn = safeInternalReturnPath(returnTo);
           timeout = setTimeout(() => {
