@@ -294,15 +294,24 @@
 
 .accountsPanel .tableWrap {
   flex: 0 1 auto;
-  max-height: 237px;
-  overflow-y: auto;
+  max-height: 220px;
+  overflow-y: scroll;
   overflow-x: auto;
+  scrollbar-gutter: stable;
+  scrollbar-width: auto;
+  scrollbar-color: #30d0f8 #0a151e;
+  overscroll-behavior: contain;
 }
 
-.tableWrap::-webkit-scrollbar { width: 8px; height: 8px; }
-.tableWrap::-webkit-scrollbar-track { background: rgba(7, 14, 21, .72); }
-.tableWrap::-webkit-scrollbar-thumb { background: #344551; border-radius: 999px; }
-.tableWrap::-webkit-scrollbar-thumb:hover { background: #47606f; }
+.tableWrap::-webkit-scrollbar { width: 12px; height: 10px; }
+.tableWrap::-webkit-scrollbar-track { background: #0a151e; }
+.tableWrap::-webkit-scrollbar-thumb {
+  min-height: 36px;
+  border: 2px solid #0a151e;
+  border-radius: 999px;
+  background: #30d0f8;
+}
+.tableWrap::-webkit-scrollbar-thumb:hover { background: #74e4fb; }
 .challengeTable { width: 100%; border-collapse: collapse; min-width: 900px; font-size: 13.5px; }
 .challengeTable th {
   position: sticky;
@@ -351,7 +360,7 @@
 @media (max-width: 1180px) {
   .workspace { grid-template-columns: 1fr; }
   .rightColumn { grid-template-rows: auto auto; }
-  .accountsPanel .tableWrap { max-height: 272px; }
+  .accountsPanel .tableWrap { max-height: 250px; }
   .overviewGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .healthCard { grid-column: span 2; grid-row: auto; min-height: 180px; }
   .healthInner { min-height: 180px; }
@@ -364,7 +373,7 @@
   .titleWrap { justify-self: center; }
   .systemChip { justify-self: center; min-width: 0; }
   .accountsTitle { min-height: 56px; flex-basis: 56px; padding: 7px 10px; }
-  .accountsPanel .tableWrap { max-height: 284px; }
+  .accountsPanel .tableWrap { max-height: 270px; }
   .newAccountButton { padding-inline: 9px; font-size: 11.5px; }
   .workspace { gap: 12px; }
   .formRow { grid-template-columns: 28px 1fr; padding: 8px 0; }
