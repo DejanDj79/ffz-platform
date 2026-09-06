@@ -212,9 +212,6 @@ export function ScoreboardSettings() {
 
         <div className={styles.toolbarActions}>
           <Link href="/creator/episodes">OPEN EPISODE BUILDER</Link>
-          <button type="button" onClick={() => void save()} disabled={saving || switchingLayout}>
-            {saving ? "SAVING..." : "SAVE SCOREBOARD"}
-          </button>
         </div>
       </section>
 
@@ -390,6 +387,15 @@ export function ScoreboardSettings() {
                 Regenerate private OBS link
               </button>
             </div>
+
+            <button
+              type="button"
+              className={styles.saveButton}
+              onClick={() => void save()}
+              disabled={saving || switchingLayout}
+            >
+              {saving ? "SAVING..." : "SAVE SCOREBOARD"}
+            </button>
           </div>
         </article>
       </section>
