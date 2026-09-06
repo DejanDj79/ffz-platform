@@ -1,6 +1,6 @@
 # FFZ Platform — Future Steps / Handoff
 
-_Last updated: 2026-09-06_
+_Last updated: 2026-09-07_
 
 Ovaj dokument je živi handoff/checklist za FFZ Platform. Kada završimo stavku, ažurirati je ovde i označiti kao završenu.
 
@@ -174,6 +174,46 @@ No DB migration was required for PR #42.
 
 ---
 
+## Paywall / upgrade flow polish — DONE / MERGED
+
+PR #49: **Paywall polish — upgrade flow, activation UX and gated import**
+
+Merged commit:
+
+```text
+d7e91d507c6768682131a7809f4efee6fbab4766
+```
+
+Implemented:
+- contextual PRO gates remember the locked feature/path and use `UNLOCK WITH FFZ PRO`
+- `/upgrade` is simplified to three choices: `FREE / PRO / FOUNDER`
+- Monthly / Yearly billing lives inside one PRO card; Yearly remains the recommended/default value option
+- checkout return context survives Lemon Squeezy and can return the user to the feature they were trying to use
+- post-checkout activation banner polls effective FFZ access and handles webhook delay without falsely showing failure
+- Founder activation is distinguished from an already-active PRO subscription
+- `/api/auth/me` exposes effective access labels `FREE / PRO / FOUNDER / CREATOR` while preserving the underlying FREE/PRO entitlement model
+- authenticated sidebar now shows plan/access state with UPGRADE / MANAGE / PLANS entry
+- Economic Calendar alert is suppressed on `/upgrade`
+- official DeepCharts CSV import now goes through a dedicated server endpoint that enforces the `CSV_IMPORT` entitlement
+- challenge-limit/custom-rule, Guardrails and Prop Journey paywall responses preserve upgrade context
+- internal return paths are sanitized so checkout cannot redirect to an external origin
+- focused tests cover safe return-path and feature-name sanitization
+
+Preserved commercial model:
+- FREE `$0`
+- PRO `$12.99/month` or `$99/year`
+- Founder `$199` one-time, lifetime PRO, first 150 traders
+- Creator remains internal/owner access with effective PRO and no Founder seat
+
+Validation:
+- final FFZ CI #373 — PASSED
+- tests — PASSED
+- production build — PASSED
+- local visual/behavior review — PASSED by user
+- no DB migration required
+
+---
+
 ## Founder billing — DONE
 
 PR #20 merged commit:
@@ -275,19 +315,19 @@ Required events:
 - `subscription_cancelled`
 - `subscription_expired`
 
-### Founder pre-launch UX polish — TODO, NOT A BLOCKER
+### Founder pre-launch UX polish — DONE / MERGED
 
-Checkout redirects to something like:
+Completed in PR #49.
 
-```text
-/upgrade?checkout=founder-success
-```
+Current checkout-return behavior:
+- shows `Payment received. Activating...`
+- polls effective FFZ access while the webhook completes
+- distinguishes normal PRO activation from Founder activation
+- shows a delayed-activation fallback with `CHECK AGAIN`
+- returns the user to the originating locked feature when context exists
+- sidebar and `/api/auth/me` distinguish `FREE / PRO / FOUNDER / CREATOR`
 
-Before public launch:
-- show `Payment received. Activating your Founder access...`
-- poll/refresh briefly while waiting for webhook
-- after activation show `FOUNDER`, `FOUNDER ACTIVE`, slot number
-- show fallback if activation is delayed
+Live Mode still requires the billing smoke tests below after Lemon store activation.
 
 ### Billing live-launch checklist
 
@@ -295,6 +335,8 @@ Infrastructure complete:
 - [x] Founder backend deployed
 - [x] production migration passed
 - [x] `founder_slots` = exactly 150 rows
+- [x] Upgrade copy final review
+- [x] Founder success/activation UX polish
 
 Deferred until live launch:
 - [ ] Live Founder variant created
@@ -310,8 +352,6 @@ Deferred until live launch:
 - [ ] Existing PRO -> Founder test
 - [ ] Full refund test
 - [ ] Partial refund test
-- [ ] Upgrade copy final review
-- [ ] Founder success/activation UX polish
 - [ ] SOLD OUT behavior verified
 
 ---
@@ -684,6 +724,7 @@ Completed immediately before this roadmap position:
 - [x] PR #42 — authenticated workspace page-by-page polish
 - [x] PR #45 — signed P&L fills + Trade Review navigation/sticky toolbar
 - [x] PR #46 — Dashboard Recent Trades quick-review modal
+- [x] PR #49 — paywall/upgrade activation UX + contextual return flow + server-gated CSV import
 
 Keep development driven by real usage and direct visual review. Do not add broad surface area just to make the product look larger.
 
