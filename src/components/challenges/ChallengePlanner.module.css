@@ -289,29 +289,33 @@
   flex: 1 1 auto;
   min-height: 0;
   overflow: auto;
-  scrollbar-gutter: stable;
 }
 
 .accountsPanel .tableWrap {
   flex: 0 1 auto;
   max-height: 220px;
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: auto;
-  scrollbar-gutter: stable;
-  scrollbar-width: auto;
-  scrollbar-color: #30d0f8 #0a151e;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
   overscroll-behavior: contain;
 }
 
-.tableWrap::-webkit-scrollbar { width: 12px; height: 10px; }
-.tableWrap::-webkit-scrollbar-track { background: #0a151e; }
-.tableWrap::-webkit-scrollbar-thumb {
-  min-height: 36px;
-  border: 2px solid #0a151e;
-  border-radius: 999px;
-  background: #30d0f8;
+.accountsPanel:hover .tableWrap {
+  scrollbar-color: #50616d transparent;
 }
-.tableWrap::-webkit-scrollbar-thumb:hover { background: #74e4fb; }
+
+.accountsPanel .tableWrap::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+.accountsPanel .tableWrap::-webkit-scrollbar-track { background: transparent; }
+.accountsPanel .tableWrap::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: transparent;
+}
+.accountsPanel:hover .tableWrap::-webkit-scrollbar-thumb { background: #50616d; }
+.accountsPanel .tableWrap::-webkit-scrollbar-thumb:hover { background: #677b88; }
 .challengeTable { width: 100%; border-collapse: collapse; min-width: 900px; font-size: 13.5px; }
 .challengeTable th {
   position: sticky;
