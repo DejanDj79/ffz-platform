@@ -334,44 +334,107 @@ export function ChallengeFundedPlanner() {
         </div>
       </header>
 
+      <section className={`${styles.panel} ${styles.accountsPanel}`}>
+        <div className={`${styles.panelTitle} ${styles.accountsTitle}`}>
+          <span className={styles.panelTitleLabel}><Icon name="flag" />PROP ACCOUNTS</span>
+          <button className={styles.newAccountButton} type="button" onClick={newChallenge}><Icon name="reset" />NEW EVALUATION</button>
+        </div>
+        {challenges.length ? (
+          <div className={styles.tableWrap}>
+            <table className={styles.challengeTable}>
+              <thead><tr><th>Account Name</th><th>Prop Firm</th><th>Account</th><th>Status</th><th>Progress</th><th>Current Balance</th><th>P&L</th><th>Days</th></tr></thead>
+              <tbody>
+                {challenges.map((challenge) => {
+                  const funded = calculateFundedPayoutSummary(challenge, trades, ledgerEntries);
+                  const effective = effectiveChallengeAfterPayouts(challenge, ledgerEntries);
+                  const row = calculateChallengeMetrics(effective);
+                  const progress = funded.isFunded ? funded.readinessPct : row.targetProgressPct;
+                  const days = funded.isFunded ? funded.tradingDays : challenge.daysTraded;
+                  return (
+                    <tr key={challenge.id} className={challenge.id === draft.id ? styles.selected : ""} onClick={() => setDraft(challenge)}>
+                      <td>{challenge.name || "Untitled Account"}</td>
+                      <td>{challenge.propFirm || "—"}</td>
+                      <td>{money.format(challenge.accountSize).replace(".00", "")}</td>
+                      <td><span className={statusClass(challenge.status)}>{label(challenge.status)}</span></td>
+                      <td><div className={styles.rowProgress}><span>{number.format(progress)}%</span><span className={styles.rowBar}><span style={{ width: `${Math.min(100, progress)}%` }} /></span></div></td>
+                      <td>{money.format(challenge.currentBalance)}</td>
+                      <td className={row.currentPnl >= 0 ? styles.positive : styles.negative}>{money.format(row.currentPnl)}</td>
+                      <td>{days}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : <div className={styles.emptyState}>No prop accounts saved yet. Create your first evaluation to start tracking it.</div>}
+      </section>
+
       <div className={styles.workspace}>
-        <form className={styles.panel} onSubmit={save}>
+        <form className={`${styles.panel} ${styles.setupPanel}`} onSubmit={save}>
           <div className={styles.panelTitle}><Icon name="settings" />ACCOUNT SETUP</div>
-          <div className={styles.formList}>
-            <Field icon="settings" label="Rule Preset">
-              <RulePresetControl challenge={draft} onChange={setDraft} />
-            </Field>
-            <Field icon="building" label="Prop Firm"><input value={draft.propFirm} onChange={(e) => update("propFirm", e.target.value)} placeholder="e.g. Topstep" /></Field>
-            <Field icon="tag" label="Account Name"><input value={draft.name} onChange={(e) => update("name", e.target.value)} placeholder="e.g. 50K Challenge #1" /></Field>
-            <Field icon="wallet" label="Account Size"><input inputMode="decimal" value={draft.accountSize || ""} onChange={(e) => updateNumber("accountSize", e.target.value)} /></Field>
-            <Field icon="dollar" label="Starting Balance"><input inputMode="decimal" value={draft.startingBalance || ""} onChange={(e) => updateNumber("startingBalance", e.target.value)} /></Field>
-            <Field icon="target" label="Profit Target"><input inputMode="decimal" value={draft.profitTarget || ""} onChange={(e) => updateNumber("profitTarget", e.target.value)} /></Field>
-            <Field icon="shield" label="Max Drawdown"><input inputMode="decimal" value={draft.maxDrawdown || ""} onChange={(e) => updateNumber("maxDrawdown", e.target.value)} /></Field>
-            <Field icon="chart" label="Drawdown Mode">
-              <select value={draft.drawdownMode ?? "STATIC"} onChange={(e) => update("drawdownMode", e.target.value as DrawdownMode)}>
-                <option value="STATIC">Static</option><option value="EOD_TRAILING">EOD Trailing</option><option value="INTRADAY_TRAILING">Intraday Trailing</option>
-              </select>
-            </Field>
-            {draft.drawdownMode === "EOD_TRAILING" && <Field icon="chart" label="Highest EOD Balance" purple><input inputMode="decimal" value={draft.highestEodBalance || ""} onChange={(e) => updateNumber("highestEodBalance", e.target.value)} /></Field>}
-            <Field icon="pulse" label="Daily Loss Limit"><input inputMode="decimal" value={draft.dailyLossLimit || ""} onChange={(e) => updateNumber("dailyLossLimit", e.target.value)} /></Field>
-            <Field icon="tag" label="Challenge Fee"><input inputMode="decimal" value={draft.challengeFee || ""} onChange={(e) => updateNumber("challengeFee", e.target.value)} /></Field>
-            <Field icon="reset" label="Reset Fee"><input inputMode="decimal" value={draft.resetFee || ""} onChange={(e) => updateNumber("resetFee", e.target.value)} /></Field>
-            <Field icon="reset" label="Resets Used"><input inputMode="numeric" value={draft.resetsUsed || ""} onChange={(e) => updateNumber("resetsUsed", e.target.value)} /></Field>
-            <Field icon="calendar" label="Minimum Trading Days"><input inputMode="numeric" value={draft.minimumTradingDays || ""} onChange={(e) => updateNumber("minimumTradingDays", e.target.value)} /></Field>
-            <Field icon="calendar" label="Days Traded"><input inputMode="numeric" value={draft.daysTraded || ""} onChange={(e) => updateNumber("daysTraded", e.target.value)} /></Field>
-            <Field icon="chart" label="Current Balance"><input inputMode="decimal" value={draft.currentBalance || ""} onChange={(e) => updateNumber("currentBalance", e.target.value)} /></Field>
-            <Field icon="pulse" label="Today's P&L" purple><input inputMode="decimal" value={draft.todayPnl} onChange={(e) => updateNumber("todayPnl", e.target.value)} /></Field>
-            <Field icon="flag" label="Phase">
-              <select value={draft.phase} onChange={(e) => update("phase", e.target.value as ChallengePhase)}>
-                <option value="EVALUATION">Evaluation</option><option value="VERIFICATION">Verification</option><option value="SIM_FUNDED">Sim Funded</option><option value="FUNDED">Funded</option><option value="PAYOUT">Payout</option><option value="OTHER">Other</option>
-              </select>
-            </Field>
-            <Field icon="flag" label="Status">
-              <select value={draft.status} onChange={(e) => update("status", e.target.value as ChallengeStatus)}>
-                <option value="NOT_STARTED">Not Started</option><option value="IN_PROGRESS">In Progress</option><option value="PAUSED">Paused</option><option value="PASSED">Passed</option><option value="FAILED">Failed</option><option value="FUNDED">Funded</option><option value="CLOSED">Closed</option>
-              </select>
-            </Field>
-            <Field icon="clipboard" label="Notes" purple><textarea value={draft.notes} onChange={(e) => update("notes", e.target.value)} placeholder="Short account note..." /></Field>
+
+          <div className={styles.formGroup}>
+            <div className={styles.formGroupTitle}>ACCOUNT</div>
+            <div className={styles.formList}>
+              <Field icon="settings" label="Rule Preset">
+                <RulePresetControl challenge={draft} onChange={setDraft} />
+              </Field>
+              <Field icon="building" label="Prop Firm"><input value={draft.propFirm} onChange={(e) => update("propFirm", e.target.value)} placeholder="e.g. Topstep" /></Field>
+              <Field icon="tag" label="Account Name"><input value={draft.name} onChange={(e) => update("name", e.target.value)} placeholder="e.g. 50K Challenge #1" /></Field>
+              <Field icon="wallet" label="Account Size"><input inputMode="decimal" value={draft.accountSize || ""} onChange={(e) => updateNumber("accountSize", e.target.value)} /></Field>
+              <Field icon="dollar" label="Starting Balance"><input inputMode="decimal" value={draft.startingBalance || ""} onChange={(e) => updateNumber("startingBalance", e.target.value)} /></Field>
+            </div>
+          </div>
+
+          <div className={styles.formGroup}>
+            <div className={styles.formGroupTitle}>EVALUATION RULES</div>
+            <div className={styles.formList}>
+              <Field icon="target" label="Profit Target"><input inputMode="decimal" value={draft.profitTarget || ""} onChange={(e) => updateNumber("profitTarget", e.target.value)} /></Field>
+              <Field icon="shield" label="Max Drawdown"><input inputMode="decimal" value={draft.maxDrawdown || ""} onChange={(e) => updateNumber("maxDrawdown", e.target.value)} /></Field>
+              <Field icon="chart" label="Drawdown Mode">
+                <select value={draft.drawdownMode ?? "STATIC"} onChange={(e) => update("drawdownMode", e.target.value as DrawdownMode)}>
+                  <option value="STATIC">Static</option><option value="EOD_TRAILING">EOD Trailing</option><option value="INTRADAY_TRAILING">Intraday Trailing</option>
+                </select>
+              </Field>
+              {draft.drawdownMode === "EOD_TRAILING" && <Field icon="chart" label="Highest EOD Balance" purple><input inputMode="decimal" value={draft.highestEodBalance || ""} onChange={(e) => updateNumber("highestEodBalance", e.target.value)} /></Field>}
+              <Field icon="pulse" label="Daily Loss Limit"><input inputMode="decimal" value={draft.dailyLossLimit || ""} onChange={(e) => updateNumber("dailyLossLimit", e.target.value)} /></Field>
+              <Field icon="calendar" label="Minimum Trading Days"><input inputMode="numeric" value={draft.minimumTradingDays || ""} onChange={(e) => updateNumber("minimumTradingDays", e.target.value)} /></Field>
+            </div>
+          </div>
+
+          <div className={styles.formGroup}>
+            <div className={styles.formGroupTitle}>COSTS</div>
+            <div className={styles.formList}>
+              <Field icon="tag" label="Challenge Fee"><input inputMode="decimal" value={draft.challengeFee || ""} onChange={(e) => updateNumber("challengeFee", e.target.value)} /></Field>
+              <Field icon="reset" label="Reset Fee"><input inputMode="decimal" value={draft.resetFee || ""} onChange={(e) => updateNumber("resetFee", e.target.value)} /></Field>
+              <Field icon="reset" label="Resets Used"><input inputMode="numeric" value={draft.resetsUsed || ""} onChange={(e) => updateNumber("resetsUsed", e.target.value)} /></Field>
+            </div>
+          </div>
+
+          <div className={styles.formGroup}>
+            <div className={styles.formGroupTitle}>CURRENT STATE</div>
+            <div className={styles.formList}>
+              <Field icon="calendar" label="Days Traded"><input inputMode="numeric" value={draft.daysTraded || ""} onChange={(e) => updateNumber("daysTraded", e.target.value)} /></Field>
+              <Field icon="chart" label="Current Balance"><input inputMode="decimal" value={draft.currentBalance || ""} onChange={(e) => updateNumber("currentBalance", e.target.value)} /></Field>
+              <Field icon="pulse" label="Today's P&L" purple><input inputMode="decimal" value={draft.todayPnl} onChange={(e) => updateNumber("todayPnl", e.target.value)} /></Field>
+              <Field icon="flag" label="Phase">
+                <select value={draft.phase} onChange={(e) => update("phase", e.target.value as ChallengePhase)}>
+                  <option value="EVALUATION">Evaluation</option><option value="VERIFICATION">Verification</option><option value="SIM_FUNDED">Sim Funded</option><option value="FUNDED">Funded</option><option value="PAYOUT">Payout</option><option value="OTHER">Other</option>
+                </select>
+              </Field>
+              <Field icon="flag" label="Status">
+                <select value={draft.status} onChange={(e) => update("status", e.target.value as ChallengeStatus)}>
+                  <option value="NOT_STARTED">Not Started</option><option value="IN_PROGRESS">In Progress</option><option value="PAUSED">Paused</option><option value="PASSED">Passed</option><option value="FAILED">Failed</option><option value="FUNDED">Funded</option><option value="CLOSED">Closed</option>
+                </select>
+              </Field>
+            </div>
+          </div>
+
+          <div className={`${styles.formGroup} ${styles.notesGroup}`}>
+            <div className={styles.formGroupTitle}>NOTES</div>
+            <div className={styles.formList}>
+              <Field icon="clipboard" label="Account Notes" purple><textarea value={draft.notes} onChange={(e) => update("notes", e.target.value)} placeholder="Short account note..." /></Field>
+            </div>
           </div>
 
           {apiError && <div className={styles.ruleNotice}><strong>Database error</strong><span>{apiError}</span></div>}
@@ -384,9 +447,8 @@ export function ChallengeFundedPlanner() {
             </div>
           )}
 
-          <div className={styles.actions}>
+          <div className={`${styles.actions} ${styles.singleAction}`}>
             <button className={styles.primary} type="submit" disabled={saving}><Icon name="save" />{saving ? "SAVING..." : "SAVE ACCOUNT"}</button>
-            <button className={styles.secondary} type="button" onClick={newChallenge}><Icon name="reset" />NEW EVALUATION</button>
           </div>
         </form>
 
@@ -444,53 +506,6 @@ export function ChallengeFundedPlanner() {
             onSyncBalance={() => void syncBalance()}
             onSetPayoutPhase={(requested) => void setPayoutPhase(requested)}
           />
-
-          <section className={styles.panel}>
-            <div className={styles.panelTitle}><Icon name="clipboard" />ACCOUNT SUMMARY</div>
-            <div className={styles.summaryBody}>
-              <div className={styles.summaryGrid}>
-                <div className={styles.summaryCell}><span className={styles.summaryLabel}>Prop Firm</span><span className={styles.summaryValue}>{draft.propFirm || "—"}</span></div>
-                <div className={styles.summaryCell}><span className={styles.summaryLabel}>Phase</span><span className={styles.summaryValue}>{label(draft.phase)}</span></div>
-                <div className={styles.summaryCell}><span className={styles.summaryLabel}>Account</span><span className={styles.summaryValue}>{money.format(draft.accountSize).replace(".00", "")}</span></div>
-                <div className={styles.summaryCell}><span className={styles.summaryLabel}>Fee Paid</span><span className={styles.summaryValue}>{money.format(metrics.realMoneyCost)}</span></div>
-                <div className={styles.summaryCell}><span className={styles.summaryLabel}>Current P&L</span><span className={`${styles.summaryValue} ${metrics.currentPnl >= 0 ? styles.positive : styles.negative}`}>{money.format(metrics.currentPnl)}</span></div>
-                <div className={styles.summaryCell}><span className={styles.summaryLabel}>{isFunded ? "Next Payout" : "Goal"}</span><span className={styles.summaryValue}>{isFunded ? money.format(fundedSummary.estimatedTraderPayout) : money.format(draft.profitTarget)}</span></div>
-                <div className={styles.summaryCell}><span className={styles.summaryLabel}>Rules</span><span className={styles.summaryValue}>{draft.drawdownMode?.replaceAll("_", " ") ?? "STATIC"}</span></div>
-              </div>
-            </div>
-          </section>
-
-          <section className={`${styles.panel} ${styles.activeChallengesPanel}`}>
-            <div className={styles.panelTitle}><Icon name="flag" />PROP ACCOUNTS</div>
-            {challenges.length ? (
-              <div className={styles.tableWrap}>
-                <table className={styles.challengeTable}>
-                  <thead><tr><th>Account Name</th><th>Prop Firm</th><th>Account</th><th>Status</th><th>Progress</th><th>Current Balance</th><th>P&L</th><th>Days</th></tr></thead>
-                  <tbody>
-                    {challenges.map((challenge) => {
-                      const funded = calculateFundedPayoutSummary(challenge, trades, ledgerEntries);
-                      const effective = effectiveChallengeAfterPayouts(challenge, ledgerEntries);
-                      const row = calculateChallengeMetrics(effective);
-                      const progress = funded.isFunded ? funded.readinessPct : row.targetProgressPct;
-                      const days = funded.isFunded ? funded.tradingDays : challenge.daysTraded;
-                      return (
-                        <tr key={challenge.id} className={challenge.id === draft.id ? styles.selected : ""} onClick={() => setDraft(challenge)}>
-                          <td>{challenge.name || "Untitled Account"}</td>
-                          <td>{challenge.propFirm || "—"}</td>
-                          <td>{money.format(challenge.accountSize).replace(".00", "")}</td>
-                          <td><span className={statusClass(challenge.status)}>{label(challenge.status)}</span></td>
-                          <td><div className={styles.rowProgress}><span>{number.format(progress)}%</span><span className={styles.rowBar}><span style={{ width: `${Math.min(100, progress)}%` }} /></span></div></td>
-                          <td>{money.format(challenge.currentBalance)}</td>
-                          <td className={row.currentPnl >= 0 ? styles.positive : styles.negative}>{money.format(row.currentPnl)}</td>
-                          <td>{days}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            ) : <div className={styles.emptyState}>No prop accounts saved yet.</div>}
-          </section>
         </div>
       </div>
 
