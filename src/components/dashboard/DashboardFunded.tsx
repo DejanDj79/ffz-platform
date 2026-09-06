@@ -16,11 +16,11 @@ import {
   localEventTime,
   nextHighImpactEvent,
 } from "@/lib/economic-calendar/client-utils";
-import { CATEGORY_LABELS } from "@/lib/ledger/presentation";
 import {
   calculateDashboardSummary,
   type EquityPoint,
 } from "@/lib/dashboard/summary";
+import { DashboardRecentTrades } from "./DashboardRecentTrades";
 import styles from "./Dashboard.module.css";
 
 const money = new Intl.NumberFormat("en-US", {
@@ -32,65 +32,6 @@ const money = new Intl.NumberFormat("en-US", {
 const number = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
 });
-
-type RecentItem = {
-  id: string;
-  timestamp: string;
-  kind: "TRADE" | "LEDGER";
-  title: string;
-  sub: string;
-  amount: number | null;
-  tone: "positive" | "negative" | "neutral";
-  href: string;
-};
-
-function recentActivity(
-  trades: TradeApiModel[],
-  ledgerEntries: LedgerEntryApiModel[],
-): RecentItem[] {
-  const tradeItems: RecentItem[] = trades.map((trade) => ({
-    id: `trade-${trade.id}`,
-    timestamp: trade.closedAt ?? trade.openedAt,
-    kind: "TRADE",
-    title: `${trade.instrument} ${trade.direction}`,
-    sub:
-      trade.status === "OPEN"
-        ? `Open · ${trade.contracts} contract${trade.contracts === 1 ? "" : "s"}`
-        : `${trade.outcome ?? "Closed"} · ${
-            trade.rMultiple == null
-              ? "—"
-              : `${trade.rMultiple > 0 ? "+" : ""}${number.format(trade.rMultiple)}R`
-          }${trade.setup ? ` · ${trade.setup}` : ""}`,
-    amount: trade.netPnl,
-    tone:
-      trade.netPnl == null
-        ? "neutral"
-        : trade.netPnl > 0
-          ? "positive"
-          : trade.netPnl < 0
-            ? "negative"
-            : "neutral",
-    href: "/journal",
-  }));
-
-  const ledgerItems: RecentItem[] = ledgerEntries.map((entry) => ({
-    id: `ledger-${entry.id}`,
-    timestamp: entry.occurredAt,
-    kind: "LEDGER",
-    title: CATEGORY_LABELS[entry.category],
-    sub: entry.provider || entry.description || "Real Money Ledger",
-    amount: entry.entryType === "INCOME" ? entry.amount : -entry.amount,
-    tone: entry.entryType === "INCOME" ? "positive" : "negative",
-    href: "/ledger",
-  }));
-
-  return [...tradeItems, ...ledgerItems]
-    .sort(
-      (a, b) =>
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
-    )
-    .slice(0, 7);
-}
 
 function challengeStatusLabel(status: string) {
   return status.replaceAll("_", " ");
@@ -259,11 +200,6 @@ export function DashboardFunded() {
   const summary = useMemo(
     () => calculateDashboardSummary(challenges, trades, ledgerEntries, now),
     [challenges, trades, ledgerEntries, now],
-  );
-
-  const activity = useMemo(
-    () => recentActivity(trades, ledgerEntries),
-    [trades, ledgerEntries],
   );
 
   const challenge = summary.challenge.challenge;
@@ -577,40 +513,17 @@ export function DashboardFunded() {
         <article className={`${styles.panel} ${styles.activityPanel}`}>
           <div className={styles.panelHeader}>
             <div>
-              <span>RECENT ACTIVITY</span>
-              <small>Latest trades and real-money events</small>
+              <span>RECENT TRADES</span>
+              <small>Latest 5 closed journal trades</small>
             </div>
-            <button type="button" onClick={() => void loadDashboard()} disabled={loading}>
-              {loading ? "LOADING" : "REFRESH"}
-            </button>
+            <Link href="/journal">JOURNAL →</Link>
           </div>
 
-          <div className={styles.activityList}>
-            {loading ? (
-              <div className={styles.empty}>Loading dashboard...</div>
-            ) : activity.length === 0 ? (
-              <div className={styles.empty}>No journal or ledger activity yet.</div>
-            ) : (
-              activity.map((item) => (
-                <Link key={item.id} href={item.href} className={styles.activityRow}>
-                  <span className={`${styles.activityIcon} ${item.kind === "TRADE" ? styles.tradeIcon : styles.ledgerIcon}`}>
-                    {item.kind === "TRADE" ? "T" : "$"}
-                  </span>
-                  <span className={styles.activityText}>
-                    <strong>{item.title}</strong>
-                    <small>{item.sub}</small>
-                  </span>
-                  <span className={styles.activityDate}>
-                    {new Date(item.timestamp).toLocaleDateString()}
-                    <small>{new Date(item.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</small>
-                  </span>
-                  <strong className={item.tone === "positive" ? styles.positive : item.tone === "negative" ? styles.negative : styles.neutral}>
-                    {item.amount == null ? "OPEN" : formatSignedMoney(item.amount)}
-                  </strong>
-                </Link>
-              ))
-            )}
-          </div>
+          <DashboardRecentTrades
+            trades={trades}
+            challenges={challenges}
+            loading={loading}
+          />
         </article>
 
         <article className={`${styles.panel} ${styles.moneyPanel}`}>
