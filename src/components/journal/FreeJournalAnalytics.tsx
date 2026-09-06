@@ -173,13 +173,7 @@ export function FreeJournalAnalytics() {
       )}
 
       <section className={styles.filterPanel}>
-        <div>
-          <span className={styles.eyebrow}>FFZ FREE</span>
-          <strong>Performance Analytics</strong>
-          <small>Core performance metrics stay free. Setup and time-of-day edge analysis are available with FFZ Pro.</small>
-        </div>
-
-        <div className={styles.filters}>
+        <div className={`${styles.filters} ${styles.freeFilters}`}>
           <label>
             <span>PERIOD</span>
             <select value={filters.period} onChange={(event) => setFilters((current) => ({ ...current, period: event.target.value as JournalAnalyticsFilters["period"] }))}>
@@ -232,14 +226,14 @@ export function FreeJournalAnalytics() {
           <small>{analytics.closedCount} closed · {analytics.totalTrades} total</small>
         </article>
         <article className={styles.kpiCard}>
-          <span>WIN RATE</span>
-          <strong>{analytics.winRate == null ? "—" : `${analytics.winRate}%`}</strong>
-          <small>{analytics.wins}W · {analytics.losses}L · {analytics.breakeven}BE</small>
-        </article>
-        <article className={styles.kpiCard}>
           <span>PROFIT FACTOR</span>
           <strong>{ratio(analytics.profitFactor)}</strong>
           <small>Gross wins / gross losses</small>
+        </article>
+        <article className={styles.kpiCard}>
+          <span>WIN RATE</span>
+          <strong>{analytics.winRate == null ? "—" : `${analytics.winRate}%`}</strong>
+          <small>{analytics.wins}W · {analytics.losses}L · {analytics.breakeven}BE</small>
         </article>
         <article className={styles.kpiCard}>
           <span>AVG WIN</span>
@@ -252,14 +246,6 @@ export function FreeJournalAnalytics() {
           <small>Average net result of losing trades</small>
         </article>
       </section>
-
-      <div className={styles.proGateSpacing}>
-        <ProFeatureGate
-          title="Discover where your trading edge actually comes from"
-          description="FFZ Pro unlocks setup comparison and New York time-of-day analytics without removing any of your existing Journal data."
-          features={["Setup Edge comparison", "Setup-focused page filtering", "Time-of-day performance", "Expectancy and average R by setup"]}
-        />
-      </div>
 
       <section className={styles.chartGrid}>
         <article className={styles.panel}>
@@ -283,6 +269,14 @@ export function FreeJournalAnalytics() {
           <TradingCalendar points={analytics.dailyPnl} />
         </article>
       </section>
+
+      <div className={styles.proGateSpacing}>
+        <ProFeatureGate
+          title="Discover where your trading edge actually comes from"
+          description="FFZ Pro unlocks setup comparison and New York time-of-day analytics without removing any of your existing Journal data."
+          features={["Setup Edge comparison", "Setup-focused page filtering", "Time-of-day performance", "Expectancy and average R by setup"]}
+        />
+      </div>
 
       {loading && <small className={styles.loading}>Refreshing journal data…</small>}
     </main>
