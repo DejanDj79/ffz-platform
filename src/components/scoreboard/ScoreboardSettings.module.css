@@ -100,37 +100,21 @@
   accent-color: #30d0f8;
 }
 
-.toolbarActions a,
-.toolbarActions button {
+.toolbarActions a {
   min-height: 36px;
   padding: 0 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid rgba(160, 112, 232, .42);
   border-radius: 7px;
+  color: #d5c0fb;
+  background: rgba(160, 112, 232, .055);
+  text-decoration: none;
   font: inherit;
   font-size: 11px;
   font-weight: 800;
   letter-spacing: .055em;
-}
-
-.toolbarActions a {
-  border: 1px solid rgba(160, 112, 232, .42);
-  color: #d5c0fb;
-  background: rgba(160, 112, 232, .055);
-  text-decoration: none;
-}
-
-.toolbarActions button {
-  border: 1px solid rgba(48, 208, 248, .55);
-  cursor: pointer;
-  color: #041117;
-  background: #30d0f8;
-}
-
-.toolbarActions button:disabled {
-  cursor: default;
-  opacity: .55;
 }
 
 .previewPanel {
@@ -382,6 +366,25 @@
   font-size: 10.5px;
 }
 
+.saveButton {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid rgba(48, 208, 248, .55);
+  border-radius: 7px;
+  cursor: pointer;
+  color: #041117;
+  background: #30d0f8;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .06em;
+}
+
+.saveButton:disabled {
+  cursor: default;
+  opacity: .55;
+}
+
 .error,
 .message {
   margin: 0;
@@ -447,8 +450,7 @@
     flex: 1;
   }
 
-  .toolbarActions a,
-  .toolbarActions button {
+  .toolbarActions a {
     width: 100%;
   }
 
