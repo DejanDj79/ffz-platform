@@ -264,16 +264,6 @@ export function JournalAnalytics() {
       )}
 
       <section className={styles.filterPanel}>
-        <div>
-          <span className={styles.eyebrow}>JOURNAL V2</span>
-          <strong>Performance Analytics</strong>
-          <small>
-            {selectedSetup === ALL_SETUPS
-              ? "Read your edge from closed-trade data, not from memory."
-              : `Focused on ${selectedSetup}. Every metric below now uses only this setup.`}
-          </small>
-        </div>
-
         <div className={styles.filters}>
           <label>
             <span>PERIOD</span>
@@ -350,15 +340,15 @@ export function JournalAnalytics() {
         </article>
 
         <article className={styles.kpiCard}>
-          <span>WIN RATE</span>
-          <strong>{analytics.winRate == null ? "—" : `${analytics.winRate}%`}</strong>
-          <small>{analytics.wins}W · {analytics.losses}L · {analytics.breakeven}BE</small>
+          <span>PROFIT FACTOR</span>
+          <strong>{ratio(analytics.profitFactor)}</strong>
+          <small>Gross wins / gross losses</small>
         </article>
 
         <article className={styles.kpiCard}>
-          <span>EXPECTANCY</span>
-          <strong className={tone(analytics.expectancy)}>{analytics.expectancy == null ? "—" : signedMoney(analytics.expectancy)}</strong>
-          <small>Average net P&amp;L per closed trade</small>
+          <span>WIN RATE</span>
+          <strong>{analytics.winRate == null ? "—" : `${analytics.winRate}%`}</strong>
+          <small>{analytics.wins}W · {analytics.losses}L · {analytics.breakeven}BE</small>
         </article>
 
         <article className={styles.kpiCard}>
@@ -368,38 +358,10 @@ export function JournalAnalytics() {
         </article>
 
         <article className={styles.kpiCard}>
-          <span>PROFIT FACTOR</span>
-          <strong>{ratio(analytics.profitFactor)}</strong>
-          <small>Gross wins / gross losses</small>
+          <span>EXPECTANCY</span>
+          <strong className={tone(analytics.expectancy)}>{analytics.expectancy == null ? "—" : signedMoney(analytics.expectancy)}</strong>
+          <small>Average net P&amp;L per closed trade</small>
         </article>
-
-        <article className={styles.kpiCard}>
-          <span>STREAKS</span>
-          <strong>{analytics.maxWinStreak}W / {analytics.maxLossStreak}L</strong>
-          <small>Maximum consecutive wins / losses</small>
-        </article>
-      </section>
-
-      <SetupAnalyticsPanel
-        selectedSetup={selectedSetup}
-        comparisonRows={comparisonAnalytics.bySetup}
-        timeOfDayRows={timeOfDayRows}
-        onSelectSetup={setSelectedSetup}
-      />
-
-      <section className={styles.breakdownGrid}>
-        <BreakdownTable
-          title="EXECUTION DISCIPLINE"
-          subtitle="Performance when you follow, bend or ignore the plan"
-          rows={analytics.byExecution}
-          empty="Review closed trades in Journal to compare on-plan, deviated and unplanned execution."
-        />
-        <BreakdownTable
-          title="MINDSET PERFORMANCE"
-          subtitle="Results grouped by your post-trade mindset review"
-          rows={analytics.byMindset}
-          empty="Add mindset reviews in Journal to see how state and performance relate."
-        />
       </section>
 
       <section className={styles.chartGrid}>
@@ -430,9 +392,32 @@ export function JournalAnalytics() {
         <article><span>AVG LOSS</span><strong className={styles.negative}>{analytics.averageLoss == null ? "—" : money.format(analytics.averageLoss)}</strong></article>
         <article><span>BEST TRADE</span><strong className={styles.positive}>{analytics.bestTrade == null ? "—" : money.format(analytics.bestTrade)}</strong></article>
         <article><span>WORST TRADE</span><strong className={styles.negative}>{analytics.worstTrade == null ? "—" : money.format(analytics.worstTrade)}</strong></article>
+        <article><span>STREAKS</span><strong>{analytics.maxWinStreak}W / {analytics.maxLossStreak}L</strong></article>
       </section>
 
+      <SetupAnalyticsPanel
+        selectedSetup={selectedSetup}
+        comparisonRows={comparisonAnalytics.bySetup}
+        timeOfDayRows={timeOfDayRows}
+        onSelectSetup={setSelectedSetup}
+      />
+
       <section className={styles.breakdownGrid}>
+        <BreakdownTable
+          title="EXECUTION DISCIPLINE"
+          subtitle="Performance when you follow, bend or ignore the plan"
+          rows={analytics.byExecution}
+          empty="Review closed trades in Journal to compare on-plan, deviated and unplanned execution."
+        />
+        <BreakdownTable
+          title="MINDSET PERFORMANCE"
+          subtitle="Results grouped by your post-trade mindset review"
+          rows={analytics.byMindset}
+          empty="Add mindset reviews in Journal to see how state and performance relate."
+        />
+      </section>
+
+      <section className={`${styles.breakdownGrid} ${styles.secondaryBreakdowns}`}>
         <BreakdownTable
           title="INSTRUMENT PERFORMANCE"
           subtitle="Where your P&L is actually coming from"
@@ -458,26 +443,30 @@ export function JournalAnalytics() {
           empty="Add tags such as A+, scalp or trend to unlock this view."
           limit={10}
         />
-
-        <article className={`${styles.panel} ${styles.readoutPanel}`}>
-          <header className={styles.panelHeader}>
-            <div>
-              <span>ANALYTICS READOUT</span>
-              <small>What this data can and cannot tell you yet</small>
-            </div>
-          </header>
-          <div className={styles.readoutBody}>
-            <div><span>SAMPLE SIZE</span><strong>{analytics.closedCount}</strong><small>closed trades in current filters</small></div>
-            <p>
-              Setup, tag, instrument, direction, weekday and discipline statistics use only closed trades. Open trades stay visible in the total count but do not affect P&amp;L metrics.
-            </p>
-            <p>
-              Time-of-day analytics use each trade&apos;s entry timestamp converted to America/New_York. Discipline analytics only include trades with an explicit Execution or Mindset review, so missing reviews are never guessed.
-            </p>
-            {loading && <small className={styles.loading}>Refreshing journal data…</small>}
-          </div>
-        </article>
       </section>
+
+      <article className={`${styles.panel} ${styles.readoutPanel}`}>
+        <header className={styles.panelHeader}>
+          <div>
+            <span>ANALYTICS READOUT</span>
+            <small>How to interpret the current sample</small>
+          </div>
+        </header>
+        <div className={styles.readoutBody}>
+          <div>
+            <span>SAMPLE SIZE</span>
+            <strong>{analytics.closedCount}</strong>
+            <small>closed trades in current filters</small>
+          </div>
+          <p>
+            Setup, tag, instrument, direction, weekday and discipline statistics use only closed trades. Open trades stay visible in the total count but do not affect P&amp;L metrics.
+          </p>
+          <p>
+            Time-of-day analytics use each trade&apos;s entry timestamp converted to America/New_York. Discipline analytics only include trades with an explicit Execution or Mindset review, so missing reviews are never guessed.
+          </p>
+          {loading && <small className={styles.loading}>Refreshing journal data…</small>}
+        </div>
+      </article>
     </main>
   );
 }
