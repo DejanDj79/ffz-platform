@@ -5,6 +5,9 @@
 }
 
 .toolbar {
+  position: sticky;
+  top: 8px;
+  z-index: 40;
   min-height: 62px;
   margin-bottom: 14px;
   padding: 11px 14px;
@@ -16,8 +19,9 @@
   border-radius: 11px;
   background:
     radial-gradient(circle at 100% 0%, rgba(160,112,232,.035), transparent 34%),
-    linear-gradient(180deg, rgba(14,26,35,.95), rgba(7,15,22,.98));
-  box-shadow: inset 0 1px rgba(255,255,255,.02), 0 10px 30px rgba(0,0,0,.08);
+    linear-gradient(180deg, rgba(14,26,35,.97), rgba(7,15,22,.99));
+  box-shadow: inset 0 1px rgba(255,255,255,.02), 0 10px 30px rgba(0,0,0,.14);
+  backdrop-filter: blur(14px);
 }
 
 .toolbarFilters {
@@ -451,6 +455,10 @@
 }
 
 @media (max-width: 680px) {
+  .toolbar {
+    position: static;
+  }
+
   .toolbarFilters {
     width: 100%;
     display: grid;
