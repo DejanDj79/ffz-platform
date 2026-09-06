@@ -1,0 +1,54 @@
+import { NextResponse } from "next/server";
+import { ZodError } from "zod";
+import { getCurrentUser } from "@/lib/auth/session";
+import { createTrade } from "@/lib/journal/repository";
+import { tradeEditableSchema } from "@/lib/journal/validation";
+import { hasEntitlement } from "@/lib/monetization/entitlements";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+export async function POST(request: Request) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Authentication required." }, { status: 401 });
+    }
+
+    if (!hasEntitlement(user.plan, "CSV_IMPORT")) {
+      return NextResponse.json(
+        {
+          error: "CSV Trade Import requires FFZ Pro.",
+          code: "PRO_REQUIRED",
+          upgradeUrl: "/upgrade?from=%2Fjournal%2Fimport&feature=CSV+Trade+Import",
+        },
+        { status: 403 },
+      );
+    }
+
+    const input = tradeEditableSchema.parse(await request.json());
+    const trade = await createTrade(user.id, input, {
+      syncChallenges: hasEntitlement(user.plan, "AUTO_CHALLENGE_SYNC"),
+    });
+
+    return NextResponse.json({ data: trade }, { status: 201 });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: "Invalid imported trade data.", issues: error.issues },
+        { status: 400 },
+      );
+    }
+
+    if (error instanceof Error && error.message === "CHALLENGE_NOT_FOUND") {
+      return NextResponse.json({ error: "Challenge not found." }, { status: 400 });
+    }
+
+    if (error instanceof Error && error.message === "TRADING_ACCOUNT_NOT_FOUND") {
+      return NextResponse.json({ error: "Trading account not found." }, { status: 400 });
+    }
+
+    console.error("POST /api/journal/import failed:", error);
+    return NextResponse.json({ error: "Unable to import trade." }, { status: 500 });
+  }
+}
