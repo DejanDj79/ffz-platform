@@ -265,8 +265,15 @@
   gap: 14px;
 }
 
+.displayTopRow {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .refreshField {
-  max-width: 220px;
+  width: min(220px, 100%);
 }
 
 .metrics {
@@ -367,8 +374,9 @@
 }
 
 .saveButton {
-  width: 100%;
-  min-height: 42px;
+  min-width: 150px;
+  min-height: 38px;
+  padding: 0 16px;
   border: 1px solid rgba(48, 208, 248, .55);
   border-radius: 7px;
   cursor: pointer;
@@ -437,7 +445,8 @@
 
 @media (max-width: 650px) {
   .previewControls,
-  .toolbarActions {
+  .toolbarActions,
+  .displayTopRow {
     align-items: stretch;
     flex-direction: column;
   }
@@ -450,7 +459,9 @@
     flex: 1;
   }
 
-  .toolbarActions a {
+  .toolbarActions a,
+  .saveButton,
+  .refreshField {
     width: 100%;
   }
 
