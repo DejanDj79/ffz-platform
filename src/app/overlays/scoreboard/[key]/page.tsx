@@ -9,5 +9,22 @@ export default async function ScoreboardOverlayPage({
 }: PageProps) {
   const { key } = await params;
 
-  return <ScoreboardOverlay overlayKey={key} />;
+  return (
+    <div className="scoreboard-overlay-root">
+      <ScoreboardOverlay overlayKey={key} />
+      <style>{`
+        .scoreboard-overlay-root > div > section {
+          row-gap: clamp(10px, .82vw, 16px) !important;
+        }
+
+        .scoreboard-overlay-root > div > section > section {
+          column-gap: clamp(10px, .82vw, 16px) !important;
+        }
+
+        .scoreboard-overlay-root > div > section > section:nth-of-type(2) {
+          margin-top: clamp(10px, .65vw, 14px);
+        }
+      `}</style>
+    </div>
+  );
 }

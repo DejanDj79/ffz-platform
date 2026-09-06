@@ -33,8 +33,8 @@
 }
 
 .weekToolbar {
-  min-height: 84px;
-  padding: 14px 16px;
+  min-height: 76px;
+  padding: 12px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -74,6 +74,27 @@
   color: #6d7f8a;
   font-size: 13px;
   line-height: 1.4;
+}
+
+.weekMeta {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.weekMeta small {
+  min-width: 0;
+}
+
+.weekMeta b {
+  flex: 0 0 auto;
+  padding-left: 10px;
+  border-left: 1px solid rgba(78, 101, 117, .34);
+  color: #8fa3ae;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: .02em;
 }
 
 .weekNavigator {
@@ -123,12 +144,12 @@
 
 .scorecard {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 9px;
 }
 
 .metric {
-  min-height: 82px;
+  min-height: 80px;
   padding: 11px 12px;
   display: grid;
   align-content: center;
@@ -349,11 +370,11 @@
 }
 
 .postLossMetrics > div {
-  min-height: 86px;
-  padding: 10px;
+  min-height: 80px;
+  padding: 9px 10px;
   display: grid;
   align-content: center;
-  gap: 6px;
+  gap: 5px;
   border: 1px solid rgba(67, 88, 103, .27);
   border-radius: 8px;
   background: rgba(255, 255, 255, .01);
@@ -440,7 +461,7 @@
 
 @media (max-width: 1380px) {
   .scorecard {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .behaviorGrid {
@@ -471,6 +492,17 @@
   .weekToolbar {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .weekMeta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .weekMeta b {
+    padding-left: 0;
+    border-left: 0;
   }
 
   .weekNavigator {

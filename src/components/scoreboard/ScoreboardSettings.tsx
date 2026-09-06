@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { fetchChallenges } from "@/lib/challenges/api-client";
 import type { Challenge } from "@/lib/challenges/types";
@@ -30,47 +31,31 @@ const VISIBILITY_FIELDS: Array<{
 
 function dateInputValue(value: string | null) {
   if (!value) return "";
-
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
-
   return date.toISOString().slice(0, 10);
 }
 
 export function ScoreboardSettings() {
-  const [settings, setSettings] =
-    useState<ScoreboardSettingsApiModel | null>(null);
-
-  const [challenges, setChallenges] =
-    useState<Challenge[]>([]);
-
+  const [settings, setSettings] = useState<ScoreboardSettingsApiModel | null>(null);
+  const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [origin, setOrigin] = useState("");
-  const [previewVersion, setPreviewVersion] =
-    useState(0);
-
+  const [previewVersion, setPreviewVersion] = useState(0);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] =
-    useState<string | null>(null);
-
-  const [error, setError] =
-    useState<string | null>(null);
+  const [switchingLayout, setSwitchingLayout] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   async function load() {
     try {
-      const [nextSettings, nextChallenges] =
-        await Promise.all([
-          fetchScoreboardSettings(),
-          fetchChallenges(),
-        ]);
-
+      const [nextSettings, nextChallenges] = await Promise.all([
+        fetchScoreboardSettings(),
+        fetchChallenges(),
+      ]);
       setSettings(nextSettings);
       setChallenges(nextChallenges);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Unable to load Creator Scoreboard.",
-      );
+      setError(err instanceof Error ? err.message : "Unable to load Creator Scoreboard.");
     }
   }
 
@@ -81,29 +66,43 @@ export function ScoreboardSettings() {
 
   const overlayUrl = useMemo(() => {
     if (!origin || !settings) return "";
-
     return `${origin}/overlays/scoreboard/${settings.overlayKey}`;
   }, [origin, settings]);
 
-  function patch<
-    K extends keyof ScoreboardSettingsApiModel,
-  >(
+  function patch<K extends keyof ScoreboardSettingsApiModel>(
     key: K,
     value: ScoreboardSettingsApiModel[K],
   ) {
-    setSettings((current) =>
-      current
-        ? {
-            ...current,
-            [key]: value,
-          }
-        : current,
-    );
+    setSettings((current) => current ? { ...current, [key]: value } : current);
+  }
+
+  async function changeLayout(layout: ScoreboardSettingsApiModel["layout"]) {
+    if (!settings || settings.layout === layout || switchingLayout) return;
+
+    const previousLayout = settings.layout;
+    patch("layout", layout);
+    setSwitchingLayout(true);
+    setMessage(null);
+    setError(null);
+
+    try {
+      const next = await saveScoreboardSettings({ layout });
+      setSettings((current) => current ? {
+        ...current,
+        layout: next.layout,
+        updatedAt: next.updatedAt,
+      } : current);
+      setPreviewVersion((value) => value + 1);
+    } catch (err) {
+      patch("layout", previousLayout);
+      setError(err instanceof Error ? err.message : "Unable to switch Scoreboard layout.");
+    } finally {
+      setSwitchingLayout(false);
+    }
   }
 
   async function save() {
     if (!settings) return;
-
     setSaving(true);
     setMessage(null);
     setError(null);
@@ -112,16 +111,13 @@ export function ScoreboardSettings() {
       const next = await saveScoreboardSettings({
         challengeId: settings.challengeId,
         layout: settings.layout,
-
         goalLabel: settings.goalLabel,
         tradingStyle: settings.tradingStyle,
         instrumentsLabel: settings.instrumentsLabel,
         seasonStartDate: settings.seasonStartDate,
         scoreboardNotes: settings.scoreboardNotes,
-
         refreshSeconds: settings.refreshSeconds,
         isEnabled: settings.isEnabled,
-
         showBalance: settings.showBalance,
         showChallengePnl: settings.showChallengePnl,
         showTargetProgress: settings.showTargetProgress,
@@ -131,16 +127,11 @@ export function ScoreboardSettings() {
         showRealMoneyNet: settings.showRealMoneyNet,
         showRealPayouts: settings.showRealPayouts,
       });
-
       setSettings(next);
       setPreviewVersion((value) => value + 1);
       setMessage("Scoreboard saved.");
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Unable to save Scoreboard.",
-      );
+      setError(err instanceof Error ? err.message : "Unable to save Scoreboard.");
     } finally {
       setSaving(false);
     }
@@ -148,27 +139,20 @@ export function ScoreboardSettings() {
 
   async function copyUrl() {
     if (!overlayUrl) return;
-
     try {
       await navigator.clipboard.writeText(overlayUrl);
       setMessage("OBS URL copied.");
       setError(null);
     } catch {
-      setError(
-        "Copy failed. Select the URL manually.",
-      );
+      setError("Copy failed. Select the URL manually.");
     }
   }
 
   async function rotateUrl() {
-    const ok = window.confirm(
-      "Create a new OBS link? The old Scoreboard URL will stop working.",
-    );
-
+    const ok = window.confirm("Create a new OBS link? The old Scoreboard URL will stop working.");
     if (!ok) return;
 
     setSaving(true);
-
     try {
       const next = await regenerateScoreboardLink();
       setSettings(next);
@@ -176,11 +160,7 @@ export function ScoreboardSettings() {
       setMessage("New OBS URL created.");
       setError(null);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Unable to regenerate link.",
-      );
+      setError(err instanceof Error ? err.message : "Unable to regenerate link.");
     } finally {
       setSaving(false);
     }
@@ -189,47 +169,79 @@ export function ScoreboardSettings() {
   if (!settings) {
     return (
       <main className={styles.page}>
-        <div className={styles.loading}>
-          {error || "Loading Creator Scoreboard..."}
-        </div>
+        <div className={styles.loading}>{error || "Loading Creator Scoreboard..."}</div>
       </main>
     );
   }
 
   return (
     <main className={styles.page}>
-      <section className={styles.scoreboardStage}>
-        <iframe
-          key={`${settings.overlayKey}-${previewVersion}-${settings.layout}`}
-          title="FFZ Creator Scoreboard"
-          src={`${overlayUrl}?inside=app`}
-        />
+      <section className={styles.toolbar}>
+        <div className={styles.previewControls}>
+          <div className={styles.layoutSelect}>
+            <span>PREVIEW</span>
+            <div>
+              <button
+                type="button"
+                disabled={switchingLayout}
+                className={settings.layout === "FULL" ? styles.selected : ""}
+                onClick={() => void changeLayout("FULL")}
+              >
+                FULL
+              </button>
+              <button
+                type="button"
+                disabled={switchingLayout}
+                className={settings.layout === "COMPACT" ? styles.selected : ""}
+                onClick={() => void changeLayout("COMPACT")}
+              >
+                COMPACT
+              </button>
+            </div>
+          </div>
+
+          <label className={styles.enableToggle}>
+            <input
+              type="checkbox"
+              checked={settings.isEnabled}
+              onChange={(event) => patch("isEnabled", event.target.checked)}
+            />
+            <span>{settings.isEnabled ? "OVERLAY ENABLED" : "OVERLAY DISABLED"}</span>
+          </label>
+        </div>
+
+        <div className={styles.toolbarActions}>
+          <Link href="/creator/episodes">OPEN EPISODE BUILDER</Link>
+        </div>
+      </section>
+
+      {(error || message) && (
+        <div className={error ? styles.error : styles.message}>{error || message}</div>
+      )}
+
+      <section className={styles.previewPanel}>
+        <header>
+          <div>
+            <span>LIVE SCOREBOARD PREVIEW</span>
+            <small>Live scoreboard data · 16:9 OBS composition</small>
+          </div>
+        </header>
+        <div className={styles.scoreboardStage}>
+          <iframe
+            key={`${settings.overlayKey}-${previewVersion}`}
+            title="FFZ Creator Scoreboard"
+            src={`${overlayUrl}?inside=app`}
+          />
+        </div>
       </section>
 
       <section className={styles.controlGrid}>
         <article className={styles.panel}>
           <div className={styles.panelHeader}>
             <div>
-              <span>EDIT SCOREBOARD</span>
-              <small>
-                Creator fields used by the Premiere-style
-                graphic.
-              </small>
+              <span>SCOREBOARD CONTENT</span>
+              <small>Creator context shown alongside automatic challenge and journal data.</small>
             </div>
-
-            <label className={styles.enableToggle}>
-              <input
-                type="checkbox"
-                checked={settings.isEnabled}
-                onChange={(event) =>
-                  patch(
-                    "isEnabled",
-                    event.target.checked,
-                  )
-                }
-              />
-              <span>Enabled</span>
-            </label>
           </div>
 
           <div className={styles.form}>
@@ -238,24 +250,12 @@ export function ScoreboardSettings() {
                 <span>Challenge</span>
                 <select
                   value={settings.challengeId ?? ""}
-                  onChange={(event) =>
-                    patch(
-                      "challengeId",
-                      event.target.value || null,
-                    )
-                  }
+                  onChange={(event) => patch("challengeId", event.target.value || null)}
                 >
-                  <option value="">
-                    Auto-select primary challenge
-                  </option>
-
+                  <option value="">Auto-select primary challenge</option>
                   {challenges.map((challenge) => (
-                    <option
-                      key={challenge.id}
-                      value={challenge.id}
-                    >
-                      {challenge.name} —{" "}
-                      {challenge.propFirm}
+                    <option key={challenge.id} value={challenge.id}>
+                      {challenge.name} — {challenge.propFirm}
                     </option>
                   ))}
                 </select>
@@ -265,17 +265,11 @@ export function ScoreboardSettings() {
                 <span>Season Start Date</span>
                 <input
                   type="date"
-                  value={dateInputValue(
-                    settings.seasonStartDate,
+                  value={dateInputValue(settings.seasonStartDate)}
+                  onChange={(event) => patch(
+                    "seasonStartDate",
+                    event.target.value ? `${event.target.value}T00:00:00.000Z` : null,
                   )}
-                  onChange={(event) =>
-                    patch(
-                      "seasonStartDate",
-                      event.target.value
-                        ? `${event.target.value}T00:00:00.000Z`
-                        : null,
-                    )
-                  }
                 />
               </label>
             </div>
@@ -285,12 +279,7 @@ export function ScoreboardSettings() {
                 <span>Trading Style</span>
                 <input
                   value={settings.tradingStyle}
-                  onChange={(event) =>
-                    patch(
-                      "tradingStyle",
-                      event.target.value,
-                    )
-                  }
+                  onChange={(event) => patch("tradingStyle", event.target.value)}
                   maxLength={80}
                   placeholder="SCALPING"
                 />
@@ -300,12 +289,7 @@ export function ScoreboardSettings() {
                 <span>Instruments</span>
                 <input
                   value={settings.instrumentsLabel}
-                  onChange={(event) =>
-                    patch(
-                      "instrumentsLabel",
-                      event.target.value,
-                    )
-                  }
+                  onChange={(event) => patch("instrumentsLabel", event.target.value)}
                   maxLength={80}
                   placeholder="MNQ / MES"
                 />
@@ -317,47 +301,39 @@ export function ScoreboardSettings() {
               <input
                 value={settings.goalLabel}
                 maxLength={100}
-                onChange={(event) =>
-                  patch(
-                    "goalLabel",
-                    event.target.value,
-                  )
-                }
+                onChange={(event) => patch("goalLabel", event.target.value)}
                 placeholder="FIRST REAL PAYOUT"
               />
             </label>
 
-            <label
-              className={`${styles.wide} ${styles.notesField}`}
-            >
+            <label className={`${styles.wide} ${styles.notesField}`}>
               <span>Scoreboard Notes</span>
               <textarea
                 value={settings.scoreboardNotes}
-                onChange={(event) =>
-                  patch(
-                    "scoreboardNotes",
-                    event.target.value,
-                  )
-                }
+                onChange={(event) => patch("scoreboardNotes", event.target.value)}
                 maxLength={1200}
-                rows={5}
-                placeholder={
-                  "One line per note.\nKeep it short enough for the Scoreboard."
-                }
+                rows={4}
+                placeholder={"One line per note.\nKeep it short enough for the Scoreboard."}
               />
             </label>
+          </div>
+        </article>
 
-            <div className={styles.twoColumns}>
-              <label>
+        <article className={styles.panel}>
+          <div className={styles.panelHeader}>
+            <div>
+              <span>DISPLAY &amp; OBS</span>
+              <small>Refresh, visible metrics and the private Browser Source link.</small>
+            </div>
+          </div>
+
+          <div className={styles.displayBody}>
+            <div className={styles.displayTopRow}>
+              <label className={styles.refreshField}>
                 <span>Refresh Rate</span>
                 <select
                   value={settings.refreshSeconds}
-                  onChange={(event) =>
-                    patch(
-                      "refreshSeconds",
-                      Number(event.target.value),
-                    )
-                  }
+                  onChange={(event) => patch("refreshSeconds", Number(event.target.value))}
                 >
                   <option value={2}>2 seconds</option>
                   <option value={5}>5 seconds</option>
@@ -366,55 +342,25 @@ export function ScoreboardSettings() {
                 </select>
               </label>
 
-              <div className={styles.layoutSelect}>
-                <span>Version</span>
-                <div>
-                  <button
-                    type="button"
-                    className={
-                      settings.layout === "FULL"
-                        ? styles.selected
-                        : ""
-                    }
-                    onClick={() =>
-                      patch("layout", "FULL")
-                    }
-                  >
-                    FULL
-                  </button>
-
-                  <button
-                    type="button"
-                    className={
-                      settings.layout === "COMPACT"
-                        ? styles.selected
-                        : ""
-                    }
-                    onClick={() =>
-                      patch("layout", "COMPACT")
-                    }
-                  >
-                    COMPACT
-                  </button>
-                </div>
-              </div>
+              <button
+                type="button"
+                className={styles.saveButton}
+                onClick={() => void save()}
+                disabled={saving || switchingLayout}
+              >
+                {saving ? "SAVING..." : "SAVE SCOREBOARD"}
+              </button>
             </div>
 
             <div className={styles.metrics}>
-              <span>Compact / optional metric controls</span>
-
+              <span>VISIBLE METRICS</span>
               <div>
                 {VISIBILITY_FIELDS.map((item) => (
                   <label key={item.key}>
                     <input
                       type="checkbox"
                       checked={settings[item.key]}
-                      onChange={(event) =>
-                        patch(
-                          item.key,
-                          event.target.checked,
-                        )
-                      }
+                      onChange={(event) => patch(item.key, event.target.checked)}
                     />
                     <span>{item.label}</span>
                   </label>
@@ -422,109 +368,36 @@ export function ScoreboardSettings() {
               </div>
             </div>
 
-            {error && (
-              <p className={styles.error}>{error}</p>
-            )}
+            <div className={styles.obs}>
+              <label>
+                <span>OBS Browser Source URL</span>
+                <textarea
+                  readOnly
+                  rows={3}
+                  value={overlayUrl}
+                  onFocus={(event) => event.currentTarget.select()}
+                />
+              </label>
 
-            {message && (
-              <p className={styles.message}>
-                {message}
-              </p>
-            )}
+              <button type="button" className={styles.copyButton} onClick={() => void copyUrl()}>
+                COPY OBS URL
+              </button>
 
-            <button
-              type="button"
-              className={styles.saveButton}
-              onClick={() => void save()}
-              disabled={saving}
-            >
-              {saving
-                ? "SAVING..."
-                : "SAVE SCOREBOARD"}
-            </button>
-          </div>
-        </article>
+              <div className={styles.obsSetup}>
+                <strong>OBS BROWSER SOURCE</strong>
+                <span>1920 × 1080</span>
+                <span>Transparent background</span>
+              </div>
 
-        <article className={styles.panel}>
-          <div className={styles.panelHeader}>
-            <div>
-              <span>HOW FULL SCOREBOARD WORKS</span>
-              <small>
-                Almost every number is now automatic.
-              </small>
+              <button
+                type="button"
+                className={styles.rotateButton}
+                onClick={() => void rotateUrl()}
+                disabled={saving}
+              >
+                Regenerate private OBS link
+              </button>
             </div>
-          </div>
-
-          <div className={styles.explainer}>
-            <div>
-              <strong>AUTOMATIC FROM CHALLENGE</strong>
-              <span>
-                Status, phase, prop firm, account size,
-                target, daily loss, drawdown, P&amp;L.
-              </span>
-            </div>
-
-            <div>
-              <strong>AUTOMATIC FROM JOURNAL</strong>
-              <span>
-                Trades, win rate, wins, losses, best,
-                worst, average win/loss and daily calendar.
-              </span>
-            </div>
-
-            <div>
-              <strong>CREATOR SETTINGS</strong>
-              <span>
-                Trading style, instruments, season start,
-                goal and notes.
-              </span>
-            </div>
-
-            <div>
-              <strong>REAL MONEY</strong>
-              <span>
-                Net real cash and actual payouts remain
-                separate from challenge P&amp;L.
-              </span>
-            </div>
-          </div>
-
-          <div className={styles.obs}>
-            <label>
-              <span>OBS Browser Source URL</span>
-              <textarea
-                readOnly
-                rows={4}
-                value={overlayUrl}
-                onFocus={(event) =>
-                  event.currentTarget.select()
-                }
-              />
-            </label>
-
-            <button
-              type="button"
-              className={styles.copyButton}
-              onClick={() => void copyUrl()}
-            >
-              COPY OBS URL
-            </button>
-
-            <div className={styles.obsSetup}>
-              <strong>Recommended OBS Browser Source</strong>
-              <span>Width: 1920</span>
-              <span>Height: 1080</span>
-              <span>Background: transparent</span>
-            </div>
-
-            <button
-              type="button"
-              className={styles.rotateButton}
-              onClick={() => void rotateUrl()}
-              disabled={saving}
-            >
-              Regenerate private OBS link
-            </button>
           </div>
         </article>
       </section>

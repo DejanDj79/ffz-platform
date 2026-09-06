@@ -1,0 +1,20 @@
+.secondaryGrid {
+  width: 100%;
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
+.secondaryGrid > * {
+  min-width: 0;
+  height: 100%;
+  margin-bottom: 0 !important;
+}
+
+@media (max-width: 1420px) {
+  .secondaryGrid {
+    grid-template-columns: 1fr;
+  }
+}

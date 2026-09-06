@@ -22,9 +22,9 @@
 }
 
 .hero > div:first-child { display: grid; gap: 6px; }
-.hero > div:first-child > span { color: #30d0f8; font-size: 12px; font-weight: 800; letter-spacing: .14em; }
-.hero h1 { margin: 0; font-size: 26px; }
-.hero p { max-width: 760px; margin: 0; color: #83939d; font-size: 13.5px; line-height: 1.65; }
+.hero > div:first-child > span { color: #30d0f8; font-size: 13.5px; font-weight: 800; letter-spacing: .14em; }
+.hero h1 { margin: 0; font-size: 28px; }
+.hero p { max-width: 760px; margin: 0; color: #83939d; font-size: 15px; line-height: 1.6; }
 
 .legend {
   align-self: center;
@@ -35,7 +35,7 @@
   border: 1px solid rgba(66, 88, 104, .36);
   border-radius: 8px;
   background: rgba(255,255,255,.012);
-  font-size: 12.5px;
+  font-size: 14px;
 }
 .legend b { color: #d7e2e8; }
 .legend span { color: #748691; }
@@ -56,8 +56,8 @@
   background: rgba(255,255,255,.012);
 }
 .panel > header > div { display: grid; gap: 4px; }
-.panel > header span { color: #e1ebf0; font-size: 13.5px; font-weight: 800; letter-spacing: .11em; }
-.panel > header small { color: #768792; font-size: 12.5px; }
+.panel > header span { color: #e1ebf0; font-size: 15px; font-weight: 800; letter-spacing: .11em; }
+.panel > header small { color: #768792; font-size: 14px; }
 
 .ruleRow {
   min-height: 88px;
@@ -97,8 +97,8 @@
 .ruleToggle input:focus-visible + span { box-shadow: 0 0 0 2px rgba(48,208,248,.18); }
 
 .ruleCopy { min-width: 0; display: grid; gap: 4px; }
-.ruleCopy strong { font-size: 13.5px; color: #d8e2e8; }
-.ruleCopy small { color: #73848f; font-size: 12px; line-height: 1.45; }
+.ruleCopy strong { font-size: 15px; color: #d8e2e8; }
+.ruleCopy small { color: #73848f; font-size: 13.5px; line-height: 1.45; }
 
 .ruleControls {
   min-width: 0;
@@ -117,7 +117,7 @@
   border-radius: 0;
   color: #8697a1;
   background: transparent;
-  font-size: 12px;
+  font-size: 13.5px;
 }
 .ruleControls input,
 .ruleControls select,
@@ -128,7 +128,7 @@
   color: #e7eef2;
   background: #0b151d;
   font: inherit;
-  font-size: 12.5px;
+  font-size: 14px;
   color-scheme: dark;
 }
 .ruleControls input { width: 68px; height: 30px; padding: 0 7px; }
@@ -147,7 +147,7 @@
   border-radius: 6px;
   color: #b48bf1;
   background: rgba(160,112,232,.055);
-  font-size: 11.5px;
+  font-size: 13px;
   font-weight: 800;
 }
 
@@ -158,8 +158,8 @@
   border-bottom: 1px solid rgba(64,84,99,.22);
 }
 .keywordRow > div { display: grid; gap: 4px; }
-.keywordRow strong { font-size: 13px; }
-.keywordRow small { color: #73848f; font-size: 12px; }
+.keywordRow strong { font-size: 14.5px; }
+.keywordRow small { color: #73848f; font-size: 13.5px; }
 .keywordRow textarea { width: 100%; min-height: 74px; resize: vertical; padding: 10px; }
 
 .newsNote {
@@ -169,8 +169,8 @@
   border-radius: 8px;
   color: #82939d;
   background: rgba(48,208,248,.035);
-  font-size: 12.5px;
-  line-height: 1.6;
+  font-size: 14px;
+  line-height: 1.55;
 }
 
 .actions {
@@ -185,7 +185,7 @@
   border-radius: 7px;
   cursor: pointer;
   font: inherit;
-  font-size: 12.5px;
+  font-size: 14px;
   font-weight: 800;
   letter-spacing: .06em;
 }
@@ -198,7 +198,7 @@
   margin-bottom: 12px;
   padding: 10px 13px;
   border-radius: 7px;
-  font-size: 12.5px;
+  font-size: 14px;
 }
 .error { border: 1px solid rgba(255,115,127,.3); color: #ff9ca4; background: rgba(255,115,127,.05); }
 .message { border: 1px solid rgba(69,219,173,.24); color: #82e4c5; background: rgba(69,219,173,.035); }

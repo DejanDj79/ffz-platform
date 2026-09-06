@@ -71,6 +71,61 @@
   font-size: calc(10px !important + 2px);
 }
 
+/* Keep Trade History compact: roughly five rows, then scroll inside the table.
+   The scrollbar follows the same hover-first treatment as the Accounts list. */
+.journalTypography [class*="historyPanel"] [class*="tableWrap"] {
+  min-height: 0;
+  max-height: 305px;
+  overflow-x: auto;
+  overflow-y: auto;
+  overscroll-behavior-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.journalTypography [class*="historyPanel"] [class*="table"] tbody tr {
+  height: 54px;
+}
+
+.journalTypography [class*="historyPanel"] [class*="table"] th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  height: 35px;
+  background: #0b151d;
+}
+
+.journalTypography [class*="historyPanel"]:hover [class*="tableWrap"] {
+  scrollbar-color: #50616d transparent;
+}
+
+.journalTypography [class*="historyPanel"] [class*="tableWrap"]::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+.journalTypography [class*="historyPanel"] [class*="tableWrap"]::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.journalTypography [class*="historyPanel"] [class*="tableWrap"]::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: transparent;
+}
+
+.journalTypography [class*="historyPanel"]:hover [class*="tableWrap"]::-webkit-scrollbar-thumb {
+  background: #50616d;
+}
+
+.journalTypography [class*="historyPanel"] [class*="tableWrap"]::-webkit-scrollbar-thumb:hover {
+  background: #677b88;
+}
+
+/* Native datetime inputs otherwise render a dark calendar glyph in Chromium. */
+.journalTypography [class*="editorModal"] input[type="datetime-local"] {
+  color-scheme: dark;
+}
+
 /* Journal submenu lives in the shared sidebar, outside the route wrapper. */
 [class*="subNavItem"] {
   min-height: 34px !important;

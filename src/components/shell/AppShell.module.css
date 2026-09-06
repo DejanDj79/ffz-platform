@@ -346,11 +346,12 @@
   width: min(1600px, 100%);
   margin: 0 auto;
   min-width: 0;
+  padding-top: 24px;
 }
 
-/* Existing Calculator and Planner keep their component code.
-   Inside the shared shell we suppress their old standalone header/footer
-   and remove the old outer page width so there is no duplicate chrome. */
+/* Every authenticated FFZ page starts at the same visual distance below the
+   shared page header. Older standalone components can still keep their own
+   width/footer rules, but the shell owns the vertical page rhythm. */
 .content > main {
   width: 100% !important;
   max-width: none !important;
@@ -454,6 +455,7 @@
   .pageIdentity { gap: 10px; }
   .pageIcon { display: none; }
   .pageIdentity p { max-width: 280px; }
+  .content { padding-top: 18px; }
 }
 
 

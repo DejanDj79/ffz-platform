@@ -13,8 +13,8 @@ export function CopyEpisodeBrief({ brief }: { brief: string }) {
   }
 
   return (
-    <button className={styles.copyButton} type="button" onClick={() => void copy()}>
-      {copied ? "COPIED" : "COPY EPISODE BRIEF"}
+    <button type="button" className={styles.copyButton} onClick={() => void copy()}>
+      {copied ? "COPIED" : "COPY BRIEF"}
     </button>
   );
 }

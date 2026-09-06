@@ -46,10 +46,6 @@ const NAV_ITEMS: NavItem[] = [
     label: "Challenge / Funded",
     icon: "flag",
     section: "workspace",
-    children: [
-      { href: "/challenges", label: "Accounts" },
-      { href: "/tools/prop-firm-rules", label: "Rules Library" },
-    ],
   },
   {
     href: "/journal",
@@ -105,12 +101,6 @@ const PAGE_META: Array<{
     title: "Trading Guardrails",
     subtitle: "Personal trading limits and news lockout rules.",
     icon: "calc",
-  },
-  {
-    match: (pathname) => pathname.startsWith("/tools/prop-firm-rules"),
-    title: "Prop Firm Rules",
-    subtitle: "Review preset rules or create a manual challenge setup.",
-    icon: "flag",
   },
   {
     match: (pathname) => pathname.startsWith("/challenges"),
@@ -308,7 +298,9 @@ export function AppShell({ children }: { children: ReactNode }) {
     return <>{children}</>;
   }
 
-  if (isPublicCalculator && authState === "unauthenticated") {
+  // Public calculator remains immediately usable for guests/direct loads while
+  // authenticated client-side navigation keeps the already-mounted shell.
+  if (isPublicCalculator && authState !== "authenticated") {
     return <>{children}</>;
   }
 

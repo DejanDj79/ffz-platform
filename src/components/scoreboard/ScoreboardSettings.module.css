@@ -1,57 +1,167 @@
 .page {
   width: 100%;
-  padding: 24px 0 5px;
+  padding: 0 0 6px;
+  display: grid;
+  gap: 14px;
   color: #eef4f8;
 }
 
+.toolbar,
+.previewPanel,
 .panel {
-  overflow: hidden;
-  border: 1px solid rgba(68,91,109,.45);
+  border: 1px solid rgba(68, 91, 109, .4);
   border-radius: 11px;
-  background:
-    linear-gradient(
-      180deg,
-      rgba(11,22,30,.90),
-      rgba(6,14,21,.93)
-    );
-  backdrop-filter: blur(8px);
+  background: linear-gradient(180deg, rgba(11, 22, 30, .9), rgba(6, 14, 21, .94));
+  box-shadow: inset 0 1px rgba(255, 255, 255, .018);
 }
 
-.panelHeader {
-  min-height: 58px;
-  padding: 13px 16px;
+.toolbar {
+  min-height: 62px;
+  padding: 10px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 15px;
-  border-bottom: 1px solid rgba(66,87,103,.38);
-  background: rgba(255,255,255,.012);
+  gap: 14px;
 }
 
+.previewControls,
+.toolbarActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.layoutSelect {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.layoutSelect > span,
+.form label > span,
+.refreshField > span,
+.metrics > span,
+.obs label > span {
+  color: #7c8e99;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+
+.layoutSelect > div {
+  height: 36px;
+  padding: 3px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid #33434e;
+  border-radius: 7px;
+  background: #0b141c;
+}
+
+.layoutSelect button {
+  min-width: 72px;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  color: #687b87;
+  background: transparent;
+  font: inherit;
+  font-size: 10.5px;
+  font-weight: 800;
+}
+
+.layoutSelect button:disabled {
+  cursor: default;
+  opacity: .7;
+}
+
+.layoutSelect .selected {
+  color: #30d0f8;
+  background: rgba(48, 208, 248, .08);
+}
+
+.enableToggle {
+  min-height: 36px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgba(67, 89, 105, .35);
+  border-radius: 7px;
+  color: #93a4af;
+  background: rgba(255, 255, 255, .01);
+  font-size: 10.5px;
+  font-weight: 750;
+  letter-spacing: .035em;
+}
+
+.enableToggle input,
+.metrics input {
+  accent-color: #30d0f8;
+}
+
+.toolbarActions a {
+  min-height: 36px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(160, 112, 232, .42);
+  border-radius: 7px;
+  color: #d5c0fb;
+  background: rgba(160, 112, 232, .055);
+  text-decoration: none;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .055em;
+}
+
+.previewPanel {
+  overflow: hidden;
+}
+
+.previewPanel > header,
+.panelHeader {
+  min-height: 54px;
+  padding: 11px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-bottom: 1px solid rgba(66, 87, 103, .34);
+  background: rgba(255, 255, 255, .01);
+}
+
+.previewPanel > header > div,
 .panelHeader > div {
   display: grid;
   gap: 3px;
 }
 
+.previewPanel header span,
 .panelHeader span {
   color: #dce7ed;
   font-size: 12px;
   font-weight: 800;
-  letter-spacing: .13em;
+  letter-spacing: .1em;
 }
 
+.previewPanel header small,
 .panelHeader small {
-  color: #697b87;
-  font-size: 11px;
+  color: #6d7e89;
+  font-size: 11.5px;
+  line-height: 1.4;
 }
 
 .scoreboardStage {
-  width: 100%;
+  width: min(1180px, calc(100% - 28px));
+  margin: 14px auto 16px;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
+  border: 1px solid rgba(55, 76, 91, .28);
+  border-radius: 8px;
+  background: rgba(2, 7, 11, .42);
 }
 
 .scoreboardStage iframe {
@@ -63,182 +173,160 @@
 }
 
 .controlGrid {
-  margin-top: 14px;
   display: grid;
-  grid-template-columns:
-    minmax(570px, 1.3fr)
-    minmax(330px, .7fr);
+  grid-template-columns: minmax(560px, 1.15fr) minmax(400px, .85fr);
   gap: 14px;
   align-items: start;
 }
 
-.enableToggle {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  color: #93a4af;
-  font-size: 11px;
-}
-
-.enableToggle input {
-  accent-color: #30d0f8;
+.panel {
+  overflow: hidden;
 }
 
 .form,
-.obs,
-.explainer {
-  padding: 16px;
+.displayBody {
+  padding: 15px;
 }
 
 .form label,
+.refreshField,
 .obs label {
   display: grid;
   gap: 6px;
 }
 
-.form label > span,
-.layoutSelect > span,
-.metrics > span,
-.obs label > span {
-  color: #7c8e99;
-  font-size: 11.5px;
-  font-weight: 600;
-}
-
 .form input,
 .form select,
 .form textarea,
+.refreshField select,
 .obs textarea {
   width: 100%;
   border: 1px solid #33434e;
   border-radius: 7px;
   outline: none;
   color: #eef4f8;
-  background:
-    linear-gradient(
-      180deg,
-      #101b24,
-      #0b141c
-    );
+  background: linear-gradient(180deg, #101b24, #0b141c);
   font: inherit;
   font-size: 13px;
 }
 
 .form input,
-.form select {
-  height: 37px;
+.form select,
+.refreshField select {
+  height: 38px;
   padding: 0 10px;
 }
 
 .form textarea,
 .obs textarea {
-  padding: 10px;
+  padding: 9px 10px;
   resize: vertical;
   line-height: 1.45;
 }
 
-.form select {
+.form select,
+.refreshField select,
+.form input[type="date"] {
   color-scheme: dark;
 }
 
-.form select option {
+.form select option,
+.refreshField select option {
+  color: #eef4f8;
   background: #0b141c;
 }
 
 .form input:focus,
 .form select:focus,
 .form textarea:focus,
+.refreshField select:focus,
 .obs textarea:focus {
   border-color: #30d0f8;
-  box-shadow:
-    0 0 0 2px rgba(48,208,248,.07);
+  box-shadow: 0 0 0 2px rgba(48, 208, 248, .07);
 }
 
 .twoColumns {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 11px;
+  margin-bottom: 11px;
 }
 
 .wide {
-  margin-bottom: 12px;
+  margin-bottom: 11px;
 }
 
 .notesField textarea {
-  min-height: 92px;
+  min-height: 78px;
 }
 
-.layoutSelect {
+.displayBody {
   display: grid;
-  gap: 6px;
+  gap: 14px;
 }
 
-.layoutSelect > div {
-  height: 37px;
-  padding: 3px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  border: 1px solid #33434e;
-  border-radius: 7px;
-  background: #0b141c;
+.displayTopRow {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.layoutSelect button {
-  border: 0;
-  border-radius: 5px;
-  cursor: pointer;
-  color: #687b87;
-  background: transparent;
-  font: inherit;
-  font-size: 10.5px;
-  font-weight: 800;
-}
-
-.layoutSelect .selected {
-  color: #30d0f8;
-  background: rgba(48,208,248,.08);
+.refreshField {
+  width: min(220px, 100%);
 }
 
 .metrics {
-  margin-top: 16px;
+  padding-top: 2px;
 }
 
 .metrics > div {
   margin-top: 7px;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 7px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
 }
 
 .metrics label {
-  min-height: 39px;
-  padding: 0 9px;
+  min-height: 37px;
+  padding: 0 7px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  border: 1px solid rgba(67,89,105,.3);
+  gap: 7px;
+  border: 1px solid rgba(67, 89, 105, .29);
   border-radius: 7px;
-  background: rgba(255,255,255,.011);
+  background: rgba(255, 255, 255, .01);
 }
 
 .metrics input {
-  width: 14px;
-  height: 14px;
-  accent-color: #30d0f8;
+  width: 13px;
+  height: 13px;
+  flex: 0 0 auto;
 }
 
 .metrics label span {
-  color: #a2b1bb;
-  font-size: 10.5px;
+  min-width: 0;
+  color: #9eafb8;
+  font-size: 10px;
+  line-height: 1.25;
 }
 
-.saveButton,
+.obs {
+  padding-top: 13px;
+  border-top: 1px solid rgba(66, 87, 103, .28);
+}
+
+.obs textarea {
+  min-height: 66px;
+  resize: none;
+  font-size: 11.5px;
+}
+
 .copyButton {
   width: 100%;
-  min-height: 40px;
-  margin-top: 15px;
-  border: 1px solid rgba(48,208,248,.52);
+  min-height: 38px;
+  margin-top: 9px;
+  border: 1px solid rgba(48, 208, 248, .5);
   border-radius: 7px;
   cursor: pointer;
   color: #041117;
@@ -246,92 +334,83 @@
   font: inherit;
   font-size: 11px;
   font-weight: 800;
-  letter-spacing: .08em;
-}
-
-.error,
-.message {
-  margin: 13px 0 0;
-  padding: 9px 10px;
-  border-radius: 7px;
-  font-size: 11px;
-}
-
-.error {
-  border: 1px solid rgba(255,119,132,.28);
-  color: #ff929b;
-  background: rgba(255,119,132,.045);
-}
-
-.message {
-  border: 1px solid rgba(80,223,179,.25);
-  color: #69e4be;
-  background: rgba(80,223,179,.04);
-}
-
-.explainer {
-  display: grid;
-  gap: 8px;
-}
-
-.explainer > div {
-  padding: 11px;
-  display: grid;
-  gap: 4px;
-  border: 1px solid rgba(67,89,105,.3);
-  border-radius: 7px;
-  background: rgba(255,255,255,.011);
-}
-
-.explainer strong {
-  color: #b8c5cd;
-  font-size: 10.5px;
-  letter-spacing: .07em;
-}
-
-.explainer span,
-.obsSetup span {
-  color: #687b86;
-  font-size: 10.5px;
-  line-height: 1.45;
-}
-
-.obs {
-  padding-top: 4px;
-}
-
-.obs textarea {
-  min-height: 82px;
-  resize: none;
+  letter-spacing: .06em;
 }
 
 .obsSetup {
-  margin-top: 14px;
-  padding: 11px;
+  margin-top: 10px;
+  padding: 10px;
   display: grid;
-  gap: 5px;
-  border: 1px solid rgba(67,89,105,.31);
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(67, 89, 105, .28);
   border-radius: 7px;
-  background: rgba(255,255,255,.011);
+  background: rgba(255, 255, 255, .01);
 }
 
 .obsSetup strong {
-  margin-bottom: 2px;
-  color: #b1bec6;
-  font-size: 11px;
+  color: #aebdc5;
+  font-size: 10.5px;
+  letter-spacing: .05em;
+}
+
+.obsSetup span {
+  color: #6f818c;
+  font-size: 10.5px;
 }
 
 .rotateButton {
   width: 100%;
-  min-height: 36px;
-  margin-top: 14px;
-  border: 1px solid rgba(255,119,132,.22);
+  min-height: 34px;
+  margin-top: 10px;
+  border: 1px solid rgba(255, 119, 132, .2);
   border-radius: 7px;
   cursor: pointer;
   color: #ff8691;
-  background: rgba(255,119,132,.035);
+  background: rgba(255, 119, 132, .03);
   font: inherit;
   font-size: 10.5px;
+}
+
+.saveButton {
+  min-width: 150px;
+  min-height: 38px;
+  padding: 0 16px;
+  border: 1px solid rgba(48, 208, 248, .55);
+  border-radius: 7px;
+  cursor: pointer;
+  color: #041117;
+  background: #30d0f8;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .06em;
+}
+
+.saveButton:disabled {
+  cursor: default;
+  opacity: .55;
+}
+
+.error,
+.message {
+  margin: 0;
+  padding: 9px 11px;
+  border-radius: 7px;
+  font-size: 11.5px;
+}
+
+.error {
+  border: 1px solid rgba(255, 119, 132, .28);
+  color: #ff929b;
+  background: rgba(255, 119, 132, .045);
+}
+
+.message {
+  border: 1px solid rgba(80, 223, 179, .25);
+  color: #69e4be;
+  background: rgba(80, 223, 179, .04);
 }
 
 .loading {
@@ -342,15 +421,61 @@
   font-size: 12px;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1280px) {
   .controlGrid {
     grid-template-columns: 1fr;
+  }
+
+  .metrics > div {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .previewControls,
+  .toolbarActions {
+    justify-content: space-between;
   }
 }
 
 @media (max-width: 650px) {
+  .previewControls,
+  .toolbarActions,
+  .displayTopRow {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .layoutSelect {
+    justify-content: space-between;
+  }
+
+  .layoutSelect > div {
+    flex: 1;
+  }
+
+  .toolbarActions a,
+  .saveButton,
+  .refreshField {
+    width: 100%;
+  }
+
   .twoColumns,
   .metrics > div {
     grid-template-columns: 1fr;
+  }
+
+  .obsSetup {
+    grid-template-columns: 1fr;
+  }
+
+  .scoreboardStage {
+    width: calc(100% - 18px);
+    margin: 9px auto 11px;
   }
 }

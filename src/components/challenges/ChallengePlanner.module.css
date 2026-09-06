@@ -69,13 +69,6 @@
 .systemText { display: grid; gap: 2px; font-size: 13px; }
 .systemText small { color: #82909d; font-size: 12px; }
 
-.workspace {
-  display: grid;
-  grid-template-columns: minmax(390px, .70fr) minmax(760px, 1.30fr);
-  gap: 18px;
-  padding: 14px 0 0;
-}
-
 .panel {
   border: 1px solid rgba(64, 86, 103, .62);
   border-radius: 11px;
@@ -85,7 +78,7 @@
 }
 
 .panelTitle {
-  height: 46px;
+  min-height: 48px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -98,21 +91,79 @@
 }
 .panelTitle.purple { color: #a070e8; }
 .panelTitle svg { width: 21px; height: 21px; }
+.panelTitleLabel { display: flex; align-items: center; gap: 10px; }
 
-.formList { padding: 4px 14px 0; }
+.accountsPanel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  margin-bottom: 14px;
+}
+
+.accountsTitle {
+  flex: 0 0 48px;
+  justify-content: space-between;
+}
+
+.newAccountButton {
+  min-height: 32px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgba(48, 208, 248, .32);
+  border-radius: 7px;
+  color: #30d0f8;
+  background: rgba(48, 208, 248, .045);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: .05em;
+}
+.newAccountButton:hover {
+  border-color: rgba(48, 208, 248, .58);
+  background: rgba(48, 208, 248, .08);
+}
+.newAccountButton svg { width: 17px; height: 17px; }
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(390px, .70fr) minmax(760px, 1.30fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.setupPanel { min-width: 0; }
+
+.formGroup + .formGroup {
+  border-top: 1px solid rgba(57, 77, 92, .34);
+}
+
+.formGroupTitle {
+  min-height: 34px;
+  display: flex;
+  align-items: end;
+  padding: 10px 14px 5px;
+  color: #6f8491;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: .13em;
+}
+
+.formList { padding: 0 14px; }
 .formRow {
-  min-height: 51px;
+  min-height: 52px;
   display: grid;
   grid-template-columns: 31px minmax(135px, 1fr) minmax(150px, 210px);
   gap: 8px;
   align-items: center;
-  border-bottom: 1px solid rgba(57, 77, 92, .42);
+  border-bottom: 1px solid rgba(57, 77, 92, .35);
 }
 .formRow:last-child { border-bottom: 0; }
 .formIcon { color: #30d0f8; display: grid; place-items: center; }
 .formIcon.purple { color: #a070e8; }
 .formIcon svg { width: 19px; height: 19px; }
-.formLabel { font-size: 13.5px; color: #cbd4dc; }
+.formLabel { font-size: 14px; color: #cbd4dc; }
 .formControl input,
 .formControl select,
 .formControl textarea {
@@ -124,29 +175,29 @@
   color: #eff4f8;
   padding: 0 11px;
   font: inherit;
-  font-size: 13.5px;
+  font-size: 14px;
 }
 .formControl input,
-.formControl select { height: 34px; }
-
-/* Keep native select popups readable in the dark FFZ theme. */
+.formControl select { height: 35px; }
 .formControl select {
   color-scheme: dark;
   background-color: #0b141c;
   color: #eff4f8;
 }
-
 .formControl select option,
 .formControl select optgroup {
   background: #0b141c;
   color: #eff4f8;
 }
-.formControl textarea { min-height: 58px; padding-top: 8px; resize: vertical; }
+.formControl textarea { min-height: 64px; padding-top: 9px; resize: vertical; }
 .formControl input:focus,
 .formControl select:focus,
 .formControl textarea:focus { border-color: #30d0f8; box-shadow: 0 0 0 2px rgba(48, 208, 248, .08); }
 
+.notesGroup .formList { padding-bottom: 4px; }
+
 .actions { display: grid; grid-template-columns: 1.1fr .9fr; gap: 12px; padding: 14px; }
+.actions.singleAction { grid-template-columns: 1fr; }
 .actions button {
   height: 44px;
   border-radius: 7px;
@@ -166,13 +217,14 @@
 
 .rightColumn {
   display: grid;
-  grid-template-rows: auto auto auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
   gap: 14px;
   min-width: 0;
   min-height: 0;
-  height: 100%;
-  overflow: hidden;
+  height: auto;
+  overflow: visible;
 }
+
 .overviewBody { padding: 10px; }
 .overviewGrid {
   display: grid;
@@ -200,20 +252,20 @@
 }
 .metricCard.purple::after { background: #a070e8; }
 .metricLabel {
-  min-height: 45px;
+  min-height: 46px;
   padding: 12px 12px 5px;
   display: flex;
   align-items: center;
   gap: 7px;
   color: #d2d9df;
-  font-size: 11.5px;
-  font-weight: 700;
+  font-size: 12.5px;
+  font-weight: 750;
   line-height: 1.15;
 }
 .metricLabel svg { width: 18px; height: 18px; color: #30d0f8; flex: 0 0 auto; }
 .metricCard.purple .metricLabel svg { color: #a070e8; }
 .metricValue { text-align: center; font-size: calc(clamp(20px, 1.8vw, 29px) + 2px); font-weight: 600; padding: 5px 8px 0; }
-.metricSub { text-align: center; color: #9ba7b2; font-size: 12px; padding: 5px 8px 14px; }
+.metricSub { text-align: center; color: #9ba7b2; font-size: 13px; line-height: 1.35; padding: 5px 8px 14px; }
 
 .progressTrack { height: 5px; border-radius: 999px; background: #26323c; margin: 8px 16px 0; overflow: hidden; }
 .progressFill { height: 100%; border-radius: inherit; background: #30d0f8; }
@@ -221,92 +273,100 @@
 .healthCard { grid-column: 5; grid-row: 1 / span 2; min-height: 290px; border-color: rgba(48, 208, 248, .75); }
 .healthCard::after { height: 5px; }
 .healthInner { height: 100%; min-height: 290px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 22px 14px; }
-.healthLabel { display: flex; align-items: center; gap: 7px; color: #30d0f8; font-size: 12px; font-weight: 800; margin-bottom: 24px; }
+.healthLabel { display: flex; align-items: center; gap: 7px; color: #30d0f8; font-size: 13px; font-weight: 800; margin-bottom: 24px; }
 .healthLabel svg { width: 19px; height: 19px; }
 .healthValue { font-size: calc(clamp(34px, 3vw, 50px) + 2px); line-height: 1; font-weight: 700; color: #30d0f8; }
 .healthValue.caution { color: #f5bc4f; }
 .healthValue.danger { color: #ff6577; }
 .healthShield { margin: 20px 0; color: currentColor; }
 .healthShield svg { width: 62px; height: 62px; }
-.healthText { color: #c8d0d7; font-size: 12.5px; line-height: 1.55; max-width: 155px; }
+.healthText { color: #c8d0d7; font-size: 13.5px; line-height: 1.5; max-width: 170px; }
 
-.summaryBody { padding: 8px 13px 13px; }
-.summaryGrid {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  border: 1px solid rgba(56, 77, 93, .66);
-  border-radius: 8px;
-  overflow: hidden;
-}
-.summaryCell { min-height: 68px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 7px; border-right: 1px solid rgba(57, 77, 92, .48); }
-.summaryCell:last-child { border-right: 0; }
-.summaryLabel { color: #8f9ba6; font-size: 11px; margin-bottom: 6px; }
-.summaryValue { color: #eef4f8; font-size: 14px; font-weight: 600; }
 .positive { color: #20d86f; }
 .negative { color: #ff6577; }
-
-.activeChallengesPanel {
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.activeChallengesPanel .panelTitle {
-  flex: 0 0 46px;
-}
 
 .tableWrap {
   flex: 1 1 auto;
   min-height: 0;
   overflow: auto;
-  scrollbar-gutter: stable;
 }
 
-.tableWrap::-webkit-scrollbar { width: 8px; height: 8px; }
-.tableWrap::-webkit-scrollbar-track { background: rgba(7, 14, 21, .72); }
-.tableWrap::-webkit-scrollbar-thumb { background: #344551; border-radius: 999px; }
-.tableWrap::-webkit-scrollbar-thumb:hover { background: #47606f; }
-.challengeTable { width: 100%; border-collapse: collapse; min-width: 900px; font-size: 12px; }
+.accountsPanel .tableWrap {
+  flex: 0 1 auto;
+  max-height: 220px;
+  overflow-y: auto;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.accountsPanel:hover .tableWrap {
+  scrollbar-color: #50616d transparent;
+}
+
+.accountsPanel .tableWrap::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+.accountsPanel .tableWrap::-webkit-scrollbar-track { background: transparent; }
+.accountsPanel .tableWrap::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: transparent;
+}
+.accountsPanel:hover .tableWrap::-webkit-scrollbar-thumb { background: #50616d; }
+.accountsPanel .tableWrap::-webkit-scrollbar-thumb:hover { background: #677b88; }
+.challengeTable { width: 100%; border-collapse: collapse; min-width: 900px; font-size: 13.5px; }
 .challengeTable th {
   position: sticky;
   top: 0;
   z-index: 2;
   text-align: left;
   color: #8996a1;
-  font-weight: 500;
-  padding: 9px 10px;
+  font-weight: 650;
+  padding: 10px 12px;
   border-bottom: 1px solid rgba(57, 77, 92, .48);
   background: #0a151e;
+  font-size: 12px;
+  letter-spacing: .03em;
 }
-.challengeTable td { padding: 9px 10px; border-bottom: 1px solid rgba(57, 77, 92, .37); color: #d6dde3; }
+.challengeTable td { padding: 10px 12px; border-bottom: 1px solid rgba(57, 77, 92, .37); color: #d6dde3; }
 .challengeTable tbody tr { cursor: pointer; transition: background .12s ease; }
-.challengeTable tbody tr:hover { background: rgba(48, 208, 248, .035); }
-.challengeTable tbody tr.selected { background: rgba(48, 208, 248, .07); }
-.statusBadge { display: inline-flex; align-items: center; justify-content: center; min-width: 78px; padding: 4px 7px; border: 1px solid #30d0f8; border-radius: 5px; color: #30d0f8; font-size: 10px; font-weight: 700; }
+.challengeTable tbody tr:hover { background: rgba(48, 208, 248, .04); }
+.challengeTable tbody tr.selected { background: rgba(48, 208, 248, .085); box-shadow: inset 3px 0 #30d0f8; }
+.statusBadge { display: inline-flex; align-items: center; justify-content: center; min-width: 82px; padding: 4px 8px; border: 1px solid #30d0f8; border-radius: 5px; color: #30d0f8; font-size: 11px; font-weight: 750; }
 .statusBadge.paused { border-color: #f5bc4f; color: #f5bc4f; }
 .statusBadge.failed { border-color: #ff6577; color: #ff6577; }
 .statusBadge.neutral { border-color: #63717c; color: #a9b3bb; }
-.rowProgress { display: flex; align-items: center; gap: 7px; min-width: 115px; }
-.rowBar { width: 55px; height: 4px; border-radius: 999px; background: #2b3740; overflow: hidden; }
+.rowProgress { display: flex; align-items: center; gap: 8px; min-width: 120px; }
+.rowBar { width: 58px; height: 5px; border-radius: 999px; background: #2b3740; overflow: hidden; }
 .rowBar span { display: block; height: 100%; background: #30d0f8; }
-.emptyState { padding: 28px 16px; text-align: center; color: #7f8b96; font-size: 13px; }
+.emptyState { padding: 30px 16px; text-align: center; color: #82939e; font-size: 14px; }
 
 .footer { min-height: 54px; display: flex; align-items: center; justify-content: center; color: #63717d; font-size: 11.5px; border-top: 1px solid rgba(87, 106, 121, .22); margin-top: 14px; }
 
+.ruleNotice {
+  margin: 10px 12px 0;
+  padding: 11px 12px;
+  border: 1px solid rgba(245, 188, 79, .34);
+  border-radius: 8px;
+  background: rgba(245, 188, 79, .055);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #cbd4db;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+.ruleNotice strong { color: #f2c76d; font-size: 13px; }
+.ruleNotice small { color: #919da7; font-size: 11.5px; line-height: 1.45; }
+
 @media (max-width: 1180px) {
   .workspace { grid-template-columns: 1fr; }
-  .rightColumn {
-    grid-template-rows: auto auto auto auto;
-    height: auto;
-    overflow: visible;
-  }
-  .activeChallengesPanel { max-height: 430px; }
+  .rightColumn { grid-template-rows: auto auto; }
+  .accountsPanel .tableWrap { max-height: 250px; }
   .overviewGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .healthCard { grid-column: span 2; grid-row: auto; min-height: 180px; }
   .healthInner { min-height: 180px; }
-  .summaryGrid { grid-template-columns: repeat(4, 1fr); }
-  .summaryCell { border-bottom: 1px solid rgba(57, 77, 92, .48); }
 }
 
 @media (max-width: 760px) {
@@ -315,27 +375,12 @@
   .logoFrame { justify-content: center; max-width: 180px; height: 50px; }
   .titleWrap { justify-self: center; }
   .systemChip { justify-self: center; min-width: 0; }
-  .workspace { padding-top: 10px; }
+  .accountsTitle { min-height: 56px; flex-basis: 56px; padding: 7px 10px; }
+  .accountsPanel .tableWrap { max-height: 270px; }
+  .newAccountButton { padding-inline: 9px; font-size: 11.5px; }
+  .workspace { gap: 12px; }
   .formRow { grid-template-columns: 28px 1fr; padding: 8px 0; }
   .formControl { grid-column: 2; width: 100%; }
   .overviewGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .healthCard { grid-column: 1 / -1; }
-  .summaryGrid { grid-template-columns: repeat(2, 1fr); }
 }
-
-/* Sprint 2.1 — rule preset verification notice */
-.ruleNotice {
-  margin: 10px 12px 0;
-  padding: 10px 12px;
-  border: 1px solid rgba(245, 188, 79, .34);
-  border-radius: 8px;
-  background: rgba(245, 188, 79, .055);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  color: #cbd4db;
-  font-size: 11.5px;
-  line-height: 1.45;
-}
-.ruleNotice strong { color: #f2c76d; font-size: 12px; }
-.ruleNotice small { color: #919da7; font-size: 10.8px; line-height: 1.45; }

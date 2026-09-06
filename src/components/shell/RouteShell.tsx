@@ -1,57 +1,20 @@
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { AppShell } from "./AppShell";
 
-const PUBLIC_RISK_CALCULATOR_PATH = "/tools/risk-calculator";
-
 export function RouteShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const isPublicRiskCalculator = pathname === PUBLIC_RISK_CALCULATOR_PATH;
   const isPublicJourney = pathname === "/journey" || pathname.startsWith("/journey/");
-  const [calculatorAuthState, setCalculatorAuthState] = useState<
-    "checking" | "authenticated" | "guest"
-  >("checking");
-
-  useEffect(() => {
-    if (!isPublicRiskCalculator) {
-      setCalculatorAuthState("checking");
-      return;
-    }
-
-    let cancelled = false;
-
-    async function checkCalculatorSession() {
-      try {
-        const response = await fetch("/api/auth/me", { cache: "no-store" });
-        if (cancelled) return;
-        setCalculatorAuthState(response.ok ? "authenticated" : "guest");
-      } catch {
-        if (!cancelled) setCalculatorAuthState("guest");
-      }
-    }
-
-    void checkCalculatorSession();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [isPublicRiskCalculator]);
 
   if (isPublicJourney) {
     return <>{children}</>;
   }
 
-  if (!isPublicRiskCalculator) {
-    return <AppShell>{children}</AppShell>;
-  }
-
-  if (calculatorAuthState === "authenticated") {
-    return <AppShell>{children}</AppShell>;
-  }
-
-  // The calculator itself is server-selected: authenticated users receive the
-  // full FFZ calculator while guests receive the public, API-free variant.
-  return <>{children}</>;
+  // Keep the shared shell mounted across application navigation, including
+  // Risk Calculator. AppShell already owns the authenticated-vs-guest decision
+  // for that public-capable route, so duplicating the auth check here caused
+  // the sidebar/header to disappear briefly during client-side navigation.
+  return <AppShell>{children}</AppShell>;
 }

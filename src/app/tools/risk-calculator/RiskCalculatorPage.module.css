@@ -1,0 +1,255 @@
+.authenticatedCalculator {
+  width: 100%;
+  min-width: 0;
+}
+
+/* The authenticated calculator lives inside AppShell, so its old standalone
+   chrome must not compete with the shared FFZ page header. */
+.authenticatedCalculator :global(.app-shell) {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 0 4px;
+}
+
+.authenticatedCalculator :global(.topbar),
+.authenticatedCalculator :global(.app-footer) {
+  display: none;
+}
+
+.authenticatedCalculator :global(.workspace) {
+  display: grid;
+  grid-template-columns: minmax(390px, .78fr) minmax(0, 1.22fr);
+  gap: 14px;
+  padding: 0 0 6px;
+  align-items: stretch;
+}
+
+.authenticatedCalculator :global(.main-panel) {
+  min-width: 0;
+  height: 100%;
+  padding: 13px;
+  border-color: rgba(68, 91, 109, .44);
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(160, 112, 232, .035), transparent 34%),
+    linear-gradient(180deg, rgba(14, 26, 35, .95), rgba(7, 15, 22, .98));
+  box-shadow: inset 0 1px rgba(255,255,255,.02), 0 10px 30px rgba(0,0,0,.08);
+}
+
+.authenticatedCalculator :global(.section-title) {
+  height: 32px;
+  padding: 0 5px 9px;
+  font-size: 13px;
+  letter-spacing: .11em;
+}
+
+.authenticatedCalculator :global(.input-list) {
+  border-color: rgba(66, 87, 103, .48);
+  border-radius: 8px;
+}
+
+.authenticatedCalculator :global(.field-row) {
+  min-height: 48px;
+  grid-template-columns: 38px minmax(145px, 1fr) minmax(150px, .74fr);
+  padding: 0 13px;
+}
+
+.authenticatedCalculator :global(.field-icon) {
+  width: 25px;
+  height: 25px;
+}
+
+.authenticatedCalculator :global(.field-icon) svg {
+  width: 19px;
+  height: 19px;
+}
+
+.authenticatedCalculator :global(.field-label) {
+  font-size: 13.5px;
+}
+
+.authenticatedCalculator :global(.field-hint) {
+  font-size: 11px;
+}
+
+.authenticatedCalculator :global(.field-control) {
+  width: min(100%, 205px);
+}
+
+.authenticatedCalculator :global(.field-control) input,
+.authenticatedCalculator :global(.field-control) select,
+.authenticatedCalculator :global(.money-input) > span,
+.authenticatedCalculator :global(.account-toggle) {
+  height: 32px;
+}
+
+.authenticatedCalculator :global(.input-actions) {
+  gap: 9px;
+  margin: 11px 4px 0;
+}
+
+.authenticatedCalculator :global(.input-actions) button {
+  height: 42px;
+  font-size: 12px;
+  letter-spacing: .04em;
+}
+
+.authenticatedCalculator :global(.input-actions) svg {
+  width: 18px;
+  height: 18px;
+}
+
+.authenticatedCalculator :global(.input-note) {
+  margin: 10px 5px 0;
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+.authenticatedCalculator :global(.results-grid) {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 4px 3px 11px;
+}
+
+.authenticatedCalculator :global(.result-card),
+.authenticatedCalculator :global(.health-card) {
+  min-height: 132px;
+  border-color: rgba(66, 87, 103, .5);
+  border-radius: 8px;
+}
+
+.authenticatedCalculator :global(.result-card)::after,
+.authenticatedCalculator :global(.health-card)::after {
+  height: 3px;
+}
+
+.authenticatedCalculator :global(.result-title) {
+  min-height: 43px;
+  padding: 11px 11px 5px;
+  gap: 6px;
+  font-size: 11.5px;
+}
+
+.authenticatedCalculator :global(.result-title) svg,
+.authenticatedCalculator :global(.health-title) svg {
+  width: 18px;
+  height: 18px;
+}
+
+.authenticatedCalculator :global(.result-value) {
+  min-height: 54px;
+  padding: 3px 8px 0;
+  font-size: clamp(25px, 2vw, 34px);
+}
+
+.authenticatedCalculator :global(.result-sub) {
+  padding: 0 8px 10px;
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.authenticatedCalculator :global(.health-title) {
+  padding: 11px 10px 3px;
+  gap: 7px;
+  font-size: 11.5px;
+}
+
+.authenticatedCalculator :global(.health-card) > strong {
+  margin-top: 12px;
+  font-size: clamp(24px, 2vw, 32px);
+}
+
+.authenticatedCalculator :global(.health-shield) {
+  margin-top: 8px;
+}
+
+.authenticatedCalculator :global(.health-shield) svg {
+  width: 34px;
+  height: 34px;
+}
+
+.authenticatedCalculator :global(.trade-summary) {
+  margin: 3px;
+  border-radius: 8px;
+}
+
+.authenticatedCalculator :global(.summary-header) {
+  height: 39px;
+  padding: 0 13px;
+  font-size: 13px;
+}
+
+.authenticatedCalculator :global(.summary-header) svg {
+  width: 18px;
+  height: 18px;
+}
+
+.authenticatedCalculator :global(.summary-stats) {
+  padding: 8px 0;
+}
+
+.authenticatedCalculator :global(.summary-stats) > div {
+  min-height: 48px;
+}
+
+.authenticatedCalculator :global(.summary-stats) span {
+  font-size: 12px;
+}
+
+.authenticatedCalculator :global(.summary-stats) strong {
+  margin-top: 4px;
+  font-size: 19px;
+}
+
+.authenticatedCalculator :global(.trade-summary) p {
+  padding: 8px 12px;
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+.authenticatedCalculator :global(.warnings) {
+  margin: 9px 4px 0;
+  font-size: 11.5px;
+}
+
+.authenticatedCalculator :global(.spec-note) {
+  margin: 8px 5px 0;
+  font-size: 10.5px;
+}
+
+/* Nine result tiles now form a balanced 3 × 3 matrix instead of a 4 + 4 + 1 grid. */
+.authenticatedCalculator :global(.results-grid) > * {
+  height: 100%;
+}
+
+@media (max-width: 1320px) {
+  .authenticatedCalculator :global(.workspace) {
+    grid-template-columns: 1fr;
+  }
+
+  .authenticatedCalculator :global(.main-panel) {
+    height: auto;
+  }
+}
+
+@media (max-width: 820px) {
+  .authenticatedCalculator :global(.results-grid) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .authenticatedCalculator :global(.main-panel) {
+    padding: 9px;
+  }
+
+  .authenticatedCalculator :global(.results-grid) {
+    grid-template-columns: 1fr;
+  }
+
+  .authenticatedCalculator :global(.result-card),
+  .authenticatedCalculator :global(.health-card) {
+    min-height: 124px;
+  }
+}
