@@ -18,11 +18,11 @@ Ovaj dokument je živi handoff/checklist za FFZ Platform. Kada završimo stavku,
 
 # ACTIVE NEXT ROADMAP ITEM — Real-world workflow validation
 
-Status: **ACTIVE / USE THE PRODUCT THROUGH A COMPLETE TRADING WEEK**
+Status: **ACTIVE / FULL-WORKFLOW PREFLIGHT → REAL TRADING WEEK**
 
 The feature roadmap and authenticated page-by-page polish pass are complete enough for real use. Do not add broad new product surface just to keep development moving.
 
-Validate the actual operating loop:
+First run the complete operating loop once with the merged local August demo dataset, then repeat the same loop with real trading data through a complete trading week:
 
 ```text
 Trading Desk
@@ -35,7 +35,7 @@ Trading Desk
 → Episode Brief / YouTube production
 ```
 
-During real use, capture only concrete friction such as:
+During preflight and real use, capture only concrete friction such as:
 - repeated manual work
 - missing data genuinely needed for review or recording
 - information shown too late or in the wrong place
@@ -44,6 +44,54 @@ During real use, capture only concrete friction such as:
 - Public Journey gaps that become obvious from actual audience/channel use
 
 Fix proven friction with small focused PRs. Do not invent speculative features before real usage identifies a need.
+
+---
+
+## Local full-month workflow dataset — DONE / MERGED
+
+PR #44: **Local demo seed — full August trading workflow**
+
+Merged commit:
+
+```text
+26df5e64e5f8935e103cad9547b5ad5dc9d3a09e
+```
+
+Purpose:
+- deterministic development fixture for end-to-end FFZ workflow validation
+- August 2026 Creator/PRO scenario with 53 closed MNQ/MES trades
+- covers failed evaluation → passed evaluation → funded progression
+- includes objective discipline/mindset patterns, Ledger fees/payout, Weekly Focus rows, Trading Guardrails, Scoreboard settings and one carry-forward Planned Trade
+- intentionally includes rapid re-entry, loss streaks, overtrading, daily-loss breaches and risk escalation so behavior feedback can be exercised
+- never auto-labels Revenge
+
+Local-only safety:
+- requires `--confirm-local`
+- refuses production mode
+- requires a localhost PostgreSQL host
+- requires database name exactly `ffz_platform`
+- deletes/recreates only the dedicated demo user and its cascaded demo data
+- does not touch other local accounts
+
+Demo account:
+
+```text
+Email: month-demo@ffz.local
+Password: FFZdemo2026!
+```
+
+Run locally:
+
+```bash
+npm run db:seed:month-demo -- --confirm-local
+```
+
+Validation:
+- FFZ CI #335 — PASSED
+- dataset was used successfully to expose and verify subsequent chart, Trade Review navigation/sticky-toolbar and Dashboard Recent Trades fixes
+- no DB migration required
+
+Use this dataset for the immediate full-workflow preflight before switching to a real trading week.
 
 ---
 
@@ -711,9 +759,10 @@ YouTube:
 
 ## Recommended next order of work
 
-1. **Use FFZ through a complete real trading week and log only proven workflow friction**
-2. **Fix concrete friction with small focused PRs, prioritizing the Trading Desk → Journal → Review → Weekly Review → Episode flow**
-3. **Resume Billing pre-launch / Founder Live Mode immediately after Lemon store activation**
+1. **Run the complete Trading Desk → Journal → Trade Review → Weekly Review → Episode workflow once with the merged August demo dataset and log only concrete friction**
+2. **Repeat the same workflow through a complete real trading week**
+3. **Fix proven friction with small focused PRs, prioritizing transitions and repeated manual work**
+4. **Resume Billing pre-launch / Founder Live Mode immediately after Lemon store activation**
 
 Completed immediately before this roadmap position:
 - [x] PR #34 — Weekly Review: Next Week Focus
@@ -722,6 +771,7 @@ Completed immediately before this roadmap position:
 - [x] PR #38 — Weekly Episode auto-build
 - [x] PR #40 — Dashboard visual polish
 - [x] PR #42 — authenticated workspace page-by-page polish
+- [x] PR #44 — local full-month August workflow demo seed
 - [x] PR #45 — signed P&L fills + Trade Review navigation/sticky toolbar
 - [x] PR #46 — Dashboard Recent Trades quick-review modal
 - [x] PR #49 — paywall/upgrade activation UX + contextual return flow + server-gated CSV import
