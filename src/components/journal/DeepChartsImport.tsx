@@ -24,6 +24,7 @@ const money = new Intl.NumberFormat("en-US", {
 });
 
 type PreviewStatus = "READY" | "DUPLICATE" | "ERROR";
+type PreviewFilter = "ALL" | PreviewStatus;
 
 type PreviewRow = DeepChartsParsedRow & {
   status: PreviewStatus;
@@ -55,6 +56,7 @@ export function DeepChartsImport() {
   const [timeZone, setTimeZone] = useState<DeepChartsImportTimeZone>("LOCAL");
   const [fileName, setFileName] = useState("");
   const [csvText, setCsvText] = useState("");
+  const [previewFilter, setPreviewFilter] = useState<PreviewFilter>("ALL");
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
   const [progress, setProgress] = useState({ done: 0, total: 0 });
@@ -129,6 +131,13 @@ export function DeepChartsImport() {
     };
   }, [previewRows]);
 
+  const filteredPreviewRows = useMemo(
+    () => previewFilter === "ALL"
+      ? previewRows
+      : previewRows.filter((row) => row.status === previewFilter),
+    [previewFilter, previewRows],
+  );
+
   async function readFile(file: File) {
     setError(null);
     setResult(null);
@@ -146,6 +155,7 @@ export function DeepChartsImport() {
     try {
       setFileName(file.name);
       setCsvText(await file.text());
+      setPreviewFilter("ALL");
     } catch {
       setError("Unable to read the CSV file.");
     }
@@ -166,6 +176,7 @@ export function DeepChartsImport() {
   function clearFile() {
     setFileName("");
     setCsvText("");
+    setPreviewFilter("ALL");
     setResult(null);
     setProgress({ done: 0, total: 0 });
     setError(null);
@@ -211,39 +222,26 @@ export function DeepChartsImport() {
   }
 
   const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "browser local time";
+  const filterOptions: { value: PreviewFilter; label: string; count: number }[] = [
+    { value: "ALL", label: "ALL", count: summary.rows },
+    { value: "READY", label: "READY", count: summary.ready },
+    { value: "DUPLICATE", label: "DUPLICATE", count: summary.duplicate },
+    { value: "ERROR", label: "INVALID", count: summary.invalid },
+  ];
 
   return (
     <main className={styles.page}>
       {error && <div className={styles.errorBanner}>{error}</div>}
 
-      <section className={styles.topGrid}>
-        <article className={styles.panel}>
-          <header className={styles.panelHeader}>
-            <div>
-              <span>DEEPCHARTS EXPORT</span>
-              <small>Use the closed-trade list, not the performance summary.</small>
-            </div>
-          </header>
-          <div className={styles.instructions}>
-            <ol>
-              <li>DeepCharts → <b>Trading</b> → <b>Strategy Report</b>.</li>
-              <li>Select broker, account, date range and symbols, then generate the report.</li>
-              <li>Open <b>Trade List</b> and choose <b>Export CSV</b>.</li>
-              <li>Upload the original CSV here and review the preview before importing.</li>
-            </ol>
-            <p>
-              Expected columns: <b>Symbol</b>, <b>Quantity</b>, <b>Entry DT</b>, <b>Entry Price</b>, <b>Exit DT</b>, <b>Exit Price</b>, <b>ProfitLoss</b>.
-            </p>
+      <section className={`${styles.panel} ${styles.setupPanel}`}>
+        <header className={styles.panelHeader}>
+          <div>
+            <span>IMPORT SETUP</span>
+            <small>Choose the destination and time zone, then add the original DeepCharts CSV.</small>
           </div>
-        </article>
+        </header>
 
-        <article className={styles.panel}>
-          <header className={styles.panelHeader}>
-            <div>
-              <span>IMPORT SETTINGS</span>
-              <small>These settings are applied to every trade in this CSV.</small>
-            </div>
-          </header>
+        <div className={styles.setupGrid}>
           <div className={styles.settings}>
             <label>
               <span>CHALLENGE / ACCOUNT</span>
@@ -269,34 +267,57 @@ export function DeepChartsImport() {
               <small>Choose the time zone DeepCharts used when it displayed Entry/Exit times.</small>
             </label>
           </div>
-        </article>
-      </section>
 
-      <section className={styles.panel}>
-        <header className={styles.panelHeader}>
-          <div>
-            <span>CSV FILE</span>
-            <small>Nothing is written to the Journal until you confirm the import.</small>
+          <div className={styles.fileSide}>
+            <div className={styles.fileHeading}>
+              <div>
+                <span>CSV FILE</span>
+                <small>Nothing is written to the Journal until you confirm the import.</small>
+              </div>
+              {fileName && (
+                <button className={styles.textButton} type="button" onClick={clearFile} disabled={importing}>
+                  CLEAR
+                </button>
+              )}
+            </div>
+
+            <div
+              className={`${styles.dropZone} ${fileName ? styles.dropZoneLoaded : ""}`}
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={onDrop}
+              onClick={() => !importing && fileInputRef.current?.click()}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if ((event.key === "Enter" || event.key === " ") && !importing) fileInputRef.current?.click();
+              }}
+            >
+              <input ref={fileInputRef} type="file" accept=".csv,text/csv" onChange={onFileInput} hidden />
+              <strong>{fileName || "Drop DeepCharts CSV here"}</strong>
+              <small>{fileName ? "CSV loaded · click to choose a different file" : "or click to browse · max 5 MB"}</small>
+            </div>
           </div>
-          {fileName && <button className={styles.textButton} type="button" onClick={clearFile} disabled={importing}>Clear</button>}
-        </header>
-
-        <div
-          className={`${styles.dropZone} ${fileName ? styles.dropZoneLoaded : ""}`}
-          onDragOver={(event) => event.preventDefault()}
-          onDrop={onDrop}
-          onClick={() => !importing && fileInputRef.current?.click()}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(event) => {
-            if ((event.key === "Enter" || event.key === " ") && !importing) fileInputRef.current?.click();
-          }}
-        >
-          <input ref={fileInputRef} type="file" accept=".csv,text/csv" onChange={onFileInput} hidden />
-          <strong>{fileName || "Drop DeepCharts CSV here"}</strong>
-          <small>{fileName ? "Click to choose a different file" : "or click to browse · max 5 MB"}</small>
         </div>
       </section>
+
+      <details className={styles.instructionsPanel}>
+        <summary>
+          <span>HOW TO EXPORT FROM DEEPCHARTS</span>
+          <small>Strategy Report → Trade List → Export CSV</small>
+          <b>VIEW INSTRUCTIONS</b>
+        </summary>
+        <div className={styles.instructions}>
+          <ol>
+            <li>DeepCharts → <b>Trading</b> → <b>Strategy Report</b>.</li>
+            <li>Select broker, account, date range and symbols, then generate the report.</li>
+            <li>Open <b>Trade List</b> and choose <b>Export CSV</b>.</li>
+            <li>Upload the original CSV here and review the preview before importing.</li>
+          </ol>
+          <p>
+            Expected columns: <b>Symbol</b>, <b>Quantity</b>, <b>Entry DT</b>, <b>Entry Price</b>, <b>Exit DT</b>, <b>Exit Price</b>, <b>ProfitLoss</b>.
+          </p>
+        </div>
+      </details>
 
       {parsed.fatalErrors.length > 0 && (
         <section className={styles.fatalPanel}>
@@ -314,7 +335,7 @@ export function DeepChartsImport() {
             <article><span>READY P&amp;L</span><strong className={summary.reportedPnl > 0 ? styles.positive : summary.reportedPnl < 0 ? styles.negative : ""}>{money.format(summary.reportedPnl)}</strong></article>
           </section>
 
-          <section className={styles.panel}>
+          <section className={`${styles.panel} ${styles.previewPanel}`}>
             <header className={styles.panelHeader}>
               <div>
                 <span>PREVIEW</span>
@@ -324,6 +345,19 @@ export function DeepChartsImport() {
                 {importing ? `IMPORTING ${progress.done}/${progress.total}` : `IMPORT ${summary.ready} TRADE${summary.ready === 1 ? "" : "S"}`}
               </button>
             </header>
+
+            <div className={styles.previewFilters} aria-label="Preview status filter">
+              {filterOptions.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  className={previewFilter === option.value ? styles.activeFilter : undefined}
+                  onClick={() => setPreviewFilter(option.value)}
+                >
+                  {option.label} <span>{option.count}</span>
+                </button>
+              ))}
+            </div>
 
             <div className={styles.tableWrap}>
               <table>
@@ -341,7 +375,7 @@ export function DeepChartsImport() {
                   </tr>
                 </thead>
                 <tbody>
-                  {previewRows.slice(0, 200).map((row) => (
+                  {filteredPreviewRows.slice(0, 200).map((row) => (
                     <tr key={`${row.rowNumber}-${row.rawSymbol}`}>
                       <td>{row.rowNumber}</td>
                       <td><span className={`${styles.status} ${styles[`status${row.status}`]}`}>{row.status}</span></td>
@@ -356,7 +390,12 @@ export function DeepChartsImport() {
                   ))}
                 </tbody>
               </table>
-              {previewRows.length > 200 && <div className={styles.tableNote}>Showing first 200 of {previewRows.length} rows. All ready rows will still be imported.</div>}
+              {filteredPreviewRows.length === 0 && (
+                <div className={styles.tableEmpty}>No rows match this status filter.</div>
+              )}
+              {filteredPreviewRows.length > 200 && (
+                <div className={styles.tableNote}>Showing first 200 of {filteredPreviewRows.length} matching rows. All ready rows will still be imported.</div>
+              )}
             </div>
           </section>
         </>
