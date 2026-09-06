@@ -30,9 +30,9 @@ import presentationStyles from "./TradeReviewPresentation.module.css";
 import tabStyles from "./TradeReviewTabs.module.css";
 import styles from "./TradeReviewViewer.module.css";
 
-type ReviewTab = "DETAILS" | "REVIEW" | "ATTACHMENTS" | "NOTES";
+type ReviewTab = "DETAILS" | "DISCIPLINE" | "ATTACHMENTS" | "NOTES";
 
-const REVIEW_TABS: ReviewTab[] = ["DETAILS", "REVIEW", "ATTACHMENTS", "NOTES"];
+const REVIEW_TABS: ReviewTab[] = ["DETAILS", "DISCIPLINE", "ATTACHMENTS", "NOTES"];
 
 const money = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -68,7 +68,6 @@ function formatDuration(trade: TradeApiModel) {
 
   if (hours > 0) return `${hours}h ${minutes}m`;
   if (totalMinutes > 0) return `${totalMinutes}m`;
-
   return `${Math.max(1, Math.round(duration / 1000))}s`;
 }
 
@@ -88,6 +87,17 @@ function challengeLabel(challengeId: string | null, challenges: Challenge[]) {
 function pnlTone(value: number | null) {
   if (value == null || value === 0) return undefined;
   return value > 0 ? detailStyles.positive : detailStyles.negative;
+}
+
+function tradeOptionLabel(trade: TradeApiModel) {
+  const timestamp = trade.closedAt ?? trade.openedAt;
+  const date = new Date(timestamp);
+  const dateLabel = Number.isNaN(date.getTime())
+    ? "Trade"
+    : date.toLocaleDateString([], { month: "short", day: "numeric" });
+  const pnl = trade.netPnl == null ? "—" : money.format(trade.netPnl);
+
+  return `${dateLabel} · ${trade.instrument} ${trade.direction} · ${pnl}`;
 }
 
 function isKeyboardControlTarget(target: EventTarget | null) {
@@ -172,6 +182,7 @@ export function TradeReviewViewer() {
 
     if (!activeTradeId || !trades.some((item) => item.id === activeTradeId)) {
       setActiveTradeId(trades[0].id);
+      setActiveTab("DETAILS");
     }
   }, [trades, activeTradeId]);
 
@@ -207,12 +218,20 @@ export function TradeReviewViewer() {
     };
   }, [trade?.id]);
 
-  const moveTrade = useCallback((offset: number) => {
-    if (!trade || trades.length < 2) return;
-    const nextIndex = (currentIndex + offset + trades.length) % trades.length;
-    setActiveTradeId(trades[nextIndex].id);
+  const moveTrade = useCallback(
+    (offset: number) => {
+      if (!trade || trades.length < 2) return;
+      const nextIndex = (currentIndex + offset + trades.length) % trades.length;
+      setActiveTradeId(trades[nextIndex].id);
+      setActiveTab("DETAILS");
+    },
+    [currentIndex, trade, trades],
+  );
+
+  const selectTrade = useCallback((tradeId: string) => {
+    setActiveTradeId(tradeId);
     setActiveTab("DETAILS");
-  }, [currentIndex, trade, trades]);
+  }, []);
 
   const exitPresentation = useCallback(() => {
     fullscreenRequestedRef.current = false;
@@ -301,17 +320,39 @@ export function TradeReviewViewer() {
   return (
     <div className={`${styles.page} ${presentationMode ? presentationStyles.presentationPage : ""}`}>
       <section className={`${styles.toolbar} ${presentationMode ? presentationStyles.presentationToolbar : ""}`}>
-        <div>
-          <span>INSTRUMENT</span>
-          <select
-            value={instrument}
-            onChange={(event) => setInstrument(event.target.value as TradeReviewInstrumentFilter)}
-          >
-            <option value="ALL">All instruments</option>
-            {JOURNAL_INSTRUMENTS.map((item) => (
-              <option key={item} value={item}>{item}</option>
-            ))}
-          </select>
+        <div className={styles.toolbarFilters}>
+          <label className={styles.toolbarField}>
+            <span>INSTRUMENT</span>
+            <select
+              value={instrument}
+              onChange={(event) => setInstrument(event.target.value as TradeReviewInstrumentFilter)}
+            >
+              <option value="ALL">All instruments</option>
+              {JOURNAL_INSTRUMENTS.map((item) => (
+                <option key={item} value={item}>{item}</option>
+              ))}
+            </select>
+          </label>
+
+          <label className={`${styles.toolbarField} ${styles.tradeField}`}>
+            <span>TRADE</span>
+            <select
+              className={styles.tradeSelect}
+              value={trade?.id ?? ""}
+              onChange={(event) => selectTrade(event.target.value)}
+              disabled={trades.length === 0}
+            >
+              {trades.length === 0 ? (
+                <option value="">No closed trades</option>
+              ) : (
+                trades.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {tradeOptionLabel(item)}
+                  </option>
+                ))
+              )}
+            </select>
+          </label>
         </div>
 
         <div className={presentationStyles.toolbarRight}>
@@ -319,9 +360,7 @@ export function TradeReviewViewer() {
             <button type="button" onClick={() => moveTrade(1)} disabled={trades.length < 2} aria-label="Previous trade">
               ‹
             </button>
-            <span>
-              {trade ? `TRADE ${currentIndex + 1} OF ${trades.length}` : "NO CLOSED TRADES"}
-            </span>
+            <span>{trade ? `${currentIndex + 1} OF ${trades.length}` : "NO TRADES"}</span>
             <button type="button" onClick={() => moveTrade(-1)} disabled={trades.length < 2} aria-label="Next trade">
               ›
             </button>
@@ -357,9 +396,7 @@ export function TradeReviewViewer() {
                   <span>TRADE CHART</span>
                   <strong>{trade.instrument} · {trade.direction}</strong>
                 </div>
-                {activeAttachment && (
-                  <small>{activeAttachment.originalFilename}</small>
-                )}
+                {activeAttachment && <small>{activeAttachment.originalFilename}</small>}
               </header>
 
               <div className={`${styles.imageStage} ${presentationMode ? presentationStyles.presentationImageStage : ""}`}>
@@ -420,13 +457,6 @@ export function TradeReviewViewer() {
               <div className={styles.tabBody}>
                 {activeTab === "DETAILS" && (
                   <div className={styles.details}>
-                    <div className={detailStyles.pnlHero}>
-                      <span>NET P&amp;L</span>
-                      <strong className={pnlTone(trade.netPnl)}>
-                        {trade.netPnl == null ? "—" : money.format(trade.netPnl)}
-                      </strong>
-                    </div>
-
                     <div className={detailStyles.rows}>
                       <div className={detailStyles.row}><span>ENTRY</span><strong>{number.format(trade.entryPrice)}</strong></div>
                       <div className={detailStyles.row}><span>EXIT</span><strong>{trade.exitPrice == null ? "—" : number.format(trade.exitPrice)}</strong></div>
@@ -438,14 +468,14 @@ export function TradeReviewViewer() {
                       <div className={detailStyles.row}><span>FEES</span><strong>{money.format(trade.commissionFees)}</strong></div>
                       <div className={detailStyles.row}><span>INITIAL RISK</span><strong>{trade.initialRisk == null ? "—" : money.format(trade.initialRisk)}</strong></div>
                       <div className={detailStyles.row}><span>R MULTIPLE</span><strong className={pnlTone(trade.rMultiple)}>{trade.rMultiple == null ? "—" : `${number.format(trade.rMultiple)}R`}</strong></div>
-                      <div className={detailStyles.row}><span>SETUP</span><strong>{trade.setup || "Not set"}</strong></div>
-                      <div className={detailStyles.row}><span>CHALLENGE</span><strong>{challengeLabel(trade.challengeId, challenges)}</strong></div>
+                      <div className={`${detailStyles.row} ${detailStyles.wide}`}><span>SETUP</span><strong>{trade.setup || "Not set"}</strong></div>
+                      <div className={`${detailStyles.row} ${detailStyles.wide}`}><span>CHALLENGE</span><strong>{challengeLabel(trade.challengeId, challenges)}</strong></div>
                       <div className={detailStyles.row}><span>OUTCOME</span><strong>{trade.outcome ?? "—"}</strong></div>
                     </div>
                   </div>
                 )}
 
-                {activeTab === "REVIEW" && (() => {
+                {activeTab === "DISCIPLINE" && (() => {
                   const review = readDisciplineReview(trade.tags);
                   const userTags = trade.tags.filter((tag) => !tag.startsWith("FFZ:"));
 
@@ -495,10 +525,7 @@ export function TradeReviewViewer() {
                             className={attachment.id === activeAttachment?.id ? styles.activeAttachment : undefined}
                             onClick={() => setActiveAttachmentId(attachment.id)}
                           >
-                            <img
-                              src={tradeAttachmentImageUrl(trade.id, attachment.id)}
-                              alt=""
-                            />
+                            <img src={tradeAttachmentImageUrl(trade.id, attachment.id)} alt="" />
                             <span>
                               <strong>IMAGE {index + 1}</strong>
                               <small>{attachment.originalFilename}</small>
@@ -512,7 +539,11 @@ export function TradeReviewViewer() {
 
                 {activeTab === "NOTES" && (
                   <div className={styles.notes}>
-                    {trade.notes ? <p>{trade.notes}</p> : <div className={styles.tabEmpty}>No notes saved for this trade.</div>}
+                    {trade.notes ? (
+                      <p>{trade.notes}</p>
+                    ) : (
+                      <div className={styles.tabEmpty}>No notes saved for this trade.</div>
+                    )}
                   </div>
                 )}
               </div>
