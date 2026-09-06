@@ -97,7 +97,6 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  max-height: 285px;
   margin-bottom: 14px;
 }
 
@@ -292,6 +291,14 @@
   overflow: auto;
   scrollbar-gutter: stable;
 }
+
+.accountsPanel .tableWrap {
+  flex: 0 1 auto;
+  max-height: 237px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
 .tableWrap::-webkit-scrollbar { width: 8px; height: 8px; }
 .tableWrap::-webkit-scrollbar-track { background: rgba(7, 14, 21, .72); }
 .tableWrap::-webkit-scrollbar-thumb { background: #344551; border-radius: 999px; }
@@ -344,7 +351,7 @@
 @media (max-width: 1180px) {
   .workspace { grid-template-columns: 1fr; }
   .rightColumn { grid-template-rows: auto auto; }
-  .accountsPanel { max-height: 320px; }
+  .accountsPanel .tableWrap { max-height: 272px; }
   .overviewGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .healthCard { grid-column: span 2; grid-row: auto; min-height: 180px; }
   .healthInner { min-height: 180px; }
@@ -356,8 +363,8 @@
   .logoFrame { justify-content: center; max-width: 180px; height: 50px; }
   .titleWrap { justify-self: center; }
   .systemChip { justify-self: center; min-width: 0; }
-  .accountsPanel { max-height: 340px; }
   .accountsTitle { min-height: 56px; flex-basis: 56px; padding: 7px 10px; }
+  .accountsPanel .tableWrap { max-height: 284px; }
   .newAccountButton { padding-inline: 9px; font-size: 11.5px; }
   .workspace { gap: 12px; }
   .formRow { grid-template-columns: 28px 1fr; padding: 8px 0; }
