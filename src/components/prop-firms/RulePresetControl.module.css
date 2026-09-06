@@ -153,6 +153,11 @@
   min-height: 0;
   overflow: auto;
   padding: 16px 18px 18px;
+  overscroll-behavior: contain;
+}
+
+.managerModal .modalBody > form {
+  scroll-margin-top: 16px;
 }
 
 .ruleGrid {
