@@ -231,7 +231,7 @@ export function ScoreboardSettings() {
         </header>
         <div className={styles.scoreboardStage}>
           <iframe
-            key={`${settings.overlayKey}-${previewVersion}-${settings.layout}`}
+            key={`${settings.overlayKey}-${previewVersion}`}
             title="FFZ Creator Scoreboard"
             src={`${overlayUrl}?inside=app`}
           />
