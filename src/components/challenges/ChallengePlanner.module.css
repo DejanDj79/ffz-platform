@@ -298,7 +298,6 @@
   overflow-x: auto;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
-  overscroll-behavior: contain;
 }
 
 .accountsPanel:hover .tableWrap {
