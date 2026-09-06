@@ -13,6 +13,7 @@ type AuthUser = {
   displayName: string | null;
   role: "USER" | "CREATOR";
   plan: "FREE" | "PRO";
+  access: "FREE" | "PRO" | "FOUNDER" | "CREATOR";
 };
 
 type NavChild = {
@@ -366,19 +367,21 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className={styles.sidebarBottom}>
           <Link
             href="/upgrade"
-            className={`${styles.planCard} ${user.plan === "FREE" ? styles.planCardFree : styles.planCardPro}`}
+            className={`${styles.planCard} ${user.access === "FREE" ? styles.planCardFree : styles.planCardPro}`}
           >
             <span>
-              <strong>{user.role === "CREATOR" ? "FFZ CREATOR" : `FFZ ${user.plan}`}</strong>
+              <strong>FFZ {user.access}</strong>
               <small>
-                {user.role === "CREATOR"
+                {user.access === "CREATOR"
                   ? "Pro included with creator access"
-                  : user.plan === "FREE"
-                    ? "Unlock the full trading workflow"
-                    : "Billing and plan settings"}
+                  : user.access === "FOUNDER"
+                    ? "Lifetime Pro access"
+                    : user.access === "FREE"
+                      ? "Unlock the full trading workflow"
+                      : "Billing and plan settings"}
               </small>
             </span>
-            <b>{user.role === "CREATOR" ? "PLANS" : user.plan === "FREE" ? "UPGRADE" : "MANAGE"}</b>
+            <b>{user.access === "FREE" ? "UPGRADE" : user.access === "PRO" ? "MANAGE" : "PLANS"}</b>
           </Link>
 
           <div className={styles.modeCard}>
@@ -418,7 +421,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        {!pathname.startsWith("/economic-calendar") && (
+        {!pathname.startsWith("/economic-calendar") && !pathname.startsWith("/upgrade") && (
           <EconomicCalendarAlert />
         )}
 
