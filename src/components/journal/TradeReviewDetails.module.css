@@ -1,47 +1,34 @@
 .pnlHero {
-  padding: 4px 2px 18px;
-  border-bottom: 1px solid rgba(61,82,97,.28);
-}
-
-.pnlHero > span {
-  display: block;
-  margin-bottom: 6px;
-  color: #81919c;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: .09em;
-}
-
-.pnlHero > strong {
-  display: block;
-  color: #e7f0f4;
-  font-size: 30px;
-  font-weight: 760;
-  line-height: 1.05;
-  letter-spacing: -.025em;
+  display: none;
 }
 
 .rows {
-  margin-top: 8px;
+  margin-top: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .row {
-  min-height: 42px;
-  padding: 10px 2px;
+  min-width: 0;
+  min-height: 62px;
+  padding: 10px 11px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(110px, auto);
-  gap: 18px;
-  align-items: center;
-  border-bottom: 1px solid rgba(61,82,97,.22);
+  align-content: center;
+  gap: 5px;
+  border: 1px solid rgba(61,82,97,.3);
+  border-radius: 8px;
+  background: rgba(255,255,255,.01);
 }
 
-.row:last-child {
-  border-bottom: 0;
+.wide {
+  grid-column: 1 / -1;
+  min-height: 58px;
 }
 
 .row > span {
   color: #81919c;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: .07em;
 }
@@ -51,8 +38,7 @@
   color: #d6e1e7;
   font-size: 13.5px;
   font-weight: 680;
-  line-height: 1.4;
-  text-align: right;
+  line-height: 1.35;
   overflow-wrap: anywhere;
 }
 
@@ -62,4 +48,14 @@
 
 .negative {
   color: #ff737f !important;
+}
+
+@media (max-width: 430px) {
+  .rows {
+    grid-template-columns: 1fr;
+  }
+
+  .wide {
+    grid-column: auto;
+  }
 }
