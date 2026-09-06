@@ -10,6 +10,10 @@ import {
   releaseFounderReservation,
   reserveFounderSlot,
 } from "@/lib/billing/founder-repository";
+import {
+  safeFeatureName,
+  safeInternalReturnPath,
+} from "@/lib/navigation/safe-return";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -37,6 +41,13 @@ export async function POST(request: Request) {
       { status: 503 },
     );
   }
+
+  const body = await request.json().catch(() => ({})) as {
+    returnTo?: unknown;
+    feature?: unknown;
+  };
+  const returnTo = safeInternalReturnPath(body.returnTo);
+  const feature = safeFeatureName(body.feature);
 
   let reservation: Awaited<ReturnType<typeof reserveFounderSlot>> | null = null;
   let lemonCheckoutCreated = false;
@@ -106,6 +117,8 @@ export async function POST(request: Request) {
     const requestOrigin = request.headers.get("origin") || new URL(request.url).origin;
     const redirectUrl = new URL("/upgrade", requestOrigin);
     redirectUrl.searchParams.set("checkout", "founder-success");
+    if (returnTo) redirectUrl.searchParams.set("from", returnTo);
+    if (feature) redirectUrl.searchParams.set("feature", feature);
 
     const checkout = await createLemonFounderCheckout({
       userId: user.id,
