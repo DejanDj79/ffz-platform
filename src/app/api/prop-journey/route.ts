@@ -23,7 +23,7 @@ export async function GET() {
         {
           error: "Prop Journey analytics require FFZ Pro.",
           code: "PRO_REQUIRED",
-          upgradeUrl: "/upgrade",
+          upgradeUrl: "/upgrade?from=%2Fprop-journey&feature=Prop+Journey",
         },
         { status: 403 },
       );
