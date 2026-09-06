@@ -69,6 +69,31 @@ Validation:
 - CI tests/build — PASSED
 - local visual verification — PASSED by user
 
+### Dashboard Recent Trades quick-review — DONE / MERGED
+
+PR #46: **Dashboard recent trades quick-review modal**
+
+Merged commit:
+
+```text
+72f6791883c35f8bb3535424df3ee903df9c9332
+```
+
+Implemented:
+- replaced mixed `RECENT ACTIVITY` with focused `RECENT TRADES`
+- Dashboard list shows only the latest 5 closed trades with `DATE / SYMBOL / NET P&L`
+- clicking a row opens a read-only quick-review modal
+- modal uses FFZ layout with trade data on the left and real same-day cumulative P&L chart on the right
+- chart highlights the selected trade and does not fabricate intratrade/tick data
+- modal includes execution, mindset, setup, account, P&L, R and order details without note editing
+- `OPEN IN TRADE REVIEW` deep-links to the selected trade via `?trade=<id>`
+- Real Money remains a separate Dashboard panel
+
+Validation:
+- FFZ CI #344 — PASSED
+- local visual/behavior verification — PASSED by user
+- no DB migration required
+
 ### Authenticated workspace polish — DONE / MERGED
 
 PR #42: **Workspace polish — Trading Desk, Journal, Analytics, Weekly Review, Ledger, Prop Journey, Episode Builder and Scoreboard**
@@ -630,6 +655,7 @@ Completed immediately before this roadmap position:
 - [x] PR #38 — Weekly Episode auto-build
 - [x] PR #40 — Dashboard visual polish
 - [x] PR #42 — authenticated workspace page-by-page polish
+- [x] PR #46 — Dashboard Recent Trades quick-review modal
 
 Keep development driven by real usage and direct visual review. Do not add broad surface area just to make the product look larger.
 
