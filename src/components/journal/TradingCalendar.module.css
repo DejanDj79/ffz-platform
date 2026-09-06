@@ -1,14 +1,14 @@
 .calendar {
-  min-height: 340px;
-  padding: 14px;
+  min-height: 390px;
+  padding: 16px;
   display: grid;
   grid-template-rows: auto auto 1fr;
-  gap: 10px;
+  gap: 11px;
   background: linear-gradient(180deg, rgba(255,255,255,.006), transparent);
 }
 
 .toolbar {
-  min-height: 44px;
+  min-height: 46px;
   display: grid;
   grid-template-columns: 36px minmax(0, 1fr) 36px;
   align-items: center;
@@ -56,11 +56,11 @@
 .weekdays {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 6px;
+  gap: 7px;
 }
 
 .weekdays span {
-  padding: 4px 2px;
+  padding: 5px 2px;
   color: #657783;
   font-size: 11.5px;
   font-weight: 800;
@@ -71,8 +71,8 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  grid-auto-rows: minmax(54px, 1fr);
-  gap: 6px;
+  grid-auto-rows: minmax(66px, 1fr);
+  gap: 7px;
 }
 
 .day,
@@ -83,10 +83,10 @@
 
 .day {
   position: relative;
-  padding: 8px 8px 7px;
+  padding: 10px 10px 9px;
   display: grid;
   grid-template-rows: auto 1fr auto;
-  gap: 3px;
+  gap: 4px;
   overflow: hidden;
   border: 1px solid rgba(67,88,103,.34);
   background: rgba(255,255,255,.012);
@@ -102,14 +102,14 @@
 
 .dayNumber {
   color: #738590;
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 700;
 }
 
 .day strong {
   align-self: center;
   overflow: hidden;
-  font-size: calc(clamp(10px, .9vw, 13px) + 2px);
+  font-size: calc(clamp(11px, .95vw, 14px) + 2px);
   line-height: 1.1;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -117,7 +117,7 @@
 
 .day small {
   color: #70818c;
-  font-size: 11px;
+  font-size: 11.5px;
 }
 
 .winDay {
@@ -165,11 +165,11 @@
 
 @media (max-width: 1120px) {
   .calendar {
-    min-height: 360px;
+    min-height: 380px;
   }
 
   .grid {
-    grid-auto-rows: minmax(58px, 1fr);
+    grid-auto-rows: minmax(62px, 1fr);
   }
 }
 
@@ -181,6 +181,6 @@
 
   .weekdays,
   .grid {
-    min-width: 680px;
+    min-width: 720px;
   }
 }
