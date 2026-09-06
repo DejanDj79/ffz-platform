@@ -166,7 +166,10 @@ export function RealMoneyLedger() {
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape" && !saving) {
-        closeEditor();
+        setEditingId(null);
+        setDraft(blankDraft());
+        setError(null);
+        setEditorOpen(false);
       }
     }
 
