@@ -328,18 +328,29 @@ export function ScoreboardSettings() {
           </div>
 
           <div className={styles.displayBody}>
-            <label className={styles.refreshField}>
-              <span>Refresh Rate</span>
-              <select
-                value={settings.refreshSeconds}
-                onChange={(event) => patch("refreshSeconds", Number(event.target.value))}
+            <div className={styles.displayTopRow}>
+              <label className={styles.refreshField}>
+                <span>Refresh Rate</span>
+                <select
+                  value={settings.refreshSeconds}
+                  onChange={(event) => patch("refreshSeconds", Number(event.target.value))}
+                >
+                  <option value={2}>2 seconds</option>
+                  <option value={5}>5 seconds</option>
+                  <option value={10}>10 seconds</option>
+                  <option value={30}>30 seconds</option>
+                </select>
+              </label>
+
+              <button
+                type="button"
+                className={styles.saveButton}
+                onClick={() => void save()}
+                disabled={saving || switchingLayout}
               >
-                <option value={2}>2 seconds</option>
-                <option value={5}>5 seconds</option>
-                <option value={10}>10 seconds</option>
-                <option value={30}>30 seconds</option>
-              </select>
-            </label>
+                {saving ? "SAVING..." : "SAVE SCOREBOARD"}
+              </button>
+            </div>
 
             <div className={styles.metrics}>
               <span>VISIBLE METRICS</span>
@@ -387,15 +398,6 @@ export function ScoreboardSettings() {
                 Regenerate private OBS link
               </button>
             </div>
-
-            <button
-              type="button"
-              className={styles.saveButton}
-              onClick={() => void save()}
-              disabled={saving || switchingLayout}
-            >
-              {saving ? "SAVING..." : "SAVE SCOREBOARD"}
-            </button>
           </div>
         </article>
       </section>
