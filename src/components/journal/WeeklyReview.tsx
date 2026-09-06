@@ -210,7 +210,10 @@ export function WeeklyReview({ creatorMode = false }: { creatorMode?: boolean })
         <div>
           <span>WEEKLY REVIEW</span>
           <strong>{review.label}</strong>
-          <small>Performance, risk, discipline and behavior in one weekly retrospective.</small>
+          <div className={styles.weekMeta}>
+            <small>Performance, risk, discipline and behavior in one weekly retrospective.</small>
+            <b>{review.tradeCount} closed {review.tradeCount === 1 ? "trade" : "trades"}</b>
+          </div>
         </div>
         <div className={styles.weekNavigator}>
           <button type="button" onClick={() => setAnchor((value) => shiftWeeklyReviewAnchor(value, -1))} aria-label="Previous week">‹</button>
@@ -243,10 +246,6 @@ export function WeeklyReview({ creatorMode = false }: { creatorMode?: boolean })
         <div className={styles.metric}>
           <span>WIN RATE</span>
           <strong>{review.winRate == null ? "—" : `${number.format(review.winRate)}%`}</strong>
-        </div>
-        <div className={styles.metric}>
-          <span>TRADES</span>
-          <strong>{review.tradeCount}</strong>
         </div>
         <div className={styles.metric}>
           <span>AVG R</span>
@@ -291,6 +290,8 @@ export function WeeklyReview({ creatorMode = false }: { creatorMode?: boolean })
         </article>
       </section>
 
+      <BehaviorSignalsPanel trades={review.closedTrades} />
+
       <section className={styles.behaviorGrid}>
         <BreakdownPanel
           title="EXECUTION"
@@ -308,8 +309,6 @@ export function WeeklyReview({ creatorMode = false }: { creatorMode?: boolean })
           rows={review.origin}
         />
       </section>
-
-      <BehaviorSignalsPanel trades={review.closedTrades} />
 
       <section className={styles.lowerGrid}>
         <article className={styles.panel}>
@@ -373,6 +372,11 @@ export function WeeklyReview({ creatorMode = false }: { creatorMode?: boolean })
         </article>
       </section>
 
+      <NextWeekFocusPanel
+        selectedWeekStart={review.start}
+        selectedWeekEnd={review.end}
+      />
+
       {creatorMode && (
         <WeeklyReviewEpisodeHandoff
           key={review.start.toISOString()}
@@ -381,11 +385,6 @@ export function WeeklyReview({ creatorMode = false }: { creatorMode?: boolean })
           weekEnd={review.end}
         />
       )}
-
-      <NextWeekFocusPanel
-        selectedWeekStart={review.start}
-        selectedWeekEnd={review.end}
-      />
     </main>
   );
 }
