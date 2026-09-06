@@ -42,6 +42,7 @@ export function ScoreboardSettings() {
   const [origin, setOrigin] = useState("");
   const [previewVersion, setPreviewVersion] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [switchingLayout, setSwitchingLayout] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -73,6 +74,31 @@ export function ScoreboardSettings() {
     value: ScoreboardSettingsApiModel[K],
   ) {
     setSettings((current) => current ? { ...current, [key]: value } : current);
+  }
+
+  async function changeLayout(layout: ScoreboardSettingsApiModel["layout"]) {
+    if (!settings || settings.layout === layout || switchingLayout) return;
+
+    const previousLayout = settings.layout;
+    patch("layout", layout);
+    setSwitchingLayout(true);
+    setMessage(null);
+    setError(null);
+
+    try {
+      const next = await saveScoreboardSettings({ layout });
+      setSettings((current) => current ? {
+        ...current,
+        layout: next.layout,
+        updatedAt: next.updatedAt,
+      } : current);
+      setPreviewVersion((value) => value + 1);
+    } catch (err) {
+      patch("layout", previousLayout);
+      setError(err instanceof Error ? err.message : "Unable to switch Scoreboard layout.");
+    } finally {
+      setSwitchingLayout(false);
+    }
   }
 
   async function save() {
@@ -157,15 +183,17 @@ export function ScoreboardSettings() {
             <div>
               <button
                 type="button"
+                disabled={switchingLayout}
                 className={settings.layout === "FULL" ? styles.selected : ""}
-                onClick={() => patch("layout", "FULL")}
+                onClick={() => void changeLayout("FULL")}
               >
                 FULL
               </button>
               <button
                 type="button"
+                disabled={switchingLayout}
                 className={settings.layout === "COMPACT" ? styles.selected : ""}
-                onClick={() => patch("layout", "COMPACT")}
+                onClick={() => void changeLayout("COMPACT")}
               >
                 COMPACT
               </button>
@@ -184,7 +212,7 @@ export function ScoreboardSettings() {
 
         <div className={styles.toolbarActions}>
           <Link href="/creator/episodes">OPEN EPISODE BUILDER</Link>
-          <button type="button" onClick={() => void save()} disabled={saving}>
+          <button type="button" onClick={() => void save()} disabled={saving || switchingLayout}>
             {saving ? "SAVING..." : "SAVE SCOREBOARD"}
           </button>
         </div>
@@ -198,7 +226,7 @@ export function ScoreboardSettings() {
         <header>
           <div>
             <span>LIVE SCOREBOARD PREVIEW</span>
-            <small>Saved overlay state · 16:9 OBS composition</small>
+            <small>Live scoreboard data · 16:9 OBS composition</small>
           </div>
         </header>
         <div className={styles.scoreboardStage}>
@@ -364,19 +392,6 @@ export function ScoreboardSettings() {
             </div>
           </div>
         </article>
-      </section>
-
-      <section className={styles.dataSources}>
-        <div>
-          <span>DATA SOURCES</span>
-          <small>What feeds the scoreboard automatically</small>
-        </div>
-        <div className={styles.sourceGrid}>
-          <article><strong>CHALLENGE</strong><span>Status, phase, firm, account size, target, limits and P&amp;L.</span></article>
-          <article><strong>JOURNAL</strong><span>Trades, win rate, best/worst, averages and daily results.</span></article>
-          <article><strong>CREATOR SETTINGS</strong><span>Trading style, instruments, season start, goal and notes.</span></article>
-          <article><strong>REAL MONEY</strong><span>Actual cash net and payouts stay separate from challenge P&amp;L.</span></article>
-        </div>
       </section>
     </main>
   );
