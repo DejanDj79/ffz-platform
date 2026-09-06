@@ -430,7 +430,7 @@
 .negative { color: #ff737f !important; }
 
 @media (max-width: 1260px) {
-  .toolbar:not(:global(.TradeReviewPresentation-module__presentationToolbar)) {
+  .toolbar {
     align-items: stretch;
     flex-direction: column;
   }
