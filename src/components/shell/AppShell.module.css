@@ -191,6 +191,73 @@
   border-top: 1px solid rgba(68, 91, 109, .33);
 }
 
+.planCard {
+  min-height: 50px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(68, 91, 109, .42);
+  border-radius: 8px;
+  color: inherit;
+  background: rgba(11, 20, 28, .72);
+  text-decoration: none;
+  transition: border-color .15s ease, background .15s ease;
+}
+
+.planCard > span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.planCard strong {
+  color: #d4dde3;
+  font-size: 11.5px;
+  letter-spacing: .07em;
+}
+
+.planCard small {
+  overflow: hidden;
+  color: #687987;
+  font-size: 10.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.planCard b {
+  color: #8fa0ad;
+  font-size: 9.5px;
+  letter-spacing: .08em;
+}
+
+.planCardFree {
+  border-color: rgba(160,112,232,.36);
+  background: rgba(160,112,232,.045);
+}
+
+.planCardFree strong,
+.planCardFree b {
+  color: #cbb6f0;
+}
+
+.planCardPro {
+  border-color: rgba(48,208,248,.32);
+  background: rgba(48,208,248,.04);
+}
+
+.planCardPro strong,
+.planCardPro b {
+  color: #9ee7f8;
+}
+
+.planCard:hover {
+  border-color: rgba(48,208,248,.52);
+  background: rgba(48,208,248,.065);
+}
+
 .modeCard {
   min-height: 52px;
   display: grid;
@@ -457,7 +524,6 @@
   .pageIdentity p { max-width: 280px; }
   .content { padding-top: 18px; }
 }
-
 
 .authLoading {
   min-height: 100vh;
