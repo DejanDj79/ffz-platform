@@ -54,28 +54,24 @@ function Snapshot({ data }: { data: PropJourneyCurrencyAnalytics }) {
   return (
     <section className={styles.snapshot}>
       <div className={styles.snapshotMain}>
-        <span className={styles.eyebrow}>REAL PROP JOURNEY P&amp;L</span>
+        <span className={styles.eyebrow}>REAL PROP JOURNEY NET</span>
         <strong className={tone(data.netJourneyPnl)}>
           {signedMoney(data.netJourneyPnl, data.currency)}
         </strong>
-        <p>
-          Actual Ledger income minus actual Ledger expenses. Configured challenge fees are never double-counted.
-        </p>
+        <p>Actual Ledger income minus actual Ledger expenses.</p>
       </div>
 
       <div className={styles.breakEvenCard}>
         <div className={styles.breakEvenTop}>
-          <span>BREAK-EVEN RECOVERY</span>
+          <div>
+            <span>BREAK-EVEN RECOVERY</span>
+            <small>{data.breakEvenReached ? "RECOVERED" : `${formatMoney(data.amountToBreakEven, data.currency)} TO GO`}</small>
+          </div>
           <strong>{Math.round(data.recoveryPct)}%</strong>
         </div>
         <div className={styles.progressTrack}>
           <i style={{ width: `${progress}%` }} />
         </div>
-        <small>
-          {data.breakEvenReached
-            ? "Your real prop cash flow has recovered all recorded costs."
-            : `${formatMoney(data.amountToBreakEven, data.currency)} still needed to recover recorded costs.`}
-        </small>
       </div>
     </section>
   );
@@ -150,10 +146,9 @@ export function PropJourneyAnalytics() {
   return (
     <main className={styles.page}>
       <section className={styles.toolbar}>
-        <div>
-          <span className={styles.eyebrow}>FFZ PRO</span>
-          <strong>Know if your prop journey is actually profitable.</strong>
-          <small>Every dollar below comes from the Real Money Ledger.</small>
+        <div className={styles.toolbarContext}>
+          <span>PROP JOURNEY</span>
+          <small>Real cash economics from the Real Money Ledger.</small>
         </div>
 
         <div className={styles.toolbarActions}>
@@ -185,27 +180,22 @@ export function PropJourneyAnalytics() {
           <small>{data.payoutCount} payout{data.payoutCount === 1 ? "" : "s"}</small>
         </article>
         <article>
-          <span>TOTAL CASH RETURNED</span>
-          <strong>{formatMoney(data.totalIncome, data.currency)}</strong>
-          <small>Payouts + refunds + other income</small>
+          <span>PAYOUT ACCOUNTS</span>
+          <strong>{data.payoutAccountCount}</strong>
+          <small>Distinct linked accounts with payout</small>
         </article>
         <article>
           <span>LARGEST PAYOUT</span>
           <strong>{formatMoney(data.largestPayout, data.currency)}</strong>
           <small>Average {formatMoney(data.averagePayout, data.currency)}</small>
         </article>
-        <article>
-          <span>PAYOUT ACCOUNTS</span>
-          <strong>{data.payoutAccountCount}</strong>
-          <small>Distinct linked accounts with payout</small>
-        </article>
       </section>
 
       <section className={styles.funnelPanel}>
         <header>
           <div>
-            <span>PROP FUNNEL</span>
-            <small>How far your tracked accounts have progressed</small>
+            <span>PROP JOURNEY FUNNEL</span>
+            <small>Evaluation → funded → payout progression</small>
           </div>
         </header>
         <div className={styles.funnel}>
@@ -213,15 +203,37 @@ export function PropJourneyAnalytics() {
           <i>→</i>
           <article><span>STARTED</span><strong>{data.evaluationsStarted}</strong><small>evaluations</small></article>
           <i>→</i>
-          <article><span>PASSED</span><strong>{data.passedEvaluations}</strong><small>reached pass/funded</small></article>
+          <article><span>PASSED</span><strong>{data.passedEvaluations}</strong><small>pass / funded</small></article>
           <i>→</i>
-          <article><span>FUNDED</span><strong>{data.fundedReached}</strong><small>reached funded phase</small></article>
+          <article><span>FUNDED</span><strong>{data.fundedReached}</strong><small>funded phase</small></article>
           <i>→</i>
           <article><span>PAID OUT</span><strong>{data.payoutAccountCount}</strong><small>accounts</small></article>
         </div>
       </section>
 
       <section className={styles.twoColumn}>
+        <article className={`${styles.panel} ${styles.cashFlowPanel}`}>
+          <header>
+            <div>
+              <span>MONTHLY CASH FLOW</span>
+              <small>Latest 12 Ledger months</small>
+            </div>
+          </header>
+          <div className={styles.monthList}>
+            {recentMonths.length === 0 ? (
+              <div className={styles.empty}>Add Ledger entries to build your monthly journey.</div>
+            ) : recentMonths.map((row) => (
+              <div key={row.month} className={styles.monthRow}>
+                <div>
+                  <strong>{monthLabel(row.month)}</strong>
+                  <small>Costs {formatMoney(row.costs, data.currency)} · Payouts {formatMoney(row.payouts, data.currency)}</small>
+                </div>
+                <strong className={tone(row.net)}>{signedMoney(row.net, data.currency)}</strong>
+              </div>
+            ))}
+          </div>
+        </article>
+
         <article className={styles.panel}>
           <header>
             <div>
@@ -245,28 +257,6 @@ export function PropJourneyAnalytics() {
                 </div>
               );
             })}
-          </div>
-        </article>
-
-        <article className={styles.panel}>
-          <header>
-            <div>
-              <span>MONTHLY CASH FLOW</span>
-              <small>Latest 12 Ledger months</small>
-            </div>
-          </header>
-          <div className={styles.monthList}>
-            {recentMonths.length === 0 ? (
-              <div className={styles.empty}>Add Ledger entries to build your monthly journey.</div>
-            ) : recentMonths.map((row) => (
-              <div key={row.month} className={styles.monthRow}>
-                <div>
-                  <strong>{monthLabel(row.month)}</strong>
-                  <small>Costs {formatMoney(row.costs, data.currency)} · Payouts {formatMoney(row.payouts, data.currency)}</small>
-                </div>
-                <strong className={tone(row.net)}>{signedMoney(row.net, data.currency)}</strong>
-              </div>
-            ))}
           </div>
         </article>
       </section>
@@ -320,7 +310,7 @@ export function PropJourneyAnalytics() {
             <small>Actual cash result for every tracked challenge / funded account</small>
           </div>
         </header>
-        <div className={styles.tableScroll}>
+        <div className={`${styles.tableScroll} ${styles.accountTableScroll}`}>
           <table>
             <thead>
               <tr>
@@ -356,10 +346,8 @@ export function PropJourneyAnalytics() {
       <section className={styles.sourceNote}>
         <div>
           <span>SOURCE OF TRUTH</span>
-          <strong>Only real Ledger transactions affect Prop Journey P&amp;L.</strong>
-          <p>
-            A configured challenge fee is planning metadata. Record the payment in Real Money Ledger when money actually leaves your account; refunds and payouts work the same way.
-          </p>
+          <strong>Only real Ledger transactions affect Prop Journey Net.</strong>
+          <p>Configured challenge fees are planning metadata. Record real payments, refunds and payouts in the Real Money Ledger.</p>
         </div>
         <Link href="/ledger">REVIEW LEDGER</Link>
       </section>
