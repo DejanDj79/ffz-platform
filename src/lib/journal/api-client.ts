@@ -69,6 +69,20 @@ export async function createTradeViaApi(
   return json.data;
 }
 
+export async function importTradeViaApi(
+  input: TradeEditableInput,
+): Promise<TradeApiModel> {
+  const response = await fetch("/api/journal/import", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+
+  const json = await parseResponse<{ data: TradeApiModel }>(response);
+  notifyJournalTradesChanged();
+  return json.data;
+}
+
 export async function updateTradeViaApi(
   tradeId: string,
   input: UpdateTradeInput,

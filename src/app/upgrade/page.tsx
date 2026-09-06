@@ -8,9 +8,14 @@ import {
 import { getFounderOfferState } from "@/lib/billing/founder-repository";
 import { getUserBillingState } from "@/lib/billing/repository";
 import {
+  safeFeatureName,
+  safeInternalReturnPath,
+} from "@/lib/navigation/safe-return";
+import {
   FounderAction,
   ManageSubscriptionButton,
-  SubscribeAction,
+  ProPlanSelector,
+  UpgradeActivationBanner,
 } from "./BillingActions";
 import styles from "./Upgrade.module.css";
 
@@ -52,9 +57,30 @@ function formatDate(value: Date | null) {
   }).format(value);
 }
 
-export default async function UpgradePage() {
+type UpgradePageProps = {
+  searchParams: Promise<{
+    checkout?: string;
+    from?: string;
+    feature?: string;
+  }>;
+};
+
+export default async function UpgradePage({ searchParams }: UpgradePageProps) {
+  const query = await searchParams;
+  const returnTo = safeInternalReturnPath(query.from);
+  const feature = safeFeatureName(query.feature);
+  const checkout = query.checkout === "success" || query.checkout === "founder-success"
+    ? query.checkout
+    : null;
+
   const user = await getCurrentUser();
-  if (!user) redirect("/login?next=/upgrade");
+  if (!user) {
+    const next = new URLSearchParams();
+    if (returnTo) next.set("from", returnTo);
+    if (feature) next.set("feature", feature);
+    const suffix = next.size > 0 ? `?${next.toString()}` : "";
+    redirect(`/login?next=${encodeURIComponent(`/upgrade${suffix}`)}`);
+  }
 
   const isPro = user.plan === "PRO";
   const billingAvailability = getLemonBillingAvailability();
@@ -75,29 +101,30 @@ export default async function UpgradePage() {
       : null;
   const founderDisplayRemaining = founderOffer.remaining + (founderOffer.hasActiveReservation ? 1 : 0);
 
-  function proState(interval: "MONTHLY" | "ANNUAL") {
+  function proState() {
     if (isFounder) {
       return <div className={styles.planState}>Included with Founder lifetime access</div>;
     }
 
     if (!isPro) {
-      return <SubscribeAction available={billingAvailability.available} interval={interval} />;
+      return (
+        <ProPlanSelector
+          available={billingAvailability.available}
+          returnTo={returnTo}
+          feature={feature}
+        />
+      );
     }
 
-    const isCurrentSubscription = hasSubscription && currentBillingInterval === interval;
-
-    if (!isCurrentSubscription) {
-      return (
-        <div className={styles.planState}>
-          {hasSubscription ? "Included with your current Pro subscription" : "Included in your Pro plan"}
-        </div>
-      );
+    if (!hasSubscription) {
+      return <div className={`${styles.planState} ${styles.active}`}>PRO ACTIVE</div>;
     }
 
     return (
       <div className={styles.activeBilling}>
         <div className={`${styles.planState} ${styles.active}`}>
           PRO ACTIVE
+          {currentBillingInterval && <small>{currentBillingInterval}</small>}
           {billing?.status && <small>{billing.status.replaceAll("_", " ").toUpperCase()}</small>}
           {renewalLabel && (
             <small>
@@ -112,6 +139,12 @@ export default async function UpgradePage() {
 
   return (
     <main className={styles.page}>
+      <UpgradeActivationBanner
+        checkout={checkout}
+        returnTo={returnTo}
+        feature={feature}
+      />
+
       <section className={styles.hero}>
         <span className={styles.eyebrow}>FFZ PLANS</span>
         <h1>Turn FFZ from a tracker into your prop trading operating system.</h1>
@@ -120,8 +153,16 @@ export default async function UpgradePage() {
           guardrails and edge analytics. Founder Trader adds a limited lifetime option for the first
           150 traders. Your existing data stays visible if your plan changes.
         </p>
-        <div className={styles.current}>
-          CURRENT PLAN <strong>{isFounder ? "FOUNDER" : user.plan}</strong>
+        <div className={styles.heroMeta}>
+          <div className={styles.current}>
+            CURRENT PLAN <strong>{isFounder ? "FOUNDER" : user.plan}</strong>
+          </div>
+          {feature && returnTo && !checkout && (
+            <div className={styles.contextChip}>
+              UNLOCKING <strong>{feature}</strong>
+              <span>Return automatically after activation</span>
+            </div>
+          )}
         </div>
       </section>
 
@@ -134,7 +175,7 @@ export default async function UpgradePage() {
               <strong>$0</strong>
               <small>forever</small>
             </div>
-            <p>Core prop tracking and journaling tools.</p>
+            <p>Core prop tracking and journaling tools that stay useful without a subscription.</p>
           </div>
           <FeatureList items={FREE_FEATURES} />
           <div className={styles.planState}>
@@ -143,32 +184,18 @@ export default async function UpgradePage() {
         </article>
 
         <article className={`${styles.card} ${styles.proCard}`}>
+          <div className={styles.recommendedBadge}>RECOMMENDED</div>
           <div className={styles.cardHeader}>
-            <span className={styles.planKicker}>MONTHLY</span>
+            <span className={styles.planKicker}>FULL WORKFLOW</span>
             <h2>PRO</h2>
             <div className={styles.priceRow}>
-              <strong>$12.99</strong>
+              <strong>From $8.25</strong>
               <small>/ month</small>
             </div>
-            <p>Full FFZ access with flexible monthly billing.</p>
+            <p>Choose monthly flexibility or save 36% with yearly billing.</p>
           </div>
           <FeatureList items={PRO_FEATURES} />
-          {proState("MONTHLY")}
-        </article>
-
-        <article className={`${styles.card} ${styles.proCard} ${styles.yearlyCard}`}>
-          <div className={styles.savingsBadge}>SAVE 36%</div>
-          <div className={styles.cardHeader}>
-            <span className={styles.planKicker}>YEARLY</span>
-            <h2>PRO</h2>
-            <div className={styles.priceRow}>
-              <strong>$99</strong>
-              <small>/ year</small>
-            </div>
-            <p>$8.25/month equivalent · best value for long-term use.</p>
-          </div>
-          <FeatureList items={PRO_FEATURES} />
-          {proState("ANNUAL")}
+          {proState()}
         </article>
 
         <article className={`${styles.card} ${styles.founderCard}`}>
@@ -203,6 +230,8 @@ export default async function UpgradePage() {
               soldOut={founderOffer.soldOut}
               remaining={founderDisplayRemaining}
               hasSubscription={hasSubscription}
+              returnTo={returnTo}
+              feature={feature}
             />
           )}
         </article>
@@ -214,7 +243,9 @@ export default async function UpgradePage() {
           <strong>Downgrading never deletes your Journal, challenges or custom data.</strong>
           <p>Pro-only creation and automation pause; historical data remains visible.</p>
         </div>
-        <Link href="/dashboard">BACK TO DASHBOARD</Link>
+        <Link href={returnTo ?? "/dashboard"}>
+          {feature && returnTo ? `BACK TO ${feature.toUpperCase()}` : "BACK TO DASHBOARD"}
+        </Link>
       </section>
     </main>
   );

@@ -12,6 +12,8 @@ type AuthUser = {
   email: string;
   displayName: string | null;
   role: "USER" | "CREATOR";
+  plan: "FREE" | "PRO";
+  access: "FREE" | "PRO" | "FOUNDER" | "CREATOR";
 };
 
 type NavChild = {
@@ -162,6 +164,12 @@ const PAGE_META: Array<{
     subtitle: "Your Futures From Zero journey graphic for episodes and OBS.",
     icon: "scoreboard",
   },
+  {
+    match: (pathname) => pathname.startsWith("/upgrade"),
+    title: "FFZ Plans",
+    subtitle: "Choose the FFZ access level that fits your trading workflow.",
+    icon: "plan",
+  },
 ];
 
 function Icon({ name }: { name: string }) {
@@ -188,6 +196,7 @@ function Icon({ name }: { name: string }) {
     ledger: <><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h4M7 16h6M16 14v4M14 16h4"/></>,
     journey: <><path d="M4 18V6M4 18h16"/><path d="m7 15 4-4 3 2 5-6"/><path d="M16 7h3v3"/></>,
     scoreboard: <><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 8h3M14 8h3M7 12h10M8 21h8M12 18v3"/></>,
+    plan: <><path d="M4 7h16M4 12h16M4 17h10"/><path d="m17 15 3 2-3 2"/></>,
     menu: <><path d="M4 7h16M4 12h16M4 17h16"/></>,
     close: <><path d="m6 6 12 12M18 6 6 18"/></>,
     chevron: <path d="m9 6 6 6-6 6"/>,
@@ -356,6 +365,25 @@ export function AppShell({ children }: { children: ReactNode }) {
         </nav>
 
         <div className={styles.sidebarBottom}>
+          <Link
+            href="/upgrade"
+            className={`${styles.planCard} ${user.access === "FREE" ? styles.planCardFree : styles.planCardPro}`}
+          >
+            <span>
+              <strong>FFZ {user.access}</strong>
+              <small>
+                {user.access === "CREATOR"
+                  ? "Pro included with creator access"
+                  : user.access === "FOUNDER"
+                    ? "Lifetime Pro access"
+                    : user.access === "FREE"
+                      ? "Unlock the full trading workflow"
+                      : "Billing and plan settings"}
+              </small>
+            </span>
+            <b>{user.access === "FREE" ? "UPGRADE" : user.access === "PRO" ? "MANAGE" : "PLANS"}</b>
+          </Link>
+
           <div className={styles.modeCard}>
             <span className={styles.modeIcon}><Icon name="database" /></span>
             <span>
@@ -393,7 +421,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        {!pathname.startsWith("/economic-calendar") && (
+        {!pathname.startsWith("/economic-calendar") && !pathname.startsWith("/upgrade") && (
           <EconomicCalendarAlert />
         )}
 

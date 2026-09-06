@@ -35,7 +35,7 @@ function proRequiredResponse() {
     {
       error: "Trading Guardrails and news lockout require FFZ Pro.",
       code: "PRO_REQUIRED",
-      upgradeUrl: "/upgrade",
+      upgradeUrl: "/upgrade?from=%2Ftools%2Ftrading-guardrails&feature=Personal+Trading+Guardrails",
     },
     { status: 403 },
   );

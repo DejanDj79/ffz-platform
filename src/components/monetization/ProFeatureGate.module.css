@@ -87,9 +87,23 @@
   font-weight: 800;
 }
 
-.button {
+.action {
+  display: grid;
+  justify-items: stretch;
+  gap: 7px;
+  min-width: 190px;
   align-self: end;
-  min-width: 152px;
+}
+
+.action small {
+  color: #73828e;
+  text-align: center;
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+.button {
+  min-width: 190px;
   padding: 11px 15px;
   border: 1px solid #a070e8;
   border-radius: 8px;
@@ -97,9 +111,9 @@
   background: linear-gradient(180deg, rgba(160,112,232,.24), rgba(160,112,232,.08));
   text-align: center;
   text-decoration: none;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
-  letter-spacing: .04em;
+  letter-spacing: .045em;
 }
 
 .button:hover {
@@ -130,8 +144,12 @@
     grid-row: 2;
   }
 
-  .button {
+  .action {
     grid-row: 3;
+    width: 100%;
+  }
+
+  .button {
     width: 100%;
   }
 }

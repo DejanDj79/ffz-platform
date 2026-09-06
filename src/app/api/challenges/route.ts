@@ -24,7 +24,7 @@ function planLimitResponse() {
     {
       error: "FFZ Free supports one active Challenge / Funded account. Close or finish the current active account, or upgrade to FFZ Pro for unlimited active accounts.",
       code: "PLAN_LIMIT",
-      upgradeUrl: "/upgrade",
+      upgradeUrl: "/upgrade?from=%2Fchallenges&feature=Multiple+Active+Prop+Accounts",
     },
     { status: 403 },
   );
@@ -35,7 +35,7 @@ function customRulesResponse() {
     {
       error: "Reusable custom prop rule presets require FFZ Pro. Manual challenge values and built-in presets remain available on Free.",
       code: "PRO_REQUIRED",
-      upgradeUrl: "/upgrade",
+      upgradeUrl: "/upgrade?from=%2Fchallenges&feature=Custom+Prop+Rules",
     },
     { status: 403 },
   );

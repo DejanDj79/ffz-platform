@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import styles from "./ProFeatureGate.module.css";
 
 export function ProFeatureGate({
@@ -12,6 +15,12 @@ export function ProFeatureGate({
   features?: string[];
   compact?: boolean;
 }) {
+  const pathname = usePathname();
+  const params = new URLSearchParams({
+    from: pathname,
+    feature: title,
+  });
+
   return (
     <section className={`${styles.gate} ${compact ? styles.compact : ""}`}>
       <div className={styles.badge}>FFZ PRO</div>
@@ -25,7 +34,12 @@ export function ProFeatureGate({
           </ul>
         )}
       </div>
-      <Link className={styles.button} href="/upgrade">VIEW FFZ PRO</Link>
+      <div className={styles.action}>
+        <Link className={styles.button} href={`/upgrade?${params.toString()}`}>
+          UNLOCK WITH FFZ PRO
+        </Link>
+        <small>From $8.25/mo billed yearly</small>
+      </div>
     </section>
   );
 }
