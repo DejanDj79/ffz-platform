@@ -79,6 +79,7 @@ function EquityCurve({
     .join(" ");
   const last = points.at(-1)?.cumulativePnl ?? 0;
   const zeroY = padY + ((max - 0) / span) * (height - padY * 2);
+  const zeroOffset = ((zeroY - padY) / (height - padY * 2)) * 100;
 
   return (
     <div className={styles.chartWrap}>
@@ -88,9 +89,18 @@ function EquityCurve({
             <stop offset="0%" stopColor="#30d0f8" />
             <stop offset="100%" stopColor="#a070e8" />
           </linearGradient>
-          <linearGradient id="freeJournalFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#30d0f8" stopOpacity="0.16" />
-            <stop offset="100%" stopColor="#30d0f8" stopOpacity="0" />
+          <linearGradient
+            id="freeJournalFill"
+            x1="0"
+            y1={padY}
+            x2="0"
+            y2={height - padY}
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop offset="0%" stopColor="#31d7a1" stopOpacity="0.16" />
+            <stop offset={`${zeroOffset}%`} stopColor="#31d7a1" stopOpacity="0.04" />
+            <stop offset={`${zeroOffset}%`} stopColor="#ff6675" stopOpacity="0.04" />
+            <stop offset="100%" stopColor="#ff6675" stopOpacity="0.16" />
           </linearGradient>
         </defs>
 
@@ -110,7 +120,7 @@ function EquityCurve({
         )}
 
         <path
-          d={`${path} L${coords.at(-1)?.x ?? width - padX},${height - padY} L${coords[0]?.x ?? padX},${height - padY} Z`}
+          d={`${path} L${coords.at(-1)?.x ?? width - padX},${zeroY} L${coords[0]?.x ?? padX},${zeroY} Z`}
           fill="url(#freeJournalFill)"
         />
         <path d={path} fill="none" stroke="url(#freeJournalStroke)" strokeWidth="3" />
