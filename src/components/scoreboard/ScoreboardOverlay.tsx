@@ -29,9 +29,7 @@ export function ScoreboardOverlay({
 }: {
   overlayKey: string;
 }) {
-  const [data, setData] =
-    useState<PublicScoreboardData | null>(null);
-
+  const [data, setData] = useState<PublicScoreboardData | null>(null);
   const [failed, setFailed] = useState(false);
   const timerRef = useRef<number | null>(null);
 
@@ -117,9 +115,7 @@ export function ScoreboardOverlay({
 
   if (!data) {
     return failed ? (
-      <div className={styles.offline}>
-        FFZ SCOREBOARD OFFLINE
-      </div>
+      <div className={styles.offline}>FFZ SCOREBOARD OFFLINE</div>
     ) : null;
   }
 
@@ -132,22 +128,15 @@ export function ScoreboardOverlay({
   );
 }
 
-function PremiereBoard({
-  data,
-}: {
-  data: PublicScoreboardData;
-}) {
+function PremiereBoard({ data }: { data: PublicScoreboardData }) {
   const challenge = data.challenge;
 
   const startDate = data.startDate
-    ? new Date(data.startDate).toLocaleDateString(
-        "en-GB",
-        {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        },
-      )
+    ? new Date(data.startDate).toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })
     : "—";
 
   return (
@@ -201,11 +190,7 @@ function PremiereBoard({
             tone="purple"
             icon="bars"
             title="CURRENT P&L"
-            value={
-              challenge
-                ? signedMoney(challenge.pnl)
-                : money.format(0)
-            }
+            value={challenge ? signedMoney(challenge.pnl) : money.format(0)}
             sub="ALL TIME"
           />
 
@@ -216,9 +201,7 @@ function PremiereBoard({
             value={data.goalLabel}
             sub={
               data.ledger.payouts > 0
-                ? `ACHIEVED · ${money.format(
-                    data.ledger.payouts,
-                  )}`
+                ? `ACHIEVED · ${money.format(data.ledger.payouts)}`
                 : "SEASON 1"
             }
           />
@@ -231,73 +214,38 @@ function PremiereBoard({
             title="CHALLENGE DETAILS"
             className={styles.challengeDetails}
           >
-            <DetailsRow
-              label="PROP FIRM"
-              value={challenge?.propFirm ?? "—"}
-            />
-
+            <DetailsRow label="PROP FIRM" value={challenge?.propFirm ?? "—"} />
             <DetailsRow
               label="ACCOUNT SIZE"
-              value={
-                challenge
-                  ? money0.format(challenge.accountSize)
-                  : "—"
-              }
+              value={challenge ? money0.format(challenge.accountSize) : "—"}
             />
-
             <DetailsRow
               label="PROFIT TARGET"
               value={
                 challenge
-                  ? `${money0.format(
-                      challenge.profitTarget,
-                    )}  (${number.format(
-                      challenge.profitTargetPct,
-                    )}%)`
+                  ? `${money0.format(challenge.profitTarget)}  (${number.format(challenge.profitTargetPct)}%)`
                   : "—"
               }
             />
-
             <DetailsRow
               label="MAX DAILY LOSS"
               value={
                 challenge?.dailyLossLimit == null
                   ? "N/A"
-                  : `${money0.format(
-                      challenge.dailyLossLimit,
-                    )}  (${number.format(
-                      challenge.dailyLossLimitPct ?? 0,
-                    )}%)`
+                  : `${money0.format(challenge.dailyLossLimit)}  (${number.format(challenge.dailyLossLimitPct ?? 0)}%)`
               }
             />
-
             <DetailsRow
               label="MAX DRAWDOWN"
               value={
                 challenge
-                  ? `${money0.format(
-                      challenge.maxDrawdown,
-                    )}  (${number.format(
-                      challenge.maxDrawdownPct,
-                    )}%)`
+                  ? `${money0.format(challenge.maxDrawdown)}  (${number.format(challenge.maxDrawdownPct)}%)`
                   : "—"
               }
             />
-
-            <DetailsRow
-              label="TRADING STYLE"
-              value={data.tradingStyle}
-            />
-
-            <DetailsRow
-              label="INSTRUMENTS"
-              value={data.instrumentsLabel}
-            />
-
-            <DetailsRow
-              label="START DATE"
-              value={startDate.toUpperCase()}
-            />
+            <DetailsRow label="TRADING STYLE" value={data.tradingStyle} />
+            <DetailsRow label="INSTRUMENTS" value={data.instrumentsLabel} />
+            <DetailsRow label="START DATE" value={startDate.toUpperCase()} />
           </Panel>
 
           <Panel
@@ -313,65 +261,46 @@ function PremiereBoard({
                 value={String(data.journal.totalTrades)}
                 tone="purple"
               />
-
               <PerformanceMetric
                 icon="percent"
                 label="WIN RATE"
-                value={
-                  data.journal.winRate == null
-                    ? "—"
-                    : `${data.journal.winRate}%`
-                }
+                value={data.journal.winRate == null ? "—" : `${data.journal.winRate}%`}
                 tone="purple"
               />
-
               <PerformanceMetric
                 icon="thumbUp"
                 label="WINS"
                 value={String(data.journal.wins)}
                 tone="green"
               />
-
               <PerformanceMetric
                 icon="thumbDown"
                 label="LOSSES"
                 value={String(data.journal.losses)}
                 tone="red"
               />
-
               <PerformanceMetric
                 icon="star"
                 label="BEST TRADE"
-                value={nullableMoney(
-                  data.performance.bestTrade,
-                )}
+                value={nullableMoney(data.performance.bestTrade)}
                 tone="green"
               />
-
               <PerformanceMetric
                 icon="down"
                 label="WORST TRADE"
-                value={nullableMoney(
-                  data.performance.worstTrade,
-                )}
+                value={nullableMoney(data.performance.worstTrade)}
                 tone="red"
               />
-
               <PerformanceMetric
                 icon="up"
                 label="AVG WIN"
-                value={nullableMoney(
-                  data.performance.averageWin,
-                )}
+                value={nullableMoney(data.performance.averageWin)}
                 tone="green"
               />
-
               <PerformanceMetric
                 icon="down"
                 label="AVG LOSS"
-                value={nullableMoney(
-                  data.performance.averageLoss,
-                )}
+                value={nullableMoney(data.performance.averageLoss)}
                 tone="red"
               />
             </div>
@@ -416,29 +345,20 @@ function PremiereBoard({
               >
                 {signedMoney(data.ledger.netCashFlow)}
               </strong>
-
               <span>REAL PAYOUTS</span>
-              <strong className={styles.positive}>
-                {money.format(data.ledger.payouts)}
-              </strong>
+              <strong className={styles.positive}>{money.format(data.ledger.payouts)}</strong>
             </div>
           </Panel>
         </section>
 
         <footer className={styles.boardFooter}>
-          <span>
-            DISCIPLINE. RULES. CONSISTENCY. RESULTS.
-          </span>
-
+          <span>DISCIPLINE. RULES. CONSISTENCY. RESULTS.</span>
           <div className={styles.footerCenter}>
             <div className={styles.chevrons}>
-              {Array.from({ length: 9 }, (_, index) => (
-                <i key={index} />
-              ))}
+              {Array.from({ length: 9 }, (_, index) => <i key={index} />)}
             </div>
             <strong>ONE TRADE AT A TIME.</strong>
           </div>
-
           <div className={styles.footerBrand}>
             <span>FUTURES FROM ZERO</span>
           </div>
@@ -448,12 +368,15 @@ function PremiereBoard({
   );
 }
 
-function CompactBoard({
-  data,
-}: {
-  data: PublicScoreboardData;
-}) {
+function CompactBoard({ data }: { data: PublicScoreboardData }) {
   const challenge = data.challenge;
+  const hasCompactStats =
+    data.showBalance ||
+    data.showTradeCount ||
+    data.showWinRate ||
+    data.showAverageR ||
+    data.showRealMoneyNet ||
+    data.showRealPayouts;
 
   return (
     <div className={styles.compactCanvas}>
@@ -467,7 +390,6 @@ function CompactBoard({
             priority
             className={styles.compactLogo}
           />
-
           <div>
             <span>SEASON 1 · DAY {data.currentDay}</span>
             <strong>{data.goalLabel}</strong>
@@ -480,83 +402,80 @@ function CompactBoard({
             <strong>{challenge?.name ?? "NO CHALLENGE"}</strong>
             <small>
               {challenge
-                ? `${challenge.propFirm} · ${formatState(
-                    challenge.status,
-                  )}`
+                ? `${challenge.propFirm} · ${formatState(challenge.status)}`
                 : "FFZ PLATFORM"}
             </small>
           </div>
 
-          <b
-            className={
-              challenge && challenge.pnl > 0
-                ? styles.positive
-                : challenge && challenge.pnl < 0
-                  ? styles.negative
-                  : ""
-            }
-          >
-            {challenge
-              ? signedMoney(challenge.pnl)
-              : money.format(0)}
-          </b>
+          {data.showChallengePnl && (
+            <b
+              className={
+                challenge && challenge.pnl > 0
+                  ? styles.positive
+                  : challenge && challenge.pnl < 0
+                    ? styles.negative
+                    : ""
+              }
+            >
+              {challenge ? signedMoney(challenge.pnl) : money.format(0)}
+            </b>
+          )}
         </div>
 
-        <div className={styles.compactStats}>
-          <MiniStat
-            label="BALANCE"
-            value={
-              challenge
-                ? money0.format(challenge.currentBalance)
-                : "—"
-            }
-          />
+        {hasCompactStats && (
+          <div className={styles.compactStats}>
+            {data.showBalance && (
+              <MiniStat
+                label="BALANCE"
+                value={challenge ? money0.format(challenge.currentBalance) : "—"}
+              />
+            )}
+            {data.showTradeCount && (
+              <MiniStat label="TRADES" value={String(data.journal.totalTrades)} />
+            )}
+            {data.showWinRate && (
+              <MiniStat
+                label="WIN RATE"
+                value={data.journal.winRate == null ? "—" : `${data.journal.winRate}%`}
+              />
+            )}
+            {data.showAverageR && (
+              <MiniStat
+                label="AVERAGE R"
+                value={data.journal.averageR == null ? "—" : `${number.format(data.journal.averageR)}R`}
+              />
+            )}
+            {data.showRealMoneyNet && (
+              <MiniStat
+                label="REAL MONEY"
+                value={signedMoney(data.ledger.netCashFlow)}
+                tone={
+                  data.ledger.netCashFlow > 0
+                    ? "green"
+                    : data.ledger.netCashFlow < 0
+                      ? "red"
+                      : "blue"
+                }
+              />
+            )}
+            {data.showRealPayouts && (
+              <MiniStat
+                label="PAYOUTS"
+                value={money.format(data.ledger.payouts)}
+                tone={data.ledger.payouts > 0 ? "green" : "blue"}
+              />
+            )}
+          </div>
+        )}
 
-          <MiniStat
-            label="TRADES"
-            value={String(data.journal.totalTrades)}
-          />
-
-          <MiniStat
-            label="WIN RATE"
-            value={
-              data.journal.winRate == null
-                ? "—"
-                : `${data.journal.winRate}%`
-            }
-          />
-
-          <MiniStat
-            label="REAL MONEY"
-            value={signedMoney(data.ledger.netCashFlow)}
-            tone={
-              data.ledger.netCashFlow > 0
-                ? "green"
-                : data.ledger.netCashFlow < 0
-                  ? "red"
-                  : "blue"
-            }
-          />
-        </div>
-
-        {challenge && (
+        {challenge && data.showTargetProgress && (
           <div className={styles.compactProgress}>
             <div>
               <span>PROFIT TARGET</span>
-              <strong>
-                {number.format(
-                  challenge.targetProgressPct,
-                )}
-                %
-              </strong>
+              <strong>{number.format(challenge.targetProgressPct)}%</strong>
             </div>
-
             <div>
-              <i
-                style={{
-                  width: `${challenge.targetProgressPct}%`,
-                }}
-              />
+              <i style={{ width: `${challenge.targetProgressPct}%` }} />
             </div>
           </div>
         )}
@@ -579,11 +498,7 @@ function SummaryTile({
   sub?: string;
 }) {
   return (
-    <article
-      className={`${styles.summaryTile} ${
-        styles[`tone_${tone}`]
-      }`}
-    >
+    <article className={`${styles.summaryTile} ${styles[`tone_${tone}`]}`}>
       <Icon name={icon} />
       <div>
         <span>{title}</span>
@@ -610,11 +525,7 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <article
-      className={`${styles.panel} ${
-        styles[`panel_${tone}`]
-      } ${className}`}
-    >
+    <article className={`${styles.panel} ${styles[`panel_${tone}`]} ${className}`}>
       <header>
         <div>
           <Icon name={icon} />
@@ -627,13 +538,7 @@ function Panel({
   );
 }
 
-function DetailsRow({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function DetailsRow({ label, value }: { label: string; value: string }) {
   return (
     <div className={styles.detailsRow}>
       <i />
@@ -656,11 +561,7 @@ function PerformanceMetric({
   tone: "purple" | "green" | "red";
 }) {
   return (
-    <div
-      className={`${styles.performanceMetric} ${
-        styles[`metric_${tone}`]
-      }`}
-    >
+    <div className={`${styles.performanceMetric} ${styles[`metric_${tone}`]}`}>
       <Icon name={icon} />
       <span>{label}</span>
       <strong>[ {value} ]</strong>
@@ -668,19 +569,11 @@ function PerformanceMetric({
   );
 }
 
-function Calendar({
-  days,
-}: {
-  days: ScoreboardCalendarDay[];
-}) {
+function Calendar({ days }: { days: ScoreboardCalendarDay[] }) {
   return (
     <div className={styles.calendar}>
       <div className={styles.calendarDays}>
-        {days.map((item) => (
-          <div key={`number-${item.day}`}>
-            {item.day}
-          </div>
-        ))}
+        {days.map((item) => <div key={`number-${item.day}`}>{item.day}</div>)}
       </div>
 
       <div className={styles.calendarResults}>
@@ -699,8 +592,7 @@ function Calendar({
                       : styles.calendarOutside
             }
             title={
-              item.status === "PROFIT" ||
-              item.status === "LOSS"
+              item.status === "PROFIT" || item.status === "LOSS"
                 ? `${item.day}: ${signedMoney(item.pnl)}`
                 : item.status.replaceAll("_", " ")
             }
@@ -709,15 +601,9 @@ function Calendar({
       </div>
 
       <div className={styles.legend}>
-        <span>
-          <i className={styles.legendProfit} /> PROFIT
-        </span>
-        <span>
-          <i className={styles.legendLoss} /> LOSS
-        </span>
-        <span>
-          <i className={styles.legendNoTrade} /> NO TRADE
-        </span>
+        <span><i className={styles.legendProfit} /> PROFIT</span>
+        <span><i className={styles.legendLoss} /> LOSS</span>
+        <span><i className={styles.legendNoTrade} /> NO TRADE</span>
       </div>
     </div>
   );
@@ -733,9 +619,7 @@ function Notes({ value }: { value: string }) {
   return (
     <div className={styles.notes}>
       {Array.from({ length: 4 }, (_, index) => (
-        <div key={index}>
-          <span>{lines[index] ?? ""}</span>
-        </div>
+        <div key={index}><span>{lines[index] ?? ""}</span></div>
       ))}
     </div>
   );
@@ -786,76 +670,20 @@ type IconName =
 
 function Icon({ name }: { name: IconName }) {
   const paths: Record<IconName, React.ReactNode> = {
-    shield: (
-      <path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6l7-3z" />
-    ),
-    target: (
-      <>
-        <circle cx="11" cy="13" r="7" />
-        <circle cx="11" cy="13" r="3" />
-        <path d="M14 10l7-7M16 3h5v5" />
-      </>
-    ),
-    bars: (
-      <>
-        <path d="M4 20V13h4v7M10 20V8h4v12M16 20V4h4v16" />
-      </>
-    ),
-    trophy: (
-      <>
-        <path d="M8 4h8v4c0 4-2 6-4 7-2-1-4-3-4-7V4z" />
-        <path d="M8 6H4c0 4 2 6 5 6M16 6h4c0 4-2 6-5 6M12 15v4M8 21h8" />
-      </>
-    ),
-    clipboard: (
-      <>
-        <rect x="5" y="5" width="14" height="16" rx="2" />
-        <path d="M9 5V3h6v2M9 10h6M9 14h6M9 18h4" />
-      </>
-    ),
-    trend: (
-      <path d="M3 18l6-6 4 3 8-9M16 6h5v5" />
-    ),
-    calendar: (
-      <>
-        <rect x="3" y="5" width="18" height="16" rx="2" />
-        <path d="M7 3v4M17 3v4M3 10h18M7 14h2M11 14h2M15 14h2M7 18h2M11 18h2" />
-      </>
-    ),
-    notes: (
-      <>
-        <rect x="5" y="4" width="13" height="17" rx="2" />
-        <path d="M8 8h7M8 12h7M8 16h5M18 15l3 3-4 4" />
-      </>
-    ),
-    up: (
-      <>
-        <circle cx="12" cy="12" r="9" />
-        <path d="M12 17V7M8 11l4-4 4 4" />
-      </>
-    ),
-    down: (
-      <>
-        <circle cx="12" cy="12" r="9" />
-        <path d="M12 7v10M8 13l4 4 4-4" />
-      </>
-    ),
-    percent: (
-      <>
-        <circle cx="8" cy="8" r="2" />
-        <circle cx="16" cy="16" r="2" />
-        <path d="M7 18L17 6" />
-      </>
-    ),
-    thumbUp: (
-      <path d="M8 11l3-7 2 1v5h5a2 2 0 012 2l-2 7H8M4 10h4v10H4z" />
-    ),
-    thumbDown: (
-      <path d="M8 13l3 7 2-1v-5h5a2 2 0 002-2l-2-7H8M4 4h4v10H4z" />
-    ),
-    star: (
-      <path d="M12 3l2.7 5.5 6 .9-4.4 4.2 1 6-5.3-2.8-5.3 2.8 1-6-4.4-4.2 6-.9L12 3z" />
-    ),
+    shield: <path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6l7-3z" />,
+    target: <><circle cx="11" cy="13" r="7" /><circle cx="11" cy="13" r="3" /><path d="M14 10l7-7M16 3h5v5" /></>,
+    bars: <><path d="M4 20V13h4v7M10 20V8h4v12M16 20V4h4v16" /></>,
+    trophy: <><path d="M8 4h8v4c0 4-2 6-4 7-2-1-4-3-4-7V4z" /><path d="M8 6H4c0 4 2 6 5 6M16 6h4c0 4-2 6-5 6M12 15v4M8 21h8" /></>,
+    clipboard: <><rect x="5" y="5" width="14" height="16" rx="2" /><path d="M9 5V3h6v2M9 10h6M9 14h6M9 18h4" /></>,
+    trend: <path d="M3 18l6-6 4 3 8-9M16 6h5v5" />,
+    calendar: <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M7 3v4M17 3v4M3 10h18M7 14h2M11 14h2M15 14h2M7 18h2M11 18h2" /></>,
+    notes: <><rect x="5" y="4" width="13" height="17" rx="2" /><path d="M8 8h7M8 12h7M8 16h5M18 15l3 3-4 4" /></>,
+    up: <><circle cx="12" cy="12" r="9" /><path d="M12 17V7M8 11l4-4 4 4" /></>,
+    down: <><circle cx="12" cy="12" r="9" /><path d="M12 7v10M8 13l4 4 4-4" /></>,
+    percent: <><circle cx="8" cy="8" r="2" /><circle cx="16" cy="16" r="2" /><path d="M7 18L17 6" /></>,
+    thumbUp: <path d="M8 11l3-7 2 1v5h5a2 2 0 012 2l-2 7H8M4 10h4v10H4z" />,
+    thumbDown: <path d="M8 13l3 7 2-1v-5h5a2 2 0 002-2l-2-7H8M4 4h4v10H4z" />,
+    star: <path d="M12 3l2.7 5.5 6 .9-4.4 4.2 1 6-5.3-2.8-5.3 2.8 1-6-4.4-4.2 6-.9L12 3z" />,
   };
 
   return (
