@@ -13,6 +13,7 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx --env-file=.env.local src/db/seed.ts",
+    "db:seed:month-demo": "tsx --env-file=.env.local src/db/seed-month-demo.ts",
     "user:plan": "tsx --env-file=.env.local src/db/set-user-plan.ts"
   },
   "engines": {
