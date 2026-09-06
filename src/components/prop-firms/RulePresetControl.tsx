@@ -274,6 +274,9 @@ export function RulePresetControl({
     }
   }
 
+  const selectValue = selectedCustomRef && !selectedCustomVariant
+    ? "CUSTOM"
+    : challenge.rulesPresetId ?? "CUSTOM";
   const viewTitle = selectedBuiltIn
     ? `${selectedBuiltIn.propFirm} · ${sizeLabel(selectedBuiltIn.accountSize)}`
     : selectedCustomPreset && selectedCustomVariant
@@ -293,7 +296,7 @@ export function RulePresetControl({
   return (
     <div className={styles.wrap}>
       <select
-        value={challenge.rulesPresetId ?? "CUSTOM"}
+        value={selectValue}
         onChange={(event) => selectPreset(event.target.value)}
       >
         <option value="CUSTOM">Custom / Manual</option>
