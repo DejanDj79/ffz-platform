@@ -16,6 +16,17 @@ function dateInputValue(date: Date) {
   return date.toISOString().slice(0, 10);
 }
 
+function periodLabel(from: Date, to: Date) {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+
+  return `${formatter.format(from)} → ${formatter.format(to)}`;
+}
+
 function parseDate(value: string | undefined, fallback: Date, endOfDay = false) {
   if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return fallback;
   const suffix = endOfDay ? "T23:59:59.999Z" : "T00:00:00.000Z";
@@ -68,78 +79,64 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
 
   return (
     <main className={styles.page}>
-      <section className={styles.hero}>
-        <div>
-          <span className={styles.eyebrow}>CREATOR · EPISODE BUILDER</span>
-          <h1>{fromWeeklyReview ? "Build the complete trading week." : "Turn a trading period into a usable video brief."}</h1>
-          <p>
-            {fromWeeklyReview
-              ? "This weekly episode is generated from the full Journal record. Every CLOSED trade in the Monday–Sunday period is included automatically and kept in chronological order."
-              : "Pick a period and optionally one challenge; FFZ builds the numbers, complete trade order and talking points from data you already entered."}
-          </p>
-        </div>
-        <div className={styles.mvpBadge}>
-          {fromWeeklyReview ? "CREATOR ONLY · COMPLETE WEEK" : "CREATOR ONLY · MVP"}
-        </div>
-      </section>
-
       <form className={styles.filters} method="get">
-        {fromWeeklyReview && <input type="hidden" name="source" value="weekly-review" />}
-        {fromWeeklyReview && <input type="hidden" name="from" value={dateInputValue(safeFrom)} />}
-        {fromWeeklyReview && <input type="hidden" name="to" value={dateInputValue(safeTo)} />}
-        <label>
-          <span>FROM</span>
-          <input
-            type="date"
-            name={fromWeeklyReview ? undefined : "from"}
-            defaultValue={dateInputValue(safeFrom)}
-            disabled={fromWeeklyReview}
-          />
-        </label>
-        <label>
-          <span>TO</span>
-          <input
-            type="date"
-            name={fromWeeklyReview ? undefined : "to"}
-            defaultValue={dateInputValue(safeTo)}
-            disabled={fromWeeklyReview}
-          />
-        </label>
-        <label className={styles.challengeFilter}>
-          <span>CHALLENGE / FUNDED ACCOUNT</span>
-          {fromWeeklyReview ? (
-            <select disabled defaultValue="">
-              <option value="">All Journal trades · locked for weekly episode</option>
-            </select>
-          ) : (
-            <select name="challenge" defaultValue={params.challenge ?? ""}>
-              <option value="">All trading activity</option>
-              {snapshot.challenges.map((challenge) => (
-                <option key={challenge.id} value={challenge.id}>
-                  {challenge.propFirm} · {challenge.name} · {challenge.status.replaceAll("_", " ")}
-                </option>
-              ))}
-            </select>
-          )}
-        </label>
+        <div className={styles.periodContext}>
+          <span>EPISODE PERIOD</span>
+          <strong>{periodLabel(safeFrom, safeTo)}</strong>
+          <small>{fromWeeklyReview ? "COMPLETE WEEK · ALL CLOSED JOURNAL TRADES" : "Build from the selected trading period and account scope."}</small>
+        </div>
+
+        {fromWeeklyReview ? (
+          <>
+            <input type="hidden" name="source" value="weekly-review" />
+            <input type="hidden" name="from" value={dateInputValue(safeFrom)} />
+            <input type="hidden" name="to" value={dateInputValue(safeTo)} />
+            <div className={styles.weekLock}>
+              <span>WEEKLY SOURCE</span>
+              <strong>Weekly Review</strong>
+              <small>Period and account scope are locked.</small>
+            </div>
+          </>
+        ) : (
+          <>
+            <label>
+              <span>FROM</span>
+              <input type="date" name="from" defaultValue={dateInputValue(safeFrom)} />
+            </label>
+            <label>
+              <span>TO</span>
+              <input type="date" name="to" defaultValue={dateInputValue(safeTo)} />
+            </label>
+            <label className={styles.challengeFilter}>
+              <span>CHALLENGE / FUNDED ACCOUNT</span>
+              <select name="challenge" defaultValue={params.challenge ?? ""}>
+                <option value="">All trading activity</option>
+                {snapshot.challenges.map((challenge) => (
+                  <option key={challenge.id} value={challenge.id}>
+                    {challenge.propFirm} · {challenge.name} · {challenge.status.replaceAll("_", " ")}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </>
+        )}
+
         <button type="submit">{fromWeeklyReview ? "REFRESH WEEK" : "BUILD SNAPSHOT"}</button>
       </form>
 
       <section className={styles.metricGrid}>
-        <article className={styles.metricCard}>
-          <span>TRADES</span>
-          <strong>{snapshot.tradeCount}</strong>
-          <small>{snapshot.wins}W · {snapshot.losses}L · {snapshot.breakeven}BE</small>
-        </article>
         <article className={styles.metricCard}>
           <span>NET P&amp;L</span>
           <strong className={pnlClass(snapshot.netPnl)}>{money(snapshot.netPnl)}</strong>
           <small>Closed trades in selected period</small>
         </article>
         <article className={styles.metricCard}>
-          <span>WIN RATE</span>
-          <strong>{snapshot.winRate == null ? "—" : `${snapshot.winRate.toFixed(1)}%`}</strong>
-          <small>Wins vs. decided trades</small>
+          <span>TRADES</span>
+          <strong>{snapshot.tradeCount}</strong>
+          <small>
+            {snapshot.wins}W · {snapshot.losses}L · {snapshot.breakeven}BE
+            {snapshot.winRate == null ? "" : ` · ${snapshot.winRate.toFixed(1)}% WR`}
+          </small>
         </article>
         <article className={styles.metricCard}>
           <span>AVERAGE R</span>
@@ -151,22 +148,48 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
           <strong className={pnlClass(snapshot.realMoneyNet)}>{money(snapshot.realMoneyNet)}</strong>
           <small>${snapshot.costs.toFixed(2)} costs · ${snapshot.payouts.toFixed(2)} payouts</small>
         </article>
-        <article className={styles.metricCard}>
-          <span>TOP SETUP</span>
-          <strong className={styles.setupValue}>{snapshot.topSetup ?? "—"}</strong>
-          <small>Most-used recorded setup</small>
+      </section>
+
+      <section className={styles.creatorGrid}>
+        <article className={styles.panel}>
+          <div className={styles.panelHeader}>
+            <div>
+              <span>STORY SIGNALS</span>
+              <h2>Talking points</h2>
+            </div>
+            {snapshot.topSetup && (
+              <div className={styles.setupChip}>
+                <span>TOP SETUP</span>
+                <strong>{snapshot.topSetup}</strong>
+              </div>
+            )}
+          </div>
+          <ul className={styles.talkingPoints}>
+            {snapshot.talkingPoints.map((point) => <li key={point}>{point}</li>)}
+          </ul>
         </article>
+
+        <section className={styles.briefCard}>
+          <div className={styles.panelHeader}>
+            <div>
+              <span>READY FOR NOTES / SCRIPT</span>
+              <h2>Episode brief</h2>
+            </div>
+            <CopyEpisodeBrief brief={snapshot.brief} />
+          </div>
+          <pre>{snapshot.brief}</pre>
+        </section>
       </section>
 
       {snapshot.challenge && (
         <section className={styles.challengeCard}>
-          <div>
+          <div className={styles.accountIdentity}>
             <span>SELECTED ACCOUNT</span>
             <strong>{snapshot.challenge.propFirm} · {snapshot.challenge.name}</strong>
             <small>{snapshot.challenge.phase.replaceAll("_", " ")} · {snapshot.challenge.status.replaceAll("_", " ")}</small>
           </div>
           <div>
-            <span>CURRENT CHALLENGE P&amp;L</span>
+            <span>CURRENT P&amp;L</span>
             <strong className={pnlClass(challengePnl ?? 0)}>{money(challengePnl ?? 0)}</strong>
             <small>{targetProgress == null ? "No target" : `${targetProgress.toFixed(0)}% of profit target`}</small>
           </div>
@@ -178,61 +201,41 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
         </section>
       )}
 
-      <section className={styles.contentGrid}>
-        <article className={styles.panel}>
-          <div className={styles.panelHeader}>
-            <div>
-              <span>STORY SIGNALS</span>
-              <h2>Talking points</h2>
-            </div>
+      <section className={`${styles.panel} ${styles.tradeOrderPanel}`}>
+        <div className={styles.panelHeader}>
+          <div>
+            <span>{fromWeeklyReview ? "WEEKLY TRADE ORDER" : "TRADE ORDER"}</span>
+            <h2>{fromWeeklyReview ? "Every closed trade in recording order" : "Closed trades in recording order"}</h2>
           </div>
-          <ul className={styles.talkingPoints}>
-            {snapshot.talkingPoints.map((point) => <li key={point}>{point}</li>)}
-          </ul>
-        </article>
-
-        <article className={styles.panel}>
-          <div className={styles.panelHeader}>
-            <div>
-              <span>{fromWeeklyReview ? "WEEKLY TRADE ORDER" : "TRADE ORDER"}</span>
-              <h2>{fromWeeklyReview ? "Every closed trade" : "Closed trades in period"}</h2>
-            </div>
-          </div>
-          {snapshot.episodeTrades.length > 0 ? (
+          <small>{snapshot.episodeTrades.length} {snapshot.episodeTrades.length === 1 ? "trade" : "trades"}</small>
+        </div>
+        {snapshot.episodeTrades.length > 0 ? (
+          <div className={styles.tradeScroll}>
             <div className={styles.featuredTrades}>
-              {snapshot.episodeTrades.map((trade) => (
+              {snapshot.episodeTrades.map((trade, index) => (
                 <div className={styles.tradeRow} key={trade.id}>
-                  <div>
-                    <span>{trade.label}</span>
+                  <span className={styles.tradeIndex}>{String(index + 1).padStart(2, "0")}</span>
+                  <div className={styles.tradeMain}>
                     <strong>{trade.instrument} · {trade.direction}</strong>
-                    <small>{trade.setup || "No setup label"}{trade.rMultiple == null ? "" : ` · ${trade.rMultiple.toFixed(2)}R`}</small>
+                    <small>{trade.setup || "No setup label"}</small>
                   </div>
+                  <span className={styles.tradeR}>{trade.rMultiple == null ? "—" : `${trade.rMultiple.toFixed(2)}R`}</span>
                   <b className={pnlClass(trade.netPnl)}>{money(trade.netPnl)}</b>
                 </div>
               ))}
             </div>
-          ) : (
-            <p className={styles.empty}>No closed trades in this period.</p>
-          )}
-        </article>
-      </section>
-
-      <section className={styles.briefCard}>
-        <div className={styles.panelHeader}>
-          <div>
-            <span>COPY INTO NOTES / SCRIPT</span>
-            <h2>Episode brief</h2>
           </div>
-          <CopyEpisodeBrief brief={snapshot.brief} />
-        </div>
-        <pre>{snapshot.brief}</pre>
+        ) : (
+          <p className={styles.empty}>No closed trades in this period.</p>
+        )}
       </section>
 
       <section className={styles.experimentNote}>
-        <strong>Weekly episode rule</strong>
-        <p>
-          Weekly episodes are generated live from Journal data. Every CLOSED trade in the week belongs to the episode; there is no manual include/exclude state and no separate episode database in this version.
-        </p>
+        <div>
+          <strong>Weekly episode rule</strong>
+          <p>Weekly episodes are generated live from Journal data. Every CLOSED trade in the week is included automatically in chronological order.</p>
+        </div>
+        <span>NO MANUAL INCLUDE / EXCLUDE</span>
       </section>
     </main>
   );
