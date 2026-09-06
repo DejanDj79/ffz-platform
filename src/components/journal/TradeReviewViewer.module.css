@@ -1,12 +1,12 @@
 .page {
   width: 100%;
-  padding: 18px 0 8px;
+  padding: 0 0 8px;
   color: #eef4f8;
 }
 
 .toolbar {
   min-height: 62px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   padding: 11px 14px;
   display: flex;
   align-items: end;
@@ -20,14 +20,20 @@
   box-shadow: inset 0 1px rgba(255,255,255,.02), 0 10px 30px rgba(0,0,0,.08);
 }
 
-.toolbar > div:first-child {
+.toolbarFilters {
+  min-width: 0;
+  display: flex;
+  align-items: end;
+  gap: 10px;
+}
+
+.toolbarField {
+  min-width: 0;
   display: grid;
   gap: 6px;
 }
 
-.toolbar span,
-.metric span,
-.detailRows span,
+.toolbarField > span,
 .reviewCards span,
 .tagSection > span,
 .mediaHeader span {
@@ -48,19 +54,36 @@
   color-scheme: dark;
   font: inherit;
   font-size: 12.5px;
+  outline: none;
+}
+
+.toolbar select:focus {
+  border-color: rgba(48,208,248,.62);
+  box-shadow: 0 0 0 2px rgba(48,208,248,.07);
+}
+
+.tradeField {
+  flex: 1 1 360px;
+}
+
+.toolbar .tradeSelect {
+  width: min(440px, 40vw);
+  min-width: 285px;
 }
 
 .navigator {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
 }
 
 .navigator > span {
-  min-width: 120px;
+  min-width: 84px;
   color: #9aaab4;
   text-align: center;
-  font-size: 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: .04em;
 }
 
 .navigator button {
@@ -89,7 +112,7 @@
 }
 
 .viewer {
-  min-height: calc(100vh - 230px);
+  min-height: calc(100vh - 212px);
   display: grid;
   grid-template-columns: minmax(0, 1.85fr) minmax(350px, .72fr);
   gap: 14px;
@@ -236,44 +259,6 @@
   font-size: 19px;
 }
 
-.tabs {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  border-bottom: 1px solid rgba(66,87,103,.35);
-  background: rgba(255,255,255,.01);
-}
-
-.tabs button {
-  min-width: 0;
-  min-height: 44px;
-  padding: 0 7px;
-  border: 0;
-  border-right: 1px solid rgba(66,87,103,.22);
-  cursor: pointer;
-  color: #71838e;
-  background: transparent;
-  font: inherit;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: .045em;
-  white-space: nowrap;
-}
-
-.tabs button:last-child {
-  border-right: 0;
-}
-
-.tabs button:hover {
-  color: #a9b7bf;
-  background: rgba(255,255,255,.018);
-}
-
-.tabs .activeTab {
-  color: #30d0f8;
-  background: rgba(48,208,248,.055);
-  box-shadow: inset 0 -2px #30d0f8;
-}
-
 .tabBody {
   min-height: 0;
   overflow-y: auto;
@@ -284,54 +269,6 @@
 .attachmentsTab,
 .notes {
   padding: 15px;
-}
-
-.metricGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 9px;
-}
-
-.metric {
-  min-height: 70px;
-  padding: 11px 12px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  border: 1px solid rgba(61,82,97,.34);
-  border-radius: 8px;
-  background: linear-gradient(180deg, rgba(255,255,255,.018), rgba(255,255,255,.006));
-}
-
-.metric strong {
-  margin-top: 7px;
-  color: #d7e2e8;
-  font-size: 16px;
-}
-
-.detailRows {
-  margin-top: 13px;
-  border: 1px solid rgba(61,82,97,.3);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.detailRows > div {
-  min-height: 53px;
-  padding: 10px 12px;
-  display: grid;
-  gap: 5px;
-  border-bottom: 1px solid rgba(61,82,97,.24);
-}
-
-.detailRows > div:last-child {
-  border-bottom: 0;
-}
-
-.detailRows strong {
-  color: #cedae0;
-  font-size: 13px;
-  line-height: 1.45;
 }
 
 .reviewCards {
@@ -484,12 +421,20 @@
   font-size: 12.5px;
 }
 
-.error {
-  color: #ff9ca4;
-}
-
+.error { color: #ff9ca4; }
 .positive { color: #45dbad !important; }
 .negative { color: #ff737f !important; }
+
+@media (max-width: 1260px) {
+  .toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .toolbar .tradeSelect {
+    width: min(520px, 55vw);
+  }
+}
 
 @media (max-width: 1180px) {
   .viewer {
@@ -501,22 +446,22 @@
   }
 
   .sidePanel {
-    min-height: 520px;
+    min-height: 500px;
   }
 }
 
 @media (max-width: 680px) {
-  .page {
-    padding-top: 12px;
+  .toolbarFilters {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
   }
 
-  .toolbar {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
+  .toolbarField,
+  .toolbar .tradeSelect,
   .toolbar select {
     width: 100%;
+    min-width: 0;
   }
 
   .navigator {
@@ -534,14 +479,5 @@
 
   .imageStage {
     min-height: 320px;
-  }
-
-  .tabs {
-    overflow-x: auto;
-    grid-template-columns: repeat(4, minmax(96px, 1fr));
-  }
-
-  .metricGrid {
-    grid-template-columns: 1fr 1fr;
   }
 }
