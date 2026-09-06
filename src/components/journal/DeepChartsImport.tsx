@@ -4,7 +4,7 @@ import { ChangeEvent, DragEvent, useEffect, useMemo, useRef, useState } from "re
 import Link from "next/link";
 import { fetchChallenges } from "@/lib/challenges/api-client";
 import type { Challenge } from "@/lib/challenges/types";
-import { createTradeViaApi, fetchTrades } from "@/lib/journal/api-client";
+import { fetchTrades, importTradeViaApi } from "@/lib/journal/api-client";
 import {
   existingTradeFingerprint,
   importTradeFingerprint,
@@ -201,7 +201,7 @@ export function DeepChartsImport() {
     for (let index = 0; index < readyRows.length; index += 1) {
       const row = readyRows[index];
       try {
-        await createTradeViaApi(row.input);
+        await importTradeViaApi(row.input);
         imported += 1;
       } catch (err) {
         failed.push(
