@@ -17,3 +17,6 @@ coverage/
 .DS_Store
 /data/uploads/
 .env.production
+
+# Database and screenshot backups must stay outside Git.
+/backups/

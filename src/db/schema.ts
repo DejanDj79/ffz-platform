@@ -454,3 +454,11 @@ export type NewScoreboardSettingsRow = typeof scoreboardSettings.$inferInsert;
 
 export type EconomicCalendarCacheRow = typeof economicCalendarCache.$inferSelect;
 export type NewEconomicCalendarCacheRow = typeof economicCalendarCache.$inferInsert;
+
+// One current reset per user; only the SHA-256 digest is persisted.
+export const passwordResetTokens = pgTable("password_reset_tokens", {
+  userId: uuid("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+  tokenHash: varchar("token_hash", { length: 64 }).notNull().unique(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});

@@ -16,9 +16,26 @@ Ovaj dokument je živi handoff/checklist za FFZ Platform. Kada završimo stavku,
 
 ---
 
-# ACTIVE NEXT ROADMAP ITEM — Real-world workflow validation
+# ACTIVE NEXT ROADMAP ITEM — Password recovery
 
-Status: **ACTIVE / FULL-WORKFLOW PREFLIGHT → REAL TRADING WEEK**
+Status: **IN PROGRESS / IMPLEMENTED ON FEATURE BRANCH, PENDING REVIEW + SMTP SETUP**
+
+User selected account recovery as the next priority after confirming the tracked backup contains no user data.
+
+Implemented on `feature/password-recovery`:
+- Forgot password -> SMTP email -> one-time 30-minute reset link
+- hashed tokens, transactional password reset and session revocation
+- account-neutral request responses, IP throttling and persistent per-account cooldown
+- production migration `0006_password_reset_tokens.sql`
+- `/backups/` ignored for future backups
+
+Setup and verification: `docs/PASSWORD_RECOVERY.md`.
+Not merged or deployed; actual email delivery still needs SMTP configuration and a user-owned test inbox.
+After review/merge, record PR/commit, configure SMTP and verify delivery before marking DONE.
+
+## Next after password recovery — Real-world workflow validation
+
+Status: **QUEUED / FULL-WORKFLOW PREFLIGHT → REAL TRADING WEEK**
 
 The feature roadmap and authenticated page-by-page polish pass are complete enough for real use. Do not add broad new product surface just to keep development moving.
 
@@ -846,10 +863,11 @@ YouTube:
 
 ## Recommended next order of work
 
-1. **Run the complete Trading Desk → Journal → Trade Review → Weekly Review → Episode workflow once with the merged August demo dataset and log only concrete friction**
-2. **Repeat the same workflow through a complete real trading week**
-3. **Fix proven friction with small focused PRs, prioritizing transitions and repeated manual work**
-4. **Resume Billing pre-launch / Founder Live Mode immediately after Lemon store activation**
+1. **Finish Password Recovery review, SMTP configuration and end-to-end delivery verification**
+2. **Run the complete Trading Desk → Journal → Trade Review → Weekly Review → Episode workflow once with the merged August demo dataset and log only concrete friction**
+3. **Repeat the same workflow through a complete real trading week**
+4. **Fix proven friction with small focused PRs, prioritizing transitions and repeated manual work**
+5. **Resume Billing pre-launch / Founder Live Mode immediately after Lemon store activation**
 
 Completed immediately before this roadmap position:
 - [x] PR #34 — Weekly Review: Next Week Focus

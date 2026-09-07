@@ -52,10 +52,10 @@ export default function LoginPage() {
     <main className={styles.page}>
       <section className={styles.card}>
         <Image
-          src="/ffz-logo.png"
+          src="/f0_logo_small.png"
           alt="Futures From Zero"
-          width={420}
-          height={130}
+          width={124}
+          height={79}
           className={styles.logo}
           priority
         />
@@ -92,6 +92,8 @@ export default function LoginPage() {
             {busy ? "SIGNING IN..." : "SIGN IN"}
           </button>
         </form>
+
+        <p className={styles.switch}><Link href="/forgot-password">Forgot password?</Link></p>
 
         <p className={styles.switch}>
           No account yet? <Link href="/register">Create one</Link>

@@ -244,7 +244,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const accountMenuRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
 
-  const isAuthPage = pathname === "/login" || pathname === "/register";
+  const isAuthPage = ["/login", "/register", "/forgot-password", "/reset-password"].includes(pathname);
   const isOverlayPage = pathname.startsWith("/overlays/");
   const isPublicCalculator = pathname === "/tools/risk-calculator";
   const bypassShell = isAuthPage || isOverlayPage;

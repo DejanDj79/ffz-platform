@@ -27,3 +27,13 @@ export const loginSchema = z.object({
   email,
   password,
 });
+
+export const forgotPasswordSchema = z.object({ email });
+
+export const resetPasswordSchema = z.object({
+  token: z.string().regex(/^[A-Za-z0-9_-]{43}$/, "Invalid reset link."),
+  password: password.refine(
+    (value) => new TextEncoder().encode(value).length <= 72,
+    "Password must be at most 72 bytes.",
+  ),
+});

@@ -114,9 +114,14 @@ export function proxy(
     );
   }
 
-  return applySecurityHeaders(
-    NextResponse.next(),
-  );
+  const response = applySecurityHeaders(NextResponse.next());
+  if (pathname === "/reset-password" || pathname === "/forgot-password" ||
+      pathname === "/api/auth/reset-password" || pathname === "/api/auth/forgot-password") {
+    response.headers.set("Referrer-Policy", "no-referrer");
+    response.headers.set("Cache-Control", "no-store");
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  }
+  return response;
 }
 
 export const config = {

@@ -21,7 +21,8 @@
 
 .logo {
   display: block;
-  width: min(240px, 75%);
+  width: 70px;
+  max-width: 100%;
   height: auto;
   margin: 0 auto 24px;
 }
@@ -79,13 +80,14 @@
 }
 
 .submit {
-  height: 44px;
+  height: 38px;
   margin-top: 3px;
   border: 1px solid rgba(48,208,248,.5);
   border-radius: 8px;
   cursor: pointer;
   color: #041017;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 700;
   letter-spacing: .04em;
   background: #30d0f8;
 }
