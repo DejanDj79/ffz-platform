@@ -58,6 +58,10 @@ export async function fetchPlannedTrades(): Promise<TradeApiModel[]> {
 export async function createTradeViaApi(
   input: TradeEditableInput,
 ): Promise<TradeApiModel> {
+  if (isPlannedTrade({ tags: input.tags })) {
+    return createPlannedTradeViaApi(input);
+  }
+
   const response = await fetch("/api/journal/trades", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
