@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { PLANNED_TRADE_TAG } from "./planned";
 import { JOURNAL_INSTRUMENTS } from "./types";
 
 const nullableUuid = z.string().uuid().nullable();
@@ -64,8 +63,6 @@ export const tradeEditableSchema = z.object(tradeFields).superRefine((value, ctx
 });
 
 export const journalTradeCreateSchema = tradeEditableSchema.superRefine((value, ctx) => {
-  if (value.tags.includes(PLANNED_TRADE_TAG)) return;
-
   if (value.closedAt == null) {
     ctx.addIssue({
       code: "custom",
