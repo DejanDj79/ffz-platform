@@ -12,6 +12,7 @@ set +a
 EXPECTED=(
   users
   sessions
+  password_reset_tokens
   user_plans
   trading_accounts
   challenges

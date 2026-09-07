@@ -43,6 +43,13 @@
       "when": 1788633900000,
       "tag": "0005_weekly_focuses",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1788810000000,
+      "tag": "0006_password_reset_tokens",
+      "breakpoints": true
     }
   ]
 }

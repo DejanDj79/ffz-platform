@@ -93,6 +93,8 @@ export default function LoginPage() {
           </button>
         </form>
 
+        <p className={styles.switch}><Link href="/forgot-password">Forgot password?</Link></p>
+
         <p className={styles.switch}>
           No account yet? <Link href="/register">Create one</Link>
         </p>
