@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PLANNED_TRADE_TAG } from "./planned";
 import { JOURNAL_INSTRUMENTS } from "./types";
 
 const nullableUuid = z.string().uuid().nullable();
@@ -58,6 +59,26 @@ export const tradeEditableSchema = z.object(tradeFields).superRefine((value, ctx
       code: "custom",
       path: ["closedAt"],
       message: "Closed At cannot be before Opened At.",
+    });
+  }
+});
+
+export const journalTradeCreateSchema = tradeEditableSchema.superRefine((value, ctx) => {
+  if (value.tags.includes(PLANNED_TRADE_TAG)) return;
+
+  if (value.closedAt == null) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["closedAt"],
+      message: "Journal trades must be completed before saving. Closed At is required.",
+    });
+  }
+
+  if (value.exitPrice == null) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["exitPrice"],
+      message: "Journal trades must be completed before saving. Exit Price is required.",
     });
   }
 });
