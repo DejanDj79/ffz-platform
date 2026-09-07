@@ -62,4 +62,22 @@ export const tradeEditableSchema = z.object(tradeFields).superRefine((value, ctx
   }
 });
 
+export const journalTradeCreateSchema = tradeEditableSchema.superRefine((value, ctx) => {
+  if (value.closedAt == null) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["closedAt"],
+      message: "Journal trades must be completed before saving. Closed At is required.",
+    });
+  }
+
+  if (value.exitPrice == null) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["exitPrice"],
+      message: "Journal trades must be completed before saving. Exit Price is required.",
+    });
+  }
+});
+
 export const updateTradeSchema = z.object(updateTradeFields).partial();

@@ -64,6 +64,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       TRADING_ACCOUNT_NOT_FOUND: "Trading account not found.",
       INVALID_CLOSED_STATE: "Closed trades require both Exit Price and Closed At.",
       INVALID_CLOSED_TIME: "Closed At cannot be before Opened At.",
+      OPEN_JOURNAL_TRADES_DISABLED: "Journal trades must be completed before saving.",
     };
 
     if (error instanceof Error && known[error.message]) {

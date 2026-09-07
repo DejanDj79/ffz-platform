@@ -311,12 +311,12 @@ export function TradeJournal() {
 
   function buildInput(): TradeEditableInput {
     const entryPrice = parseRequiredNumber(draft.entryPrice, "Entry Price");
+    const exitPrice = parseRequiredNumber(draft.exitPrice, "Exit Price");
+    const closedAt = draft.closedAt.trim();
+    if (!closedAt) throw new Error("Closed At is required for a completed Journal trade.");
+
     const contracts = Number(draft.contracts);
     if (!Number.isInteger(contracts) || contracts <= 0) throw new Error("Contracts must be a positive whole number.");
-
-    const hasExit = draft.exitPrice.trim() !== "";
-    const hasClosedAt = draft.closedAt.trim() !== "";
-    if (hasExit !== hasClosedAt) throw new Error("Closed trade requires both Exit Price and Closed At.");
 
     return {
       challengeId: draft.challengeId || null,
@@ -324,11 +324,11 @@ export function TradeJournal() {
       instrument: draft.instrument,
       direction: draft.direction,
       openedAt: toIso(draft.openedAt),
-      closedAt: hasClosedAt ? toIso(draft.closedAt) : null,
+      closedAt: toIso(closedAt),
       entryPrice,
       stopPrice: parseOptionalNumber(draft.stopPrice),
       targetPrice: parseOptionalNumber(draft.targetPrice),
-      exitPrice: parseOptionalNumber(draft.exitPrice),
+      exitPrice,
       contracts,
       commissionFees: parseNonNegativeNumber(draft.commissionFees || "0", "Commission & Fees"),
       setup: draft.setup.trim() || null,
@@ -486,7 +486,7 @@ export function TradeJournal() {
         <article className={styles.statCard}>
           <span>TOTAL TRADES</span>
           <strong>{stats.totalTrades}</strong>
-          <small>{stats.openTrades} currently open</small>
+          <small>{stats.openTrades > 0 ? `${stats.closedTrades} completed · ${stats.openTrades} legacy incomplete` : "Completed Journal history"}</small>
         </article>
       </section>
 
@@ -499,7 +499,7 @@ export function TradeJournal() {
             <small>{filteredTrades.length} of {trades.length} trades shown</small>
           </div>
           <div className={styles.historyActions}>
-            <button type="button" className={styles.newTradeButton} onClick={beginNew}>+ NEW TRADE</button>
+            <button type="button" className={styles.newTradeButton} onClick={beginNew}>+ LOG TRADE</button>
             <button type="button" className={styles.textButton} onClick={() => void loadAll()} disabled={loading}>REFRESH</button>
           </div>
         </div>
@@ -511,7 +511,7 @@ export function TradeJournal() {
           </select>
           <select value={filterOutcome} onChange={(event) => setFilterOutcome(event.target.value)}>
             <option value="ALL">All outcomes</option>
-            <option value="WIN">Wins</option><option value="LOSS">Losses</option><option value="BREAKEVEN">Breakeven</option><option value="OPEN">Open</option>
+            <option value="WIN">Wins</option><option value="LOSS">Losses</option><option value="BREAKEVEN">Breakeven</option>
           </select>
           <select value={filterChallenge} onChange={(event) => setFilterChallenge(event.target.value)}>
             <option value="ALL">All challenges</option><option value="NONE">No challenge</option>
@@ -545,7 +545,7 @@ export function TradeJournal() {
                     <td>{trade.contracts}</td>
                     <td className={trade.netPnl == null ? "" : trade.netPnl > 0 ? styles.positive : trade.netPnl < 0 ? styles.negative : ""}>{trade.netPnl == null ? "—" : money.format(trade.netPnl)}</td>
                     <td>{trade.rMultiple == null ? "—" : `${trade.rMultiple > 0 ? "+" : ""}${number.format(trade.rMultiple)}R`}</td>
-                    <td><span className={`${styles.outcomeBadge} ${trade.status === "OPEN" ? styles.open : trade.outcome === "WIN" ? styles.win : trade.outcome === "LOSS" ? styles.loss : styles.be}`}>{trade.status === "OPEN" ? "OPEN" : trade.outcome}</span></td>
+                    <td><span className={`${styles.outcomeBadge} ${trade.status === "OPEN" ? styles.open : trade.outcome === "WIN" ? styles.win : trade.outcome === "LOSS" ? styles.loss : styles.be}`}>{trade.status === "OPEN" ? "INCOMPLETE" : trade.outcome}</span></td>
                     <td>
                       <div className={styles.rowActions}>
                         <button type="button" onClick={() => void openTrade(trade)}>View</button>
@@ -568,9 +568,9 @@ export function TradeJournal() {
           <section className={styles.editorModal} role="dialog" aria-modal="true" aria-label={editingId ? "Edit trade" : "New trade"}>
             <header className={styles.editorModalHeader}>
               <div>
-                <span>{editingId ? "EDIT TRADE" : "NEW TRADE"}</span>
-                <strong>{editingId ? "Update execution details and screenshots" : "Record a Journal trade"}</strong>
-                <small>P&amp;L and R are calculated by the server.</small>
+                <span>{editingId ? "EDIT TRADE" : "LOG TRADE"}</span>
+                <strong>{editingId ? "Update completed execution details and screenshots" : "Record a completed Journal trade"}</strong>
+                <small>Journal stores completed trades. P&amp;L and R are calculated by the server.</small>
               </div>
               <button type="button" onClick={closeEditor} disabled={saving} aria-label="Close trade editor">×</button>
             </header>
@@ -607,11 +607,11 @@ export function TradeJournal() {
                   <div className={styles.formSectionTitle}>EXECUTION</div>
                   <div className={`${styles.formGrid} ${styles.executionGrid}`}>
                     <label><span>Opened At</span><input type="datetime-local" value={draft.openedAt} onChange={(event) => setDraft((current) => ({ ...current, openedAt: event.target.value }))} required /></label>
-                    <label><span>Closed At</span><input type="datetime-local" value={draft.closedAt} onChange={(event) => setDraft((current) => ({ ...current, closedAt: event.target.value }))} /></label>
+                    <label><span>Closed At</span><input type="datetime-local" value={draft.closedAt} onChange={(event) => setDraft((current) => ({ ...current, closedAt: event.target.value }))} required /></label>
                     <label><span>Entry Price</span><input inputMode="decimal" value={draft.entryPrice} onChange={(event) => setDraft((current) => ({ ...current, entryPrice: event.target.value }))} placeholder="20000.00" required /></label>
                     <label><span>Stop Price</span><input inputMode="decimal" value={draft.stopPrice} onChange={(event) => setDraft((current) => ({ ...current, stopPrice: event.target.value }))} placeholder="optional" /></label>
                     <label><span>Target Price</span><input inputMode="decimal" value={draft.targetPrice} onChange={(event) => setDraft((current) => ({ ...current, targetPrice: event.target.value }))} placeholder="optional" /></label>
-                    <label><span>Exit Price</span><input inputMode="decimal" value={draft.exitPrice} onChange={(event) => setDraft((current) => ({ ...current, exitPrice: event.target.value }))} placeholder="leave empty if open" /></label>
+                    <label><span>Exit Price</span><input inputMode="decimal" value={draft.exitPrice} onChange={(event) => setDraft((current) => ({ ...current, exitPrice: event.target.value }))} placeholder="20010.00" required /></label>
                     <label><span>Contracts</span><input inputMode="numeric" value={draft.contracts} onChange={(event) => setDraft((current) => ({ ...current, contracts: event.target.value }))} required /></label>
                     <label>
                       <span>Commission &amp; Fees</span>
@@ -690,7 +690,7 @@ export function TradeJournal() {
                 <Detail label="Contracts" value={String(viewingTrade.contracts)} />
                 <Detail label="Net P&L" value={viewingTrade.netPnl == null ? "—" : money.format(viewingTrade.netPnl)} tone={viewingTrade.netPnl == null ? "neutral" : viewingTrade.netPnl > 0 ? "positive" : viewingTrade.netPnl < 0 ? "negative" : "neutral"} />
                 <Detail label="R" value={viewingTrade.rMultiple == null ? "—" : `${viewingTrade.rMultiple > 0 ? "+" : ""}${number.format(viewingTrade.rMultiple)}R`} />
-                <Detail label="Outcome" value={viewingTrade.status === "OPEN" ? "OPEN" : viewingTrade.outcome ?? "—"} />
+                <Detail label="Outcome" value={viewingTrade.status === "OPEN" ? "INCOMPLETE" : viewingTrade.outcome ?? "—"} />
               </section>
 
               {(viewingTrade.setup || viewingTrade.tags.length > 0 || viewingTrade.notes) && (

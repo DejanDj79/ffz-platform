@@ -15,7 +15,7 @@ export function JournalWorkspace() {
 
       <div className={styles.secondaryGrid}>
         <PlannedTradesPanel
-          onTradeStarted={() => setJournalVersion((current) => current + 1)}
+          onTradeCompleted={() => setJournalVersion((current) => current + 1)}
         />
         <DisciplineReviewPanel key={`discipline-${journalVersion}`} />
       </div>
