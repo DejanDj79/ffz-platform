@@ -699,6 +699,7 @@
     transform: translateX(-102%);
     transition: transform .2s ease;
     box-shadow: 22px 0 60px rgba(0, 0, 0, .35);
+    z-index: 90;
   }
   .sidebarOpen { transform: translateX(0); }
 
@@ -721,82 +722,160 @@
     inset: 0;
     border: 0;
     background: rgba(0, 0, 0, .56);
-    z-index: 20;
+    z-index: 80;
   }
 
   .stage { padding: 0 14px 22px; }
 
   .mobileHeader {
+    position: sticky;
+    top: 0;
+    z-index: 70;
     width: 100%;
     min-height: 66px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 15px;
-    border-bottom: 1px solid rgba(87, 106, 121, .27);
+    gap: 10px;
+    border-bottom: 1px solid rgba(87, 106, 121, .34);
+    background: linear-gradient(180deg, rgba(5, 12, 18, .98), rgba(5, 12, 18, .94));
+    box-shadow: 0 12px 24px rgba(0, 0, 0, .16);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
   }
 
   .mobileLogoFrame {
-    width: min(190px, 60vw);
-    height: 48px;
+    flex: 1 1 110px;
+    min-width: 0;
+    max-width: 138px;
+    height: 46px;
     display: flex;
     align-items: center;
     overflow: hidden;
   }
 
-  .mobileHeader button {
+  .mobileHeader > button {
+    flex: 0 0 40px;
     width: 40px;
     height: 40px;
     display: grid;
     place-items: center;
     border: 1px solid rgba(75, 98, 115, .48);
     border-radius: 8px;
+    cursor: pointer;
     color: #d8e0e6;
     background: #0a141c;
   }
 
-  .pageHeader { min-height: 90px; }
+  .pageHeader {
+    position: static;
+    z-index: auto;
+    min-height: 90px;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
   .pageIcon { flex-basis: 42px; width: 42px; height: 42px; }
   .pageIcon svg { width: 22px; height: 22px; }
   .pageIdentity h1 { font-size: 25px; }
   .pageIdentity p { font-size: 12px; }
   .dataChip { display: none; }
-  .accountButton {
-    min-width: 46px;
-    grid-template-columns: 30px 14px;
-    padding-inline: 7px;
+
+  .headerActions {
+    position: fixed;
+    top: 13px;
+    right: 64px;
+    z-index: 75;
+    gap: 6px;
   }
-  .accountButtonCopy { display: none; }
-  .accountMenu { width: min(288px, calc(100vw - 28px)); }
+
+  .logTradeButton {
+    height: 40px;
+    gap: 5px;
+    padding: 0 10px;
+    font-size: 10.5px;
+  }
+
+  .logTradeButton span { font-size: 17px; }
+
+  .accountButton {
+    min-width: 40px;
+    width: 40px;
+    height: 40px;
+    grid-template-columns: 1fr;
+    padding: 0;
+    place-items: center;
+  }
+
+  .accountButtonCopy,
+  .accountChevron { display: none; }
+  .accountAvatar { width: 29px; height: 29px; }
+
+  .accountMenu {
+    position: fixed;
+    top: 59px;
+    right: 14px;
+    width: min(288px, calc(100vw - 28px));
+  }
 }
 
 @media (max-width: 560px) {
   .stage { padding-inline: 10px; }
+
+  .mobileHeader {
+    min-height: 60px;
+    gap: 8px;
+  }
+
+  .mobileLogoFrame {
+    flex-basis: 86px;
+    max-width: 106px;
+    height: 42px;
+  }
+
+  .mobileHeader > button {
+    flex-basis: 36px;
+    width: 36px;
+    height: 36px;
+  }
+
   .pageHeader { min-height: 82px; gap: 8px; }
   .pageIdentity { gap: 10px; }
   .pageIcon { display: none; }
   .pageIdentity h1 { font-size: clamp(20px, 6vw, 24px); }
   .pageIdentity p { max-width: 280px; }
   .content { padding-top: 18px; }
-  .headerActions { gap: 6px; }
+
+  .headerActions {
+    top: 12px;
+    right: 56px;
+    gap: 5px;
+  }
+
   .logTradeButton {
     height: 36px;
-    gap: 5px;
-    padding: 0 9px;
-    font-size: 10.5px;
+    gap: 4px;
+    padding: 0 8px;
+    font-size: 10px;
   }
-  .logTradeButton span { font-size: 17px; }
+
+  .logTradeButton span { font-size: 16px; }
+
   .accountButton {
-    min-width: 38px;
-    width: 38px;
+    min-width: 36px;
+    width: 36px;
     height: 36px;
-    grid-template-columns: 1fr;
-    padding: 0;
-    place-items: center;
   }
+
   .accountAvatar { width: 27px; height: 27px; }
-  .accountChevron { display: none; }
-  .accountMenu { right: -1px; }
+
+  .accountMenu {
+    top: 54px;
+    right: 10px;
+    width: min(288px, calc(100vw - 20px));
+  }
 }
 
 .authLoading {
