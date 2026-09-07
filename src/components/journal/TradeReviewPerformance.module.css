@@ -37,7 +37,7 @@
 
 .heading small {
   color: #71838f;
-  font-size: 11.5px;
+  font-size: 14px;
 }
 
 .controls {
@@ -72,7 +72,7 @@
   border-radius: 5px;
   color: #788b96;
   background: transparent;
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: .04em;
   transition: color 150ms ease, background 150ms ease, box-shadow 150ms ease;
@@ -116,7 +116,7 @@
   padding: 0 10px;
   color: #9dabb4;
   text-align: center;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -141,8 +141,8 @@
 
 .metric span {
   color: #748792;
-  font-size: 10.5px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: .06em;
 }
 
@@ -200,14 +200,14 @@
 
 .chartHeader span {
   color: #8a99a3;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: .06em;
 }
 
 .chartHeader small {
   color: #697c88;
-  font-size: 10.5px;
+  font-size: 13px;
 }
 
 .chartHeader strong {
@@ -270,7 +270,7 @@
 .scoreValue span {
   margin-top: 4px;
   color: #718591;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: .05em;
 }
@@ -302,7 +302,7 @@
 .scoreStatus span,
 .scoreMeta small {
   color: #70838e;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .scoreMeta small { line-height: 1.45; }
@@ -381,7 +381,7 @@
   justify-content: space-between;
   gap: 8px;
   color: #60737f;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .axisLabels span {
@@ -396,7 +396,7 @@
   display: grid;
   place-items: center;
   color: #6f818c;
-  font-size: 11.5px;
+  font-size: 14px;
   text-align: center;
 }
 

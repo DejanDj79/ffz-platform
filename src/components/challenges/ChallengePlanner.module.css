@@ -84,8 +84,8 @@
   gap: 10px;
   padding: 0 17px;
   border-bottom: 1px solid rgba(57, 77, 92, .48);
-  font-size: 15px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: .09em;
   color: #30d0f8;
 }
@@ -117,7 +117,7 @@
   background: rgba(48, 208, 248, .045);
   font: inherit;
   font-size: 12.5px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .05em;
 }
 .newAccountButton:hover {
@@ -145,8 +145,8 @@
   align-items: end;
   padding: 10px 14px 5px;
   color: #6f8491;
-  font-size: 11.5px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 500;
   letter-spacing: .13em;
 }
 
@@ -205,8 +205,8 @@
   justify-content: center;
   align-items: center;
   gap: 8px;
-  font-size: 13.5px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 700;
 }
 .primary {
   border: 1px solid #4dd9f9;
@@ -258,13 +258,13 @@
   align-items: center;
   gap: 7px;
   color: #d2d9df;
-  font-size: 12.5px;
-  font-weight: 750;
+  font-size: 12px;
+  font-weight: 500;
   line-height: 1.15;
 }
 .metricLabel svg { width: 18px; height: 18px; color: #30d0f8; flex: 0 0 auto; }
 .metricCard.purple .metricLabel svg { color: #a070e8; }
-.metricValue { text-align: center; font-size: calc(clamp(20px, 1.8vw, 29px) + 2px); font-weight: 600; padding: 5px 8px 0; }
+.metricValue { text-align: center; font-size: calc(clamp(20px, 1.8vw, 22px) + 2px); font-weight: 600; padding: 5px 8px 0; }
 .metricSub { text-align: center; color: #9ba7b2; font-size: 13px; line-height: 1.35; padding: 5px 8px 14px; }
 
 .progressTrack { height: 5px; border-radius: 999px; background: #26323c; margin: 8px 16px 0; overflow: hidden; }
@@ -273,14 +273,14 @@
 .healthCard { grid-column: 5; grid-row: 1 / span 2; min-height: 290px; border-color: rgba(48, 208, 248, .75); }
 .healthCard::after { height: 5px; }
 .healthInner { height: 100%; min-height: 290px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 22px 14px; }
-.healthLabel { display: flex; align-items: center; gap: 7px; color: #30d0f8; font-size: 13px; font-weight: 800; margin-bottom: 24px; }
+.healthLabel { display: flex; align-items: center; gap: 7px; color: #30d0f8; font-size: 13px; font-weight: 500; margin-bottom: 24px; }
 .healthLabel svg { width: 19px; height: 19px; }
 .healthValue { font-size: calc(clamp(34px, 3vw, 50px) + 2px); line-height: 1; font-weight: 700; color: #30d0f8; }
 .healthValue.caution { color: #f5bc4f; }
 .healthValue.danger { color: #ff6577; }
 .healthShield { margin: 20px 0; color: currentColor; }
 .healthShield svg { width: 62px; height: 62px; }
-.healthText { color: #c8d0d7; font-size: 13.5px; line-height: 1.5; max-width: 170px; }
+.healthText { color: #c8d0d7; font-size: 14px; line-height: 1.5; max-width: 170px; }
 
 .positive { color: #20d86f; }
 .negative { color: #ff6577; }
@@ -315,14 +315,14 @@
 }
 .accountsPanel:hover .tableWrap::-webkit-scrollbar-thumb { background: #50616d; }
 .accountsPanel .tableWrap::-webkit-scrollbar-thumb:hover { background: #677b88; }
-.challengeTable { width: 100%; border-collapse: collapse; min-width: 900px; font-size: 13.5px; }
+.challengeTable { width: 100%; border-collapse: collapse; min-width: 900px; font-size: 14px; }
 .challengeTable th {
   position: sticky;
   top: 0;
   z-index: 2;
   text-align: left;
   color: #8996a1;
-  font-weight: 650;
+  font-weight: 500;
   padding: 10px 12px;
   border-bottom: 1px solid rgba(57, 77, 92, .48);
   background: #0a151e;
@@ -333,7 +333,7 @@
 .challengeTable tbody tr { cursor: pointer; transition: background .12s ease; }
 .challengeTable tbody tr:hover { background: rgba(48, 208, 248, .04); }
 .challengeTable tbody tr.selected { background: rgba(48, 208, 248, .085); box-shadow: inset 3px 0 #30d0f8; }
-.statusBadge { display: inline-flex; align-items: center; justify-content: center; min-width: 82px; padding: 4px 8px; border: 1px solid #30d0f8; border-radius: 5px; color: #30d0f8; font-size: 11px; font-weight: 750; }
+.statusBadge { display: inline-flex; align-items: center; justify-content: center; min-width: 82px; padding: 4px 8px; border: 1px solid #30d0f8; border-radius: 5px; color: #30d0f8; font-size: 12px; font-weight: 500; }
 .statusBadge.paused { border-color: #f5bc4f; color: #f5bc4f; }
 .statusBadge.failed { border-color: #ff6577; color: #ff6577; }
 .statusBadge.neutral { border-color: #63717c; color: #a9b3bb; }
@@ -342,7 +342,7 @@
 .rowBar span { display: block; height: 100%; background: #30d0f8; }
 .emptyState { padding: 30px 16px; text-align: center; color: #82939e; font-size: 14px; }
 
-.footer { min-height: 54px; display: flex; align-items: center; justify-content: center; color: #63717d; font-size: 11.5px; border-top: 1px solid rgba(87, 106, 121, .22); margin-top: 14px; }
+.footer { min-height: 54px; display: flex; align-items: center; justify-content: center; color: #63717d; font-size: 14px; border-top: 1px solid rgba(87, 106, 121, .22); margin-top: 14px; }
 
 .ruleNotice {
   margin: 10px 12px 0;
@@ -358,7 +358,7 @@
   line-height: 1.45;
 }
 .ruleNotice strong { color: #f2c76d; font-size: 13px; }
-.ruleNotice small { color: #919da7; font-size: 11.5px; line-height: 1.45; }
+.ruleNotice small { color: #919da7; font-size: 14px; line-height: 1.45; }
 
 @media (max-width: 1180px) {
   .workspace { grid-template-columns: 1fr; }
@@ -377,7 +377,7 @@
   .systemChip { justify-self: center; min-width: 0; }
   .accountsTitle { min-height: 56px; flex-basis: 56px; padding: 7px 10px; }
   .accountsPanel .tableWrap { max-height: 270px; }
-  .newAccountButton { padding-inline: 9px; font-size: 11.5px; }
+  .newAccountButton { padding-inline: 9px; font-size: 14px; }
   .workspace { gap: 12px; }
   .formRow { grid-template-columns: 28px 1fr; padding: 8px 0; }
   .formControl { grid-column: 2; width: 100%; }

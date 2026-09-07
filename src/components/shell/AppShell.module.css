@@ -80,7 +80,7 @@
 .navTitle {
   padding: 0 11px 9px;
   color: #61717f;
-  font-size: 11.5px;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: .16em;
 }
@@ -155,7 +155,7 @@
   border-radius: 6px;
   color: #788995;
   text-decoration: none;
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 600;
   transition: color .15s ease, background .15s ease;
 }
@@ -215,14 +215,14 @@
 
 .planCard strong {
   color: #d4dde3;
-  font-size: 11.5px;
+  font-size: 11px;
   letter-spacing: .07em;
 }
 
 .planCard small {
   overflow: hidden;
   color: #687987;
-  font-size: 10.5px;
+  font-size: 13px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -273,8 +273,8 @@
 .modeIcon { display: grid; place-items: center; color: #a070e8; }
 .modeIcon svg { width: 18px; height: 18px; }
 .modeCard > span:nth-child(2) { display: grid; gap: 1px; }
-.modeCard strong { color: #cfd8df; font-size: 11.5px; letter-spacing: .07em; }
-.modeCard small { color: #687987; font-size: 11px; }
+.modeCard strong { color: #cfd8df; font-size: 11px; letter-spacing: .07em; }
+.modeCard small { color: #687987; font-size: 13px; }
 .modeCard i {
   width: 8px;
   height: 8px;
@@ -297,7 +297,7 @@
   color: #82929e;
   background: rgba(8, 16, 23, .55);
   font: inherit;
-  font-size: 12px;
+  font-size: 15px;
   transition: color .15s ease, border-color .15s ease, background .15s ease;
 }
 
@@ -315,7 +315,7 @@
 .sidebarBottom p {
   margin: 10px 4px 0;
   color: #53636f;
-  font-size: 11px;
+  font-size: 13px;
 }
 .sidebarBottom p span { color: #72828e; }
 
@@ -365,7 +365,7 @@
   display: block;
   margin-bottom: 3px;
   color: #627482;
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: .16em;
 }
@@ -406,8 +406,8 @@
   box-shadow: 0 0 9px rgba(48, 208, 248, .25);
 }
 .dataChip > span:last-child { display: grid; gap: 1px; }
-.dataChip strong { color: #cbd5dc; font-size: 11.5px; letter-spacing: .08em; }
-.dataChip small { color: #667683; font-size: 11px; }
+.dataChip strong { color: #cbd5dc; font-size: 14px; letter-spacing: .08em; }
+.dataChip small { color: #667683; font-size: 13px; }
 
 .content {
   width: min(1600px, 100%);

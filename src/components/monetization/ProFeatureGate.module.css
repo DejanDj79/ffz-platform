@@ -34,7 +34,7 @@
   color: #d8c7ff;
   background: rgba(160,112,232,.1);
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .09em;
 }
 
@@ -47,7 +47,7 @@
   margin-bottom: 5px;
   color: #a070e8;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .12em;
 }
 
@@ -84,7 +84,7 @@
   content: "✓";
   margin-right: 6px;
   color: #30d0f8;
-  font-weight: 800;
+  font-weight: 500;
 }
 
 .action {
@@ -98,7 +98,7 @@
 .action small {
   color: #73828e;
   text-align: center;
-  font-size: 11.5px;
+  font-size: 14px;
   line-height: 1.35;
 }
 
@@ -112,7 +112,7 @@
   text-align: center;
   text-decoration: none;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .045em;
 }
 

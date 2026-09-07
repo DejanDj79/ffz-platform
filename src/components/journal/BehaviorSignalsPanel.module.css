@@ -23,14 +23,14 @@
 
 .header span {
   color: #8295a1;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: .075em;
 }
 
 .header small {
   color: #71838e;
-  font-size: 13px;
+  font-size: 11px;
   line-height: 1.45;
 }
 
@@ -42,7 +42,7 @@
   color: #7eddf5;
   background: rgba(48, 208, 248, .045);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: .06em;
 }
 
@@ -84,8 +84,8 @@
 .cardTop span {
   min-width: 0;
   color: #8799a4;
-  font-size: 12.5px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: .055em;
 }
 
@@ -208,8 +208,8 @@
 
 .detailHeader strong {
   color: #e8f1f5;
-  font-size: 16px;
-  font-weight: 650;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .detailHeader p {
@@ -252,7 +252,7 @@
 .eventHeader strong {
   color: #dce7ec;
   font-size: 14px;
-  font-weight: 650;
+  font-weight: 500;
 }
 
 .eventHeader span {
@@ -311,7 +311,7 @@
 
 .emptyEvents {
   color: #788b96;
-  font-size: 13.5px;
+  font-size: 14px;
   line-height: 1.45;
 }
 

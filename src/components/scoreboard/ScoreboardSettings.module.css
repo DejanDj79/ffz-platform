@@ -43,8 +43,8 @@
 .metrics > span,
 .obs label > span {
   color: #7c8e99;
-  font-size: 11.5px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: .04em;
 }
 
@@ -66,8 +66,8 @@
   color: #687b87;
   background: transparent;
   font: inherit;
-  font-size: 10.5px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .layoutSelect button:disabled {
@@ -90,8 +90,8 @@
   border-radius: 7px;
   color: #93a4af;
   background: rgba(255, 255, 255, .01);
-  font-size: 10.5px;
-  font-weight: 750;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: .035em;
 }
 
@@ -112,8 +112,8 @@
   background: rgba(160, 112, 232, .055);
   text-decoration: none;
   font: inherit;
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 700;
   letter-spacing: .055em;
 }
 
@@ -143,14 +143,14 @@
 .panelHeader span {
   color: #dce7ed;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .1em;
 }
 
 .previewPanel header small,
 .panelHeader small {
   color: #6d7e89;
-  font-size: 11.5px;
+  font-size: 11px;
   line-height: 1.4;
 }
 
@@ -307,7 +307,7 @@
 .metrics label span {
   min-width: 0;
   color: #9eafb8;
-  font-size: 10px;
+  font-size: 13px;
   line-height: 1.25;
 }
 
@@ -319,7 +319,7 @@
 .obs textarea {
   min-height: 66px;
   resize: none;
-  font-size: 11.5px;
+  font-size: 14px;
 }
 
 .copyButton {
@@ -332,8 +332,8 @@
   color: #041117;
   background: #30d0f8;
   font: inherit;
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 700;
   letter-spacing: .06em;
 }
 
@@ -351,13 +351,13 @@
 
 .obsSetup strong {
   color: #aebdc5;
-  font-size: 10.5px;
+  font-size: 13px;
   letter-spacing: .05em;
 }
 
 .obsSetup span {
   color: #6f818c;
-  font-size: 10.5px;
+  font-size: 13px;
 }
 
 .rotateButton {
@@ -370,7 +370,7 @@
   color: #ff8691;
   background: rgba(255, 119, 132, .03);
   font: inherit;
-  font-size: 10.5px;
+  font-size: 13px;
 }
 
 .saveButton {
@@ -383,8 +383,8 @@
   color: #041117;
   background: #30d0f8;
   font: inherit;
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 700;
   letter-spacing: .06em;
 }
 
@@ -398,7 +398,7 @@
   margin: 0;
   padding: 9px 11px;
   border-radius: 7px;
-  font-size: 11.5px;
+  font-size: 14px;
 }
 
 .error {

@@ -23,14 +23,14 @@
 
 .header span {
   color: #8295a1;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: .075em;
 }
 
 .header small {
   color: #71838e;
-  font-size: 13px;
+  font-size: 11px;
   line-height: 1.45;
 }
 
@@ -42,7 +42,7 @@
   color: #7eddf5;
   background: rgba(48, 208, 248, .045);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: .06em;
 }
 
@@ -77,15 +77,15 @@
 
 .cardHeader span {
   color: #8295a1;
-  font-size: 12.5px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: .06em;
 }
 
 .cardHeader strong {
   color: #e3edf1;
-  font-size: 16px;
-  font-weight: 650;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .status {
@@ -95,8 +95,8 @@
   border: 1px solid rgba(108, 131, 145, .32);
   color: #93a5ae;
   background: rgba(108, 131, 145, .08);
-  font-size: 11.5px;
-  font-weight: 750;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: .055em;
 }
 
@@ -118,15 +118,15 @@
 .focusBlock span,
 .field span {
   color: #6f818c;
-  font-size: 11.5px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: .055em;
 }
 
 .focusBlock strong {
   color: #eef6f8;
   font-size: 20px;
-  font-weight: 650;
+  font-weight: 500;
   line-height: 1.25;
 }
 
@@ -163,7 +163,7 @@
 .assessment > span {
   color: #738791;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: .05em;
 }
 
@@ -182,7 +182,7 @@
   color: #a6b6be;
   background: rgba(8, 17, 24, .72);
   font: inherit;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -220,7 +220,7 @@
 .empty p {
   max-width: 360px;
   margin: 0;
-  font-size: 13.5px;
+  font-size: 14px;
   line-height: 1.45;
 }
 

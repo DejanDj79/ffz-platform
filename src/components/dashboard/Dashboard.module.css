@@ -26,7 +26,7 @@
   color: #30d0f8;
   background: transparent;
   font: inherit;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .topBar {
@@ -40,8 +40,8 @@
 .eyebrow {
   display: block;
   color: #30d0f8;
-  font-size: 10.5px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 500;
   letter-spacing: .16em;
 }
 
@@ -56,7 +56,7 @@
 .topBar p {
   margin: 7px 0 0;
   color: #6b7d88;
-  font-size: 11.5px;
+  font-size: 14px;
 }
 
 .topActions {
@@ -75,8 +75,8 @@
   color: #30d0f8;
   text-decoration: none;
   background: rgba(48,208,248,.035);
-  font-size: 10px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: .08em;
 }
 
@@ -127,8 +127,8 @@
 .balanceBlock > span {
   display: block;
   color: #667985;
-  font-size: 10px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: .1em;
 }
 
@@ -143,7 +143,7 @@
   display: block;
   margin-top: 7px;
   color: #61737f;
-  font-size: 10.5px;
+  font-size: 13px;
 }
 
 .positive { color: #45dbad !important; }
@@ -182,21 +182,21 @@
 
 .panelHeader span {
   color: #dce7ed;
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 500;
   letter-spacing: .12em;
 }
 
 .panelHeader small {
   color: #687985;
-  font-size: 10.5px;
+  font-size: 13px;
 }
 
 .panelHeader > a {
   color: #30d0f8;
   text-decoration: none;
-  font-size: 10px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .challengeBadges {
@@ -212,8 +212,8 @@
   display: inline-flex;
   align-items: center;
   border-radius: 5px;
-  font-size: calc(7.5px !important + 2px);
-  font-weight: 800;
+  font-size: calc(7.5px + 2px) !important;
+  font-weight: 500;
   letter-spacing: .06em !important;
 }
 
@@ -262,7 +262,7 @@
 .challengeTitleRow p {
   margin: 6px 0 0;
   color: #657681;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .balanceBlock {
@@ -278,7 +278,7 @@
 .balanceBlock small {
   display: block;
   margin-top: 4px;
-  font-size: 10.5px;
+  font-size: 13px;
 }
 
 .challengeMetricGrid {
@@ -312,7 +312,7 @@
   justify-content: space-between;
   align-items: center;
   color: #71838e;
-  font-size: 10px;
+  font-size: 14px;
 }
 
 .barLabel b {
@@ -343,8 +343,8 @@
   margin-top: 15px;
   color: #30d0f8;
   text-decoration: none;
-  font-size: 10px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .emptyPanel {
@@ -354,14 +354,14 @@
   place-content: center start;
   gap: 10px;
   color: #657681;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .emptyPanel a {
   color: #30d0f8;
   text-decoration: none;
-  font-size: 10px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .marketPanel {
@@ -396,7 +396,7 @@
   display: block;
   margin-top: 5px;
   color: #657783;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.35;
 }
 
@@ -438,7 +438,7 @@
   border-radius: 6px;
   color: #30d0f8;
   font-size: 9px;
-  font-weight: 800;
+  font-weight: 500;
 }
 
 .quickActions div {
@@ -452,13 +452,13 @@
 
 .quickActions strong {
   color: #d4dfe5;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .quickActions small {
   margin-top: 2px;
   color: #61737f;
-  font-size: 9.8px;
+  font-size: 12px;
 }
 
 .performanceGrid {
@@ -516,7 +516,7 @@
 }
 
 .chartScale strong {
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .chartEmpty {
@@ -524,7 +524,7 @@
   display: grid;
   place-items: center;
   color: #5f727e;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .performancePanel {
@@ -599,8 +599,8 @@
   place-items: center;
   border: 1px solid;
   border-radius: 6px;
-  font-size: 10px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .tradeIcon {
@@ -627,21 +627,21 @@
 
 .activityText strong {
   color: #ccd7de;
-  font-size: 11.5px;
+  font-size: 14px;
 }
 
 .activityText small {
   margin-top: 3px;
   overflow: hidden;
   color: #657681;
-  font-size: 10px;
+  font-size: 12px;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 .activityDate {
   color: #81909a;
-  font-size: 10.5px;
+  font-size: 13px;
 }
 
 .activityDate small {
@@ -652,7 +652,7 @@
 
 .activityRow > strong:last-child {
   text-align: right;
-  font-size: 11.5px;
+  font-size: 14px;
 }
 
 .empty {
@@ -660,7 +660,7 @@
   display: grid;
   place-items: center;
   color: #61737e;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .moneyBody {
@@ -678,7 +678,7 @@
 .moneyBody p {
   margin: 9px 0 0;
   color: #657681;
-  font-size: 10.5px;
+  font-size: 13px;
   line-height: 1.45;
 }
 

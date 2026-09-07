@@ -57,8 +57,8 @@
 
 .panelHeader span {
   color: #e0eaf0;
-  font-size: 13.5px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 500;
   letter-spacing: .11em;
 }
 
@@ -90,7 +90,7 @@
 .fileHeading span {
   color: #81919c;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .08em;
 }
 
@@ -104,7 +104,7 @@
   color: #d8e2e8;
   background: #0c171f;
   font: inherit;
-  font-size: 13.5px;
+  font-size: 14px;
   color-scheme: dark;
 }
 
@@ -121,7 +121,7 @@
 .settings label > small,
 .fileHeading small {
   color: #657984;
-  font-size: 11.5px;
+  font-size: 14px;
   line-height: 1.45;
 }
 
@@ -153,8 +153,8 @@
   color: #72ddf8;
   background: transparent;
   font: inherit;
-  font-size: 11.5px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 500;
   letter-spacing: .055em;
 }
 
@@ -231,20 +231,20 @@
 .instructionsPanel > summary > span {
   color: #dce7ed;
   font-size: 12.5px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .09em;
 }
 
 .instructionsPanel > summary > small {
   color: #71848f;
-  font-size: 11.5px;
+  font-size: 14px;
   text-align: right;
 }
 
 .instructionsPanel > summary > b {
   color: #72ddf8;
-  font-size: 10.5px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 500;
   letter-spacing: .055em;
   white-space: nowrap;
 }
@@ -304,7 +304,7 @@
 .summaryGrid span {
   color: #81919c;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .09em;
 }
 
@@ -362,14 +362,14 @@
   color: #81939e;
   background: rgba(5,12,18,.36);
   font: inherit;
-  font-size: 10.5px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 500;
   letter-spacing: .045em;
 }
 
 .previewFilters button > span {
   color: #617580;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .previewFilters button:hover {
@@ -437,8 +437,8 @@
   border-bottom: 1px solid rgba(65,86,101,.36);
   color: #71848f;
   background: #0b151d;
-  font-size: 11.5px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 500;
   letter-spacing: .08em;
   text-align: left;
 }
@@ -460,7 +460,7 @@
   display: block;
   margin-top: 3px;
   color: #697c87;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .tableWrap td:last-child {
@@ -477,7 +477,7 @@
   justify-content: center;
   border: 1px solid rgba(109,128,140,.24);
   border-radius: 999px;
-  font-size: 10.5px;
+  font-size: 13px;
   font-weight: 900;
   letter-spacing: .07em;
 }
@@ -505,7 +505,7 @@
   padding: 10px 13px;
   border-top: 1px solid rgba(63,83,98,.22);
   color: #71848f;
-  font-size: 11.5px;
+  font-size: 14px;
   text-align: center;
 }
 
@@ -532,19 +532,19 @@
 
 .resultBanner strong {
   color: #e2ebf0;
-  font-size: 13.5px;
+  font-size: 14px;
 }
 
 .resultBanner small {
   color: #788b96;
-  font-size: 11.5px;
+  font-size: 14px;
 }
 
 .resultBanner > a {
   flex: 0 0 auto;
   color: #72ddf8;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
   text-decoration: none;
 }
 
@@ -559,7 +559,7 @@
 .resultBanner details {
   flex-basis: 100%;
   color: #c7a864;
-  font-size: 11.5px;
+  font-size: 14px;
 }
 
 .resultBanner details p {

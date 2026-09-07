@@ -383,11 +383,11 @@ export function ScoreboardSettings() {
                 COPY OBS URL
               </button>
 
-              <div className={styles.obsSetup}>
+              {/* <div className={styles.obsSetup}>
                 <strong>OBS BROWSER SOURCE</strong>
                 <span>1920 × 1080</span>
                 <span>Transparent background</span>
-              </div>
+              </div> */}
 
               <button
                 type="button"

@@ -39,7 +39,7 @@
 .toolbarContext > span {
   color: #9aaab3;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .1em;
 }
 
@@ -53,7 +53,7 @@
 .eyebrow {
   color: #8d9ea8;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .1em;
 }
 
@@ -70,8 +70,8 @@
 
 .toolbarActions label > span {
   color: #71828d;
-  font-size: 10.5px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 500;
   letter-spacing: .09em;
 }
 
@@ -105,7 +105,7 @@
   color: #30d0f8;
   border-color: rgba(48,208,248,.35);
   text-decoration: none;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .04em;
 }
 
@@ -131,7 +131,7 @@
 .snapshotMain > strong {
   display: block;
   margin-top: 8px;
-  font-size: clamp(34px, 3.1vw, 50px);
+  font-size: clamp(34px, 3.1vw, 38px);
   line-height: 1;
   letter-spacing: -.035em;
 }
@@ -139,7 +139,7 @@
 .snapshot p {
   margin: 9px 0 0;
   color: #768893;
-  font-size: 12.5px;
+  font-size: 12px;
   line-height: 1.45;
 }
 
@@ -165,15 +165,15 @@
 
 .breakEvenTop span {
   color: #8d9ba5;
-  font-size: 11.5px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: .09em;
 }
 
 .breakEvenTop small {
   color: #71828d;
-  font-size: 11.5px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .breakEvenTop strong {
@@ -228,8 +228,8 @@
 .kpiGrid span,
 .funnel article span {
   color: #81919c;
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: .08em;
 }
 
@@ -245,7 +245,7 @@
   display: block;
   margin-top: 6px;
   color: #71828e;
-  font-size: 11.5px;
+  font-size: 12px;
   line-height: 1.4;
 }
 
@@ -276,8 +276,8 @@
 .funnelPanel header span,
 .panel header span {
   color: #dce7ed;
-  font-size: 12.5px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: .1em;
 }
 
@@ -326,7 +326,7 @@
 
 .funnel article small {
   color: #6e7f8a;
-  font-size: 10.5px;
+  font-size: 13px;
 }
 
 .twoColumn {
@@ -352,12 +352,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 13px;
 }
 
 .costRow > div:first-child span {
   color: #aab7bf;
-  font-size: 12.5px;
+  font-size: 14px;
 }
 
 .costRow > div:first-child strong {
@@ -374,7 +374,7 @@
   display: block;
   margin-top: 5px;
   color: #657681;
-  font-size: 10.8px;
+  font-size: 12px;
 }
 
 .monthList {
@@ -399,16 +399,16 @@
 
 .monthRow > div > strong {
   color: #cfd9df;
-  font-size: 12.5px;
+  font-size: 13px;
 }
 
 .monthRow small {
   color: #6d7f8a;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .monthRow > strong {
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .tableScroll {
@@ -439,9 +439,9 @@
 .tableScroll th {
   color: #71828d;
   background: #0b161e;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: .07em;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: .06em;
 }
 
 .tableScroll td {
@@ -507,8 +507,8 @@
   border-radius: 999px;
   color: #a8b6bf;
   background: rgba(255,255,255,.018);
-  font-size: 10.8px;
-  font-weight: 800;
+  font-size: 11px;
+  font-weight: 500;
   letter-spacing: .05em;
 }
 
@@ -529,14 +529,14 @@
 
 .sourceNote span {
   color: #30d0f8;
-  font-size: 10.5px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 500;
   letter-spacing: .1em;
 }
 
 .sourceNote strong {
   color: #dce7ed;
-  font-size: 13.5px;
+  font-size: 14px;
 }
 
 .sourceNote p {
@@ -552,8 +552,8 @@
   color: #30d0f8;
   background: rgba(48,208,248,.04);
   text-decoration: none;
-  font-size: 11.5px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .positive { color: #45dbad !important; }
@@ -584,7 +584,7 @@
   color: #30d0f8;
   background: transparent;
   font: inherit;
-  font-weight: 800;
+  font-weight: 500;
 }
 
 .inlineError {

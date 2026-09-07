@@ -83,7 +83,7 @@
 .readoutBody span {
   color: #81919c;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .09em;
 }
 
@@ -119,7 +119,7 @@
   color: #30d0f8;
   border-color: rgba(48,208,248,.32);
   background: rgba(48,208,248,.045);
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .05em;
 }
 
@@ -216,7 +216,7 @@
 .panelHeader span {
   color: #e0eaf0;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .1em;
 }
 
@@ -309,7 +309,7 @@
 .dailyValue {
   overflow: hidden;
   color: #93a2ab;
-  font-size: 11.5px;
+  font-size: 14px;
   font-weight: 600;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -361,7 +361,7 @@
   border-radius: 3px;
   color: #82939e;
   background: rgba(7,15,22,.82);
-  font-size: 11.5px;
+  font-size: 14px;
   line-height: 1;
   white-space: nowrap;
   pointer-events: none;
@@ -443,7 +443,7 @@
   color: #6f818d;
   background: rgba(255,255,255,.012);
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .07em;
 }
 
