@@ -16,22 +16,31 @@ Ovaj dokument je živi handoff/checklist za FFZ Platform. Kada završimo stavku,
 
 ---
 
-# ACTIVE NEXT ROADMAP ITEM — Password recovery
+# ACTIVE NEXT ROADMAP ITEM — Password recovery production verification
 
-Status: **IN PROGRESS / IMPLEMENTED ON FEATURE BRANCH, PENDING REVIEW + SMTP SETUP**
+Status: **IMPLEMENTATION DONE / PR #57 MERGED — DEPLOY + REAL EMAIL TEST PENDING**
 
-User selected account recovery as the next priority after confirming the tracked backup contains no user data.
+PR #57 merged commit: `84325daba8c6d614d60d9a863a296717d9fcde42`.
 
-Implemented on `feature/password-recovery`:
+Completed:
 - Forgot password -> SMTP email -> one-time 30-minute reset link
 - hashed tokens, transactional password reset and session revocation
-- account-neutral request responses, IP throttling and persistent per-account cooldown
+- account-neutral responses, IP throttling and persistent per-account cooldown
+- auth buttons: 12px / 700 / 38px height; supplied logo at 70px
+- square transparent favicon that preserves logo proportions
 - production migration `0006_password_reset_tokens.sql`
-- `/backups/` ignored for future backups
+- future backups ignored; inspected historical backup contains no application data
 
-Setup and verification: `docs/PASSWORD_RECOVERY.md`.
-Not merged or deployed; actual email delivery still needs SMTP configuration and a user-owned test inbox.
-After review/merge, record PR/commit, configure SMTP and verify delivery before marking DONE.
+Validation:
+- 204 tests and production build passed locally
+- final FFZ CI #408 passed
+- user confirmed final auth forms and favicon on 2026-09-07
+- user confirmed Resend domain `ffz.app` is Verified and SMTP variables saved on server
+- configured sender: `FFZ <noreply@ffz.app>`; SMTP port 2587
+- production deployment and real reset email delivery are **not yet confirmed**
+
+Next: backup -> deploy main (runs migration) -> request reset for the user's own account -> verify receipt, password change, old-password rejection and single-use link.
+Setup: `docs/PASSWORD_RECOVERY.md`.
 
 ## Next after password recovery — Real-world workflow validation
 
@@ -863,7 +872,7 @@ YouTube:
 
 ## Recommended next order of work
 
-1. **Finish Password Recovery review, SMTP configuration and end-to-end delivery verification**
+1. **Deploy merged PR #57 with a backup and migration, then verify real reset email delivery and password change**
 2. **Run the complete Trading Desk → Journal → Trade Review → Weekly Review → Episode workflow once with the merged August demo dataset and log only concrete friction**
 3. **Repeat the same workflow through a complete real trading week**
 4. **Fix proven friction with small focused PRs, prioritizing transitions and repeated manual work**
