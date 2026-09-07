@@ -64,10 +64,10 @@ export default function RegisterPage() {
     <main className={styles.page}>
       <section className={styles.card}>
         <Image
-          src="/ffz-logo.png"
+          src="/logo-small.ico" unoptimized
           alt="Futures From Zero"
-          width={420}
-          height={130}
+          width={32}
+          height={21}
           className={styles.logo}
           priority
         />
