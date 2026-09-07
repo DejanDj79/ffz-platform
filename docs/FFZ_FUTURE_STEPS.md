@@ -35,6 +35,11 @@ Trading Desk
 → Episode Brief / YouTube production
 ```
 
+Journal product rule after PR #52:
+- pre-trade planning belongs to Risk Calculator / Planned Trades
+- Journal is the post-trade record and stores completed trades only
+- FFZ does not track live/open positions
+
 During preflight and real use, capture only concrete friction such as:
 - repeated manual work
 - missing data genuinely needed for review or recording
@@ -140,6 +145,40 @@ Implemented:
 Validation:
 - FFZ CI #344 — PASSED
 - local visual/behavior verification — PASSED by user
+- no DB migration required
+
+### Journal completed-trades workflow — DONE / MERGED
+
+PR #52: **Journal closed-trades-only workflow**
+
+Merged commit:
+
+```text
+b23e3324de1628efc3a09aec4d664ebc285a440f
+```
+
+Implemented:
+- manual Journal is now a completed-trades-only workflow
+- `+ NEW TRADE` became `+ LOG TRADE`
+- manual Journal entries require both `Closed At` and `Exit Price`
+- `OPEN` was removed from normal Journal filtering; legacy open rows remain compatibility data and can only be completed, not reopened
+- Risk Calculator keeps pre-trade planning through a dedicated `/api/journal/plans` path
+- Planned Trades stay outside Journal statistics and challenge sync until completed
+- `START TRADE` was replaced by `LOG RESULT`; planned values are prefilled and the plan becomes a Journal trade only after the actual result is entered
+- normal `/api/journal/trades` and CSV import remain completed-trade-only
+- Trading Desk copy/KPIs were aligned with the completed Journal model
+- existing DB status/model support was retained for backward compatibility; no existing rows were deleted or migrated
+
+Product rule:
+- pre-trade planning belongs to Risk Calculator / Planned Trades
+- Journal is the post-trade record
+- FFZ does not track positions live
+
+Validation:
+- FFZ CI #384 — PASSED
+- tests — PASSED
+- production build — PASSED
+- local manual `LOG TRADE` and Planned Trade → `LOG RESULT` behavior — PASSED by user
 - no DB migration required
 
 ### Trade Review chart/navigation usability fixes — DONE / MERGED
@@ -775,6 +814,7 @@ Completed immediately before this roadmap position:
 - [x] PR #45 — signed P&L fills + Trade Review navigation/sticky toolbar
 - [x] PR #46 — Dashboard Recent Trades quick-review modal
 - [x] PR #49 — paywall/upgrade activation UX + contextual return flow + server-gated CSV import
+- [x] PR #52 — Journal completed-trades-only workflow + Planned Trade result logging
 
 Keep development driven by real usage and direct visual review. Do not add broad surface area just to make the product look larger.
 
