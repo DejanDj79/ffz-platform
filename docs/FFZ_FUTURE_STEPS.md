@@ -181,6 +181,29 @@ Validation:
 - local manual `LOG TRADE` and Planned Trade → `LOG RESULT` behavior — PASSED by user
 - no DB migration required
 
+### Typography consistency polish — DONE / MERGED
+
+PR #53: **Typography polish and redundant helper cleanup**
+
+Merged commit:
+
+```text
+43ec426c28dbef7b22e3bacf85758083fd353637
+```
+
+Implemented:
+- explicit 16px Risk Calculator form-control font size instead of inheriting the larger page/body text size
+- locally reviewed font-size/font-weight refinements across Dashboard, Trading Desk, Journal, Weekly Review, Prop Journey, Ledger, Upgrade, Scoreboard, Creator and related surfaces
+- removed three redundant helper/info blocks from the visible UI: Weekly episode rule note, Prop Journey intro toolbar and OBS setup hint
+- no product logic, schema or persistence changes
+
+Validation:
+- FFZ CI #387 — PASSED
+- tests — PASSED
+- production build — PASSED
+- local visual review of the complete typography/helper cleanup — PASSED by user
+- no DB migration required
+
 ### Trade Review chart/navigation usability fixes — DONE / MERGED
 
 PR #45: **Fix signed P&L chart fills and Trade Review navigation**
@@ -815,6 +838,7 @@ Completed immediately before this roadmap position:
 - [x] PR #46 — Dashboard Recent Trades quick-review modal
 - [x] PR #49 — paywall/upgrade activation UX + contextual return flow + server-gated CSV import
 - [x] PR #52 — Journal completed-trades-only workflow + Planned Trade result logging
+- [x] PR #53 — typography consistency polish + redundant helper cleanup
 
 Keep development driven by real usage and direct visual review. Do not add broad surface area just to make the product look larger.
 
