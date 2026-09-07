@@ -160,16 +160,6 @@
   transition: color .15s ease, background .15s ease;
 }
 
-.subNavItem::before {
-  content: "";
-  position: absolute;
-  left: -13px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #455761;
-}
-
 .subNavItem:hover {
   color: #dce7ed;
   background: rgba(255,255,255,.025);
@@ -178,11 +168,6 @@
 .subNavActive {
   color: #30d0f8;
   background: rgba(48,208,248,.055);
-}
-
-.subNavActive::before {
-  background: #30d0f8;
-  box-shadow: 0 0 7px rgba(48,208,248,.28);
 }
 
 .sidebarBottom {
