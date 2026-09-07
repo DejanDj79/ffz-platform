@@ -59,7 +59,7 @@ export function PasswordRecovery({ reset = false }: { reset?: boolean }) {
   return (
     <main className={styles.page}>
       <section className={styles.card}>
-        <Image src="/logo-small.ico" unoptimized alt="Futures From Zero" width={32} height={21} className={styles.logo} priority />
+        <Image src="/f0_logo_small.png" alt="Futures From Zero" width={124} height={79} className={styles.logo} priority />
         <span className={styles.eyebrow}>FFZ PLATFORM</span>
         <h1>{done ? (reset ? "Password updated" : "Check your email") : (reset ? "Reset password" : "Forgot password?")}</h1>
         <p className={styles.intro} role={done ? "status" : undefined}>

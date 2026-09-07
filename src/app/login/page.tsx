@@ -52,10 +52,10 @@ export default function LoginPage() {
     <main className={styles.page}>
       <section className={styles.card}>
         <Image
-          src="/logo-small.ico" unoptimized
+          src="/f0_logo_small.png"
           alt="Futures From Zero"
-          width={32}
-          height={21}
+          width={124}
+          height={79}
           className={styles.logo}
           priority
         />
