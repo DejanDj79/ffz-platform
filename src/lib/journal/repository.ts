@@ -72,6 +72,13 @@ async function assertOwnedRelations(
   }
 }
 
+function assertSupportedJournalState(input: Pick<TradeEditableInput, "closedAt" | "exitPrice" | "tags">) {
+  if (isPlannedTrade({ tags: input.tags })) return;
+  if (input.closedAt == null || input.exitPrice == null) {
+    throw new Error("OPEN_JOURNAL_TRADES_DISABLED");
+  }
+}
+
 function metrics(input: TradeEditableInput) {
   const value = calculateTradeMetrics({
     instrument: input.instrument,
@@ -119,6 +126,7 @@ export async function createTrade(
   input: TradeEditableInput,
   options: JournalWriteOptions = {},
 ) {
+  assertSupportedJournalState(input);
   await assertOwnedRelations(userId, input.challengeId, input.tradingAccountId);
   const m = metrics(input);
 
@@ -193,6 +201,7 @@ export async function updateTrade(
     throw new Error("INVALID_CLOSED_TIME");
   }
 
+  assertSupportedJournalState(merged);
   await assertOwnedRelations(userId, merged.challengeId, merged.tradingAccountId);
   const m = metrics(merged);
 
