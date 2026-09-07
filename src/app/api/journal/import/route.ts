@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { getCurrentUser } from "@/lib/auth/session";
 import { createTrade } from "@/lib/journal/repository";
-import { tradeEditableSchema } from "@/lib/journal/validation";
+import { journalTradeCreateSchema } from "@/lib/journal/validation";
 import { hasEntitlement } from "@/lib/monetization/entitlements";
 
 export const runtime = "nodejs";
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const input = tradeEditableSchema.parse(await request.json());
+    const input = journalTradeCreateSchema.parse(await request.json());
     const trade = await createTrade(user.id, input, {
       syncChallenges: hasEntitlement(user.plan, "AUTO_CHALLENGE_SYNC"),
     });
@@ -46,6 +46,13 @@ export async function POST(request: Request) {
 
     if (error instanceof Error && error.message === "TRADING_ACCOUNT_NOT_FOUND") {
       return NextResponse.json({ error: "Trading account not found." }, { status: 400 });
+    }
+
+    if (error instanceof Error && error.message === "OPEN_JOURNAL_TRADES_DISABLED") {
+      return NextResponse.json(
+        { error: "Imported Journal trades must be completed." },
+        { status: 400 },
+      );
     }
 
     console.error("POST /api/journal/import failed:", error);
