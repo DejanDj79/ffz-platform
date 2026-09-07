@@ -160,16 +160,6 @@
   transition: color .15s ease, background .15s ease;
 }
 
-.subNavItem::before {
-  content: "";
-  position: absolute;
-  left: -13px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #455761;
-}
-
 .subNavItem:hover {
   color: #dce7ed;
   background: rgba(255,255,255,.025);
@@ -178,11 +168,6 @@
 .subNavActive {
   color: #30d0f8;
   background: rgba(48,208,248,.055);
-}
-
-.subNavActive::before {
-  background: #30d0f8;
-  box-shadow: 0 0 7px rgba(48,208,248,.28);
 }
 
 .sidebarBottom {
@@ -331,6 +316,9 @@
 }
 
 .pageHeader {
+  position: sticky;
+  top: 0;
+  z-index: 18;
   width: min(1600px, 100%);
   min-height: 105px;
   margin: 0 auto;
@@ -338,7 +326,250 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  border-bottom: 1px solid rgba(87, 106, 121, .27);
+  border-bottom: 1px solid rgba(87, 106, 121, .34);
+  background: linear-gradient(180deg, rgba(5, 12, 18, .97), rgba(5, 12, 18, .92));
+  box-shadow: 0 14px 28px rgba(0, 0, 0, .14);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.headerActions {
+  flex: 0 0 auto;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logTradeButton {
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 15px;
+  border: 1px solid rgba(48, 208, 248, .62);
+  border-radius: 8px;
+  color: #07131a;
+  background: linear-gradient(180deg, #45dafc, #29bce9);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 8px 24px rgba(48,208,248,.08);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+}
+
+.logTradeButton:hover {
+  filter: brightness(1.04);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.34), 0 10px 28px rgba(48,208,248,.13);
+  transform: translateY(-1px);
+}
+
+.logTradeButton span {
+  margin-top: -1px;
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.logTradeButton b { font: inherit; }
+
+.accountMenuWrap {
+  position: relative;
+}
+
+.accountButton {
+  min-width: 160px;
+  height: 42px;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) 15px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px 0 7px;
+  border: 1px solid rgba(73, 96, 113, .5);
+  border-radius: 8px;
+  color: #d8e2e8;
+  background: rgba(8, 16, 23, .72);
+  font: inherit;
+  text-align: left;
+  transition: border-color .15s ease, background .15s ease;
+}
+
+.accountButton:hover,
+.accountButton[aria-expanded="true"] {
+  border-color: rgba(48,208,248,.48);
+  background: rgba(48,208,248,.045);
+}
+
+.accountAvatar,
+.accountSummaryAvatar {
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(160,112,232,.52);
+  border-radius: 8px;
+  color: #d8c9f4;
+  background: linear-gradient(180deg, rgba(160,112,232,.18), rgba(160,112,232,.07));
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+
+.accountAvatar {
+  width: 30px;
+  height: 30px;
+  font-size: 10px;
+}
+
+.accountButtonCopy {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.accountButtonCopy strong {
+  overflow: hidden;
+  color: #d8e2e8;
+  font-size: 12px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accountButtonCopy small {
+  color: #728491;
+  font-size: 10px;
+  letter-spacing: .07em;
+}
+
+.accountChevron {
+  display: grid;
+  place-items: center;
+  color: #61727f;
+  transform: rotate(90deg);
+  transition: transform .16s ease, color .16s ease;
+}
+
+.accountChevron svg { width: 14px; height: 14px; }
+.accountChevronOpen { color: #30d0f8; transform: rotate(-90deg); }
+
+.accountMenu {
+  position: absolute;
+  top: calc(100% + 9px);
+  right: 0;
+  z-index: 60;
+  width: 288px;
+  padding: 10px;
+  border: 1px solid rgba(73, 96, 113, .62);
+  border-radius: 10px;
+  background: rgba(6, 13, 19, .98);
+  box-shadow: 0 22px 60px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.02);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.accountSummary {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 6px 7px 8px;
+}
+
+.accountSummaryAvatar {
+  width: 40px;
+  height: 40px;
+  font-size: 12px;
+}
+
+.accountSummary > span:last-child {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.accountSummary strong {
+  overflow: hidden;
+  color: #eef5f8;
+  font-size: 13px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accountSummary small {
+  overflow: hidden;
+  color: #748592;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accountSummary b {
+  width: fit-content;
+  margin-top: 2px;
+  padding: 3px 6px;
+  border: 1px solid rgba(48,208,248,.25);
+  border-radius: 999px;
+  color: #8ee6f8;
+  background: rgba(48,208,248,.045);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+
+.accountMenuDivider {
+  height: 1px;
+  margin: 3px 2px 7px;
+  background: rgba(73,96,113,.34);
+}
+
+.accountMenuItem {
+  width: 100%;
+  min-height: 52px;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+  padding: 7px 8px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+  text-decoration: none;
+  font: inherit;
+  transition: border-color .15s ease, background .15s ease;
+}
+
+.accountMenuItem:hover {
+  border-color: rgba(73,96,113,.35);
+  background: rgba(255,255,255,.025);
+}
+
+.accountMenuIcon {
+  display: grid;
+  place-items: center;
+  color: #7b8e9a;
+}
+
+.accountMenuIcon svg { width: 17px; height: 17px; }
+
+.accountMenuItem > span:last-child {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.accountMenuItem strong {
+  color: #d9e3e8;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.accountMenuItem small {
+  color: #6c7d89;
+  font-size: 11px;
 }
 
 .pageIdentity {
@@ -438,6 +669,7 @@
   .shell { grid-template-columns: 210px minmax(0, 1fr); }
   .stage { padding-inline: 18px; }
   .sidebar { min-width: 0; }
+  .accountButton { min-width: 142px; }
 }
 
 @media (max-width: 900px) {
@@ -452,6 +684,7 @@
     transform: translateX(-102%);
     transition: transform .2s ease;
     box-shadow: 22px 0 60px rgba(0, 0, 0, .35);
+    z-index: 90;
   }
   .sidebarOpen { transform: translateX(0); }
 
@@ -474,55 +707,160 @@
     inset: 0;
     border: 0;
     background: rgba(0, 0, 0, .56);
-    z-index: 20;
+    z-index: 80;
   }
 
   .stage { padding: 0 14px 22px; }
 
   .mobileHeader {
+    position: sticky;
+    top: 0;
+    z-index: 70;
     width: 100%;
     min-height: 66px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 15px;
-    border-bottom: 1px solid rgba(87, 106, 121, .27);
+    gap: 10px;
+    border-bottom: 1px solid rgba(87, 106, 121, .34);
+    background: linear-gradient(180deg, rgba(5, 12, 18, .98), rgba(5, 12, 18, .94));
+    box-shadow: 0 12px 24px rgba(0, 0, 0, .16);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
   }
 
   .mobileLogoFrame {
-    width: min(190px, 60vw);
-    height: 48px;
+    flex: 1 1 110px;
+    min-width: 0;
+    max-width: 138px;
+    height: 46px;
     display: flex;
     align-items: center;
     overflow: hidden;
   }
 
-  .mobileHeader button {
+  .mobileHeader > button {
+    flex: 0 0 40px;
     width: 40px;
     height: 40px;
     display: grid;
     place-items: center;
     border: 1px solid rgba(75, 98, 115, .48);
     border-radius: 8px;
+    cursor: pointer;
     color: #d8e0e6;
     background: #0a141c;
   }
 
-  .pageHeader { min-height: 90px; }
+  .pageHeader {
+    position: static;
+    z-index: auto;
+    min-height: 90px;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
   .pageIcon { flex-basis: 42px; width: 42px; height: 42px; }
   .pageIcon svg { width: 22px; height: 22px; }
   .pageIdentity h1 { font-size: 25px; }
   .pageIdentity p { font-size: 12px; }
   .dataChip { display: none; }
+
+  .headerActions {
+    position: fixed;
+    top: 13px;
+    right: 64px;
+    z-index: 75;
+    gap: 6px;
+  }
+
+  .logTradeButton {
+    height: 40px;
+    gap: 5px;
+    padding: 0 10px;
+    font-size: 10.5px;
+  }
+
+  .logTradeButton span { font-size: 17px; }
+
+  .accountButton {
+    min-width: 40px;
+    width: 40px;
+    height: 40px;
+    grid-template-columns: 1fr;
+    padding: 0;
+    place-items: center;
+  }
+
+  .accountButtonCopy,
+  .accountChevron { display: none; }
+  .accountAvatar { width: 29px; height: 29px; }
+
+  .accountMenu {
+    position: fixed;
+    top: 59px;
+    right: 14px;
+    width: min(288px, calc(100vw - 28px));
+  }
 }
 
 @media (max-width: 560px) {
   .stage { padding-inline: 10px; }
-  .pageHeader { min-height: 82px; }
+
+  .mobileHeader {
+    min-height: 60px;
+    gap: 8px;
+  }
+
+  .mobileLogoFrame {
+    flex-basis: 86px;
+    max-width: 106px;
+    height: 42px;
+  }
+
+  .mobileHeader > button {
+    flex-basis: 36px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .pageHeader { min-height: 82px; gap: 8px; }
   .pageIdentity { gap: 10px; }
   .pageIcon { display: none; }
+  .pageIdentity h1 { font-size: clamp(20px, 6vw, 24px); }
   .pageIdentity p { max-width: 280px; }
   .content { padding-top: 18px; }
+
+  .headerActions {
+    top: 12px;
+    right: 56px;
+    gap: 5px;
+  }
+
+  .logTradeButton {
+    height: 36px;
+    gap: 4px;
+    padding: 0 8px;
+    font-size: 10px;
+  }
+
+  .logTradeButton span { font-size: 16px; }
+
+  .accountButton {
+    min-width: 36px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .accountAvatar { width: 27px; height: 27px; }
+
+  .accountMenu {
+    top: 54px;
+    right: 10px;
+    width: min(288px, calc(100vw - 20px));
+  }
 }
 
 .authLoading {

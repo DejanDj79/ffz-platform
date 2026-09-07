@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./AppShell.module.css";
 import { EconomicCalendarAlert } from "@/components/economic-calendar/EconomicCalendarAlert";
 
@@ -217,12 +217,32 @@ function isSubActive(pathname: string, href: string) {
   return pathname.startsWith(href);
 }
 
+function userLabel(user: AuthUser) {
+  return user.displayName?.trim() || user.email.split("@")[0] || "Trader";
+}
+
+function userInitials(user: AuthUser) {
+  const parts = userLabel(user).split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  return parts[0]?.slice(0, 2).toUpperCase() || "FF";
+}
+
+function accessDescription(user: AuthUser) {
+  if (user.access === "CREATOR") return "Pro included with creator access";
+  if (user.access === "FOUNDER") return "Lifetime Pro access";
+  if (user.access === "PRO") return "Active FFZ Pro access";
+  return "Free plan";
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [authState, setAuthState] = useState<"loading" | "authenticated" | "unauthenticated">("loading");
   const [user, setUser] = useState<AuthUser | null>(null);
+  const accountMenuRef = useRef<HTMLDivElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
 
   const isAuthPage = pathname === "/login" || pathname === "/register";
   const isOverlayPage = pathname.startsWith("/overlays/");
@@ -231,6 +251,62 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setMobileOpen(false);
+    setAccountMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!accountMenuOpen) return;
+
+    function onPointerDown(event: PointerEvent) {
+      if (accountMenuRef.current && !accountMenuRef.current.contains(event.target as Node)) {
+        setAccountMenuOpen(false);
+      }
+    }
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setAccountMenuOpen(false);
+    }
+
+    document.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [accountMenuOpen]);
+
+  useEffect(() => {
+    if (pathname !== "/journal") return;
+    if (window.sessionStorage.getItem("ffz:open-log-trade") !== "1") return;
+
+    let cancelled = false;
+    let timeoutId: number | undefined;
+    let attempts = 0;
+
+    function tryOpenEditor() {
+      if (cancelled) return;
+      const button = Array.from(contentRef.current?.querySelectorAll<HTMLButtonElement>("button") ?? [])
+        .find((candidate) => candidate.textContent?.trim() === "+ LOG TRADE");
+
+      if (button) {
+        window.sessionStorage.removeItem("ffz:open-log-trade");
+        button.click();
+        return;
+      }
+
+      attempts += 1;
+      if (attempts < 20) {
+        timeoutId = window.setTimeout(tryOpenEditor, 50);
+      } else {
+        window.sessionStorage.removeItem("ffz:open-log-trade");
+      }
+    }
+
+    timeoutId = window.setTimeout(tryOpenEditor, 0);
+    return () => {
+      cancelled = true;
+      if (timeoutId) window.clearTimeout(timeoutId);
+    };
   }, [pathname]);
 
   useEffect(() => {
@@ -284,7 +360,34 @@ export function AppShell({ children }: { children: ReactNode }) {
     };
   }, [bypassShell, isPublicCalculator, pathname, router]);
 
+  function openJournalTradeEditor() {
+    const button = Array.from(contentRef.current?.querySelectorAll<HTMLButtonElement>("button") ?? [])
+      .find((candidate) => candidate.textContent?.trim() === "+ LOG TRADE");
+    if (!button) return false;
+    button.click();
+    return true;
+  }
+
+  function logTrade() {
+    setAccountMenuOpen(false);
+
+    if (pathname === "/journal") {
+      let attempts = 0;
+      const tryOpen = () => {
+        if (openJournalTradeEditor()) return;
+        attempts += 1;
+        if (attempts < 12) window.setTimeout(tryOpen, 50);
+      };
+      tryOpen();
+      return;
+    }
+
+    window.sessionStorage.setItem("ffz:open-log-trade", "1");
+    router.push("/journal");
+  }
+
   async function logout() {
+    setAccountMenuOpen(false);
     await fetch("/api/auth/logout", { method: "POST" });
     setUser(null);
     setAuthState("unauthenticated");
@@ -322,6 +425,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       </div>
     );
   }
+
+  const name = userLabel(user);
+  const initials = userInitials(user);
 
   return (
     <div className={styles.shell}>
@@ -383,19 +489,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             </span>
             <b>{user.access === "FREE" ? "UPGRADE" : user.access === "PRO" ? "MANAGE" : "PLANS"}</b>
           </Link>
-
-          <div className={styles.modeCard}>
-            <span className={styles.modeIcon}><Icon name="database" /></span>
-            <span>
-              <strong>{user.role === "CREATOR" ? "CREATOR MODE" : "DATABASE MODE"}</strong>
-              <small title={user.email}>{user.displayName || user.email}</small>
-            </span>
-            <i />
-          </div>
-          <button className={styles.logoutButton} type="button" onClick={logout}>
-            <Icon name="logout" />
-            <span>Sign out</span>
-          </button>
           <p>FFZ Platform <span>v0.2</span></p>
         </div>
       </aside>
@@ -419,13 +512,75 @@ export function AppShell({ children }: { children: ReactNode }) {
               {/* <p>{page.subtitle}</p> */}
             </div>
           </div>
+
+          <div className={styles.headerActions}>
+            <button className={styles.logTradeButton} type="button" onClick={logTrade}>
+              <span>+</span>
+              <b>LOG TRADE</b>
+            </button>
+
+            <div className={styles.accountMenuWrap} ref={accountMenuRef}>
+              <button
+                className={styles.accountButton}
+                type="button"
+                aria-haspopup="menu"
+                aria-expanded={accountMenuOpen}
+                onClick={() => setAccountMenuOpen((current) => !current)}
+              >
+                <span className={styles.accountAvatar}>{initials}</span>
+                <span className={styles.accountButtonCopy}>
+                  <strong>{name}</strong>
+                  <small>FFZ {user.access}</small>
+                </span>
+                <span className={`${styles.accountChevron} ${accountMenuOpen ? styles.accountChevronOpen : ""}`}>
+                  <Icon name="chevron" />
+                </span>
+              </button>
+
+              {accountMenuOpen && (
+                <div className={styles.accountMenu} role="menu">
+                  <div className={styles.accountSummary}>
+                    <span className={styles.accountSummaryAvatar}>{initials}</span>
+                    <span>
+                      <strong>{name}</strong>
+                      <small title={user.email}>{user.email}</small>
+                      <b>FFZ {user.access}</b>
+                    </span>
+                  </div>
+
+                  <div className={styles.accountMenuDivider} />
+
+                  <Link
+                    href="/upgrade"
+                    className={styles.accountMenuItem}
+                    role="menuitem"
+                    onClick={() => setAccountMenuOpen(false)}
+                  >
+                    <span className={styles.accountMenuIcon}><Icon name="plan" /></span>
+                    <span>
+                      <strong>Plan &amp; Billing</strong>
+                      <small>{accessDescription(user)}</small>
+                    </span>
+                  </Link>
+
+                  <button className={styles.accountMenuItem} type="button" role="menuitem" onClick={() => void logout()}>
+                    <span className={styles.accountMenuIcon}><Icon name="logout" /></span>
+                    <span>
+                      <strong>Sign out</strong>
+                      <small>End this FFZ session</small>
+                    </span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </header>
 
         {!pathname.startsWith("/economic-calendar") && !pathname.startsWith("/upgrade") && (
           <EconomicCalendarAlert />
         )}
 
-        <div className={styles.content}>{children}</div>
+        <div className={styles.content} ref={contentRef}>{children}</div>
       </div>
     </div>
   );
