@@ -127,6 +127,66 @@
   white-space: nowrap;
 }
 
+.completionForm {
+  margin-top: 13px;
+  padding: 13px;
+  border: 1px solid rgba(99, 220, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(5, 15, 25, 0.62);
+}
+
+.completionHeader {
+  display: grid;
+  gap: 3px;
+  margin-bottom: 12px;
+}
+
+.completionHeader strong {
+  color: #dff7ff;
+  font-size: calc(0.82rem + 2px);
+  letter-spacing: 0.08em;
+}
+
+.completionHeader small {
+  line-height: 1.45;
+}
+
+.completionGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.completionGrid label {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.completionGrid label > span {
+  color: rgba(174, 208, 226, 0.72);
+  font-size: calc(0.64rem + 2px);
+  letter-spacing: 0.08em;
+}
+
+.completionGrid input {
+  width: 100%;
+  min-width: 0;
+  height: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9px;
+  padding: 0 10px;
+  color: #edf8ff;
+  background: rgba(2, 10, 17, 0.72);
+  color-scheme: dark;
+  outline: none;
+}
+
+.completionGrid input:focus {
+  border-color: rgba(99, 220, 255, 0.52);
+  box-shadow: 0 0 0 2px rgba(99, 220, 255, 0.08);
+}
+
 .actions {
   justify-content: flex-start;
   margin-top: 12px;
@@ -175,7 +235,8 @@
 }
 
 @media (max-width: 850px) {
-  .metrics {
+  .metrics,
+  .completionGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
@@ -195,7 +256,8 @@
     flex-direction: column;
   }
 
-  .metrics {
+  .metrics,
+  .completionGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
