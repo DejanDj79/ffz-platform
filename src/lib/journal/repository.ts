@@ -72,11 +72,22 @@ async function assertOwnedRelations(
   }
 }
 
-function assertSupportedJournalState(input: Pick<TradeEditableInput, "closedAt" | "exitPrice" | "tags">) {
-  if (isPlannedTrade({ tags: input.tags })) return;
-  if (input.closedAt == null || input.exitPrice == null) {
-    throw new Error("OPEN_JOURNAL_TRADES_DISABLED");
-  }
+function isCompletedTrade(input: Pick<TradeEditableInput, "closedAt" | "exitPrice">) {
+  return input.closedAt != null && input.exitPrice != null;
+}
+
+function assertSupportedCreateState(input: Pick<TradeEditableInput, "closedAt" | "exitPrice" | "tags">) {
+  if (isCompletedTrade(input) || isPlannedTrade({ tags: input.tags })) return;
+  throw new Error("OPEN_JOURNAL_TRADES_DISABLED");
+}
+
+function assertSupportedUpdateState(
+  current: Pick<TradeApiModel, "tags">,
+  merged: Pick<TradeEditableInput, "closedAt" | "exitPrice" | "tags">,
+) {
+  if (isCompletedTrade(merged)) return;
+  if (isPlannedTrade(current) && isPlannedTrade({ tags: merged.tags })) return;
+  throw new Error("OPEN_JOURNAL_TRADES_DISABLED");
 }
 
 function metrics(input: TradeEditableInput) {
@@ -126,7 +137,7 @@ export async function createTrade(
   input: TradeEditableInput,
   options: JournalWriteOptions = {},
 ) {
-  assertSupportedJournalState(input);
+  assertSupportedCreateState(input);
   await assertOwnedRelations(userId, input.challengeId, input.tradingAccountId);
   const m = metrics(input);
 
@@ -201,7 +212,7 @@ export async function updateTrade(
     throw new Error("INVALID_CLOSED_TIME");
   }
 
-  assertSupportedJournalState(merged);
+  assertSupportedUpdateState(current, merged);
   await assertOwnedRelations(userId, merged.challengeId, merged.tradingAccountId);
   const m = metrics(merged);
 
