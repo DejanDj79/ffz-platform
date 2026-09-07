@@ -204,6 +204,31 @@ Validation:
 - local visual review of the complete typography/helper cleanup — PASSED by user
 - no DB migration required
 
+### Authenticated header toolbar — DONE / MERGED
+
+PR #55: **Authenticated user toolbar and quick trade action**
+
+Merged commit:
+
+```text
+2af419e06b1d70267662d8c94144b0dcf2243650
+```
+
+Implemented:
+- added a compact authenticated header toolbar without duplicating sidebar navigation
+- desktop page header stays sticky while the page content scrolls; mobile keeps its compact sticky top bar
+- added a global `LOG TRADE` action that routes to Journal and opens the existing completed-trade editor
+- added a user/account dropdown with identity, FFZ access level, Plan & Billing and Sign out
+- moved user identity and Sign out out of the sidebar while keeping the plan/upgrade card visible
+- desktop sidebar remains in the original fixed/full-width layout with no collapse/expand control
+
+Validation:
+- FFZ CI #399 — PASSED
+- tests — PASSED
+- production build — PASSED
+- local visual/behavior review, including sticky header and global `LOG TRADE`, — PASSED by user
+- no DB migration required
+
 ### Trade Review chart/navigation usability fixes — DONE / MERGED
 
 PR #45: **Fix signed P&L chart fills and Trade Review navigation**
@@ -839,6 +864,7 @@ Completed immediately before this roadmap position:
 - [x] PR #49 — paywall/upgrade activation UX + contextual return flow + server-gated CSV import
 - [x] PR #52 — Journal completed-trades-only workflow + Planned Trade result logging
 - [x] PR #53 — typography consistency polish + redundant helper cleanup
+- [x] PR #55 — authenticated sticky header toolbar + global LOG TRADE + account menu
 
 Keep development driven by real usage and direct visual review. Do not add broad surface area just to make the product look larger.
 
