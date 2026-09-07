@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import styles from "./SidebarCollapseControl.module.css";
 
@@ -106,7 +107,9 @@ function applyCollapsedState(parts: ShellParts, collapsed: boolean) {
 }
 
 export function SidebarCollapseControl() {
+  const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const [desktop, setDesktop] = useState(false);
   const [ready, setReady] = useState(false);
   const partsRef = useRef<ShellParts | null>(null);
 
@@ -119,12 +122,24 @@ export function SidebarCollapseControl() {
   }, []);
 
   useEffect(() => {
+    const media = window.matchMedia("(min-width: 901px)");
+    const sync = () => setDesktop(media.matches);
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
 
     function discover() {
       if (cancelled) return;
       const parts = discoverShell();
-      if (!parts) return;
+      if (!parts) {
+        partsRef.current = null;
+        setReady(false);
+        return;
+      }
 
       partsRef.current = parts;
       annotateSidebar(parts);
@@ -143,14 +158,14 @@ export function SidebarCollapseControl() {
 
   useEffect(() => {
     if (!ready || !partsRef.current) return;
-    applyCollapsedState(partsRef.current, collapsed);
+    applyCollapsedState(partsRef.current, collapsed && desktop);
 
     try {
       window.localStorage.setItem(STORAGE_KEY, collapsed ? "1" : "0");
     } catch {
       // Ignore storage errors; visual state remains valid.
     }
-  }, [collapsed, ready]);
+  }, [collapsed, desktop, pathname, ready]);
 
   if (!ready) return null;
 
