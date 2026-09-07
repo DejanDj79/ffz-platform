@@ -36,7 +36,7 @@
   border-radius: 12px;
   color: #73e7c7;
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: 0.08em;
   background: rgba(26, 59, 55, 0.38);
 }
@@ -100,7 +100,7 @@
 .transparency span {
   color: #7edfc4;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: 0.14em;
 }
 
@@ -156,7 +156,7 @@
 .emptyState span {
   color: #7edfc4;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: 0.14em;
 }
 
@@ -238,7 +238,7 @@
 .firmMoney span {
   display: block;
   color: #82969f;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.1em;
 }
@@ -365,7 +365,7 @@
 .funnel article span {
   display: block;
   color: #80939b;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.09em;
 }
@@ -436,7 +436,7 @@
   place-items: center;
   border-radius: 999px;
   font-style: normal;
-  font-weight: 800;
+  font-weight: 500;
 }
 
 .achieved i {
@@ -483,7 +483,7 @@
   background: #79e6c7;
   text-decoration: none;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: 0.08em;
   padding: 12px 15px;
   border-radius: 10px;
@@ -498,7 +498,7 @@
 
 .footer span {
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: 0.14em;
 }
 

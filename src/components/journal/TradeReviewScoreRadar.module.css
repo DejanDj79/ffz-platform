@@ -72,7 +72,7 @@
 
 .scoreAxisValue {
   fill: #b9c7ce;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
 }
 
@@ -101,7 +101,7 @@
 
 .scoreNumber span {
   color: #718591;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
 }
 
@@ -131,7 +131,7 @@
 .scoreStatus span,
 .scoreMeta small {
   color: #70838e;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .scoreMeta small {

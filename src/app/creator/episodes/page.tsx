@@ -230,13 +230,13 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
         )}
       </section>
 
-      <section className={styles.experimentNote}>
+      {/* <section className={styles.experimentNote}>
         <div>
           <strong>Weekly episode rule</strong>
           <p>Weekly episodes are generated live from Journal data. Every CLOSED trade in the week is included automatically in chronological order.</p>
         </div>
         <span>NO MANUAL INCLUDE / EXCLUDE</span>
-      </section>
+      </section> */}
     </main>
   );
 }

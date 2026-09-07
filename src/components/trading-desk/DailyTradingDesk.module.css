@@ -16,7 +16,7 @@
   border-radius: 9px;
   color: #ff9ca4;
   background: rgba(255,115,127,.055);
-  font-size: 13.5px;
+  font-size: 14px;
 }
 
 .errorBanner button {
@@ -75,7 +75,7 @@
 .instrumentSection > span {
   color: #81919c;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .09em;
 }
 
@@ -94,7 +94,7 @@
 
 .controlLabelRow > small {
   color: #667985;
-  font-size: 11px;
+  font-size: 13px;
   white-space: nowrap;
 }
 
@@ -109,7 +109,7 @@
   color: #d8e2e8;
   background: #0c171f;
   font: inherit;
-  font-size: 13.5px;
+  font-size: 14px;
   color-scheme: dark;
 }
 
@@ -144,7 +144,7 @@
 
 .sessionMeta small {
   color: #6f818c;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.35;
 }
 
@@ -157,8 +157,8 @@
   color: #9babb5;
   background: rgba(255,255,255,.018);
   font: inherit;
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 500;
   letter-spacing: .06em;
 }
 
@@ -223,8 +223,8 @@
 
 .capacityMetrics small {
   color: #667a86;
-  font-size: 10.5px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 500;
   letter-spacing: .07em;
 }
 
@@ -256,7 +256,7 @@
 .kpiCard > span {
   color: #81919c;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .09em;
 }
 
@@ -345,7 +345,7 @@
 .panelHeader span {
   color: #e0eaf0;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .11em;
 }
 
@@ -384,8 +384,8 @@
 
 .outcomeGrid span {
   color: #758792;
-  font-size: 11.5px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 500;
   letter-spacing: .08em;
 }
 
@@ -430,7 +430,7 @@
   color: #b6c5cd;
   background: rgba(255,255,255,.06);
   font-style: normal;
-  font-size: 10.5px;
+  font-size: 13px;
 }
 
 .instrumentChips small {
@@ -455,8 +455,8 @@
   color: #72ddf8;
   background: rgba(48,208,248,.035);
   text-decoration: none;
-  font-size: 11.5px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .rulesBody {
@@ -512,7 +512,7 @@
 
 .ruleSummary small {
   color: #7b6e8f;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .guardrailsBody {
@@ -531,7 +531,7 @@
 
 .guardrailRow:last-child { border-bottom: 0; }
 .guardrailRow span { color: #788a95; font-size: 12.5px; }
-.guardrailRow strong { color: #d5e0e6; font-size: 13.5px; text-align: right; }
+.guardrailRow strong { color: #d5e0e6; font-size: 14px; text-align: right; }
 
 .nextEvent {
   color: #ffb6bc;
@@ -564,10 +564,10 @@
 }
 
 .newsTime strong { color: #ff8e98; font-size: 13px; }
-.newsTime small { color: #667985; font-size: 11.5px; }
+.newsTime small { color: #667985; font-size: 14px; }
 .newsTitle strong { overflow: hidden; color: #d3dee4; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
-.newsTitle small { color: #6f818c; font-size: 11.5px; }
-.newsItem > span { color: #8a9aa4; font-size: 11.5px; font-weight: 800; }
+.newsTitle small { color: #6f818c; font-size: 14px; }
+.newsItem > span { color: #8a9aa4; font-size: 14px; font-weight: 500; }
 
 .newsEmpty {
   min-height: 100%;

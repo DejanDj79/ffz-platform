@@ -66,11 +66,11 @@
 }
 
 .authenticatedCalculator :global(.field-label) {
-  font-size: 13.5px;
+  font-size: 14px;
 }
 
 .authenticatedCalculator :global(.field-hint) {
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .authenticatedCalculator :global(.field-control) {
@@ -102,7 +102,7 @@
 
 .authenticatedCalculator :global(.input-note) {
   margin: 10px 5px 0;
-  font-size: 11.5px;
+  font-size: 14px;
   line-height: 1.35;
 }
 
@@ -128,7 +128,7 @@
   min-height: 43px;
   padding: 11px 11px 5px;
   gap: 6px;
-  font-size: 11.5px;
+  font-size: 12px;
 }
 
 .authenticatedCalculator :global(.result-title) svg,
@@ -140,7 +140,7 @@
 .authenticatedCalculator :global(.result-value) {
   min-height: 54px;
   padding: 3px 8px 0;
-  font-size: clamp(25px, 2vw, 34px);
+  font-size: clamp(25px, 2vw, 24px);
 }
 
 .authenticatedCalculator :global(.result-sub) {
@@ -152,12 +152,12 @@
 .authenticatedCalculator :global(.health-title) {
   padding: 11px 10px 3px;
   gap: 7px;
-  font-size: 11.5px;
+  font-size: 12px;
 }
 
 .authenticatedCalculator :global(.health-card) > strong {
   margin-top: 12px;
-  font-size: clamp(24px, 2vw, 32px);
+  font-size: clamp(24px, 2vw, 22px);
 }
 
 .authenticatedCalculator :global(.health-shield) {
@@ -177,7 +177,7 @@
 .authenticatedCalculator :global(.summary-header) {
   height: 39px;
   padding: 0 13px;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .authenticatedCalculator :global(.summary-header) svg {
@@ -204,18 +204,18 @@
 
 .authenticatedCalculator :global(.trade-summary) p {
   padding: 8px 12px;
-  font-size: 11.5px;
+  font-size: 14px;
   line-height: 1.35;
 }
 
 .authenticatedCalculator :global(.warnings) {
   margin: 9px 4px 0;
-  font-size: 11.5px;
+  font-size: 14px;
 }
 
 .authenticatedCalculator :global(.spec-note) {
   margin: 8px 5px 0;
-  font-size: 10.5px;
+  font-size: 13px;
 }
 
 /* Nine result tiles now form a balanced 3 × 3 matrix instead of a 4 + 4 + 1 grid. */

@@ -145,7 +145,7 @@ export function PropJourneyAnalytics() {
 
   return (
     <main className={styles.page}>
-      <section className={styles.toolbar}>
+      {/* <section className={styles.toolbar}>
         <div className={styles.toolbarContext}>
           <span>PROP JOURNEY</span>
           <small>Real cash economics from the Real Money Ledger.</small>
@@ -162,7 +162,7 @@ export function PropJourneyAnalytics() {
           )}
           <Link href="/ledger">OPEN LEDGER</Link>
         </div>
-      </section>
+      </section> */}
 
       {error && <div className={styles.inlineError}>{error}</div>}
 

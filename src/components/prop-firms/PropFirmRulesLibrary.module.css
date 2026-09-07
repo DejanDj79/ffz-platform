@@ -55,8 +55,8 @@
 
 .eyebrow,
 .customEyebrow {
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 500;
   letter-spacing: .14em;
 }
 
@@ -87,7 +87,7 @@
   text-decoration: none;
   font-family: inherit;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .035em;
 }
 
@@ -113,7 +113,7 @@ button.secondary,
 .actionButton {
   min-height: 32px;
   padding-inline: 10px;
-  font-size: 11.5px;
+  font-size: 14px;
 }
 
 .actionButton:disabled,
@@ -202,7 +202,7 @@ button.secondary,
   align-self: flex-start;
   padding: 5px 7px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 13px;
   white-space: nowrap;
 }
 
@@ -236,7 +236,7 @@ button.secondary,
   background: rgba(255, 255, 255, .025);
   font-family: inherit;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 500;
   cursor: pointer;
 }
 
@@ -263,7 +263,7 @@ button.secondary,
 .selectedPlan span {
   color: #748793;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .08em;
 }
 
@@ -321,7 +321,7 @@ button.secondary,
   padding: 10px 12px;
   color: #88dff2;
   font-size: 12.5px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .08em;
   cursor: pointer;
   list-style-position: inside;
@@ -352,7 +352,7 @@ button.secondary,
 .cardFooter .secondary {
   min-height: 32px;
   padding-inline: 10px;
-  font-size: 11.5px;
+  font-size: 14px;
 }
 
 .customEmpty {
@@ -414,7 +414,7 @@ button.secondary,
 .editorIdentity label > span,
 .editorGrid label > span {
   color: #9aaab5;
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -473,7 +473,7 @@ button.secondary,
 .editorSelectedTitle span {
   color: #7f909d;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .09em;
 }
 

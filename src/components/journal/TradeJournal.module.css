@@ -33,8 +33,8 @@
 .statCard > span {
   display: block;
   color: #6f818f;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: .12em;
 }
 
@@ -50,7 +50,7 @@
   display: block;
   margin-top: 7px;
   color: #687985;
-  font-size: 11.5px;
+  font-size: 14px;
 }
 
 .positive { color: #45dbad !important; }
@@ -81,10 +81,10 @@
 .panelTitle span {
   color: #dce7ed;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .13em;
 }
-.panelTitle small { color: #6c7d89; font-size: 11.5px; }
+.panelTitle small { color: #6c7d89; font-size: 14px; }
 
 .historyActions {
   display: flex;
@@ -100,8 +100,8 @@
   color: #06131a;
   background: linear-gradient(180deg, #48daf9, #2abde7);
   font: inherit;
-  font-size: 11.5px;
-  font-weight: 850;
+  font-size: 12px;
+  font-weight: 700;
   letter-spacing: .065em;
 }
 .newTradeButton:hover { filter: brightness(1.06); }
@@ -114,8 +114,8 @@
   color: #30d0f8;
   background: transparent;
   font: inherit;
-  font-size: 11.5px;
-  font-weight: 650;
+  font-size: 12px;
+  font-weight: 700;
   letter-spacing: .04em;
 }
 .textButton:hover { color: #72e3ff; }
@@ -153,7 +153,7 @@
   color: #eef4f8;
   background: linear-gradient(180deg, #101b24, #0b141c);
   font: inherit;
-  font-size: 11.5px;
+  font-size: 14px;
   transition: border-color .15s ease, box-shadow .15s ease;
 }
 .filters select { color-scheme: dark; }
@@ -173,8 +173,8 @@
   color: #83949f;
   background: rgba(8, 16, 23, .62);
   font: inherit;
-  font-size: 10.5px;
-  font-weight: 750;
+  font-size: 12px;
+  font-weight: 700;
   letter-spacing: .06em;
 }
 .clearFiltersButton:hover:not(:disabled) { color: #dbe7ed; border-color: rgba(48,208,248,.32); }
@@ -199,8 +199,8 @@
   border-bottom: 1px solid rgba(66, 87, 103, .36);
   color: #5f7280;
   background: rgba(255,255,255,.012);
-  font-size: 10.5px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: .09em;
   white-space: nowrap;
 }
@@ -217,7 +217,7 @@
 .table td strong,
 .table td small { display: block; }
 .table td strong { color: #dce6ec; font-size: 12.5px; }
-.table td small { margin-top: 3px; color: #60727f; font-size: 10.5px; }
+.table td small { margin-top: 3px; color: #60727f; font-size: 13px; }
 
 .challengeCell {
   display: block;
@@ -237,8 +237,8 @@
   padding: 0 7px;
   border: 1px solid;
   border-radius: 5px;
-  font-size: 10px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 500;
 }
 .longBadge { color: #51ddb2; border-color: rgba(69,219,173,.26); background: rgba(69,219,173,.065); }
 .shortBadge { color: #ff8b94; border-color: rgba(255,115,127,.26); background: rgba(255,115,127,.065); }
@@ -255,7 +255,7 @@
   color: #788a96;
   background: transparent;
   font: inherit;
-  font-size: 11px;
+  font-size: 13px;
 }
 .rowActions button:hover:nth-child(1),
 .rowActions button:hover:nth-child(2) { color: #30d0f8; }
@@ -284,7 +284,7 @@
 .formGrid label > span,
 .directionField > span {
   color: #7e8e99;
-  font-size: 11.5px;
+  font-size: 14px;
   font-weight: 600;
 }
 .fieldWide { grid-column: 1 / -1; }
@@ -327,8 +327,8 @@
   color: #687985;
   background: transparent;
   font: inherit;
-  font-size: 11.5px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 500;
 }
 .directionToggle .activeLong { color: #51ddb2; background: rgba(69, 219, 173, .10); }
 .directionToggle .activeShort { color: #ff8b94; background: rgba(255, 115, 127, .10); }
@@ -352,8 +352,8 @@
   border-radius: 7px;
   cursor: pointer;
   font: inherit;
-  font-size: 11.5px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 500;
   letter-spacing: .08em;
 }
 .primaryButton {
@@ -372,8 +372,8 @@
 .screenshotField { min-width: 0; margin-top: 2px; }
 .screenshotHeader { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .screenshotHeader > div { display: flex; align-items: center; gap: 8px; }
-.screenshotHeader span { color: #7e8e99; font-size: 11.5px; font-weight: 600; }
-.screenshotHeader small { color: #61737f; font-size: 10.5px; }
+.screenshotHeader span { color: #7e8e99; font-size: 14px; font-weight: 600; }
+.screenshotHeader small { color: #61737f; font-size: 13px; }
 .fileInput { display: none; }
 
 .dropZone {
@@ -388,8 +388,8 @@
   border-radius: 8px;
   background: linear-gradient(145deg, rgba(48, 208, 248, .025), rgba(160, 112, 232, .018));
 }
-.dropZone > strong { color: #aab8c1; font-size: 11.5px; }
-.dropZone > span { color: #556873; font-size: 10px; }
+.dropZone > strong { color: #aab8c1; font-size: 14px; }
+.dropZone > span { color: #556873; font-size: 12px; }
 .dropZone > button {
   min-width: 112px;
   min-height: 31px;
@@ -400,12 +400,12 @@
   color: #30d0f8;
   background: rgba(48,208,248,.06);
   font: inherit;
-  font-size: 10.5px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 500;
   letter-spacing: .07em;
 }
 .dropZone > button:hover { border-color: rgba(48,208,248,.65); background: rgba(48,208,248,.09); }
-.dropZone > small { color: #52646f; font-size: 9.8px; }
+.dropZone > small { color: #52646f; font-size: 12px; }
 
 .thumbnailGrid {
   margin-top: 9px;
@@ -444,7 +444,7 @@
   background: rgba(4,16,23,.84);
   font-size: 8.5px;
   font-style: normal;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .08em;
 }
 .thumbnailCard figcaption { min-height: 29px; padding: 5px 6px; display: flex; align-items: center; gap: 6px; }
@@ -512,12 +512,12 @@
 .editorModalHeader > div { display: grid; gap: 3px; }
 .editorModalHeader span {
   color: #30d0f8;
-  font-size: 10.5px;
-  font-weight: 850;
+  font-size: 13px;
+  font-weight: 500;
   letter-spacing: .13em;
 }
 .editorModalHeader strong { color: #e6eef2; font-size: 18px; font-weight: 680; }
-.editorModalHeader small { color: #687b87; font-size: 11px; }
+.editorModalHeader small { color: #687b87; font-size: 13px; }
 .editorModalHeader > button {
   width: 34px;
   height: 34px;
@@ -551,8 +551,8 @@
 .formSectionTitle {
   margin-bottom: 10px;
   color: #687d89;
-  font-size: 10.5px;
-  font-weight: 850;
+  font-size: 13px;
+  font-weight: 500;
   letter-spacing: .14em;
 }
 .executionGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -598,8 +598,8 @@
 .tradeScreenshotsTitle > span,
 .tradeNarrative span {
   color: #667b87;
-  font-size: 10px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: .12em;
 }
 .tradeModal > header strong { color: #e6eef2; font-size: 19px; letter-spacing: -.01em; }
@@ -650,7 +650,7 @@
   border-radius: 7px;
   background: rgba(255,255,255,.01);
 }
-.tradeNarrative p { margin: 4px 0 0; color: #a9b6be; font-size: 11.5px; line-height: 1.55; white-space: pre-wrap; }
+.tradeNarrative p { margin: 4px 0 0; color: #a9b6be; font-size: 14px; line-height: 1.55; white-space: pre-wrap; }
 .tradeScreenshots { margin-top: 13px; }
 .tradeScreenshotsTitle { min-height: 30px; display: flex; align-items: center; gap: 8px; }
 .tradeScreenshotsTitle small {
@@ -697,7 +697,7 @@
   border: 1px dashed rgba(66,87,103,.3);
   border-radius: 7px;
   color: #5f727e;
-  font-size: 11px;
+  font-size: 13px;
 }
 .tradeModal > footer {
   min-height: 56px;
@@ -716,8 +716,8 @@
   color: #30d0f8;
   background: rgba(48,208,248,.05);
   font: inherit;
-  font-size: 10.5px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 500;
   letter-spacing: .07em;
 }
 
@@ -778,11 +778,11 @@
   min-width: 0;
   overflow: hidden;
   color: #9dacb5;
-  font-size: 10.5px;
+  font-size: 13px;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.lightboxCaption strong { flex: 0 0 auto; color: #30d0f8; font-size: 10.5px; }
+.lightboxCaption strong { flex: 0 0 auto; color: #30d0f8; font-size: 13px; }
 
 @media (max-width: 1250px) {
   .statGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }

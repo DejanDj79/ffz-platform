@@ -58,8 +58,8 @@
 .highlight > span,
 .postLossMetrics span {
   color: #72848f;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: .065em;
 }
 
@@ -72,7 +72,7 @@
 .weekToolbar small,
 .panelHeader small {
   color: #6d7f8a;
-  font-size: 13px;
+  font-size: 11px;
   line-height: 1.4;
 }
 
@@ -132,8 +132,8 @@
   border-left: 1px solid rgba(72, 94, 110, .32);
   border-right: 1px solid rgba(72, 94, 110, .32);
   color: #9fb0ba;
-  font-size: 12.5px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: .05em;
 }
 
@@ -168,8 +168,8 @@
 
 .metric small {
   color: #677984;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 500;
   letter-spacing: .05em;
 }
 
@@ -284,7 +284,7 @@
   display: grid;
   place-items: center;
   color: #667985;
-  font-size: 13.5px;
+  font-size: 14px;
   text-align: center;
 }
 
@@ -425,7 +425,7 @@
 .finding p {
   margin: 0;
   color: #9cacb5;
-  font-size: 13.5px;
+  font-size: 14px;
   line-height: 1.5;
 }
 

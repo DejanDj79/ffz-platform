@@ -237,7 +237,7 @@
   color: #f4f5f6;
 
   font-size: calc(clamp(8px, 0.85vw, 15px) + 2px);
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: 0.08em;
 }
 
@@ -285,8 +285,8 @@
 .summaryTile span {
   display: block;
   color: currentColor;
-  font-size: calc(clamp(8px, .85vw, 15px) + 2px);
-  font-weight: 800;
+  font-size: calc(clamp(8px, 0.85vw, 18px) + 2px);
+  font-weight: 500;
   letter-spacing: .03em;
   white-space: nowrap;
 }
@@ -296,7 +296,7 @@
   margin-top: 6%;
   overflow: hidden;
   color: #f1f2f3;
-  font-size: calc(clamp(13px, 1.25vw, 28px) + 2px);
+  font-size: calc(clamp(13px, 0.65vw, 16px) + 2px);
   line-height: 1;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -379,7 +379,7 @@
 .panel > header strong {
   color: currentColor;
   font-size: calc(clamp(11px, 1.35vw, 24px) + 2px);
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .02em;
 }
 
@@ -747,7 +747,7 @@
 .compactProgress span {
   color: #667c87;
   font-size: 9px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: .1em;
 }
 
@@ -805,7 +805,7 @@
 
 .compactProgress strong {
   color: #d9e4e9;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .compactProgress > div:last-child {
