@@ -301,8 +301,8 @@ export function DailyTradingDeskFunded() {
       </section>
 
       <section className={styles.kpiGrid}>
-        <article className={styles.kpiCard}><span>TODAY P&amp;L</span><strong className={daySummary.netPnl > 0 ? styles.positive : daySummary.netPnl < 0 ? styles.negative : ""}>{signedMoney(daySummary.netPnl)}</strong><small>Closed Journal trades</small></article>
-        <article className={styles.kpiCard}><span>TRADES TODAY</span><strong>{daySummary.totalTrades}</strong><small>{daySummary.closedTrades} closed · {daySummary.openTrades} open</small></article>
+        <article className={styles.kpiCard}><span>TODAY P&amp;L</span><strong className={daySummary.netPnl > 0 ? styles.positive : daySummary.netPnl < 0 ? styles.negative : ""}>{signedMoney(daySummary.netPnl)}</strong><small>Completed Journal trades</small></article>
+        <article className={styles.kpiCard}><span>TRADES TODAY</span><strong>{daySummary.closedTrades}</strong><small>Completed Journal trades</small></article>
         <article className={styles.kpiCard}><span>REMAINING DD</span><strong>{challengeMetrics ? money.format(challengeMetrics.remainingDrawdown) : "—"}</strong><small>{selectedChallenge ? selectedChallenge.name : "No single challenge selected"}</small></article>
         <article className={styles.kpiCard}><span>{fundedSummary?.isFunded ? "PAYOUT STATUS" : "DAILY LOSS BUFFER"}</span><strong>{fundedSummary?.isFunded ? (fundedSummary.eligible ? "ELIGIBLE" : `${fundedSummary.readinessPct}%`) : (challengeDailyLossRemaining == null ? "NO RULE" : money.format(challengeDailyLossRemaining))}</strong><small>{fundedSummary?.isFunded ? `${money.format(fundedSummary.estimatedTraderPayout)} est. take-home` : (selectedChallenge?.dailyLossLimit ? `${money.format(selectedChallenge.dailyLossLimit)} firm limit` : "No firm daily-loss rule")}</small></article>
       </section>
@@ -339,13 +339,13 @@ export function DailyTradingDeskFunded() {
 
         <div className={styles.leftColumn}>
           <article className={styles.panel}>
-            <header className={styles.panelHeader}><div><span>TODAY AT A GLANCE</span><small>Secondary session detail from Journal trades for the selected account.</small></div></header>
+            <header className={styles.panelHeader}><div><span>TODAY AT A GLANCE</span><small>Secondary session detail from completed Journal trades for the selected account.</small></div></header>
             <div className={styles.todayBody}>
               <div className={styles.outcomeGrid}>
                 <div><span>WINS</span><strong className={styles.positive}>{daySummary.wins}</strong></div>
                 <div><span>LOSSES</span><strong className={styles.negative}>{daySummary.losses}</strong></div>
                 <div><span>BREAKEVEN</span><strong>{daySummary.breakeven}</strong></div>
-                <div><span>OPEN</span><strong>{daySummary.openTrades}</strong></div>
+                <div><span>COMPLETED</span><strong>{daySummary.closedTrades}</strong></div>
               </div>
               <div className={styles.instrumentSection}>
                 <span>INSTRUMENTS TRADED TODAY</span>
