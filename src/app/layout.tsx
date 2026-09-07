@@ -13,7 +13,7 @@ const leagueSpartan = League_Spartan({
 
 export const metadata: Metadata = {
   title: "Futures From Zero",
-  icons: { icon: { url: "/logo-small.ico", type: "image/x-icon" } },
+  icons: { icon: { url: "/ffz-favicon.svg", type: "image/svg+xml", sizes: "any" } },
   description: "Futures From Zero trading tools, challenge tracking and journal.",
 };
 
