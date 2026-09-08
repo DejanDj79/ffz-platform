@@ -2,7 +2,12 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
 import { canAccessCreatorTools } from "@/lib/auth/roles";
 import { buildEpisodeSnapshot } from "@/lib/creator/episode-builder";
+import {
+  getCreatorEpisode,
+  listCreatorEpisodes,
+} from "@/lib/creator/episodes-repository";
 import { CopyEpisodeBrief } from "./CopyEpisodeBrief";
+import { EpisodeDraftWorkspace } from "./EpisodeDraftWorkspace";
 import styles from "./EpisodeBuilder.module.css";
 
 type SearchParams = Promise<{
@@ -10,6 +15,7 @@ type SearchParams = Promise<{
   to?: string;
   challenge?: string;
   source?: string;
+  episode?: string;
 }>;
 
 function dateInputValue(date: Date) {
@@ -25,6 +31,24 @@ function periodLabel(from: Date, to: Date) {
   });
 
   return `${formatter.format(from)} → ${formatter.format(to)}`;
+}
+
+function episodeTitle(from: Date, to: Date, weekly: boolean) {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+  const sameYear = from.getUTCFullYear() === to.getUTCFullYear();
+  const fromLabel = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    ...(sameYear ? {} : { year: "numeric" as const }),
+    timeZone: "UTC",
+  }).format(from);
+  const toLabel = formatter.format(to);
+  return `${weekly ? "FFZ Weekly Episode" : "FFZ Episode"} · ${fromLabel}–${toLabel}`;
 }
 
 function parseDate(value: string | undefined, fallback: Date, endOfDay = false) {
@@ -64,11 +88,19 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
   const fromWeeklyReview = params.source === "weekly-review";
   const challengeId = fromWeeklyReview ? null : params.challenge || null;
 
-  const snapshot = await buildEpisodeSnapshot(user.id, {
-    from: safeFrom,
-    to: safeTo,
-    challengeId,
-  });
+  const [snapshot, recentEpisodes, requestedEpisode] = await Promise.all([
+    buildEpisodeSnapshot(user.id, {
+      from: safeFrom,
+      to: safeTo,
+      challengeId,
+    }),
+    listCreatorEpisodes(user.id, 6),
+    params.episode ? getCreatorEpisode(user.id, params.episode) : Promise.resolve(null),
+  ]);
+
+  const savedEpisodes = requestedEpisode && !recentEpisodes.some((episode) => episode.id === requestedEpisode.id)
+    ? [requestedEpisode, ...recentEpisodes].slice(0, 7)
+    : recentEpisodes;
 
   const challengePnl = snapshot.challenge
     ? snapshot.challenge.currentBalance - snapshot.challenge.startingBalance
@@ -123,6 +155,19 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
 
         <button type="submit">{fromWeeklyReview ? "REFRESH WEEK" : "BUILD SNAPSHOT"}</button>
       </form>
+
+      <EpisodeDraftWorkspace
+        episodes={savedEpisodes}
+        activeEpisodeId={requestedEpisode?.id ?? null}
+        createInput={{
+          challengeId,
+          title: requestedEpisode?.title ?? episodeTitle(safeFrom, safeTo, fromWeeklyReview),
+          source: fromWeeklyReview ? "WEEKLY_REVIEW" : "BUILDER",
+          periodFrom: safeFrom.toISOString(),
+          periodTo: safeTo.toISOString(),
+          brief: snapshot.brief,
+        }}
+      />
 
       <section className={styles.metricGrid}>
         <article className={styles.metricCard}>
