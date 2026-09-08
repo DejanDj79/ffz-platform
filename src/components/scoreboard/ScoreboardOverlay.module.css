@@ -348,7 +348,7 @@
 
 .performanceMetric span {
   color: #7f8d99;
-  font-size: calc(clamp(6px, .55vw, 10px) + 1px);
+  font-size: calc(clamp(6px, .55vw, 10px) + 3px);
   font-weight: 600;
   letter-spacing: .08em;
   white-space: nowrap;
@@ -370,6 +370,15 @@
 .calendarPanel,
 .notesPanel {
   padding-top: 1.8%;
+}
+
+.notesPanel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.notesPanel > header {
+  min-height: 0;
 }
 
 .calendar {
@@ -454,12 +463,14 @@
 .legendNoTrade { background: #687783; }
 
 .notes {
-  margin-top: 2.2%;
+  min-height: 0;
+  margin-top: 2%;
+  display: grid;
+  grid-template-rows: repeat(4, minmax(0, 1fr));
 }
 
 .notes > div {
-  height: 20%;
-  min-height: 24px;
+  min-height: 0;
   display: flex;
   align-items: center;
   border-bottom: 1px solid rgba(57, 77, 92, .34);
@@ -468,17 +479,18 @@
 .notes span {
   overflow: hidden;
   color: #aab5be;
-  font-size: calc(clamp(6px, .58vw, 10px) + 1px);
+  font-size: calc(clamp(6px, .58vw, 10px) + 3px);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 .realMoneyMini {
-  margin-top: 4%;
-  padding-top: 3.5%;
+  margin-top: 2.2%;
+  padding-top: 2.4%;
   display: grid;
   grid-template-columns: 1fr auto;
-  row-gap: 7px;
+  row-gap: clamp(3px, .35vw, 6px);
+  align-self: end;
   border-top: 1px solid rgba(57, 77, 92, .34);
 }
 
