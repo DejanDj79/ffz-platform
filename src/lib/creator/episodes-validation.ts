@@ -22,3 +22,11 @@ export const creatorEpisodeCreateSchema = z.object({
     });
   }
 });
+
+export const creatorEpisodeUpdateSchema = z.object({
+  storyAngle: z.string().trim().max(1000).nullable().optional(),
+  featuredTradeIds: z.array(z.string().uuid()).max(20).optional(),
+}).refine(
+  (value) => value.storyAngle !== undefined || value.featuredTradeIds !== undefined,
+  "At least one episode field must be provided.",
+);
