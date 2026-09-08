@@ -15,6 +15,10 @@ function durationLabel(minutes: number) {
   return seconds === 0 ? `${mins}:00` : `${mins}:${String(seconds).padStart(2, "0")}`;
 }
 
+function countTalkingPoints(value: string) {
+  return (value.match(/^\[TALKING POINT:/gm) ?? []).length;
+}
+
 export function ScriptBuilder({
   episode,
   draft,
@@ -32,9 +36,10 @@ export function ScriptBuilder({
     () => script.trim() ? script.trim().split(/\s+/).length : 0,
     [script],
   );
+  const talkingPoints = useMemo(() => countTalkingPoints(script), [script]);
   const editedMinutes = useMemo(
-    () => Math.round((wordCount / 125) * 10) / 10,
-    [wordCount],
+    () => Math.round(((wordCount / 125) + talkingPoints * 0.65) * 10) / 10,
+    [wordCount, talkingPoints],
   );
 
   function resetToGenerated() {
@@ -79,14 +84,14 @@ export function ScriptBuilder({
           <span>SCRIPT BUILDER</span>
           <h2>Turn the story into a recording draft</h2>
           <p>
-            FFZ now uses the journal context behind the episode, slows down on only the strongest key trades,
-            and estimates timing from the actual spoken words instead of a fixed section template.
+            FFZ keeps every trade chronological, isolates only the strongest key trades and adds guided
+            talking points where the chart or your memory must supply context that the database cannot know.
           </p>
         </div>
         <div className={styles.scriptState}>
           <span>GENERATED LENGTH</span>
           <strong>~{draft.totalMinutes.toFixed(1)} MIN</strong>
-          <small>WORD-BASED · CUE-ADJUSTED</small>
+          <small>WORDS + GUIDED TALKING POINTS</small>
         </div>
       </header>
 
@@ -111,6 +116,7 @@ export function ScriptBuilder({
           </div>
           <div className={styles.editorStats}>
             <span>{wordCount} WORDS</span>
+            <span>{talkingPoints} TALKING POINTS</span>
             <span>~{editedMinutes.toFixed(1)} MIN EDITED</span>
             <span>{draft.sections.length} SECTIONS</span>
           </div>
@@ -134,7 +140,7 @@ export function ScriptBuilder({
               RESET TO GENERATED
             </button>
             <p className={error ? styles.error : styles.message}>
-              {error || message || "All closed trades stay chronological. At most three trades receive key-trade emphasis."}
+              {error || message || "Talking points are prompts for your real explanation; FFZ does not invent the answer."}
             </p>
           </div>
           <button
