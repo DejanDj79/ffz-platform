@@ -15,6 +15,7 @@ export default defineConfig({
     "./src/db/user-plans-schema.ts",
     "./src/db/founder-slots-schema.ts",
     "./src/db/weekly-focus-schema.ts",
+    "./src/db/creator-episodes-schema.ts",
   ],
   out: "./drizzle",
   dialect: "postgresql",
