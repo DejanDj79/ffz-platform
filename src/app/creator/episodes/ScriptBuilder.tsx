@@ -32,10 +32,14 @@ export function ScriptBuilder({
     () => script.trim() ? script.trim().split(/\s+/).length : 0,
     [script],
   );
+  const editedMinutes = useMemo(
+    () => Math.round((wordCount / 125) * 10) / 10,
+    [wordCount],
+  );
 
   function resetToGenerated() {
     setScript(draft.text);
-    setMessage("Generated FFZ draft restored. Save when you are ready.");
+    setMessage("Generated FFZ recording draft restored. Save when you are ready.");
     setError(null);
   }
 
@@ -73,16 +77,16 @@ export function ScriptBuilder({
       <header className={styles.header}>
         <div>
           <span>SCRIPT BUILDER</span>
-          <h2>Turn the story into a recording plan</h2>
+          <h2>Turn the story into a recording draft</h2>
           <p>
-            This is a rule-based first draft built only from verified FFZ episode data. Keep the facts,
-            rewrite the voice until it sounds natural, then save it as the recording script.
+            FFZ now uses the journal context behind the episode, slows down on only the strongest key trades,
+            and estimates timing from the actual spoken words instead of a fixed section template.
           </p>
         </div>
         <div className={styles.scriptState}>
-          <span>PLANNED LENGTH</span>
+          <span>GENERATED LENGTH</span>
           <strong>~{draft.totalMinutes.toFixed(1)} MIN</strong>
-          <small>{episode.script ? "SAVED SCRIPT" : "GENERATED FIRST DRAFT"}</small>
+          <small>WORD-BASED · CUE-ADJUSTED</small>
         </div>
       </header>
 
@@ -107,6 +111,7 @@ export function ScriptBuilder({
           </div>
           <div className={styles.editorStats}>
             <span>{wordCount} WORDS</span>
+            <span>~{editedMinutes.toFixed(1)} MIN EDITED</span>
             <span>{draft.sections.length} SECTIONS</span>
           </div>
         </div>
@@ -129,7 +134,7 @@ export function ScriptBuilder({
               RESET TO GENERATED
             </button>
             <p className={error ? styles.error : styles.message}>
-              {error || message || "All closed trades remain in chronological order. Key trades only receive more emphasis."}
+              {error || message || "All closed trades stay chronological. At most three trades receive key-trade emphasis."}
             </p>
           </div>
           <button
