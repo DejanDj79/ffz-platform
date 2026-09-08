@@ -35,6 +35,10 @@ function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
 }
 
+const MIN_SCROLL_SPEED = 2;
+const MAX_SCROLL_SPEED = 60;
+const SCROLL_SPEED_STEP = 2;
+
 export function RecordingMode({ episode }: { episode: CreatorEpisodeApiModel }) {
   const router = useRouter();
   const stageRef = useRef<HTMLDivElement | null>(null);
@@ -44,7 +48,7 @@ export function RecordingMode({ episode }: { episode: CreatorEpisodeApiModel }) 
   const playingRef = useRef(false);
 
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(28);
+  const [speed, setSpeed] = useState(12);
   const [fontSize, setFontSize] = useState(34);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -95,12 +99,12 @@ export function RecordingMode({ episode }: { episode: CreatorEpisodeApiModel }) 
       }
       if (event.key === "F14") {
         event.preventDefault();
-        setSpeed((value) => clamp(value - 4, 8, 80));
+        setSpeed((value) => clamp(value - SCROLL_SPEED_STEP, MIN_SCROLL_SPEED, MAX_SCROLL_SPEED));
         return;
       }
       if (event.key === "F15") {
         event.preventDefault();
-        setSpeed((value) => clamp(value + 4, 8, 80));
+        setSpeed((value) => clamp(value + SCROLL_SPEED_STEP, MIN_SCROLL_SPEED, MAX_SCROLL_SPEED));
         return;
       }
       if (event.key === "F16") {
@@ -188,17 +192,15 @@ export function RecordingMode({ episode }: { episode: CreatorEpisodeApiModel }) 
           <button type="button" onClick={() => setPlaying((value) => !value)}>
             {playing ? "PAUSE" : "PLAY"}
           </button>
-          <button type="button" onClick={() => setSpeed((value) => clamp(value - 4, 8, 80))}>SLOWER</button>
+          <button type="button" onClick={() => setSpeed((value) => clamp(value - SCROLL_SPEED_STEP, MIN_SCROLL_SPEED, MAX_SCROLL_SPEED))}>SLOWER</button>
           <span>{speed} PX/S</span>
-          <button type="button" onClick={() => setSpeed((value) => clamp(value + 4, 8, 80))}>FASTER</button>
+          <button type="button" onClick={() => setSpeed((value) => clamp(value + SCROLL_SPEED_STEP, MIN_SCROLL_SPEED, MAX_SCROLL_SPEED))}>FASTER</button>
           <button type="button" onClick={() => setFontSize((value) => clamp(value - 2, 22, 54))}>A−</button>
           <span>{fontSize} PX</span>
           <button type="button" onClick={() => setFontSize((value) => clamp(value + 2, 22, 54))}>A+</button>
           <button type="button" onClick={restart}>RESTART</button>
           <button type="button" onClick={() => void toggleFullscreen()}>FULLSCREEN</button>
         </div>
-
-        <div className={styles.readingGuide} aria-hidden="true" />
 
         <div ref={scrollerRef} className={styles.scroller}>
           <div className={styles.script} style={{ "--record-font-size": `${fontSize}px` } as React.CSSProperties}>
