@@ -1,0 +1,199 @@
+.workspace {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(360px, .85fr);
+  border: 1px solid rgba(62, 82, 98, .58);
+  border-radius: 11px;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(13, 24, 34, .94), rgba(8, 16, 23, .96));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .018);
+}
+
+.saveArea,
+.savedArea {
+  min-width: 0;
+  padding: 14px;
+}
+
+.savedArea {
+  border-left: 1px solid rgba(62, 82, 98, .4);
+}
+
+.heading {
+  display: grid;
+  gap: 4px;
+}
+
+.heading > span,
+.savedHeader > span,
+.saveControls label > span {
+  color: #71838f;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: .09em;
+}
+
+.heading > strong {
+  color: #edf3f7;
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.heading > small,
+.savedHeader > small {
+  color: #71828e;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.saveControls {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.saveControls label {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.saveControls input {
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid #34434f;
+  border-radius: 7px;
+  outline: none;
+  color: #eff4f8;
+  background: linear-gradient(180deg, #101b24, #0b141c);
+  font: inherit;
+  font-size: 12.5px;
+}
+
+.saveControls input:focus {
+  border-color: #30d0f8;
+  box-shadow: 0 0 0 2px rgba(48,208,248,.07);
+}
+
+.saveControls button {
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid rgba(48,208,248,.65);
+  border-radius: 7px;
+  cursor: pointer;
+  color: #031018;
+  background: linear-gradient(180deg, #45dafc, #29bce9);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .055em;
+  white-space: nowrap;
+}
+
+.saveControls button:disabled {
+  cursor: default;
+  opacity: .55;
+}
+
+.savedHeader {
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid rgba(62,82,98,.36);
+}
+
+.draftList {
+  max-height: 132px;
+  margin-top: 8px;
+  display: grid;
+  gap: 5px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #50616d transparent;
+}
+
+.draftRow {
+  min-width: 0;
+  min-height: 50px;
+  padding: 7px 9px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid rgba(65,86,102,.34);
+  border-radius: 7px;
+  color: inherit;
+  background: rgba(8,16,23,.46);
+  text-decoration: none;
+}
+
+.draftRow:hover,
+.activeDraft {
+  border-color: rgba(48,208,248,.42);
+  background: rgba(48,208,248,.035);
+}
+
+.draftRow > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.draftRow strong {
+  overflow: hidden;
+  color: #dce5ea;
+  font-size: 12.5px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.draftRow small {
+  color: #71828e;
+  font-size: 10.5px;
+}
+
+.draftRow > span {
+  flex: 0 0 auto;
+  color: #a98cdf;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: .08em;
+}
+
+.message,
+.error,
+.empty {
+  margin: 8px 0 0;
+  font-size: 11px;
+}
+
+.message { color: #58d6a0; }
+.error { color: #ff7f91; }
+.empty { color: #71808b; }
+
+@media (max-width: 1050px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .savedArea {
+    border-left: 0;
+    border-top: 1px solid rgba(62, 82, 98, .4);
+  }
+}
+
+@media (max-width: 700px) {
+  .saveControls {
+    grid-template-columns: 1fr;
+  }
+
+  .saveControls button {
+    width: 100%;
+  }
+}
