@@ -6,19 +6,23 @@ export function EpisodeWorkflowNav({
   storyHref,
   scriptHref,
   recordHref,
+  publishHref,
   activeStep,
   storySaved,
   scriptSaved,
   recorded,
+  published,
 }: {
   briefHref: string;
   storyHref: string;
   scriptHref: string;
   recordHref: string;
-  activeStep: "brief" | "story" | "script" | "record";
+  publishHref: string;
+  activeStep: "brief" | "story" | "script" | "record" | "publish";
   storySaved: boolean;
   scriptSaved: boolean;
   recorded: boolean;
+  published: boolean;
 }) {
   return (
     <nav className={styles.workflow} aria-label="Episode workflow">
@@ -57,11 +61,19 @@ export function EpisodeWorkflowNav({
           <small>SAVE SCRIPT</small>
         </div>
       )}
-      <div className={styles.locked}>
-        <span>05</span>
-        <strong>PUBLISH</strong>
-        {recorded && <small>NEXT</small>}
-      </div>
+      {recorded ? (
+        <Link className={activeStep === "publish" ? styles.active : ""} href={publishHref}>
+          <span>05</span>
+          <strong>PUBLISH</strong>
+          {published ? <b>PUBLISHED</b> : <small>NEXT</small>}
+        </Link>
+      ) : (
+        <div className={styles.locked}>
+          <span>05</span>
+          <strong>PUBLISH</strong>
+          <small>MARK RECORDED</small>
+        </div>
+      )}
     </nav>
   );
 }
