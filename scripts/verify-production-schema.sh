@@ -20,6 +20,7 @@ EXPECTED=(
   trade_attachments
   ledger_entries
   scoreboard_settings
+  creator_episodes
   economic_calendar_cache
   custom_rule_presets
   trading_guardrail_settings
