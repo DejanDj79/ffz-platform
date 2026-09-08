@@ -57,6 +57,13 @@
       "when": 1788859500000,
       "tag": "0007_creator_episodes",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1788867000000,
+      "tag": "0008_creator_publish_fields",
+      "breakpoints": true
     }
   ]
 }
