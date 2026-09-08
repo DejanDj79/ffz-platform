@@ -7,11 +7,13 @@ import {
   listCreatorEpisodes,
 } from "@/lib/creator/episodes-repository";
 import type { CreatorEpisodeApiModel } from "@/lib/creator/episodes-types";
+import { buildCreatorPublishDraft } from "@/lib/creator/publish-builder";
 import { buildCreatorScriptDraft } from "@/lib/creator/script-builder";
 import { buildCreatorStorySuggestions } from "@/lib/creator/story-builder";
 import { CopyEpisodeBrief } from "./CopyEpisodeBrief";
 import { EpisodeDraftWorkspace } from "./EpisodeDraftWorkspace";
 import { EpisodeWorkflowNav } from "./EpisodeWorkflowNav";
+import { PublishWorkspace } from "./PublishWorkspace";
 import { RecordingMode } from "./RecordingMode";
 import { ScriptBuilder } from "./ScriptBuilder";
 import { StoryBuilder } from "./StoryBuilder";
@@ -26,7 +28,7 @@ type SearchParams = Promise<{
   step?: string;
 }>;
 
-type EpisodeStep = "brief" | "story" | "script" | "record";
+type EpisodeStep = "brief" | "story" | "script" | "record" | "publish";
 
 function dateInputValue(date: Date) {
   return date.toISOString().slice(0, 10);
@@ -91,6 +93,10 @@ function episodeStepHref(episode: CreatorEpisodeApiModel, step: EpisodeStep) {
   return `/creator/episodes?${params.toString()}`;
 }
 
+function hasRecordedStatus(status: CreatorEpisodeApiModel["status"]) {
+  return status === "RECORDED" || status === "EDITED" || status === "PUBLISHED";
+}
+
 export default async function CreatorEpisodesPage({ searchParams }: { searchParams: SearchParams }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/creator/episodes");
@@ -127,7 +133,9 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
       ? "script"
       : requestedEpisode && params.step === "record" && requestedEpisode.script
         ? "record"
-        : "brief";
+        : requestedEpisode && params.step === "publish" && requestedEpisode.script && hasRecordedStatus(requestedEpisode.status)
+          ? "publish"
+          : "brief";
   const filters = { from: safeFrom, to: safeTo, challengeId };
 
   const [snapshot, recentEpisodes, storySuggestions] = await Promise.all([
@@ -145,6 +153,9 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
   const scriptDraft = activeStep === "script" && requestedEpisode
     ? buildCreatorScriptDraft(requestedEpisode, snapshot, storySuggestions)
     : null;
+  const publishDraft = activeStep === "publish" && requestedEpisode
+    ? buildCreatorPublishDraft(requestedEpisode, snapshot)
+    : null;
 
   const challengePnl = snapshot.challenge
     ? snapshot.challenge.currentBalance - snapshot.challenge.startingBalance
@@ -152,6 +163,7 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
   const targetProgress = snapshot.challenge && snapshot.challenge.profitTarget > 0 && challengePnl != null
     ? Math.max(0, Math.min(100, (challengePnl / snapshot.challenge.profitTarget) * 100))
     : null;
+  const recorded = requestedEpisode ? hasRecordedStatus(requestedEpisode.status) : false;
 
   return (
     <main className={styles.page}>
@@ -220,10 +232,12 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
           storyHref={episodeStepHref(requestedEpisode, "story")}
           scriptHref={episodeStepHref(requestedEpisode, "script")}
           recordHref={episodeStepHref(requestedEpisode, "record")}
+          publishHref={episodeStepHref(requestedEpisode, "publish")}
           activeStep={activeStep}
           storySaved={Boolean(requestedEpisode.storyAngle)}
           scriptSaved={Boolean(requestedEpisode.script)}
-          recorded={requestedEpisode.status === "RECORDED"}
+          recorded={recorded}
+          published={requestedEpisode.status === "PUBLISHED"}
         />
       )}
 
@@ -233,6 +247,8 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
         <ScriptBuilder episode={requestedEpisode} draft={scriptDraft} />
       ) : activeStep === "record" && requestedEpisode && requestedEpisode.script ? (
         <RecordingMode episode={requestedEpisode} />
+      ) : activeStep === "publish" && requestedEpisode && publishDraft ? (
+        <PublishWorkspace episode={requestedEpisode} draft={publishDraft} />
       ) : (
         <>
           <section className={styles.metricGrid}>
