@@ -59,6 +59,9 @@ export function RecordingMode({ episode }: { episode: CreatorEpisodeApiModel }) 
     () => blocks.filter((block) => block.type === "talking-point").length,
     [blocks],
   );
+  const alreadyRecorded = episode.status === "RECORDED"
+    || episode.status === "EDITED"
+    || episode.status === "PUBLISHED";
 
   useEffect(() => {
     playingRef.current = playing;
@@ -165,7 +168,7 @@ export function RecordingMode({ episode }: { episode: CreatorEpisodeApiModel }) 
   }
 
   async function markRecorded() {
-    if (saving || episode.status === "RECORDED") return;
+    if (saving || alreadyRecorded) return;
     setSaving(true);
     setMessage(null);
 
@@ -263,8 +266,8 @@ export function RecordingMode({ episode }: { episode: CreatorEpisodeApiModel }) 
         </div>
         <div className={styles.recordAction}>
           {message && <span>{message}</span>}
-          <button type="button" onClick={() => void markRecorded()} disabled={saving || episode.status === "RECORDED"}>
-            {episode.status === "RECORDED" ? "RECORDED" : saving ? "SAVING..." : "MARK RECORDED"}
+          <button type="button" onClick={() => void markRecorded()} disabled={saving || alreadyRecorded}>
+            {alreadyRecorded ? "RECORDED" : saving ? "SAVING..." : "MARK RECORDED"}
           </button>
         </div>
       </footer>
