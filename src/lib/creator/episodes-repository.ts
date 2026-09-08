@@ -7,8 +7,12 @@ import type {
   CreatorEpisodeApiModel,
   CreatorEpisodeSource,
   CreatorEpisodeStatus,
+  UpdateCreatorEpisodeInput,
 } from "./episodes-types";
-import { creatorEpisodeCreateSchema } from "./episodes-validation";
+import {
+  creatorEpisodeCreateSchema,
+  creatorEpisodeUpdateSchema,
+} from "./episodes-validation";
 
 function toApiModel(row: typeof creatorEpisodes.$inferSelect): CreatorEpisodeApiModel {
   return {
@@ -94,4 +98,30 @@ export async function createCreatorEpisode(
 
   if (!rows[0]) throw new Error("Unable to create Creator episode.");
   return toApiModel(rows[0]);
+}
+
+export async function updateCreatorEpisode(
+  userId: string,
+  episodeId: string,
+  input: UpdateCreatorEpisodeInput,
+): Promise<CreatorEpisodeApiModel | null> {
+  const parsed = creatorEpisodeUpdateSchema.parse(input);
+  const set: Partial<typeof creatorEpisodes.$inferInsert> = {
+    updatedAt: new Date(),
+  };
+
+  if (parsed.storyAngle !== undefined) {
+    set.storyAngle = parsed.storyAngle?.trim() || null;
+  }
+  if (parsed.featuredTradeIds !== undefined) {
+    set.featuredTradeIds = [...new Set(parsed.featuredTradeIds)];
+  }
+
+  const rows = await db
+    .update(creatorEpisodes)
+    .set(set)
+    .where(and(eq(creatorEpisodes.id, episodeId), eq(creatorEpisodes.userId, userId)))
+    .returning();
+
+  return rows[0] ? toApiModel(rows[0]) : null;
 }
