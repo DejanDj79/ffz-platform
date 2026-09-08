@@ -5,6 +5,10 @@ import { getTradingGuardrailSettings } from "@/lib/trading/guardrails-repository
 import type { CreatorStorySuggestion } from "./episodes-types";
 import type { EpisodeBuilderFilters } from "./episode-builder";
 
+type RankedStory = Omit<CreatorStorySuggestion, "role" | "strength"> & {
+  score: number;
+};
+
 function inRange(value: string | null, from: Date, to: Date) {
   if (!value) return false;
   const time = new Date(value).getTime();
@@ -33,7 +37,38 @@ function rankedTrades(trades: TradeApiModel[]) {
     .sort((a, b) => (b.netPnl ?? 0) - (a.netPnl ?? 0));
 }
 
-function setupStory(trades: TradeApiModel[]): CreatorStorySuggestion | null {
+function storyStrength(score: number): CreatorStorySuggestion["strength"] {
+  if (score >= 82) return "STRONG";
+  if (score >= 70) return "SOLID";
+  return "SUPPORTING";
+}
+
+function finalizeStories(stories: RankedStory[]): CreatorStorySuggestion[] {
+  const ranked = stories.slice().sort((a, b) => b.score - a.score);
+  if (ranked.length === 0) return [];
+
+  const primaryScore = ranked[0].score;
+  let alternativeAssigned = false;
+
+  return ranked.slice(0, 4).map((story, index) => {
+    let role: CreatorStorySuggestion["role"] = "THREAD";
+    if (index === 0) {
+      role = "PRIMARY";
+    } else if (!alternativeAssigned && story.score >= 72 && story.score >= primaryScore - 15) {
+      role = "ALTERNATIVE";
+      alternativeAssigned = true;
+    }
+
+    const { score, ...rest } = story;
+    return {
+      ...rest,
+      role,
+      strength: storyStrength(score),
+    };
+  });
+}
+
+function setupStory(trades: TradeApiModel[], periodNetPnl: number): RankedStory | null {
   const setups = new Map<string, { count: number; pnl: number; ids: string[] }>();
   for (const trade of trades) {
     const setup = trade.setup?.trim();
@@ -55,11 +90,13 @@ function setupStory(trades: TradeApiModel[]): CreatorStorySuggestion | null {
   const top = ranked[0];
   if (!top) return null;
   const [name, value] = top;
+  const pnlWeight = Math.abs(periodNetPnl) > 0 && Math.abs(value.pnl) >= Math.abs(periodNetPnl) * 0.5 ? 5 : 0;
+  const score = Math.min(82, 44 + value.count * 5 + pnlWeight);
 
   return {
     id: "setup-pattern",
     title: `${name} kept showing up — here is what I learned`,
-    why: `You traded ${name} ${value.count} times for a combined ${money(value.pnl)}. That is enough repetition to make the setup itself a useful thread through the episode.`,
+    why: `You traded ${name} ${value.count} times for a combined ${money(value.pnl)}. That repetition makes the setup a useful thread, but it only becomes the episode's main story when the evidence is strong enough.`,
     keyMoments: [
       `${value.count} trades used the ${name} setup.`,
       `Combined result from the setup: ${money(value.pnl)}.`,
@@ -67,6 +104,7 @@ function setupStory(trades: TradeApiModel[]): CreatorStorySuggestion | null {
     ],
     featuredTradeIds: uniqueIds(value.ids),
     tone: "LESSON",
+    score,
   };
 }
 
@@ -98,6 +136,8 @@ export async function buildCreatorStorySuggestions(
       ],
       featuredTradeIds: [],
       tone: "PROCESS",
+      role: "PRIMARY",
+      strength: "SOLID",
     }];
   }
 
@@ -109,7 +149,7 @@ export async function buildCreatorStorySuggestions(
   const ranked = rankedTrades(trades);
   const best = ranked[0] ?? null;
   const worst = ranked.length > 1 ? ranked[ranked.length - 1] : null;
-  const suggestions: CreatorStorySuggestion[] = [];
+  const stories: RankedStory[] = [];
 
   if (activeSignals.length > 0) {
     const priority = activeSignals.find((signal) => signal.key === "PLAN_BREAKDOWN")
@@ -120,8 +160,11 @@ export async function buildCreatorStorySuggestions(
     const signalTradeIds = uniqueIds(
       activeSignals.flatMap((signal) => signal.events.flatMap((event) => event.trades.map((trade) => trade.id))),
     );
+    const eventCount = activeSignals.reduce((sum, signal) => sum + signal.events.length, 0);
+    const warningBonus = priority.tone === "warning" ? 5 : 0;
+    const score = Math.min(98, 78 + Math.min(15, eventCount * 3) + warningBonus);
 
-    suggestions.push({
+    stories.push({
       id: "discipline-under-pressure",
       title: netPnl >= 0
         ? "I made money, but my discipline was the real story"
@@ -139,13 +182,14 @@ export async function buildCreatorStorySuggestions(
       ],
       featuredTradeIds: signalTradeIds,
       tone: "DISCIPLINE",
+      score,
     });
   }
 
   if (best && (best.netPnl ?? 0) > 0 && netPnl > 0 && netPnl - (best.netPnl ?? 0) <= 0) {
-    suggestions.push({
+    stories.push({
       id: "one-trade-carried-period",
-      title: "One trade carried the result — was the week actually good?",
+      title: "One trade carried the result — was the period actually good?",
       why: `The period made ${money(netPnl)}, but without the best trade (${money(best.netPnl ?? 0)}) the remaining trades would have been flat or negative. That creates a useful distinction between outcome and repeatable process.`,
       keyMoments: [
         `Best trade: ${best.instrument} ${best.direction} for ${money(best.netPnl ?? 0)}.`,
@@ -154,12 +198,13 @@ export async function buildCreatorStorySuggestions(
       ],
       featuredTradeIds: uniqueIds([best.id, ...(worst ? [worst.id] : [])]),
       tone: "RESULT",
+      score: 82,
     });
   }
 
   if (activeSignals.length === 0) {
     if (netPnl < 0) {
-      suggestions.push({
+      stories.push({
         id: "clean-red-period",
         title: "I followed the process and still finished red",
         why: "No defined behavior warning was detected, yet the period lost money. That is a strong beginner-trading lesson: a red result does not automatically mean the process was wrong.",
@@ -170,9 +215,10 @@ export async function buildCreatorStorySuggestions(
         ],
         featuredTradeIds: uniqueIds([...(worst ? [worst.id] : []), ...(best ? [best.id] : [])]),
         tone: "PROCESS",
+        score: 76,
       });
     } else {
-      suggestions.push({
+      stories.push({
         id: "process-green-period",
         title: "A green period without forcing trades — what actually worked",
         why: "The period finished positive without a detected behavior warning. This gives you a process-focused story that does not need exaggerated drama.",
@@ -183,27 +229,13 @@ export async function buildCreatorStorySuggestions(
         ],
         featuredTradeIds: uniqueIds([...(best ? [best.id] : []), ...(worst ? [worst.id] : [])]),
         tone: "PROCESS",
+        score: 74,
       });
     }
   }
 
-  const setup = setupStory(trades);
-  if (setup) suggestions.push(setup);
+  const setup = setupStory(trades, netPnl);
+  if (setup) stories.push(setup);
 
-  if (suggestions.length < 3) {
-    suggestions.push({
-      id: "week-in-review",
-      title: "What this period actually taught me about my trading",
-      why: "This is the balanced fallback angle: use the result as context, then compare the strongest and weakest moments instead of making the episode only about P&L.",
-      keyMoments: [
-        `Net result: ${money(netPnl)} from ${trades.length} closed trades.`,
-        best ? `Strongest result: ${best.instrument} ${best.direction} ${money(best.netPnl ?? 0)}.` : "Choose the cleanest execution as the positive reference point.",
-        worst ? `Weakest result: ${worst.instrument} ${worst.direction} ${money(worst.netPnl ?? 0)}.` : "Choose the trade with the clearest lesson as the review point.",
-      ],
-      featuredTradeIds: uniqueIds([...(best ? [best.id] : []), ...(worst ? [worst.id] : [])]),
-      tone: "LESSON",
-    });
-  }
-
-  return suggestions.slice(0, 4);
+  return finalizeStories(stories);
 }
