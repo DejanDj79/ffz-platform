@@ -113,6 +113,12 @@ export async function updateCreatorEpisode(
   if (parsed.storyAngle !== undefined) {
     set.storyAngle = parsed.storyAngle?.trim() || null;
   }
+  if (parsed.script !== undefined) {
+    set.script = parsed.script?.trim() || null;
+  }
+  if (parsed.status !== undefined) {
+    set.status = parsed.status;
+  }
   if (parsed.featuredTradeIds !== undefined) {
     set.featuredTradeIds = [...new Set(parsed.featuredTradeIds)];
   }
