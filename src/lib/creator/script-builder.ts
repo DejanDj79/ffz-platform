@@ -35,7 +35,7 @@ function durationFor(content: string, visualCue: CreatorScriptSection["visualCue
         ? 110
         : 115;
   const spokenMinutes = wordCount(content) / wordsPerMinute;
-  const guidedDiscussionMinutes = talkingPointCount(content) * 0.65;
+  const guidedDiscussionMinutes = talkingPointCount(content) * 0.85;
   const minutes = spokenMinutes + guidedDiscussionMinutes;
   return Math.max(0.2, Math.round(minutes * 10) / 10);
 }
@@ -126,7 +126,6 @@ function selectKeyTradeIds(
 
   const strong = ranked.filter((item) => item.score >= 55).slice(0, 3);
   if (strong.length > 0) return new Set(strong.map((item) => item.id));
-
   return new Set(ranked.slice(0, Math.min(2, ranked.length)).map((item) => item.id));
 }
 
@@ -134,6 +133,67 @@ function quickTradeRecap(trade: EpisodeTrade, index: number) {
   const r = trade.rMultiple == null ? "R not recorded" : `${trade.rMultiple.toFixed(2)}R`;
   const setup = trade.setup ? ` using ${trade.setup}` : "";
   return `Trade ${index + 1}: ${trade.instrument} ${trade.direction.toLowerCase()}${setup}, ${money(trade.netPnl)}, ${r}.`;
+}
+
+function consequencePrompt(note: string | null, tradeNumber: number) {
+  if (!note) return null;
+  if (/(closed|ended|failed).{0,24}(evaluation|account|challenge)/i.test(note)) {
+    return `[TALKING POINT: Knowing the consequence attached to Trade ${tradeNumber}, was that pressure affecting the decision before entry, or did you only recognize it afterward?]`;
+  }
+  return `[TALKING POINT: Looking at the chart now, what confirms or contradicts the journal note from Trade ${tradeNumber}?]`;
+}
+
+function deepDivePrompts(
+  trade: EpisodeTrade,
+  index: number,
+  previous: EpisodeTrade | null,
+  note: string | null,
+  gapMinutes: number | null,
+) {
+  const tradeNumber = index + 1;
+  const previousNumber = index;
+  const execution = executionLabel(trade.execution);
+  const mindset = mindsetLabel(trade.mindset);
+  const underPressure = trade.execution === "DEVIATED"
+    || trade.execution === "UNPLANNED"
+    || isPressureMindset(trade.mindset);
+
+  const prompts: string[] = [
+    `[TALKING POINT: Walk through what you saw on the chart before Trade ${tradeNumber} and why the entry looked valid in real time.]`,
+  ];
+
+  if (previous?.outcome === "LOSS" && gapMinutes != null) {
+    if (underPressure) {
+      const markers = [execution, mindset].filter(Boolean).join(" + ");
+      prompts.push(
+        `[TALKING POINT: After Trade ${previousNumber} lost, what changed during the next ${gapMinutes.toFixed(gapMinutes % 1 === 0 ? 0 : 1)} minutes, and where did this decision stop matching your normal plan${markers ? ` (${markers})` : ""}?]`,
+      );
+    } else {
+      prompts.push(
+        `[TALKING POINT: After Trade ${previousNumber} lost, what made you willing to take another entry ${gapMinutes.toFixed(gapMinutes % 1 === 0 ? 0 : 1)} minutes later?]`,
+      );
+    }
+  } else if (underPressure) {
+    const markers = [execution, mindset].filter(Boolean).join(" + ");
+    prompts.push(
+      `[TALKING POINT: You marked Trade ${tradeNumber}${markers ? ` as ${markers}` : " as outside your normal process"}. What was different from a normal planned entry?]`,
+    );
+  } else {
+    prompts.push(
+      `[TALKING POINT: What was the original plan for Trade ${tradeNumber}, including the entry idea, invalidation and expected move?]`,
+    );
+  }
+
+  const consequence = consequencePrompt(note, tradeNumber);
+  if (consequence) {
+    prompts.push(consequence);
+  } else if (trade.execution === "UNPLANNED" || trade.mindset === "FOMO" || trade.mindset === "REVENGE") {
+    prompts.push(
+      `[TALKING POINT: What concrete rule would have prevented this exact trade without blocking a genuinely valid setup?]`,
+    );
+  }
+
+  return prompts.slice(0, 3);
 }
 
 function deepDiveBlock(
@@ -161,36 +221,7 @@ function deepDiveBlock(
   }
   if (note) facts.push(`My journal note says: ${note}`);
 
-  const prompts: string[] = [
-    `[TALKING POINT: What did you see on the chart before entering Trade ${index + 1}, and what made the setup look valid at that moment?]`,
-  ];
-
-  if (previous?.outcome === "LOSS" && gapMinutes != null) {
-    prompts.push(
-      `[TALKING POINT: What was happening after Trade ${index}, and why did you choose to take another entry ${gapMinutes.toFixed(gapMinutes % 1 === 0 ? 0 : 1)} minutes later?]`,
-    );
-  } else {
-    prompts.push(
-      `[TALKING POINT: What was the original plan for Trade ${index + 1}, including the entry idea, invalidation and expected move?]`,
-    );
-  }
-
-  if (trade.execution === "DEVIATED" || trade.execution === "UNPLANNED" || isPressureMindset(trade.mindset)) {
-    const pressure = mindset ? ` while the journal mindset was ${mindset}` : "";
-    prompts.push(
-      `[TALKING POINT: Where exactly did Trade ${index + 1} stop matching the plan${pressure}, and how did that change the decision?]`,
-    );
-  } else {
-    prompts.push(
-      `[TALKING POINT: Which part of the execution was clean, and which part would you change if you saw the same setup again?]`,
-    );
-  }
-
-  prompts.push(
-    note
-      ? `[TALKING POINT: Looking at the chart now, what confirms or contradicts the journal note from Trade ${index + 1}?]`
-      : `[TALKING POINT: If the same setup appears again, what has to be true before you are allowed to take Trade ${index + 1}'s idea again?]`,
-  );
+  const prompts = deepDivePrompts(trade, index, previous, note, gapMinutes);
 
   return [
     `KEY TRADE ${index + 1}`,
@@ -211,7 +242,7 @@ function buildDeepDiveCopy(snapshot: EpisodeSnapshot, keyTrades: Set<string>) {
   }
 
   return [
-    "These are the trades where I want to stop the chart and explain the parts the database cannot know for me. The prompts are there to keep the explanation specific without inventing a motive after the fact.",
+    "These are the trades where I want to stop the chart and explain the parts the database cannot know for me. The prompts are producer cues, not lines to read; they are there to keep the explanation specific without inventing a motive after the fact.",
     ...blocks,
   ].join("\n\n");
 }
@@ -386,13 +417,7 @@ export function buildCreatorScriptDraft(
     : "";
 
   const sections: CreatorScriptSection[] = [
-    section(
-      "hook",
-      "HOOK",
-      "Open on the real tension",
-      "CAMERA",
-      buildHook(snapshot, selected, storyAngle),
-    ),
+    section("hook", "HOOK", "Open on the real tension", "CAMERA", buildHook(snapshot, selected, storyAngle)),
     section(
       "context",
       "CONTEXT",
@@ -400,27 +425,9 @@ export function buildCreatorScriptDraft(
       "CAMERA",
       `This is part of my Futures From Zero journey, and I am documenting the process while I am still learning it. I am not trying to make the period look cleaner than it was; I want the journal, the charts and the actual decisions to do the talking. ${challengeContext}`,
     ),
-    section(
-      "overview",
-      "PERIOD OVERVIEW",
-      "Give the numbers once",
-      "SCOREBOARD",
-      overviewParts.join(" "),
-    ),
-    section(
-      "trades",
-      "TRADE BREAKDOWN",
-      "Recap every closed trade in chronological order",
-      "DEEPCHARTS",
-      tradeCopy,
-    ),
-    section(
-      "story",
-      "PRIMARY STORY",
-      storyAngle,
-      "JOURNAL",
-      buildPrimaryStory(snapshot, selected, storyEvidence, keyTrades),
-    ),
+    section("overview", "PERIOD OVERVIEW", "Give the numbers once", "SCOREBOARD", overviewParts.join(" ")),
+    section("trades", "TRADE BREAKDOWN", "Recap every closed trade in chronological order", "DEEPCHARTS", tradeCopy),
+    section("story", "PRIMARY STORY", storyAngle, "JOURNAL", buildPrimaryStory(snapshot, selected, storyEvidence, keyTrades)),
   ];
 
   if (keyTrades.size > 0) {
@@ -444,20 +451,8 @@ export function buildCreatorScriptDraft(
   }
 
   sections.push(
-    section(
-      "lesson",
-      "LESSON",
-      "Say what changes because of the review",
-      "CAMERA",
-      lessonCopy(tone),
-    ),
-    section(
-      "next-step",
-      "NEXT STEP",
-      "Tie the lesson to an existing measurable rule",
-      "JOURNAL",
-      nextStepCopy(snapshot, tone),
-    ),
+    section("lesson", "LESSON", "Say what changes because of the review", "CAMERA", lessonCopy(tone)),
+    section("next-step", "NEXT STEP", "Tie the lesson to an existing measurable rule", "JOURNAL", nextStepCopy(snapshot, tone)),
     section(
       "outro",
       "OUTRO",
@@ -469,6 +464,5 @@ export function buildCreatorScriptDraft(
 
   const totalMinutes = Math.round(sections.reduce((sum, item) => sum + item.durationMinutes, 0) * 10) / 10;
   const text = sections.map(renderSection).join("\n\n");
-
   return { sections, totalMinutes, text };
 }
