@@ -4,13 +4,17 @@ import styles from "./EpisodeWorkflowNav.module.css";
 export function EpisodeWorkflowNav({
   briefHref,
   storyHref,
+  scriptHref,
   activeStep,
   storySaved,
+  scriptSaved,
 }: {
   briefHref: string;
   storyHref: string;
-  activeStep: "brief" | "story";
+  scriptHref: string;
+  activeStep: "brief" | "story" | "script";
   storySaved: boolean;
+  scriptSaved: boolean;
 }) {
   return (
     <nav className={styles.workflow} aria-label="Episode workflow">
@@ -23,14 +27,23 @@ export function EpisodeWorkflowNav({
         <strong>STORY</strong>
         {storySaved && <b>SAVED</b>}
       </Link>
-      <div className={styles.locked}>
-        <span>03</span>
-        <strong>SCRIPT</strong>
-        <small>NEXT</small>
-      </div>
+      {storySaved ? (
+        <Link className={activeStep === "script" ? styles.active : ""} href={scriptHref}>
+          <span>03</span>
+          <strong>SCRIPT</strong>
+          {scriptSaved ? <b>READY</b> : <small>NEXT</small>}
+        </Link>
+      ) : (
+        <div className={styles.locked}>
+          <span>03</span>
+          <strong>SCRIPT</strong>
+          <small>SAVE STORY</small>
+        </div>
+      )}
       <div className={styles.locked}>
         <span>04</span>
         <strong>RECORD</strong>
+        {scriptSaved && <small>NEXT</small>}
       </div>
       <div className={styles.locked}>
         <span>05</span>
