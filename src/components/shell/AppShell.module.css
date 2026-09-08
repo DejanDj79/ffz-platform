@@ -429,8 +429,8 @@
 .accountButtonCopy strong {
   overflow: hidden;
   color: #d8e2e8;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -500,7 +500,7 @@
 .accountSummary small {
   overflow: hidden;
   color: #748592;
-  font-size: 11px;
+  font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -563,8 +563,8 @@
 
 .accountMenuItem strong {
   color: #d9e3e8;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .accountMenuItem small {
