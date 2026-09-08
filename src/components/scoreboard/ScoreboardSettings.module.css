@@ -154,6 +154,27 @@
   line-height: 1.4;
 }
 
+.previewPanel > header > button {
+  width: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  padding: 0 !important;
+  display: grid;
+  place-items: center;
+  font-size: 0 !important;
+  cursor: pointer;
+}
+
+.previewPanel > header > button::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  display: block;
+  background: #9ae8fb;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 3H3v5M3 3l6 6M16 3h5v5m0-5-6 6M8 21H3v-5m0 5 6-6m7 6h5v-5m0 5-6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 3H3v5M3 3l6 6M16 3h5v5m0-5-6 6M8 21H3v-5m0 5 6-6m7 6h5v-5m0 5-6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
 .scoreboardStage {
   width: min(1180px, calc(100% - 28px));
   margin: 14px auto 16px;
