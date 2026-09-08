@@ -38,7 +38,7 @@ export function ScriptBuilder({
   );
   const talkingPoints = useMemo(() => countTalkingPoints(script), [script]);
   const editedMinutes = useMemo(
-    () => Math.round(((wordCount / 125) + talkingPoints * 0.65) * 10) / 10,
+    () => Math.round(((wordCount / 125) + talkingPoints * 0.85) * 10) / 10,
     [wordCount, talkingPoints],
   );
 
