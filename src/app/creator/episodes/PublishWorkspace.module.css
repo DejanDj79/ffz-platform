@@ -23,7 +23,7 @@
 .header > div:first-child,
 .statusBlock,
 .cardHeader > div,
-label {
+.editorCard label {
   display: grid;
   gap: 5px;
 }
@@ -31,7 +31,7 @@ label {
 .header span,
 .statusBlock span,
 .cardHeader span,
-label > span,
+.editorCard label > span,
 .labelRow > span {
   color: #738591;
   font-size: 10px;
@@ -210,7 +210,7 @@ label > span,
   font-variant-numeric: tabular-nums;
 }
 
-label small {
+.editorCard label small {
   justify-self: end;
   color: #60727e;
   font-size: 9px;
