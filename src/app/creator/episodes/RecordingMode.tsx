@@ -45,10 +45,11 @@ export function RecordingMode({ episode }: { episode: CreatorEpisodeApiModel }) 
   const scrollerRef = useRef<HTMLDivElement | null>(null);
   const frameRef = useRef<number | null>(null);
   const lastFrameRef = useRef<number | null>(null);
+  const scrollPositionRef = useRef(0);
   const playingRef = useRef(false);
 
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(12);
+  const [speed, setSpeed] = useState(8);
   const [fontSize, setFontSize] = useState(34);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -75,10 +76,15 @@ export function RecordingMode({ episode }: { episode: CreatorEpisodeApiModel }) 
       const previous = lastFrameRef.current ?? timestamp;
       const deltaSeconds = Math.min(0.1, (timestamp - previous) / 1000);
       lastFrameRef.current = timestamp;
-      scroller.scrollTop += speed * deltaSeconds;
 
-      const atEnd = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 4;
-      if (atEnd) setPlaying(false);
+      const maxScroll = Math.max(0, scroller.scrollHeight - scroller.clientHeight);
+      scrollPositionRef.current = Math.min(
+        maxScroll,
+        scrollPositionRef.current + speed * deltaSeconds,
+      );
+      scroller.scrollTop = scrollPositionRef.current;
+
+      if (scrollPositionRef.current >= maxScroll - 0.01) setPlaying(false);
       frameRef.current = requestAnimationFrame(tick);
     }
 
@@ -94,7 +100,7 @@ export function RecordingMode({ episode }: { episode: CreatorEpisodeApiModel }) 
 
       if (event.key === "F13" || event.code === "Space") {
         event.preventDefault();
-        setPlaying((value) => !value);
+        togglePlayback();
         return;
       }
       if (event.key === "F14") {
@@ -119,8 +125,7 @@ export function RecordingMode({ episode }: { episode: CreatorEpisodeApiModel }) 
       }
       if (event.key === "F18") {
         event.preventDefault();
-        if (scrollerRef.current) scrollerRef.current.scrollTo({ top: 0, behavior: "smooth" });
-        setPlaying(false);
+        restart();
         return;
       }
       if (event.key === "F19") {
@@ -133,6 +138,17 @@ export function RecordingMode({ episode }: { episode: CreatorEpisodeApiModel }) 
     return () => window.removeEventListener("keydown", onKeyDown);
   });
 
+  function togglePlayback() {
+    setPlaying((value) => {
+      const next = !value;
+      if (next && scrollerRef.current) {
+        scrollPositionRef.current = scrollerRef.current.scrollTop;
+        lastFrameRef.current = null;
+      }
+      return next;
+    });
+  }
+
   async function toggleFullscreen() {
     if (!document.fullscreenElement) {
       await stageRef.current?.requestFullscreen();
@@ -143,7 +159,9 @@ export function RecordingMode({ episode }: { episode: CreatorEpisodeApiModel }) 
 
   function restart() {
     setPlaying(false);
-    scrollerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    scrollPositionRef.current = 0;
+    lastFrameRef.current = null;
+    if (scrollerRef.current) scrollerRef.current.scrollTop = 0;
   }
 
   async function markRecorded() {
@@ -189,7 +207,7 @@ export function RecordingMode({ episode }: { episode: CreatorEpisodeApiModel }) 
 
       <div ref={stageRef} className={styles.stage}>
         <div className={styles.toolbar}>
-          <button type="button" onClick={() => setPlaying((value) => !value)}>
+          <button type="button" onClick={togglePlayback}>
             {playing ? "PAUSE" : "PLAY"}
           </button>
           <button type="button" onClick={() => setSpeed((value) => clamp(value - SCROLL_SPEED_STEP, MIN_SCROLL_SPEED, MAX_SCROLL_SPEED))}>SLOWER</button>
@@ -202,7 +220,13 @@ export function RecordingMode({ episode }: { episode: CreatorEpisodeApiModel }) 
           <button type="button" onClick={() => void toggleFullscreen()}>FULLSCREEN</button>
         </div>
 
-        <div ref={scrollerRef} className={styles.scroller}>
+        <div
+          ref={scrollerRef}
+          className={styles.scroller}
+          onScroll={(event) => {
+            if (!playingRef.current) scrollPositionRef.current = event.currentTarget.scrollTop;
+          }}
+        >
           <div className={styles.script} style={{ "--record-font-size": `${fontSize}px` } as React.CSSProperties}>
             <div className={styles.leadSpace} />
             {blocks.map((block, index) => {
