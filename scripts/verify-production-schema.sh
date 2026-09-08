@@ -45,6 +45,32 @@ for table in "${EXPECTED[@]}"; do
   fi
 done
 
+EXPECTED_CREATOR_COLUMNS=(
+  publish_title
+  thumbnail_text
+  description
+  chapters
+  youtube_url
+)
+
+for column in "${EXPECTED_CREATOR_COLUMNS[@]}"; do
+  result="$(
+    docker compose \
+      --env-file "$ENV_FILE" \
+      -f "$COMPOSE_FILE" \
+      exec -T postgres \
+      psql \
+      -U "$POSTGRES_USER" \
+      -d "$POSTGRES_DB" \
+      -Atc "SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'creator_episodes' AND column_name = '${column}');"
+  )"
+
+  if [[ "$result" != "t" ]]; then
+    echo "ERROR: missing creator_episodes column: $column" >&2
+    exit 1
+  fi
+done
+
 founder_slot_count="$(
   docker compose \
     --env-file "$ENV_FILE" \
