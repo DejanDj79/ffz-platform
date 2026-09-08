@@ -22,6 +22,10 @@ function wordCount(value: string) {
   return clean ? clean.split(/\s+/).length : 0;
 }
 
+function talkingPointCount(value: string) {
+  return (value.match(/^\[TALKING POINT:/gm) ?? []).length;
+}
+
 function durationFor(content: string, visualCue: CreatorScriptSection["visualCue"]) {
   const wordsPerMinute = visualCue === "CAMERA"
     ? 135
@@ -30,7 +34,9 @@ function durationFor(content: string, visualCue: CreatorScriptSection["visualCue
       : visualCue === "DEEPCHARTS"
         ? 110
         : 115;
-  const minutes = wordCount(content) / wordsPerMinute;
+  const spokenMinutes = wordCount(content) / wordsPerMinute;
+  const guidedDiscussionMinutes = talkingPointCount(content) * 0.65;
+  const minutes = spokenMinutes + guidedDiscussionMinutes;
   return Math.max(0.2, Math.round(minutes * 10) / 10);
 }
 
@@ -57,6 +63,22 @@ function compactNote(value: string | null, maxLength = 240) {
   return note.length > maxLength ? `${note.slice(0, maxLength - 3)}...` : note;
 }
 
+function usableJournalNote(value: string | null) {
+  const note = compactNote(value);
+  if (!note) return null;
+
+  const genericPatterns = [
+    /\bdemo\b/i,
+    /\bplaceholder\b/i,
+    /\bsample\b/i,
+    /\btest trade\b/i,
+    /^test\b/i,
+    /review entry quality, risk and execution rather than the result alone/i,
+  ];
+
+  return genericPatterns.some((pattern) => pattern.test(note)) ? null : note;
+}
+
 function executionLabel(value: EpisodeTrade["execution"]) {
   if (value === "ON_PLAN") return "on plan";
   if (value === "DEVIATED") return "deviated";
@@ -73,6 +95,16 @@ function isPressureMindset(value: EpisodeTrade["mindset"]) {
   return value === "FOMO" || value === "REVENGE" || value === "FRUSTRATED" || value === "FEAR";
 }
 
+function minutesBetween(previous: EpisodeTrade | null, current: EpisodeTrade) {
+  if (!previous?.closedAt) return null;
+  const previousClosed = new Date(previous.closedAt).getTime();
+  const currentOpened = new Date(current.openedAt).getTime();
+  if (Number.isNaN(previousClosed) || Number.isNaN(currentOpened) || currentOpened < previousClosed) {
+    return null;
+  }
+  return Math.round(((currentOpened - previousClosed) / 60000) * 10) / 10;
+}
+
 function selectKeyTradeIds(
   snapshot: EpisodeSnapshot,
   preferredIds: string[],
@@ -85,7 +117,7 @@ function selectKeyTradeIds(
       score += tone === "DISCIPLINE" ? 38 : 20;
     }
     if (isPressureMindset(trade.mindset)) score += tone === "DISCIPLINE" ? 28 : 14;
-    if (trade.notes?.trim()) score += 12;
+    if (usableJournalNote(trade.notes)) score += 12;
     if (trade.outcome === "LOSS") score += tone === "DISCIPLINE" ? 12 : 6;
     if (Math.abs(trade.rMultiple ?? 0) >= 1) score += 5;
     score += Math.min(6, Math.abs(trade.netPnl) / 40);
@@ -98,31 +130,90 @@ function selectKeyTradeIds(
   return new Set(ranked.slice(0, Math.min(2, ranked.length)).map((item) => item.id));
 }
 
-function tradeRecap(trade: EpisodeTrade, index: number, keyTrades: Set<string>) {
-  const r = trade.rMultiple == null ? "with R not recorded" : `for ${trade.rMultiple.toFixed(2)}R`;
+function quickTradeRecap(trade: EpisodeTrade, index: number) {
+  const r = trade.rMultiple == null ? "R not recorded" : `${trade.rMultiple.toFixed(2)}R`;
   const setup = trade.setup ? ` using ${trade.setup}` : "";
-  const base = `Trade ${index + 1} was ${trade.instrument} ${trade.direction.toLowerCase()}${setup}. It finished ${money(trade.netPnl)}, ${r}.`;
-  if (!keyTrades.has(trade.id)) return base;
+  return `Trade ${index + 1}: ${trade.instrument} ${trade.direction.toLowerCase()}${setup}, ${money(trade.netPnl)}, ${r}.`;
+}
 
-  const reviewBits: string[] = [];
+function deepDiveBlock(
+  trade: EpisodeTrade,
+  index: number,
+  previous: EpisodeTrade | null,
+) {
   const execution = executionLabel(trade.execution);
   const mindset = mindsetLabel(trade.mindset);
-  if (execution) reviewBits.push(`I marked the execution as ${execution}`);
-  if (mindset) reviewBits.push(`my mindset was ${mindset}`);
-
-  const detail: string[] = [
-    `${base} This is one of the trades I need to slow down on in the video.`,
+  const note = usableJournalNote(trade.notes);
+  const gapMinutes = minutesBetween(previous, trade);
+  const facts: string[] = [
+    `Trade ${index + 1} is ${trade.instrument} ${trade.direction.toLowerCase()}${trade.setup ? ` using ${trade.setup}` : ""}. It finished ${money(trade.netPnl)}${trade.rMultiple == null ? "" : ` for ${trade.rMultiple.toFixed(2)}R`}.`,
   ];
-  if (reviewBits.length > 0) detail.push(`${reviewBits.join(" and ")}.`);
+
+  const reviewBits: string[] = [];
+  if (execution) reviewBits.push(`execution ${execution}`);
+  if (mindset) reviewBits.push(`mindset ${mindset}`);
+  if (reviewBits.length > 0) facts.push(`My journal review has this marked as ${reviewBits.join(" and ")}.`);
   if (trade.initialRisk != null && trade.initialRisk > 0) {
-    detail.push(`The recorded initial risk was $${trade.initialRisk.toFixed(2)}.`);
+    facts.push(`Recorded initial risk was $${trade.initialRisk.toFixed(2)}.`);
   }
-  const note = compactNote(trade.notes);
-  if (note) detail.push(`My journal note from this trade says: ${note}`);
-  if (!note && reviewBits.length === 0) {
-    detail.push("I need to use the chart here to explain the decision, what I expected to happen, and what changed once the trade was live.");
+  if (previous?.outcome === "LOSS" && gapMinutes != null) {
+    facts.push(`This entry opened ${gapMinutes.toFixed(gapMinutes % 1 === 0 ? 0 : 1)} minutes after Trade ${index} closed as a loss.`);
   }
-  return detail.join(" ");
+  if (note) facts.push(`My journal note says: ${note}`);
+
+  const prompts: string[] = [
+    `[TALKING POINT: What did you see on the chart before entering Trade ${index + 1}, and what made the setup look valid at that moment?]`,
+  ];
+
+  if (previous?.outcome === "LOSS" && gapMinutes != null) {
+    prompts.push(
+      `[TALKING POINT: What was happening after Trade ${index}, and why did you choose to take another entry ${gapMinutes.toFixed(gapMinutes % 1 === 0 ? 0 : 1)} minutes later?]`,
+    );
+  } else {
+    prompts.push(
+      `[TALKING POINT: What was the original plan for Trade ${index + 1}, including the entry idea, invalidation and expected move?]`,
+    );
+  }
+
+  if (trade.execution === "DEVIATED" || trade.execution === "UNPLANNED" || isPressureMindset(trade.mindset)) {
+    const pressure = mindset ? ` while the journal mindset was ${mindset}` : "";
+    prompts.push(
+      `[TALKING POINT: Where exactly did Trade ${index + 1} stop matching the plan${pressure}, and how did that change the decision?]`,
+    );
+  } else {
+    prompts.push(
+      `[TALKING POINT: Which part of the execution was clean, and which part would you change if you saw the same setup again?]`,
+    );
+  }
+
+  prompts.push(
+    note
+      ? `[TALKING POINT: Looking at the chart now, what confirms or contradicts the journal note from Trade ${index + 1}?]`
+      : `[TALKING POINT: If the same setup appears again, what has to be true before you are allowed to take Trade ${index + 1}'s idea again?]`,
+  );
+
+  return [
+    `KEY TRADE ${index + 1}`,
+    ...facts,
+    "",
+    ...prompts,
+  ].join("\n");
+}
+
+function buildDeepDiveCopy(snapshot: EpisodeSnapshot, keyTrades: Set<string>) {
+  const blocks = snapshot.episodeTrades.flatMap((trade, index) => {
+    if (!keyTrades.has(trade.id)) return [];
+    return [deepDiveBlock(trade, index, snapshot.episodeTrades[index - 1] ?? null)];
+  });
+
+  if (blocks.length === 0) {
+    return "There is no trade with enough journal context to justify a separate deep dive in this episode.";
+  }
+
+  return [
+    "These are the trades where I want to stop the chart and explain the parts the database cannot know for me. The prompts are there to keep the explanation specific without inventing a motive after the fact.",
+    ...blocks,
+  ].join("\n\n");
 }
 
 function firstPersonEvidence(value: string) {
@@ -154,10 +245,10 @@ function buildHook(
     return `I finished this period ${money(snapshot.netPnl)}, but when I went back through the journal, the money was not the part that bothered me most. The bigger problem was what I did after some of the losses. That is what I want to break down in this episode, because the result was red, but the behavior behind it is the part I can actually change.`;
   }
   if (selected?.tone === "RESULT") {
-    return `The headline result for this period was ${money(snapshot.netPnl)}, but the number by itself gives the wrong impression. One part of the week carried much more weight than the rest, so I want to look past the P&L and ask whether the process was actually repeatable.`;
+    return `The headline result for this period was ${money(snapshot.netPnl)}, but the number by itself gives the wrong impression. One part of the period carried much more weight than the rest, so I want to look past the P&L and ask whether the process was actually repeatable.`;
   }
   if (selected?.tone === "PROCESS") {
-    return `This period finished ${money(snapshot.netPnl)}, but I do not want to judge the whole week from one number. I want to separate what happened from how I traded it, because that is the only way this review is useful for the next session.`;
+    return `This period finished ${money(snapshot.netPnl)}, but I do not want to judge the whole period from one number. I want to separate what happened from how I traded it, because that is the only way this review is useful for the next session.`;
   }
   return `This period finished ${money(snapshot.netPnl)}, and one pattern kept showing up when I reviewed the trades. The angle I want to test in this episode is: ${storyAngle}. I want to see whether the data really supports that lesson.`;
 }
@@ -173,7 +264,7 @@ function buildPrimaryStory(
     .map((trade, index) => keyTrades.has(trade.id) ? index + 1 : null)
     .filter((value): value is number => value != null);
   const keyReference = keyIndexes.length > 0
-    ? `That is why I am slowing down on ${keyIndexes.length === 1 ? `Trade ${keyIndexes[0]}` : `Trades ${keyIndexes.join(", ")}`}.`
+    ? `The clearest examples are ${keyIndexes.length === 1 ? `Trade ${keyIndexes[0]}` : `Trades ${keyIndexes.join(", ")}`}, so I want to go back into those charts in more detail.`
     : "The journal evidence is what needs to carry this section, not a general opinion about trading.";
 
   if (selected?.tone === "DISCIPLINE") {
@@ -181,8 +272,7 @@ function buildPrimaryStory(
       `When I looked back at the journal, the biggest issue was not simply that I finished ${money(snapshot.netPnl)}. It was that my behavior changed after losses.`,
       ...evidence,
       keyReference,
-      "On those charts I want to be specific about the moment the decision changed: what the original plan was, whether I was still following it, and whether I was trying to solve the previous loss with the next trade. If I cannot explain that honestly from the journal and the chart, I should not invent a reason after the fact.",
-      "For me, that is the real lesson from this period. A loss can be completely valid. A second decision made under pressure is a different problem, and that is the part I want to make visible before the next session starts.",
+      "The point of the deep dives is to identify the moment the decision changed, not to invent an explanation after the result is already known.",
     ].join("\n\n");
   }
 
@@ -191,7 +281,7 @@ function buildPrimaryStory(
       `The result was ${money(snapshot.netPnl)}, but I need to separate the headline number from the quality of the whole period.`,
       ...evidence,
       keyReference,
-      "The question I want to answer on the charts is whether the strongest result came from something I can repeat, or whether it simply made the rest of the week look better than it really was.",
+      "The deep dives should show whether the strongest result came from something I can repeat or whether it simply made the rest of the period look better than it really was.",
     ].join("\n\n");
   }
 
@@ -200,14 +290,14 @@ function buildPrimaryStory(
       `This section is about process rather than trying to turn ${money(snapshot.netPnl)} into a bigger story than it is.`,
       ...evidence,
       keyReference,
-      "I want to compare the cleanest decisions with the weakest ones and keep the parts that were repeatable, even if the short-term outcome was not what I wanted.",
+      "I want the charts to show which decisions were repeatable and which ones need a different rule next time.",
     ].join("\n\n");
   }
 
   return [
     ...evidence,
     keyReference,
-    "I want to use the repeated examples, not one isolated trade, to decide whether this is actually a pattern worth changing.",
+    "I want to use repeated examples, not one isolated trade, to decide whether this is actually a pattern worth changing.",
   ].join("\n\n");
 }
 
@@ -267,10 +357,11 @@ export function buildCreatorScriptDraft(
   const preferredTradeIds = episode.featuredTradeIds.length > 0
     ? episode.featuredTradeIds
     : selected?.featuredTradeIds ?? [];
-  const keyTrades = selectKeyTradeIds(snapshot, preferredTradeIds, selected?.tone ?? primary?.tone ?? null);
+  const tone = selected?.tone ?? primary?.tone ?? null;
+  const keyTrades = selectKeyTradeIds(snapshot, preferredTradeIds, tone);
 
   const challengeContext = snapshot.challenge
-    ? `For this review I am looking at my ${snapshot.challenge.propFirm} ${snapshot.challenge.name} account. It is ${snapshot.challenge.status.replaceAll("_", " ").toLowerCase()} now, with a balance of $${snapshot.challenge.currentBalance.toFixed(2)} from a $${snapshot.challenge.startingBalance.toFixed(2)} start.`
+    ? `For this review I am looking at my ${snapshot.challenge.propFirm} ${snapshot.challenge.name} account. This period is scoped to that account.`
     : "For this review I am looking at all of my closed trading activity in the selected period rather than one specific account.";
 
   const overviewParts = [
@@ -281,9 +372,9 @@ export function buildCreatorScriptDraft(
 
   const tradeCopy = snapshot.episodeTrades.length > 0
     ? [
-        "I am keeping every closed trade in order. Most of them only need a quick recap, and I will slow down only where the journal gives me a reason to.",
-        ...snapshot.episodeTrades.map((trade, index) => tradeRecap(trade, index, keyTrades)),
-        `Out of ${snapshot.tradeCount} trades, ${keyTrades.size} ${keyTrades.size === 1 ? "trade is" : "trades are"} worth the deeper pause. That keeps the sequence honest without pretending every trade deserves the same amount of screen time.`,
+        "I am keeping every closed trade in order, but this first pass is only the recap. The deeper explanation comes after the pattern is clear.",
+        ...snapshot.episodeTrades.map(quickTradeRecap),
+        `Out of ${snapshot.tradeCount} trades, ${keyTrades.size} ${keyTrades.size === 1 ? "trade has" : "trades have"} enough journal context to justify a deeper pause.`,
       ].join("\n\n")
     : "There were no closed trades in this period, so there is no trade sequence to force into the episode. The focus should stay on preparation, restraint and what I am waiting to see before trading again.";
 
@@ -294,7 +385,6 @@ export function buildCreatorScriptDraft(
       }).join("\n\n")
     : "";
 
-  const tone = selected?.tone ?? primary?.tone ?? null;
   const sections: CreatorScriptSection[] = [
     section(
       "hook",
@@ -308,7 +398,7 @@ export function buildCreatorScriptDraft(
       "CONTEXT",
       "Set the episode in the FFZ journey",
       "CAMERA",
-      `This is part of my Futures From Zero journey, and I am documenting the process while I am still learning it. I am not trying to make the week look cleaner than it was; I want the journal, the charts and the actual decisions to do the talking. ${challengeContext}`,
+      `This is part of my Futures From Zero journey, and I am documenting the process while I am still learning it. I am not trying to make the period look cleaner than it was; I want the journal, the charts and the actual decisions to do the talking. ${challengeContext}`,
     ),
     section(
       "overview",
@@ -320,7 +410,7 @@ export function buildCreatorScriptDraft(
     section(
       "trades",
       "TRADE BREAKDOWN",
-      "Recap every trade and slow down on the real key moments",
+      "Recap every closed trade in chronological order",
       "DEEPCHARTS",
       tradeCopy,
     ),
@@ -332,6 +422,16 @@ export function buildCreatorScriptDraft(
       buildPrimaryStory(snapshot, selected, storyEvidence, keyTrades),
     ),
   ];
+
+  if (keyTrades.size > 0) {
+    sections.push(section(
+      "deep-dives",
+      "KEY TRADE DEEP DIVES",
+      "Use facts first, then answer only what you can know from memory and chart review",
+      "DEEPCHARTS",
+      buildDeepDiveCopy(snapshot, keyTrades),
+    ));
+  }
 
   if (supporting.length > 0) {
     sections.push(section(
