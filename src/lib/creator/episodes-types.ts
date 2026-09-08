@@ -35,3 +35,17 @@ export type CreateCreatorEpisodeInput = {
   periodTo: string;
   brief: string;
 };
+
+export type UpdateCreatorEpisodeInput = {
+  storyAngle?: string | null;
+  featuredTradeIds?: string[];
+};
+
+export type CreatorStorySuggestion = {
+  id: string;
+  title: string;
+  why: string;
+  keyMoments: string[];
+  featuredTradeIds: string[];
+  tone: "PROCESS" | "DISCIPLINE" | "RESULT" | "LESSON";
+};
