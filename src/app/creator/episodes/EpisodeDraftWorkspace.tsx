@@ -59,7 +59,7 @@ export function EpisodeDraftWorkspace({
 
   async function saveDraft() {
     const cleanTitle = title.trim();
-    if (!cleanTitle || saving) return;
+    if (!cleanTitle || saving || activeEpisode) return;
 
     setSaving(true);
     setMessage(null);
@@ -110,10 +110,15 @@ export function EpisodeDraftWorkspace({
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               maxLength={180}
+              disabled={Boolean(activeEpisode)}
             />
           </label>
-          <button type="button" onClick={() => void saveDraft()} disabled={saving || !title.trim()}>
-            {saving ? "SAVING..." : "SAVE EPISODE DRAFT"}
+          <button
+            type="button"
+            onClick={() => void saveDraft()}
+            disabled={saving || !title.trim() || Boolean(activeEpisode)}
+          >
+            {activeEpisode ? "DRAFT LOADED" : saving ? "SAVING..." : "SAVE EPISODE DRAFT"}
           </button>
         </div>
 
