@@ -6,8 +6,12 @@ import {
   getCreatorEpisode,
   listCreatorEpisodes,
 } from "@/lib/creator/episodes-repository";
+import type { CreatorEpisodeApiModel } from "@/lib/creator/episodes-types";
+import { buildCreatorStorySuggestions } from "@/lib/creator/story-builder";
 import { CopyEpisodeBrief } from "./CopyEpisodeBrief";
 import { EpisodeDraftWorkspace } from "./EpisodeDraftWorkspace";
+import { EpisodeWorkflowNav } from "./EpisodeWorkflowNav";
+import { StoryBuilder } from "./StoryBuilder";
 import styles from "./EpisodeBuilder.module.css";
 
 type SearchParams = Promise<{
@@ -16,6 +20,7 @@ type SearchParams = Promise<{
   challenge?: string;
   source?: string;
   episode?: string;
+  step?: string;
 }>;
 
 function dateInputValue(date: Date) {
@@ -69,6 +74,18 @@ function pnlClass(value: number) {
   return "";
 }
 
+function episodeStepHref(episode: CreatorEpisodeApiModel, step: "brief" | "story") {
+  const params = new URLSearchParams({
+    episode: episode.id,
+    from: dateInputValue(new Date(episode.periodFrom)),
+    to: dateInputValue(new Date(episode.periodTo)),
+  });
+  if (episode.challengeId) params.set("challenge", episode.challengeId);
+  if (episode.source === "WEEKLY_REVIEW") params.set("source", "weekly-review");
+  if (step === "story") params.set("step", "story");
+  return `/creator/episodes?${params.toString()}`;
+}
+
 export default async function CreatorEpisodesPage({ searchParams }: { searchParams: SearchParams }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/creator/episodes");
@@ -81,21 +98,33 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
   defaultFrom.setUTCDate(defaultFrom.getUTCDate() - 6);
   defaultFrom.setUTCHours(0, 0, 0, 0);
 
-  const from = parseDate(params.from, defaultFrom);
-  const to = parseDate(params.to, defaultTo, true);
-  const safeFrom = from.getTime() <= to.getTime() ? from : defaultFrom;
-  const safeTo = from.getTime() <= to.getTime() ? to : defaultTo;
-  const fromWeeklyReview = params.source === "weekly-review";
-  const challengeId = fromWeeklyReview ? null : params.challenge || null;
+  const requestedEpisode = params.episode
+    ? await getCreatorEpisode(user.id, params.episode)
+    : null;
 
-  const [snapshot, recentEpisodes, requestedEpisode] = await Promise.all([
-    buildEpisodeSnapshot(user.id, {
-      from: safeFrom,
-      to: safeTo,
-      challengeId,
-    }),
+  const parsedFrom = parseDate(params.from, defaultFrom);
+  const parsedTo = parseDate(params.to, defaultTo, true);
+  const validRange = parsedFrom.getTime() <= parsedTo.getTime();
+  const queryFrom = validRange ? parsedFrom : defaultFrom;
+  const queryTo = validRange ? parsedTo : defaultTo;
+
+  const safeFrom = requestedEpisode ? new Date(requestedEpisode.periodFrom) : queryFrom;
+  const safeTo = requestedEpisode ? new Date(requestedEpisode.periodTo) : queryTo;
+  const fromWeeklyReview = requestedEpisode
+    ? requestedEpisode.source === "WEEKLY_REVIEW"
+    : params.source === "weekly-review";
+  const challengeId = requestedEpisode
+    ? requestedEpisode.challengeId
+    : fromWeeklyReview ? null : params.challenge || null;
+  const activeStep = requestedEpisode && params.step === "story" ? "story" : "brief";
+  const filters = { from: safeFrom, to: safeTo, challengeId };
+
+  const [snapshot, recentEpisodes, storySuggestions] = await Promise.all([
+    buildEpisodeSnapshot(user.id, filters),
     listCreatorEpisodes(user.id, 6),
-    params.episode ? getCreatorEpisode(user.id, params.episode) : Promise.resolve(null),
+    activeStep === "story"
+      ? buildCreatorStorySuggestions(user.id, filters)
+      : Promise.resolve([]),
   ]);
 
   const savedEpisodes = requestedEpisode && !recentEpisodes.some((episode) => episode.id === requestedEpisode.id)
@@ -141,7 +170,7 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
             </label>
             <label className={styles.challengeFilter}>
               <span>CHALLENGE / FUNDED ACCOUNT</span>
-              <select name="challenge" defaultValue={params.challenge ?? ""}>
+              <select name="challenge" defaultValue={challengeId ?? ""}>
                 <option value="">All trading activity</option>
                 {snapshot.challenges.map((challenge) => (
                   <option key={challenge.id} value={challenge.id}>
@@ -157,6 +186,7 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
       </form>
 
       <EpisodeDraftWorkspace
+        key={requestedEpisode?.id ?? `${safeFrom.toISOString()}-${safeTo.toISOString()}-${challengeId ?? "all"}`}
         episodes={savedEpisodes}
         activeEpisodeId={requestedEpisode?.id ?? null}
         createInput={{
@@ -169,119 +199,126 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
         }}
       />
 
-      <section className={styles.metricGrid}>
-        <article className={styles.metricCard}>
-          <span>NET P&amp;L</span>
-          <strong className={pnlClass(snapshot.netPnl)}>{money(snapshot.netPnl)}</strong>
-          <small>Closed trades in selected period</small>
-        </article>
-        <article className={styles.metricCard}>
-          <span>TRADES</span>
-          <strong>{snapshot.tradeCount}</strong>
-          <small>
-            {snapshot.wins}W · {snapshot.losses}L · {snapshot.breakeven}BE
-            {snapshot.winRate == null ? "" : ` · ${snapshot.winRate.toFixed(1)}% WR`}
-          </small>
-        </article>
-        <article className={styles.metricCard}>
-          <span>AVERAGE R</span>
-          <strong>{snapshot.averageR == null ? "—" : `${snapshot.averageR.toFixed(2)}R`}</strong>
-          <small>${snapshot.totalRisk.toFixed(2)} recorded initial risk</small>
-        </article>
-        <article className={styles.metricCard}>
-          <span>REAL MONEY NET</span>
-          <strong className={pnlClass(snapshot.realMoneyNet)}>{money(snapshot.realMoneyNet)}</strong>
-          <small>${snapshot.costs.toFixed(2)} costs · ${snapshot.payouts.toFixed(2)} payouts</small>
-        </article>
-      </section>
-
-      <section className={styles.creatorGrid}>
-        <article className={styles.panel}>
-          <div className={styles.panelHeader}>
-            <div>
-              <span>STORY SIGNALS</span>
-              <h2>Talking points</h2>
-            </div>
-            {snapshot.topSetup && (
-              <div className={styles.setupChip}>
-                <span>TOP SETUP</span>
-                <strong>{snapshot.topSetup}</strong>
-              </div>
-            )}
-          </div>
-          <ul className={styles.talkingPoints}>
-            {snapshot.talkingPoints.map((point) => <li key={point}>{point}</li>)}
-          </ul>
-        </article>
-
-        <section className={styles.briefCard}>
-          <div className={styles.panelHeader}>
-            <div>
-              <span>READY FOR NOTES / SCRIPT</span>
-              <h2>Episode brief</h2>
-            </div>
-            <CopyEpisodeBrief brief={snapshot.brief} />
-          </div>
-          <pre>{snapshot.brief}</pre>
-        </section>
-      </section>
-
-      {snapshot.challenge && (
-        <section className={styles.challengeCard}>
-          <div className={styles.accountIdentity}>
-            <span>SELECTED ACCOUNT</span>
-            <strong>{snapshot.challenge.propFirm} · {snapshot.challenge.name}</strong>
-            <small>{snapshot.challenge.phase.replaceAll("_", " ")} · {snapshot.challenge.status.replaceAll("_", " ")}</small>
-          </div>
-          <div>
-            <span>CURRENT P&amp;L</span>
-            <strong className={pnlClass(challengePnl ?? 0)}>{money(challengePnl ?? 0)}</strong>
-            <small>{targetProgress == null ? "No target" : `${targetProgress.toFixed(0)}% of profit target`}</small>
-          </div>
-          <div>
-            <span>CURRENT BALANCE</span>
-            <strong>${snapshot.challenge.currentBalance.toFixed(2)}</strong>
-            <small>Started at ${snapshot.challenge.startingBalance.toFixed(2)}</small>
-          </div>
-        </section>
+      {requestedEpisode && (
+        <EpisodeWorkflowNav
+          briefHref={episodeStepHref(requestedEpisode, "brief")}
+          storyHref={episodeStepHref(requestedEpisode, "story")}
+          activeStep={activeStep}
+          storySaved={Boolean(requestedEpisode.storyAngle)}
+        />
       )}
 
-      <section className={`${styles.panel} ${styles.tradeOrderPanel}`}>
-        <div className={styles.panelHeader}>
-          <div>
-            <span>{fromWeeklyReview ? "WEEKLY TRADE ORDER" : "TRADE ORDER"}</span>
-            <h2>{fromWeeklyReview ? "Every closed trade in recording order" : "Closed trades in recording order"}</h2>
-          </div>
-          <small>{snapshot.episodeTrades.length} {snapshot.episodeTrades.length === 1 ? "trade" : "trades"}</small>
-        </div>
-        {snapshot.episodeTrades.length > 0 ? (
-          <div className={styles.tradeScroll}>
-            <div className={styles.featuredTrades}>
-              {snapshot.episodeTrades.map((trade, index) => (
-                <div className={styles.tradeRow} key={trade.id}>
-                  <span className={styles.tradeIndex}>{String(index + 1).padStart(2, "0")}</span>
-                  <div className={styles.tradeMain}>
-                    <strong>{trade.instrument} · {trade.direction}</strong>
-                    <small>{trade.setup || "No setup label"}</small>
-                  </div>
-                  <span className={styles.tradeR}>{trade.rMultiple == null ? "—" : `${trade.rMultiple.toFixed(2)}R`}</span>
-                  <b className={pnlClass(trade.netPnl)}>{money(trade.netPnl)}</b>
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <p className={styles.empty}>No closed trades in this period.</p>
-        )}
-      </section>
+      {activeStep === "story" && requestedEpisode ? (
+        <StoryBuilder episode={requestedEpisode} suggestions={storySuggestions} />
+      ) : (
+        <>
+          <section className={styles.metricGrid}>
+            <article className={styles.metricCard}>
+              <span>NET P&amp;L</span>
+              <strong className={pnlClass(snapshot.netPnl)}>{money(snapshot.netPnl)}</strong>
+              <small>Closed trades in selected period</small>
+            </article>
+            <article className={styles.metricCard}>
+              <span>TRADES</span>
+              <strong>{snapshot.tradeCount}</strong>
+              <small>
+                {snapshot.wins}W · {snapshot.losses}L · {snapshot.breakeven}BE
+                {snapshot.winRate == null ? "" : ` · ${snapshot.winRate.toFixed(1)}% WR`}
+              </small>
+            </article>
+            <article className={styles.metricCard}>
+              <span>AVERAGE R</span>
+              <strong>{snapshot.averageR == null ? "—" : `${snapshot.averageR.toFixed(2)}R`}</strong>
+              <small>${snapshot.totalRisk.toFixed(2)} recorded initial risk</small>
+            </article>
+            <article className={styles.metricCard}>
+              <span>REAL MONEY NET</span>
+              <strong className={pnlClass(snapshot.realMoneyNet)}>{money(snapshot.realMoneyNet)}</strong>
+              <small>${snapshot.costs.toFixed(2)} costs · ${snapshot.payouts.toFixed(2)} payouts</small>
+            </article>
+          </section>
 
-      {/* <section className={styles.experimentNote}>
-        <div>
-          <strong>Weekly episode rule</strong>
-          <p>Weekly episodes are generated live from Journal data. Every CLOSED trade in the week is included automatically in chronological order.</p>
-        </div>
-        <span>NO MANUAL INCLUDE / EXCLUDE</span>
-      </section> */}
+          <section className={styles.creatorGrid}>
+            <article className={styles.panel}>
+              <div className={styles.panelHeader}>
+                <div>
+                  <span>STORY SIGNALS</span>
+                  <h2>Talking points</h2>
+                </div>
+                {snapshot.topSetup && (
+                  <div className={styles.setupChip}>
+                    <span>TOP SETUP</span>
+                    <strong>{snapshot.topSetup}</strong>
+                  </div>
+                )}
+              </div>
+              <ul className={styles.talkingPoints}>
+                {snapshot.talkingPoints.map((point) => <li key={point}>{point}</li>)}
+              </ul>
+            </article>
+
+            <section className={styles.briefCard}>
+              <div className={styles.panelHeader}>
+                <div>
+                  <span>READY FOR NOTES / SCRIPT</span>
+                  <h2>Episode brief</h2>
+                </div>
+                <CopyEpisodeBrief brief={snapshot.brief} />
+              </div>
+              <pre>{snapshot.brief}</pre>
+            </section>
+          </section>
+
+          {snapshot.challenge && (
+            <section className={styles.challengeCard}>
+              <div className={styles.accountIdentity}>
+                <span>SELECTED ACCOUNT</span>
+                <strong>{snapshot.challenge.propFirm} · {snapshot.challenge.name}</strong>
+                <small>{snapshot.challenge.phase.replaceAll("_", " ")} · {snapshot.challenge.status.replaceAll("_", " ")}</small>
+              </div>
+              <div>
+                <span>CURRENT P&amp;L</span>
+                <strong className={pnlClass(challengePnl ?? 0)}>{money(challengePnl ?? 0)}</strong>
+                <small>{targetProgress == null ? "No target" : `${targetProgress.toFixed(0)}% of profit target`}</small>
+              </div>
+              <div>
+                <span>CURRENT BALANCE</span>
+                <strong>${snapshot.challenge.currentBalance.toFixed(2)}</strong>
+                <small>Started at ${snapshot.challenge.startingBalance.toFixed(2)}</small>
+              </div>
+            </section>
+          )}
+
+          <section className={`${styles.panel} ${styles.tradeOrderPanel}`}>
+            <div className={styles.panelHeader}>
+              <div>
+                <span>{fromWeeklyReview ? "WEEKLY TRADE ORDER" : "TRADE ORDER"}</span>
+                <h2>{fromWeeklyReview ? "Every closed trade in recording order" : "Closed trades in recording order"}</h2>
+              </div>
+              <small>{snapshot.episodeTrades.length} {snapshot.episodeTrades.length === 1 ? "trade" : "trades"}</small>
+            </div>
+            {snapshot.episodeTrades.length > 0 ? (
+              <div className={styles.tradeScroll}>
+                <div className={styles.featuredTrades}>
+                  {snapshot.episodeTrades.map((trade, index) => (
+                    <div className={styles.tradeRow} key={trade.id}>
+                      <span className={styles.tradeIndex}>{String(index + 1).padStart(2, "0")}</span>
+                      <div className={styles.tradeMain}>
+                        <strong>{trade.instrument} · {trade.direction}</strong>
+                        <small>{trade.setup || "No setup label"}</small>
+                      </div>
+                      <span className={styles.tradeR}>{trade.rMultiple == null ? "—" : `${trade.rMultiple.toFixed(2)}R`}</span>
+                      <b className={pnlClass(trade.netPnl)}>{money(trade.netPnl)}</b>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p className={styles.empty}>No closed trades in this period.</p>
+            )}
+          </section>
+        </>
+      )}
     </main>
   );
 }
