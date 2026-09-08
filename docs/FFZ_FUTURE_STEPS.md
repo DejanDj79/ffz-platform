@@ -2,114 +2,303 @@
 
 _Last updated: 2026-09-08_
 
-Ovaj dokument je živi handoff/checklist za FFZ Platform. Kada završimo stavku, ažurirati je ovde i označiti kao završenu.
+Ovaj dokument je živi handoff/checklist za FFZ Platform. Držati ga usklađenim sa stvarnim stanjem `main` grane i realnim načinom korišćenja aplikacije.
 
 ## Current project context
 
 - Repo: `DejanDj79/ffz-platform`
-- Local: `~/WaytrXGroundOps/external/ffz-platform`
-- Production: `~/apps/FFZ`
+- Branch: `main`
+- Local: `~/ffz-platform`
+- Production: `/opt/ffz`
+- Domain: `ffz.app`
 - Brand: **FFZ Platform / Futures From Zero**
 - Positioning: **FFZ is a prop futures trader operating system.**
 - Stack: Next.js 16.3.3, React 19.2, TypeScript 5.9, Tailwind 4.3, Drizzle/PostgreSQL, Zod, Vitest
 - Global app font: **League Spartan**
+- Production: Hetzner + Docker Compose + PostgreSQL + shared Nginx/Let's Encrypt network
 
 ---
 
 # ACTIVE NEXT ROADMAP ITEM — Real-world workflow validation
 
-Status: **ACTIVE / FULL-WORKFLOW PREFLIGHT → REAL TRADING WEEK**
+Status: **ACTIVE / FULL AUGUST PREFLIGHT → REAL TRADING WEEK**
 
-The feature roadmap and authenticated page-by-page polish pass are complete enough for real use. Do not add broad new product surface just to keep development moving.
+The product surface is complete enough for real use. Do not add broad new features only to keep development moving.
 
 First run the complete operating loop once with the merged local August demo dataset, then repeat the same loop with real trading data through a complete trading week:
 
 ```text
 Trading Desk
-→ trade execution / Journal
+→ Risk Calculator / Planned Trade when needed
+→ completed trade / Journal
 → Trade Review
 → Weekly Review
 → Next Week Focus
 → Build Weekly Episode
-→ Trade Review Presentation while recording
-→ Episode Brief / YouTube production
+→ BRIEF
+→ STORY
+→ SCRIPT
+→ RECORD
+→ PUBLISH
 ```
-
-Journal product rule after PR #52:
-- pre-trade planning belongs to Risk Calculator / Planned Trades
-- Journal is the post-trade record and stores completed trades only
-- FFZ does not track live/open positions
 
 During preflight and real use, capture only concrete friction such as:
 - repeated manual work
-- missing data genuinely needed for review or recording
+- data that is genuinely missing when reviewing or recording
 - information shown too late or in the wrong place
-- confusing transitions between Journal, Trade Review, Weekly Review and Episode Builder
-- creator workflow steps that materially slow down recording
-- Public Journey gaps that become obvious from actual audience/channel use
+- confusing transitions between Journal, Trade Review, Weekly Review and Creator
+- creator steps that materially slow down recording
+- Public Journey gaps exposed by actual channel/audience use
+- places where a full trading week behaves differently from the small test episode
 
-Fix proven friction with small focused PRs. Do not invent speculative features before real usage identifies a need.
+Fix proven friction with small focused changes. Do not invent speculative product surface before real usage identifies a need.
 
-## Password recovery — DONE / MERGED / DEPLOYED
+## Core product rules
 
-PR #57 merged commit:
+### Journal
+- pre-trade planning belongs to Risk Calculator / Planned Trades
+- Journal is the post-trade record and stores completed trades only
+- FFZ does not track live/open positions
+- planned trades do not affect Journal/challenge statistics until a result is logged
+
+### Weekly episode
+- one episode per trading week
+- Weekly Review defines the exact review period/account
+- every `CLOSED` Journal trade in the selected week is included automatically
+- closed trades stay chronological
+- there is no manual trade exclusion and no maximum-trade cap
+- featured/key trades only receive deeper emphasis; they never remove ordinary trades from the episode
+
+### Psychology / behavior
+- behavior signals are deterministic/objective
+- never infer **Revenge** unless the trader explicitly selected Revenge
+- rapid re-entry, post-loss activity, overtrading, risk escalation, etc. may be surfaced without assigning an unselected motive
+
+### Creator
+- Creator tools are internal/owner-only, not commercial PRO features
+- facts come from FFZ data; generated copy must not invent motives, chart observations or historical account state
+- `TALKING POINT` / producer cues are prompts for the creator and are **not spoken script**
+
+---
+
+# Creator / YouTube workflow — DONE / READY FOR REAL-WORLD VALIDATION
+
+Route:
 
 ```text
-84325daba8c6d614d60d9a863a296717d9fcde42
+/creator/episodes
 ```
+
+Current workflow:
+
+```text
+01 BRIEF → 02 STORY → 03 SCRIPT → 04 RECORD → 05 PUBLISH
+```
+
+## BRIEF
+
+Current Episode Builder:
+- authenticated Creator-only access
+- configurable `from`, `to`, challenge/account and source
+- Weekly Review handoff locks the intended period/account
+- all closed Journal trades included
+- Net P&L, trade count, Average R, Real Money Net and challenge/account context
+- behavior Story Signals / talking points
+- Episode Brief generated from verified FFZ data
+
+## Persistent episode model
+
+Persistent Creator episodes are now implemented.
+
+Table:
+
+```text
+creator_episodes
+```
+
+Important fields include:
+- title / status / source / period
+- challengeId
+- brief
+- storyAngle
+- script
+- featuredTradeIds
+- publishTitle
+- thumbnailText
+- description
+- chapters
+- youtubeUrl
+
+Status flow:
+
+```text
+DRAFT → SCRIPT_READY → RECORDED → EDITED → PUBLISHED
+```
+
+Migrations:
+- local: `drizzle/0007_creator_episodes.sql`
+- production: `drizzle-production/0007_creator_episodes.sql`
+- local: `drizzle/0008_creator_publish_fields.sql`
+- production: `drizzle-production/0008_creator_publish_fields.sql`
+
+Local note:
+- local `drizzle/` still has no normal Drizzle migration journal
+- if a fresh local DB does not contain these tables/columns, apply the SQL once through `psql`
+- do not start using local `db:migrate` unless that setup is intentionally changed
+
+Production:
+- `scripts/deploy-production.sh` applies committed `drizzle-production` migrations
+- `scripts/verify-production-schema.sh` verifies required production schema
+- never use production `db:push`
+
+## STORY
+
+Deterministic Story Builder:
+- ranks actual story candidates from P&L, setups, Journal metadata and behavior signals
+- one strongest `PRIMARY STORY`
+- at most one genuinely distinct `ALTERNATIVE STORY`
+- weaker evidence becomes `OTHER THREAD`
+- no generic fallback story when a real primary exists
+- selected story can be edited and persisted
+- key/featured trade IDs are persisted only for emphasis
+
+Story roles:
+- `PRIMARY`
+- `ALTERNATIVE`
+- `THREAD`
+
+Strength:
+- `STRONG`
+- `SOLID`
+- `SUPPORTING`
+
+## SCRIPT
+
+Deterministic recording draft:
+- natural first-person FFZ voice
+- all closed trades remain in the chronological recap
+- up to three strongest key trades get deeper treatment
+- Journal execution, mindset, notes and initial risk are used only when actually stored
+- rapid post-loss timing is derived from actual timestamps
+- missing chart/motive information becomes `[TALKING POINT: ...]`, not invented narration
+- deep-dive prompts are dynamic and kept to roughly 2–3 useful prompts per key trade
+- estimated runtime includes expected guided discussion time
+- current target is roughly 15–20 minutes, but the estimator is guidance rather than a forced duration
+
+## RECORD
+
+Teleprompter/recording mode:
+- uses the **saved script**, not unsaved generated preview
+- fullscreen
+- auto-scroll
+- very slow scroll speeds supported through sub-pixel accumulation
+- speed and font controls
+- Restart
+- section/cue presentation
+- producer cues are visually separated and marked not to read
+- no reading-guide horizontal line
+- `MARK RECORDED` moves the episode to `RECORDED`
+- later statuses are preserved if the user revisits RECORD
+
+Keyboard / CV09 mapping currently used:
+- `F13` Play / Pause
+- `F14` Slower
+- `F15` Faster
+- `F16` Smaller text
+- `F17` Larger text
+- `F18` Restart
+- `F19` Fullscreen
+- Space also toggles Play / Pause
+
+Recording rule:
+- ordinary paragraph text is spoken
+- section labels, CAMERA/DEEPCHARTS/JOURNAL/SCOREBOARD cues and producer prompts are not spoken
+- pause auto-scroll while answering a producer cue naturally
+
+## PUBLISH
+
+Publish Builder generates and persists:
+- multiple title ideas
+- multiple thumbnail-text ideas
+- editable final YouTube title
+- editable final thumbnail text
+- YouTube description
+- chapters calculated from real script sections/timing
+- optional YouTube URL
+- copy controls
+
+Workflow:
+- `SAVE PACKAGE` → `EDITED`
+- `MARK PUBLISHED` → `PUBLISHED`
+
+Copy principles:
+- title/thumbnail should reflect the actual primary story, not generic “weekly recap”
+- description documents the journey and verified episode stats
+- no guru language or fake certainty
+- include personal-learning / not-financial-advice context
+
+## Current Creator validation target
+
+Use the full August demo dataset to test:
+- a week with materially more than nine trades
+- whether chronological recap remains concise
+- whether Story ranking still picks the right primary
+- whether key-trade selection remains useful
+- whether 2–3 deep-dive prompts per key trade are enough
+- teleprompter pacing while actually speaking
+- chapter timestamps after natural pauses
+- whether Publish output needs any manual repetitive cleanup
+
+Only change Creator after this real workflow exposes concrete friction.
+
+---
+
+# Scoreboard / recording support — DONE
+
+Creator Scoreboard remains available for OBS/recording.
+
+Current direction:
+- professional fintech/trading look, not gaming/esports
+- FULL and COMPACT are separate layouts
+- COMPACT visibility controls use persisted settings
+- compact overlay is centered correctly
+- scoreboard should support recording rather than become a second analytics dashboard
+
+Trade Review Presentation mode also remains available for chart/trade explanation during recording.
+
+---
+
+# Password recovery — DONE / DEPLOYED
 
 Completed:
 - Forgot password → Resend SMTP email → one-time 30-minute reset link
-- only token hashes are stored
-- password change, token consumption and existing-session revocation are transactional
-- neutral responses prevent account discovery
+- token hashes only
+- transactional password change/token consumption/session revocation
+- neutral responses to prevent account discovery
 - IP rate limit and persistent per-account cooldown
-- auth form button/logo polish and corrected proportional favicon
-- production migration `0006_password_reset_tokens.sql`
-- future backups ignored; inspected historical backup contains no application data
-
-Production verification completed 2026-09-08:
-- backup completed
-- latest `main` deployed
-- production migration completed
 - Resend domain `ffz.app` verified
-- sender `FFZ <noreply@ffz.app>` configured through Resend SMTP
-- real recovery email and full password-reset flow passed
-- user confirmed production behavior
+- sender `FFZ <noreply@ffz.app>`
+- real production reset flow verified
 
-Validation:
-- FFZ CI #408 — PASSED
-- 204 tests — PASSED
-- production build — PASSED
-- local visual review — PASSED by user
+Migration:
+- `drizzle-production/0006_password_reset_tokens.sql`
 
+Historical merged PR:
+- PR #57
+- commit `84325daba8c6d614d60d9a863a296717d9fcde42`
 
+---
 
-## Local full-month workflow dataset — DONE / MERGED
-
-PR #44: **Local demo seed — full August trading workflow**
-
-Merged commit:
-
-```text
-26df5e64e5f8935e103cad9547b5ad5dc9d3a09e
-```
+# Local full-month August workflow dataset — DONE
 
 Purpose:
-- deterministic development fixture for end-to-end FFZ workflow validation
-- August 2026 Creator/PRO scenario with 53 closed MNQ/MES trades
-- covers failed evaluation → passed evaluation → funded progression
-- includes objective discipline/mindset patterns, Ledger fees/payout, Weekly Focus rows, Trading Guardrails, Scoreboard settings and one carry-forward Planned Trade
-- intentionally includes rapid re-entry, loss streaks, overtrading, daily-loss breaches and risk escalation so behavior feedback can be exercised
+- deterministic end-to-end development fixture
+- August 2026 Creator/PRO scenario
+- 53 closed MNQ/MES trades
+- failed evaluation → passed evaluation → funded progression
+- includes discipline/mindset patterns, Ledger fees/payout, Weekly Focus, Guardrails, Scoreboard settings and a carry-forward Planned Trade
+- intentionally includes rapid re-entry, loss streaks, overtrading, daily-loss breaches and risk escalation
 - never auto-labels Revenge
-
-Local-only safety:
-- requires `--confirm-local`
-- refuses production mode
-- requires a localhost PostgreSQL host
-- requires database name exactly `ffz_platform`
-- deletes/recreates only the dedicated demo user and its cascaded demo data
-- does not touch other local accounts
 
 Demo account:
 
@@ -118,419 +307,143 @@ Email: month-demo@ffz.local
 Password: FFZdemo2026!
 ```
 
-Run locally:
+Seed:
 
 ```bash
 npm run db:seed:month-demo -- --confirm-local
 ```
 
-Validation:
-- FFZ CI #335 — PASSED
-- dataset was used successfully to expose and verify subsequent chart, Trade Review navigation/sticky-toolbar and Dashboard Recent Trades fixes
-- no DB migration required
+Safety:
+- local-only confirmation required
+- refuses production mode
+- requires localhost PostgreSQL
+- requires database name `ffz_platform`
+- touches only the dedicated demo user/data
 
-Use this dataset for the immediate full-workflow preflight before switching to a real trading week.
+Historical:
+- PR #44
+- commit `26df5e64e5f8935e103cad9547b5ad5dc9d3a09e`
+
+This dataset is the immediate preflight fixture before a real trading week.
 
 ---
 
-## Application UI polish — DONE / MERGED
+# Trading workflow foundations — DONE
 
-### Dashboard polish — DONE / MERGED
+## Trade Review
 
-PR #40: **Dashboard polish — align Market Risk and remove duplicate header block**
-
-Merged commit:
+Route:
 
 ```text
-565eb7ce01bda8d3c6ba36237c96a12eba318594
+/journal/review
 ```
 
 Implemented:
-- removed redundant in-page Dashboard title/description and duplicated action buttons
-- Dashboard KPIs now begin page content immediately
-- `MARKET RISK` aligns with Active Challenge/Funded card height
-- no data or behavior changes
+- screenshot-first review
+- previous/next navigation
+- attachments
+- details / execution / mindset / planned-origin metadata
+- Day/Week/Month performance
+- Net P&L / Profit Factor / Win Rate / trade count
+- cumulative P&L charts
+- deterministic FFZ Score `0–100`
+- fullscreen/presentation mode
+- keyboard navigation
+- Dashboard deep-links to specific trades
 
-Validation:
-- CI tests/build — PASSED
-- local visual verification — PASSED by user
+Historical:
+- PR #30 `9f38fa0eb9233f2f2001bd6f59b30ac8eebfcd8a`
+- PR #31 `f36bc92bf9555a13a95f96652e51a1cbf95b73d7`
+- PR #35 `63a9e066ff300f0246792d2c9247d86dbc7ce42e`
+- PR #45 `b8f62411f8e3cccba7d6789b8aaa6f136f8db961`
+- PR #46 `72f6791883c35f8bb3535424df3ee903df9c9332`
 
-### Dashboard Recent Trades quick-review — DONE / MERGED
+## Weekly Review / behavior feedback loop
 
-PR #46: **Dashboard recent trades quick-review modal**
-
-Merged commit:
+Route:
 
 ```text
-72f6791883c35f8bb3535424df3ee903df9c9332
+/weekly-review
 ```
 
 Implemented:
-- replaced mixed `RECENT ACTIVITY` with focused `RECENT TRADES`
-- Dashboard list shows only the latest 5 closed trades with `DATE / SYMBOL / NET P&L`
-- clicking a row opens a read-only quick-review modal
-- modal uses FFZ layout with trade data on the left and real same-day cumulative P&L chart on the right
-- chart highlights the selected trade and does not fabricate intratrade/tick data
-- modal includes execution, mindset, setup, account, P&L, R and order details without note editing
-- `OPEN IN TRADE REVIEW` deep-links to the selected trade via `?trade=<id>`
-- Real Money remains a separate Dashboard panel
+- weekly scorecard
+- daily P&L
+- highlights
+- execution/mindset/origin breakdowns
+- post-loss metrics
+- deterministic findings
 
-Validation:
-- FFZ CI #344 — PASSED
-- local visual/behavior verification — PASSED by user
-- no DB migration required
+Objective behavior signals:
+- Rapid Re-entry
+- Post-loss Activity
+- Loss Streak
+- Overtrading
+- Daily Loss Count
+- Plan Breakdown
+- Mindset Shift
+- Risk Escalation
 
-### Journal completed-trades workflow — DONE / MERGED
-
-PR #52: **Journal closed-trades-only workflow**
-
-Merged commit:
-
-```text
-b23e3324de1628efc3a09aec4d664ebc285a440f
-```
-
-Implemented:
-- manual Journal is now a completed-trades-only workflow
-- `+ NEW TRADE` became `+ LOG TRADE`
-- manual Journal entries require both `Closed At` and `Exit Price`
-- `OPEN` was removed from normal Journal filtering; legacy open rows remain compatibility data and can only be completed, not reopened
-- Risk Calculator keeps pre-trade planning through a dedicated `/api/journal/plans` path
-- Planned Trades stay outside Journal statistics and challenge sync until completed
-- `START TRADE` was replaced by `LOG RESULT`; planned values are prefilled and the plan becomes a Journal trade only after the actual result is entered
-- normal `/api/journal/trades` and CSV import remain completed-trade-only
-- Trading Desk copy/KPIs were aligned with the completed Journal model
-- existing DB status/model support was retained for backward compatibility; no existing rows were deleted or migrated
-
-Product rule:
-- pre-trade planning belongs to Risk Calculator / Planned Trades
-- Journal is the post-trade record
-- FFZ does not track positions live
-
-Validation:
-- FFZ CI #384 — PASSED
-- tests — PASSED
-- production build — PASSED
-- local manual `LOG TRADE` and Planned Trade → `LOG RESULT` behavior — PASSED by user
-- no DB migration required
-
-### Typography consistency polish — DONE / MERGED
-
-PR #53: **Typography polish and redundant helper cleanup**
-
-Merged commit:
+Next Week Focus feedback loop:
 
 ```text
-43ec426c28dbef7b22e3bacf85758083fd353637
+trade → behavior detected → weekly insight → next-week focus → Trading Desk reminder
 ```
 
-Implemented:
-- explicit 16px Risk Calculator form-control font size instead of inheriting the larger page/body text size
-- locally reviewed font-size/font-weight refinements across Dashboard, Trading Desk, Journal, Weekly Review, Prop Journey, Ledger, Upgrade, Scoreboard, Creator and related surfaces
-- removed three redundant helper/info blocks from the visible UI: Weekly episode rule note, Prop Journey intro toolbar and OBS setup hint
-- no product logic, schema or persistence changes
+Persistence:
+- table `weekly_focuses`
+- one per user/week
+- production migration `drizzle-production/0005_weekly_focuses.sql`
 
-Validation:
-- FFZ CI #387 — PASSED
-- tests — PASSED
-- production build — PASSED
-- local visual review of the complete typography/helper cleanup — PASSED by user
-- no DB migration required
+Historical:
+- PR #32 `a70242171eb42dc8cad5ce605561cec9b9ddbab4`
+- PR #33 `bdeebea649a5513d1112fc13b22cbb69c4128951`
+- PR #34 `d996311717321390ff8e82969839a721a6c2290d`
 
-### Authenticated header toolbar — DONE / MERGED
+---
 
-PR #55: **Authenticated user toolbar and quick trade action**
+# Application polish / commercial foundations — DONE
 
-Merged commit:
+Major completed work:
+- Dashboard hierarchy and Recent Trades quick review
+- authenticated workspace page-by-page polish
+- Journal completed-trades-only workflow
+- Planned Trade → Log Result workflow
+- typography consistency cleanup
+- authenticated sticky header toolbar
+- global `LOG TRADE`
+- account/user menu
+- dark form-control consistency
+- signed positive/negative P&L chart fills
+- contextual paywalls and upgrade return flow
+- server-gated DeepCharts CSV import
+- Founder hard-cap backend and Test Mode E2E
+- Public FFZ Journey MVP
+- password recovery
+- Creator workflow through Publish
 
-```text
-2af419e06b1d70267662d8c94144b0dcf2243650
-```
+Important historical PRs:
+- PR #40 `565eb7ce01bda8d3c6ba36237c96a12eba318594`
+- PR #42 `7a42d1f7a7945f701487b69039a024d1d815096f`
+- PR #49 `d7e91d507c6768682131a7809f4efee6fbab4766`
+- PR #52 `b23e3324de1628efc3a09aec4d664ebc285a440f`
+- PR #53 `43ec426c28dbef7b22e3bacf85758083fd353637`
+- PR #55 `2af419e06b1d70267662d8c94144b0dcf2243650`
+- PR #57 `84325daba8c6d614d60d9a863a296717d9fcde42`
 
-Implemented:
-- added a compact authenticated header toolbar without duplicating sidebar navigation
-- desktop page header stays sticky while the page content scrolls; mobile keeps its compact sticky top bar
-- added a global `LOG TRADE` action that routes to Journal and opens the existing completed-trade editor
-- added a user/account dropdown with identity, FFZ access level, Plan & Billing and Sign out
-- moved user identity and Sign out out of the sidebar while keeping the plan/upgrade card visible
-- desktop sidebar remains in the original fixed/full-width layout with no collapse/expand control
-
-Validation:
-- FFZ CI #399 — PASSED
-- tests — PASSED
-- production build — PASSED
-- local visual/behavior review, including sticky header and global `LOG TRADE`, — PASSED by user
-- no DB migration required
-
-### Trade Review chart/navigation usability fixes — DONE / MERGED
-
-PR #45: **Fix signed P&L chart fills and Trade Review navigation**
-
-Merged commit:
-
-```text
-b8f62411f8e3cccba7d6789b8aaa6f136f8db961
-```
-
-Implemented:
-- Journal Analytics equity fill now terminates at the zero baseline instead of the chart floor
-- positive cumulative P&L area uses the positive fill and negative cumulative P&L area uses the downside red fill
-- the same signed-area behavior is applied to FREE Analytics and Trade Review `CUMULATIVE NET P&L`
-- Trade Review navigation direction is corrected: right advances `1 → 2 → 3`, left moves backward
-- Presentation-mode `ArrowRight` / `ArrowLeft` follows the same direction
-- newest-first trade ordering is preserved
-- Trade Review top toolbar stays sticky while reviewing lower performance charts
-- sticky behavior is disabled on very narrow mobile screens
-- conflict with PR #46 was reconciled so Dashboard `?trade=<id>` deep-links remain intact
-
-Validation:
-- FFZ CI #348 — PASSED after conflict reconciliation
-- navigation behavior was locally confirmed by user
-- user explicitly requested final completion/merge
-- no DB migration required
-
-### Authenticated workspace polish — DONE / MERGED
-
-PR #42: **Workspace polish — Trading Desk, Journal, Analytics, Weekly Review, Ledger, Prop Journey, Episode Builder and Scoreboard**
-
-Merged commit:
-
-```text
-7a42d1f7a7945f701487b69039a024d1d815096f
-```
-
-Final CI before merge:
-- FFZ CI #330 — PASSED
-- tests — PASSED
-- production build — PASSED
-
-User reviewed and approved the polished authenticated pages/flows page-by-page.
-
-Completed in PR #42:
-- Trading Desk hierarchy and shared authenticated page spacing
-- Economic Calendar typography
-- authenticated Risk Calculator polish and persistent shell navigation
-- Trading Guardrails typography
-- Challenge/Funded account workflow and integrated Rules Library/custom preset management
-- Journal history-first workflow with New/Edit modal
-- Trade Review navigation/details/performance hierarchy
-- CSV Import Setup → Upload → Verify → Import flow
-- Journal Analytics hierarchy and constrained comparison scrolling
-- Weekly Review retrospective → behavior → commitment → creator flow
-- Real Money Ledger history-first workflow and entry modal
-- Prop Journey cash-economics hierarchy
-- Episode Builder creator recording flow
-- Creator Scoreboard settings/preview flow
-- Scoreboard FULL/COMPACT immediate switching
-- COMPACT Scoreboard visibility controls fixed to use persisted settings
-- FULL Scoreboard spacing refinements
-- app-wide dark single-select chevron positioning/size normalization
-- Rules Library standalone route removed from sidebar and legacy route redirected to `/challenges`
-
-Important polish principles now established:
-- do not create redundant “second dashboard” layouts
+Polish principles:
+- no redundant “second dashboard” layouts
 - task-focused hierarchy first
-- same-row cards align in outer height where appropriate
-- avoid unnecessarily tall cards and empty vertical space
+- same-row cards align in outer height when appropriate
+- avoid tall empty cards
 - long tables/lists use constrained internal scrolling only when useful
-- internal scrollbars stay visually quiet until hover and chain back to page scrolling at boundaries
 - dark dropdown/date controls stay consistent
-- authenticated AppShell page separation: 24px desktop / 18px narrow mobile
-- creator tools should optimize the recording workflow, not look like generic analytics dashboards
-
-No DB migration was required for PR #42.
+- Creator optimizes recording workflow rather than looking like generic analytics
+- make small visual changes only when they improve real use
 
 ---
 
-## Paywall / upgrade flow polish — DONE / MERGED
-
-PR #49: **Paywall polish — upgrade flow, activation UX and gated import**
-
-Merged commit:
-
-```text
-d7e91d507c6768682131a7809f4efee6fbab4766
-```
-
-Implemented:
-- contextual PRO gates remember the locked feature/path and use `UNLOCK WITH FFZ PRO`
-- `/upgrade` is simplified to three choices: `FREE / PRO / FOUNDER`
-- Monthly / Yearly billing lives inside one PRO card; Yearly remains the recommended/default value option
-- checkout return context survives Lemon Squeezy and can return the user to the feature they were trying to use
-- post-checkout activation banner polls effective FFZ access and handles webhook delay without falsely showing failure
-- Founder activation is distinguished from an already-active PRO subscription
-- `/api/auth/me` exposes effective access labels `FREE / PRO / FOUNDER / CREATOR` while preserving the underlying FREE/PRO entitlement model
-- authenticated sidebar now shows plan/access state with UPGRADE / MANAGE / PLANS entry
-- Economic Calendar alert is suppressed on `/upgrade`
-- official DeepCharts CSV import now goes through a dedicated server endpoint that enforces the `CSV_IMPORT` entitlement
-- challenge-limit/custom-rule, Guardrails and Prop Journey paywall responses preserve upgrade context
-- internal return paths are sanitized so checkout cannot redirect to an external origin
-- focused tests cover safe return-path and feature-name sanitization
-
-Preserved commercial model:
-- FREE `$0`
-- PRO `$12.99/month` or `$99/year`
-- Founder `$199` one-time, lifetime PRO, first 150 traders
-- Creator remains internal/owner access with effective PRO and no Founder seat
-
-Validation:
-- final FFZ CI #373 — PASSED
-- tests — PASSED
-- production build — PASSED
-- local visual/behavior review — PASSED by user
-- no DB migration required
-
----
-
-## Founder billing — DONE
-
-PR #20 merged commit:
-
-```text
-d0323177410ca656fd969c98a8ff7a04506738e7
-```
-
-Founder model:
-- `$199` one-time
-- lifetime PRO
-- hard cap: **150 traders**
-- same commercial entitlement as PRO
-- Creator-only tools excluded
-- refund does **not** reopen a Founder seat
-- “Lifetime” means lifetime of the FFZ product/service
-
-Hard-cap implementation:
-- `founder_slots` table with exactly 150 pre-created slots
-- states: `AVAILABLE`, `RESERVED`, `PURCHASED`, `REFUNDED`
-- PostgreSQL advisory transaction lock prevents oversell
-- checkout reservation: 35 min
-- Lemon checkout: 30 min + 5 min webhook grace
-- refunded seat never returns to `AVAILABLE`
-
-Entitlement:
-- successful Founder order => effective PRO
-- later subscription lifecycle events cannot downgrade active Founder
-- existing Monthly/Annual subscription is cancelled for future renewal after Founder purchase
-- Creator cannot consume Founder seats
-
-### Founder E2E test — PASSED
-
-Test Mode Founder Variant ID:
-
-```text
-2088460
-```
-
-**Do not use this Test Mode ID in production.**
-
-Confirmed locally:
-- `/upgrade` showed 150 spots
-- USER completed `$199` one-time checkout
-- `order_created` activated Founder
-- `FREE -> FOUNDER`
-- remaining spots `150 -> 149`
-- full refund tested through Lemon API
-- `order_refunded` changed `FOUNDER -> FREE`
-- refunded slot stayed consumed
-
-Important webhook rule:
-- `order_created` must be selected
-- `order_refunded` must be selected
-- keep subscription lifecycle webhook events enabled
-
-### Production Founder deploy — DONE
-
-Completed 2026-09-04:
-- [x] backup before migration
-- [x] latest `main` deployed to `~/apps/FFZ`
-- [x] `drizzle-production/0004_founder_slots.sql` applied
-- [x] production verification confirmed exactly **150 Founder slots**
-
-**Never use `db:push` in production.**
-
----
-
-## Founder Live Mode — BLOCKED / WAITING FOR LEMON STORE ACTIVATION
-
-Current blocker: Lemon Squeezy store is not active yet, so Live Mode configuration and end-to-end live billing verification cannot be completed now.
-
-Keep the existing billing implementation intact and resume immediately when Lemon activates the store.
-
-Create Lemon Live Mode Founder variant:
-- Name: `Founder Trader`
-- `$199`
-- one-time / single payment
-- no trial
-
-Set in production:
-
-```env
-LEMONSQUEEZY_FOUNDER_VARIANT_ID=<LIVE_VARIANT_ID>
-LEMONSQUEEZY_TEST_MODE=false
-```
-
-Live webhook:
-
-```text
-https://<ffz-domain>/api/billing/webhook
-```
-
-Required events:
-- `order_created`
-- `order_refunded`
-- `subscription_created`
-- `subscription_updated`
-- `subscription_cancelled`
-- `subscription_expired`
-
-### Founder pre-launch UX polish — DONE / MERGED
-
-Completed in PR #49.
-
-Current checkout-return behavior:
-- shows `Payment received. Activating...`
-- polls effective FFZ access while the webhook completes
-- distinguishes normal PRO activation from Founder activation
-- shows a delayed-activation fallback with `CHECK AGAIN`
-- returns the user to the originating locked feature when context exists
-- sidebar and `/api/auth/me` distinguish `FREE / PRO / FOUNDER / CREATOR`
-
-Live Mode still requires the billing smoke tests below after Lemon store activation.
-
-### Billing live-launch checklist
-
-Infrastructure complete:
-- [x] Founder backend deployed
-- [x] production migration passed
-- [x] `founder_slots` = exactly 150 rows
-- [x] Upgrade copy final review
-- [x] Founder success/activation UX polish
-
-Deferred until live launch:
-- [ ] Live Founder variant created
-- [ ] Live Founder Variant ID added to server
-- [ ] `LEMONSQUEEZY_TEST_MODE=false`
-- [ ] Live webhook URL verified
-- [ ] `order_created` selected
-- [ ] `order_refunded` selected
-- [ ] subscription events selected
-- [ ] Founder purchase smoke test
-- [ ] Monthly PRO smoke test
-- [ ] Annual PRO smoke test
-- [ ] Existing PRO -> Founder test
-- [ ] Full refund test
-- [ ] Partial refund test
-- [ ] SOLD OUT behavior verified
-
----
-
-## Public FFZ Journey MVP — DONE
-
-PR #23 merged commit:
-
-```text
-5ec6565db2b8e375647277e8cafca6398c0fec3f
-```
+# Public FFZ Journey MVP — DONE
 
 Public route:
 
@@ -543,196 +456,34 @@ Purpose:
 - separate from authenticated PRO `/prop-journey`
 - powered by real Creator challenge + Real Money Ledger data
 
-Privacy rules:
+Privacy:
 - no account numbers
-- no challenge/account IDs
-- no private account labels
-- no journal/ledger notes
+- no private challenge/account IDs or labels
+- no Journal/Ledger notes
 - no order references
 - no raw trade details
 - no Creator personal display name
-- public UI receives a sanitized aggregate model only
+- public UI receives only sanitized aggregates
 
-Production deploy completed 2026-09-04 and logged-out smoke test passed.
+Historical:
+- PR #23
+- commit `5ec6565db2b8e375647277e8cafca6398c0fec3f`
 
----
-
-## Creator / YouTube workflow — DONE / MERGED
-
-### Creator Episode Builder foundation
-
-PR #19 merged commit:
-
-```text
-e8ae68e990f1a69fcadead5f8c5429a55cd198d4
-```
-
-Creator-only:
-- `/creator/episodes`
-- Episode Builder
-- Scoreboard
-
-Do not turn these into commercial PRO features.
-
-### Build Episode from Weekly Review
-
-PR #36 merged commit:
-
-```text
-ba49701e87815d532f8c8f2551e684cbfbdc4695
-```
-
-The original manual-selection handoff was intentionally superseded by PR #38 after the real channel workflow was defined.
-
-### Weekly Episode auto-build
-
-PR #38 merged commit:
-
-```text
-4551e623daad0e6edba0335553240270b0669a18
-```
-
-Current product rule:
-- one episode per trading week
-- exact Monday–Sunday period from Weekly Review
-- every `CLOSED` Journal trade in that week included automatically
-- chronological order
-- no manual selection/exclusion
-- no maximum-trade cap
-- Episode Brief includes every closed trade
-- no saved-episode DB model in V1
-- Creator-only gating remains authoritative
+Future changes only from actual audience/use feedback.
 
 ---
 
-## Psychology / Discipline foundation — DONE
+# Billing / monetization
 
-Merged commits:
-
-```text
-PR #28  2e7740354fcb4845869df13c7b4ce86ccc17e72d
-PR #29  a4a2c2b5112943a956e5156c23af1964fb0c4c21
-```
-
-Implemented:
-- execution metadata: On Plan / Deviated / Unplanned
-- mindset metadata: Calm / Focused / FOMO / Revenge / Fear / Frustrated / Tired
-- durable `FFZ:planned` provenance
-- discipline analytics and reserved-tag handling
-
-Important rule:
-- never infer **Revenge** unless the trader explicitly selected Revenge
-- objective behavior signals may indicate rapid re-entry, loss chasing or overtrading, but must not automatically label them as revenge trading
-
----
-
-## Trade Review — DONE
-
-PR #30:
-
-```text
-9f38fa0eb9233f2f2001bd6f59b30ac8eebfcd8a
-```
-
-Route: `/journal/review`
-
-Implemented screenshot-first review, navigation, attachments, details, execution/mindset/planned-origin metadata and responsive review layout.
-
-### Trade Review Performance + FFZ Score — DONE
-
-PR #31:
-
-```text
-f36bc92bf9555a13a95f96652e51a1cbf95b73d7
-```
-
-Implemented Day/Week/Month performance, Net P&L, Profit Factor, Win Rate, trade count, P&L charts and deterministic FFZ Score `0–100` with Performance / Risk / Consistency / Discipline breakdown.
-
-FFZ Score formula is original and transparent; do not copy proprietary Zella Score logic.
-
-### Trade Review Presentation mode — DONE
-
-PR #35:
-
-```text
-63a9e066ff300f0246792d2c9247d86dbc7ce42e
-```
-
-Presentation mode supports focused review/YouTube recording, previous/next, keyboard navigation, `Esc`, tabs and browser Fullscreen API progressive enhancement.
-
----
-
-## Weekly Review / behavior feedback loop — DONE
-
-### Weekly Review
-
-PR #32:
-
-```text
-a70242171eb42dc8cad5ce605561cec9b9ddbab4
-```
-
-Route: `/weekly-review`
-
-Implemented weekly scorecard, daily P&L, highlights, execution/mindset/origin breakdowns, post-loss metrics and deterministic findings.
-
-### Objective Behavior Signals v1
-
-PR #33:
-
-```text
-bdeebea649a5513d1112fc13b22cbb69c4128951
-```
-
-Signals:
-- Rapid Re-entry
-- Post-loss Activity
-- Loss Streak
-- Overtrading
-- Daily Loss Count
-- Plan Breakdown
-- Mindset Shift
-- Risk Escalation
-
-All are deterministic/objective. No AI behavioral conclusions and no automatic Revenge label.
-
-Development-only demo mode:
-
-```text
-/weekly-review?behaviorDemo=1
-```
-
-### Next Week Focus
-
-PR #34:
-
-```text
-d996311717321390ff8e82969839a721a6c2290d
-```
-
-Feedback loop:
-
-```text
-trade -> behavior detected -> weekly insight -> next-week focus -> Trading Desk reminder
-```
-
-Persistence:
-- table: `weekly_focuses`
-- one per user/week
-- production migration: `drizzle-production/0005_weekly_focuses.sql`
-- production deployment confirmed complete
-
----
-
-## Current monetization
+## Current commercial model
 
 - FREE: `$0`
 - PRO Monthly: `$12.99/month`
 - PRO Yearly: `$99/year`
-- Founder: `$199 one-time`, lifetime PRO, first 150
+- Founder: `$199 one-time`, lifetime PRO, first 150 traders
 - Creator: internal/owner role, effective PRO, no Founder seat
 
-## Product gating summary
+## Product gating
 
 FREE:
 - Risk Calculator
@@ -755,106 +506,150 @@ PRO:
 
 Creator-only:
 - Episode Builder
+- BRIEF / STORY / SCRIPT / RECORD / PUBLISH
 - Scoreboard
-- Weekly Review -> automatic Weekly Episode handoff
-- future internal creator tooling only when justified by real workflow
+- Weekly Review → automatic Weekly Episode handoff
+- future creator tooling only when justified by real workflow
+
+## Founder billing backend — DONE
+
+Founder rules:
+- `$199` one-time
+- lifetime PRO
+- hard cap: 150
+- refunded Founder seat does not reopen
+- Creator cannot consume Founder seats
+- active Founder cannot be downgraded by later subscription lifecycle events
+
+`founder_slots` states:
+- `AVAILABLE`
+- `RESERVED`
+- `PURCHASED`
+- `REFUNDED`
+
+Production Founder backend/migration is already deployed and verified with exactly 150 slots.
+
+Historical:
+- PR #20
+- commit `d0323177410ca656fd969c98a8ff7a04506738e7`
+
+## Founder Live Mode — BLOCKED / WAITING FOR LEMON STORE ACTIVATION
+
+Do not change the working billing implementation while waiting.
+
+When Lemon activates the store:
+- create Live Founder variant: `Founder Trader`, `$199`, one-time
+- configure `LEMONSQUEEZY_FOUNDER_VARIANT_ID`
+- set `LEMONSQUEEZY_TEST_MODE=false`
+- verify live webhook at FFZ production domain
+
+Required webhook events:
+- `order_created`
+- `order_refunded`
+- `subscription_created`
+- `subscription_updated`
+- `subscription_cancelled`
+- `subscription_expired`
+
+Live-launch smoke tests still required:
+- [ ] Live Founder variant created
+- [ ] Live Founder Variant ID added
+- [ ] Test Mode disabled
+- [ ] Live webhook URL verified
+- [ ] required webhook events selected
+- [ ] Founder purchase
+- [ ] Monthly PRO purchase
+- [ ] Annual PRO purchase
+- [ ] existing PRO → Founder
+- [ ] full refund
+- [ ] partial refund
+- [ ] SOLD OUT behavior
+
+Resume this immediately after Lemon store activation.
 
 ---
 
-## Later product work
+# Deployment / schema rules
 
-Only after real usage identifies a need:
-- fix proven friction in the automatic weekly episode workflow
-- improve Public Journey from real audience/use feedback
-- iterate Episode Builder from actual channel workflow friction
-- add creator-facing summaries/assets only when they demonstrably save work
-- keep development driven by real trading usage rather than adding surface area for its own sake
+## Local
 
----
-
-## GitHub workflow rules
-
-Use:
-1. feature/fix/polish branch
-2. draft PR
-3. CI
-4. local test
-5. user confirms behavior/visuals
-6. merge
-7. **immediately update `docs/FFZ_FUTURE_STEPS.md` before considering the task fully complete**
-
-Once the user explicitly confirms behavior/visuals and CI is green, merge immediately without asking again.
-
-After every merge:
-- mark the completed PR / feature as DONE in this document
-- record the merge commit SHA
-- update production/migration status if known
-- move `ACTIVE NEXT ROADMAP ITEM` to the real next task
-- update `Recommended next order of work`
-- do not leave this file pointing at an already-completed PR
-
-After every merge provide:
-
-```text
-MERGED: <commit>
-
-LOCAL:
-cd ~/WaytrXGroundOps/external/ffz-platform
+```bash
+cd ~/ffz-platform
 git switch main
 git pull --ff-only origin main
 git log -1 --oneline
+```
 
-SERVER:
-cd ~/apps/FFZ
+For a fresh local DB, Creator migrations may need one-time manual application because local `drizzle/` has no normal migration journal:
+
+```bash
+docker exec -i ffz-postgres psql -U ffz -d ffz_platform < drizzle/0007_creator_episodes.sql
+docker exec -i ffz-postgres psql -U ffz -d ffz_platform < drizzle/0008_creator_publish_fields.sql
+```
+
+Do not repeat these if the columns/table already exist.
+
+## Production
+
+Before risky/schema deploy:
+
+```bash
+cd /opt/ffz
+./scripts/backup-production.sh
+```
+
+Deploy:
+
+```bash
+cd /opt/ffz
 git switch main
 git pull --ff-only origin main
 ./scripts/deploy-production.sh
-
-DB:
-migration required / no migration
 ```
 
-If schema changes exist:
+Production rules:
+- committed `drizzle-production/` migrations only
+- deploy script runs migrations before app readiness
+- `scripts/verify-production-schema.sh` must pass
+- never use `db:push`
+- never delete PostgreSQL/upload named volumes
+- never run `docker system prune -a --volumes`
 
-```bash
-./scripts/backup-production.sh
-./scripts/deploy-production.sh
-```
-
-Never use production `db:push`.
+Infrastructure:
+- Hetzner
+- Docker Compose
+- PostgreSQL on same server
+- shared proxy network `agarviz_default`
+- Nginx/Let's Encrypt shared with AgarViz
+- FFZ app upstream on port 3000 inside Docker
 
 ---
 
-## Production notes
+# GitHub workflow rules
 
-Hetzner:
-- Ubuntu 22.04.5
-- Docker 29
-- Compose 5
+Normal development discipline:
+1. focused feature/fix/polish
+2. CI
+3. local behavior/visual test
+4. user confirms
+5. merge/update `main`
+6. update this handoff before considering the work complete
 
-FFZ:
-- `~/apps/FFZ`
-- origin: `git@github-ffz:DejanDj79/ffz-platform.git`
-- branch: `main`
-- network: `agarviz_default`
-- proxy: `agarviz-nginx-1`
-- upstream: `ffz-app:3000`
-- separate PostgreSQL
+For direct small `main` fixes used in the current workflow:
+- keep commits focused
+- always verify latest FFZ CI after the final commit
+- never report completion while the latest build is still failing
+- if sequentially editing the same GitHub file, refetch/use the latest blob SHA
 
-Never run:
-
-```bash
-docker system prune -a --volumes
-```
-
-Do not remove named volumes such as:
-- `ffz-production_ffz_postgres_data`
-- `ffz-production_ffz_uploads`
-- AgarViz named volumes
+After relevant completed work, update:
+- completed feature status
+- migration/deploy status if known
+- `ACTIVE NEXT ROADMAP ITEM`
+- `Recommended next order of work`
 
 ---
 
-## User trading / YouTube context
+# User trading / YouTube context
 
 Trading plan:
 - MNQ / MES
@@ -868,48 +663,61 @@ Trading plan:
 
 YouTube:
 - document the journey from the beginning
-- first video planned around 15–20 minutes
-- script in English
-- FFZ/FZ logo: futuristic, minimalist
-- Trade Review Presentation should be suitable for screen-recorded trade explanations
+- English scripts
+- target episodes roughly 15–20 minutes
+- transparent beginner/process voice
+- no guru/fake-certainty framing
 - one episode per trading week
-- every CLOSED Journal trade from that week appears automatically in the episode; no manual selection/exclusion
+- all closed trades from the week included
+- key trades get deeper discussion
+- Trade Review Presentation + Creator teleprompter support recording
+- one external monitor + laptop + one phone
+- CV09 mapped to F13–F21; Creator RECORD currently uses F13–F19
 
 ---
 
-## Recommended next order of work
+# Later product work
 
-1. **Run the complete Trading Desk → Journal → Trade Review → Weekly Review → Episode workflow once with the merged August demo dataset and log only concrete friction**
-2. **Repeat the same workflow through a complete real trading week**
-3. **Fix proven friction with small focused PRs, prioritizing transitions and repeated manual work**
-4. **Resume Billing pre-launch / Founder Live Mode immediately after Lemon store activation**
-
-Completed immediately before this roadmap position:
-- [x] PR #34 — Weekly Review: Next Week Focus
-- [x] PR #35 — Trade Review fullscreen / presentation mode
-- [x] PR #36 — Build Episode from Weekly Review
-- [x] PR #38 — Weekly Episode auto-build
-- [x] PR #40 — Dashboard visual polish
-- [x] PR #42 — authenticated workspace page-by-page polish
-- [x] PR #44 — local full-month August workflow demo seed
-- [x] PR #45 — signed P&L fills + Trade Review navigation/sticky toolbar
-- [x] PR #46 — Dashboard Recent Trades quick-review modal
-- [x] PR #49 — paywall/upgrade activation UX + contextual return flow + server-gated CSV import
-- [x] PR #52 — Journal completed-trades-only workflow + Planned Trade result logging
-- [x] PR #53 — typography consistency polish + redundant helper cleanup
-- [x] PR #55 — authenticated sticky header toolbar + global LOG TRADE + account menu
-- [x] PR #57 — password recovery, Resend SMTP, auth polish and favicon
-
-Keep development driven by real usage and direct visual review. Do not add broad surface area just to make the product look larger.
+Only after real usage identifies a need:
+- fix proven friction in the complete weekly operating loop
+- iterate Story/Script/key-trade ranking from actual recording friction
+- improve Public Journey from real audience feedback
+- add creator-facing summaries/assets only when they demonstrably save repeated work
+- consider AI/API integration only if it saves enough work to justify separate API cost; ChatGPT subscription and API billing remain separate
+- keep development driven by real trading usage rather than adding surface area for its own sake
 
 ---
 
-## How to continue in a new ChatGPT conversation
+# Recommended next order of work
 
-Tell ChatGPT:
+1. **Run the full August demo workflow end-to-end: Trading Desk → Journal → Trade Review → Weekly Review → Next Week Focus → BRIEF → STORY → SCRIPT → RECORD → PUBLISH.**
+2. **Log only concrete friction found during that pass.**
+3. **Fix the smallest high-value friction items, if any.**
+4. **Repeat the same operating loop through one complete real trading week.**
+5. **Use that real week to validate Story ranking, key-trade selection, teleprompter pacing, Publish output and Public Journey usefulness.**
+6. **Resume Founder/PRO Live Mode immediately after Lemon activates the store.**
 
-> Nastavljamo FFZ Platform projekat. Otvori `docs/FFZ_FUTURE_STEPS.md` iz GitHub repoa, proveri ACTIVE NEXT ROADMAP ITEM i nastavi odatle.
+Do not start a new broad feature roadmap until steps 1–5 provide evidence that one is needed.
 
-For Founder-specific continuation:
+## Recently completed before this roadmap position
 
-> Nastavljamo Founder billing. Otvori `docs/FFZ_FUTURE_STEPS.md` i pogledaj Founder Live Mode / Billing live-launch checklist.
+- [x] Weekly Review: Next Week Focus
+- [x] Trade Review fullscreen/presentation mode
+- [x] Weekly Episode automatic all-closed-trades handoff
+- [x] Dashboard / authenticated workspace polish
+- [x] August full-month local workflow seed
+- [x] Trade Review navigation/chart fixes
+- [x] Dashboard Recent Trades quick review
+- [x] paywall/upgrade activation UX and server-gated CSV import
+- [x] Journal completed-trades-only + Planned Trade result logging
+- [x] typography polish
+- [x] authenticated sticky header + global LOG TRADE
+- [x] password recovery via Resend on `ffz.app`
+- [x] persistent Creator episode model
+- [x] Story Builder ranking/primary/threads
+- [x] deterministic recording Script Builder
+- [x] RECORD teleprompter with CV09 keyboard controls
+- [x] PUBLISH title/thumbnail/description/chapters package
+- [x] Creator publish persistence/status flow
+- [x] current favicon replaced and browser-cache issue fixed
+
