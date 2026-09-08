@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { fetchChallenges } from "@/lib/challenges/api-client";
 import type { Challenge } from "@/lib/challenges/types";
 import {
@@ -45,6 +45,7 @@ export function ScoreboardSettings() {
   const [switchingLayout, setSwitchingLayout] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const previewFrameRef = useRef<HTMLIFrameElement | null>(null);
 
   async function load() {
     try {
@@ -148,6 +149,18 @@ export function ScoreboardSettings() {
     }
   }
 
+  async function openFullscreen() {
+    const frame = previewFrameRef.current;
+    if (!frame) return;
+
+    try {
+      await frame.requestFullscreen();
+      setError(null);
+    } catch {
+      setError("Fullscreen is not available in this browser.");
+    }
+  }
+
   async function rotateUrl() {
     const ok = window.confirm("Create a new OBS link? The old Scoreboard URL will stop working.");
     if (!ok) return;
@@ -225,12 +238,32 @@ export function ScoreboardSettings() {
             <span>LIVE SCOREBOARD PREVIEW</span>
             <small>Live scoreboard data · 16:9 OBS composition</small>
           </div>
+          <button
+            type="button"
+            onClick={() => void openFullscreen()}
+            style={{
+              minHeight: 34,
+              padding: "0 11px",
+              border: "1px solid rgba(48, 208, 248, .38)",
+              borderRadius: 7,
+              color: "#9ae8fb",
+              background: "rgba(48, 208, 248, .055)",
+              font: "inherit",
+              fontSize: 12,
+              fontWeight: 700,
+              letterSpacing: ".055em",
+            }}
+          >
+            FULL SCREEN
+          </button>
         </header>
         <div className={styles.scoreboardStage}>
           <iframe
+            ref={previewFrameRef}
             key={`${settings.overlayKey}-${previewVersion}`}
             title="FFZ Creator Scoreboard"
             src={`${overlayUrl}?inside=app`}
+            allowFullScreen
           />
         </div>
       </section>
