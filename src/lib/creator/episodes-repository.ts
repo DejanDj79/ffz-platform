@@ -27,6 +27,11 @@ function toApiModel(row: typeof creatorEpisodes.$inferSelect): CreatorEpisodeApi
     storyAngle: row.storyAngle,
     script: row.script,
     featuredTradeIds: Array.isArray(row.featuredTradeIds) ? row.featuredTradeIds : [],
+    publishTitle: row.publishTitle,
+    thumbnailText: row.thumbnailText,
+    description: row.description,
+    chapters: row.chapters,
+    youtubeUrl: row.youtubeUrl,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
@@ -92,6 +97,11 @@ export async function createCreatorEpisode(
       storyAngle: null,
       script: null,
       featuredTradeIds: [],
+      publishTitle: null,
+      thumbnailText: null,
+      description: null,
+      chapters: null,
+      youtubeUrl: null,
       updatedAt: new Date(),
     })
     .returning();
@@ -121,6 +131,21 @@ export async function updateCreatorEpisode(
   }
   if (parsed.featuredTradeIds !== undefined) {
     set.featuredTradeIds = [...new Set(parsed.featuredTradeIds)];
+  }
+  if (parsed.publishTitle !== undefined) {
+    set.publishTitle = parsed.publishTitle?.trim() || null;
+  }
+  if (parsed.thumbnailText !== undefined) {
+    set.thumbnailText = parsed.thumbnailText?.trim() || null;
+  }
+  if (parsed.description !== undefined) {
+    set.description = parsed.description?.trim() || null;
+  }
+  if (parsed.chapters !== undefined) {
+    set.chapters = parsed.chapters?.trim() || null;
+  }
+  if (parsed.youtubeUrl !== undefined) {
+    set.youtubeUrl = parsed.youtubeUrl?.trim() || null;
   }
 
   const rows = await db
