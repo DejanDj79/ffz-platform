@@ -8,6 +8,19 @@ import type {
 } from "@/lib/creator/episodes-types";
 import styles from "./StoryBuilder.module.css";
 
+function roleLabel(role: CreatorStorySuggestion["role"]) {
+  if (role === "PRIMARY") return "PRIMARY STORY";
+  if (role === "ALTERNATIVE") return "ALTERNATIVE STORY";
+  return "OTHER THREAD";
+}
+
+function buttonLabel(suggestion: CreatorStorySuggestion, selected: boolean) {
+  if (selected) return "SELECTED";
+  if (suggestion.role === "PRIMARY") return "USE PRIMARY STORY";
+  if (suggestion.role === "ALTERNATIVE") return "USE ALTERNATIVE";
+  return "USE THIS THREAD";
+}
+
 export function StoryBuilder({
   episode,
   suggestions,
@@ -75,8 +88,9 @@ export function StoryBuilder({
           <span>STORY BUILDER</span>
           <h2>Find the episode inside the trading data</h2>
           <p>
-            These angles are generated from the actual episode period. Choose the strongest one,
-            then edit it until it sounds like the story you want to tell.
+            Creator ranks the evidence instead of forcing a fixed number of angles. The primary
+            story is the strongest narrative supported by the period; weaker ideas become threads
+            that can live inside the script rather than compete with it.
           </p>
         </div>
         <div className={styles.savedState}>
@@ -86,35 +100,41 @@ export function StoryBuilder({
       </header>
 
       <div className={styles.suggestionGrid}>
-        {suggestions.map((suggestion, index) => (
-          <article
-            key={suggestion.id}
-            className={`${styles.suggestionCard} ${selectedId === suggestion.id ? styles.selectedCard : ""}`}
-          >
-            <div className={styles.cardTopline}>
-              <span>ANGLE {String(index + 1).padStart(2, "0")}</span>
-              <b>{suggestion.tone}</b>
-            </div>
-            <h3>{suggestion.title}</h3>
-            <p>{suggestion.why}</p>
-            <div className={styles.keyMoments}>
-              <span>WHY THE STORY HOLDS</span>
-              <ul>
-                {suggestion.keyMoments.map((moment) => <li key={moment}>{moment}</li>)}
-              </ul>
-            </div>
-            <button type="button" onClick={() => chooseSuggestion(suggestion)}>
-              {selectedId === suggestion.id ? "SELECTED" : "USE THIS ANGLE"}
-            </button>
-          </article>
-        ))}
+        {suggestions.map((suggestion) => {
+          const selected = selectedId === suggestion.id;
+          return (
+            <article
+              key={suggestion.id}
+              className={`${styles.suggestionCard} ${suggestion.role === "PRIMARY" ? styles.primaryCard : ""} ${suggestion.role === "THREAD" ? styles.threadCard : ""} ${selected ? styles.selectedCard : ""}`}
+            >
+              <div className={styles.cardTopline}>
+                <span>{roleLabel(suggestion.role)}</span>
+                <div className={styles.storyBadges}>
+                  <b>{suggestion.strength}</b>
+                  <em>{suggestion.tone}</em>
+                </div>
+              </div>
+              <h3>{suggestion.title}</h3>
+              <p>{suggestion.why}</p>
+              <div className={styles.keyMoments}>
+                <span>{suggestion.role === "THREAD" ? "WHY THIS THREAD MATTERS" : "WHY THE STORY HOLDS"}</span>
+                <ul>
+                  {suggestion.keyMoments.map((moment) => <li key={moment}>{moment}</li>)}
+                </ul>
+              </div>
+              <button type="button" onClick={() => chooseSuggestion(suggestion)}>
+                {buttonLabel(suggestion, selected)}
+              </button>
+            </article>
+          );
+        })}
       </div>
 
       <section className={styles.finalStory}>
         <div className={styles.finalHeading}>
           <div>
             <span>FINAL STORY ANGLE</span>
-            <strong>Make the suggested angle yours</strong>
+            <strong>Make the primary story yours</strong>
           </div>
           <small>{featuredTradeIds.length} key {featuredTradeIds.length === 1 ? "trade" : "trades"} attached</small>
         </div>
