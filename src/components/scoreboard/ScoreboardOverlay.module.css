@@ -503,7 +503,7 @@
 
 .realMoneyMini strong {
   color: #e9f1f5;
-  font-size: calc(clamp(7px, .66vw, 11px) + 1px);
+  font-size: calc(clamp(7px, .66vw, 11px) + 3px);
   font-weight: 700;
 }
 
