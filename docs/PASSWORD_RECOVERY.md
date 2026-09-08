@@ -1,6 +1,6 @@
 # Password recovery
 
-Status: PR #57 merged (`84325daba8c6d614d60d9a863a296717d9fcde42`); user approved visuals, CI #408 passed. Resend domain `ffz.app` is verified and SMTP configuration is saved on the server per user confirmation. Deployment, migration and real email delivery verification remain pending.
+Status: DONE. PR #57 merged (`84325daba8c6d614d60d9a863a296717d9fcde42`) and deployed to production on 2026-09-08. Migration `0006_password_reset_tokens.sql`, Resend SMTP delivery and the complete real password-reset flow passed. User approved the auth forms and favicon; CI #408 passed.
 
 ## Behavior
 
