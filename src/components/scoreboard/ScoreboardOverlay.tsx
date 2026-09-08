@@ -130,6 +130,13 @@ export function ScoreboardOverlay({
 
 function PremiereBoard({ data }: { data: PublicScoreboardData }) {
   const challenge = data.challenge;
+  const pnlTone = challenge
+    ? challenge.pnl > 0
+      ? "positive"
+      : challenge.pnl < 0
+        ? "negative"
+        : undefined
+    : undefined;
 
   const startDate = data.startDate
     ? new Date(data.startDate).toLocaleDateString("en-GB", {
@@ -142,8 +149,6 @@ function PremiereBoard({ data }: { data: PublicScoreboardData }) {
   return (
     <div className={styles.fullCanvas}>
       <section className={styles.premiereBoard}>
-        <div className={styles.techGrid} />
-
         <header className={styles.topHeader}>
           <div className={styles.brandBlock}>
             <Image
@@ -157,45 +162,44 @@ function PremiereBoard({ data }: { data: PublicScoreboardData }) {
           </div>
 
           <div className={styles.titleBlock}>
-            <h1>SCOREBOARD</h1>
-            <div>
-              <i />
-              <span>SEASON 1</span>
-              <i />
-            </div>
+            <span>SCOREBOARD</span>
+            <h1>Futures From Zero</h1>
           </div>
 
           <div className={styles.dayBlock}>
-            <span>DAY</span>
-            <strong>{data.currentDay}</strong>
+            <div>
+              <span>SEASON</span>
+              <strong>01</strong>
+            </div>
+            <div>
+              <span>DAY</span>
+              <strong>{data.currentDay}</strong>
+            </div>
           </div>
         </header>
 
         <section className={styles.summaryRow}>
           <SummaryTile
-            tone="blue"
             icon="shield"
             title="ACCOUNT STATUS"
             value={formatState(challenge?.status ?? "WAITING")}
           />
 
           <SummaryTile
-            tone="green"
             icon="target"
             title="CURRENT PHASE"
             value={formatState(challenge?.phase ?? "NO PHASE")}
           />
 
           <SummaryTile
-            tone="purple"
             icon="bars"
             title="CURRENT P&L"
             value={challenge ? signedMoney(challenge.pnl) : money.format(0)}
             sub="ALL TIME"
+            valueTone={pnlTone}
           />
 
           <SummaryTile
-            tone="gold"
             icon="trophy"
             title="GOAL"
             value={data.goalLabel}
@@ -223,7 +227,7 @@ function PremiereBoard({ data }: { data: PublicScoreboardData }) {
               label="PROFIT TARGET"
               value={
                 challenge
-                  ? `${money0.format(challenge.profitTarget)}  (${number.format(challenge.profitTargetPct)}%)`
+                  ? `${money0.format(challenge.profitTarget)} · ${number.format(challenge.profitTargetPct)}%`
                   : "—"
               }
             />
@@ -232,14 +236,14 @@ function PremiereBoard({ data }: { data: PublicScoreboardData }) {
               value={
                 challenge?.dailyLossLimit == null
                   ? "N/A"
-                  : `${money0.format(challenge.dailyLossLimit)}  (${number.format(challenge.dailyLossLimitPct ?? 0)}%)`
+                  : `${money0.format(challenge.dailyLossLimit)} · ${number.format(challenge.dailyLossLimitPct ?? 0)}%`
               }
             />
             <DetailsRow
               label="MAX DRAWDOWN"
               value={
                 challenge
-                  ? `${money0.format(challenge.maxDrawdown)}  (${number.format(challenge.maxDrawdownPct)}%)`
+                  ? `${money0.format(challenge.maxDrawdown)} · ${number.format(challenge.maxDrawdownPct)}%`
                   : "—"
               }
             />
@@ -256,49 +260,41 @@ function PremiereBoard({ data }: { data: PublicScoreboardData }) {
           >
             <div className={styles.performanceGrid}>
               <PerformanceMetric
-                icon="up"
                 label="TOTAL TRADES"
                 value={String(data.journal.totalTrades)}
-                tone="purple"
+                tone="cyan"
               />
               <PerformanceMetric
-                icon="percent"
                 label="WIN RATE"
                 value={data.journal.winRate == null ? "—" : `${data.journal.winRate}%`}
-                tone="purple"
+                tone="cyan"
               />
               <PerformanceMetric
-                icon="thumbUp"
                 label="WINS"
                 value={String(data.journal.wins)}
                 tone="green"
               />
               <PerformanceMetric
-                icon="thumbDown"
                 label="LOSSES"
                 value={String(data.journal.losses)}
                 tone="red"
               />
               <PerformanceMetric
-                icon="star"
                 label="BEST TRADE"
                 value={nullableMoney(data.performance.bestTrade)}
                 tone="green"
               />
               <PerformanceMetric
-                icon="down"
                 label="WORST TRADE"
                 value={nullableMoney(data.performance.worstTrade)}
                 tone="red"
               />
               <PerformanceMetric
-                icon="up"
                 label="AVG WIN"
                 value={nullableMoney(data.performance.averageWin)}
                 tone="green"
               />
               <PerformanceMetric
-                icon="down"
                 label="AVG LOSS"
                 value={nullableMoney(data.performance.averageLoss)}
                 tone="red"
@@ -311,7 +307,7 @@ function PremiereBoard({ data }: { data: PublicScoreboardData }) {
           <Panel
             tone="blue"
             icon="calendar"
-            title="DAILY RESULTS CALENDAR"
+            title="DAILY RESULTS"
             trailing={data.calendar.label}
             className={styles.calendarPanel}
           >
@@ -346,22 +342,17 @@ function PremiereBoard({ data }: { data: PublicScoreboardData }) {
                 {signedMoney(data.ledger.netCashFlow)}
               </strong>
               <span>REAL PAYOUTS</span>
-              <strong className={styles.positive}>{money.format(data.ledger.payouts)}</strong>
+              <strong className={data.ledger.payouts > 0 ? styles.positive : ""}>
+                {money.format(data.ledger.payouts)}
+              </strong>
             </div>
           </Panel>
         </section>
 
         <footer className={styles.boardFooter}>
-          <span>DISCIPLINE. RULES. CONSISTENCY. RESULTS.</span>
-          <div className={styles.footerCenter}>
-            <div className={styles.chevrons}>
-              {Array.from({ length: 9 }, (_, index) => <i key={index} />)}
-            </div>
-            <strong>ONE TRADE AT A TIME.</strong>
-          </div>
-          <div className={styles.footerBrand}>
-            <span>FUTURES FROM ZERO</span>
-          </div>
+          <span>DISCIPLINE · RULES · CONSISTENCY</span>
+          <strong>ONE TRADE AT A TIME.</strong>
+          <span>FUTURES FROM ZERO</span>
         </footer>
       </section>
     </div>
@@ -485,24 +476,36 @@ function CompactBoard({ data }: { data: PublicScoreboardData }) {
 }
 
 function SummaryTile({
-  tone,
   icon,
   title,
   value,
   sub,
+  valueTone,
 }: {
-  tone: "blue" | "green" | "purple" | "gold";
   icon: IconName;
   title: string;
   value: string;
   sub?: string;
+  valueTone?: "positive" | "negative";
 }) {
   return (
-    <article className={`${styles.summaryTile} ${styles[`tone_${tone}`]}`}>
-      <Icon name={icon} />
+    <article className={styles.summaryTile}>
+      <div className={styles.summaryIcon}>
+        <Icon name={icon} />
+      </div>
       <div>
         <span>{title}</span>
-        <strong>[ {value} ]</strong>
+        <strong
+          className={
+            valueTone === "positive"
+              ? styles.positive
+              : valueTone === "negative"
+                ? styles.negative
+                : ""
+          }
+        >
+          {value}
+        </strong>
         {sub && <small>{sub}</small>}
       </div>
     </article>
@@ -541,30 +544,25 @@ function Panel({
 function DetailsRow({ label, value }: { label: string; value: string }) {
   return (
     <div className={styles.detailsRow}>
-      <i />
       <span>{label}</span>
-      <em />
-      <strong>[ {value} ]</strong>
+      <strong>{value}</strong>
     </div>
   );
 }
 
 function PerformanceMetric({
-  icon,
   label,
   value,
   tone,
 }: {
-  icon: IconName;
   label: string;
   value: string;
-  tone: "purple" | "green" | "red";
+  tone: "cyan" | "green" | "red";
 }) {
   return (
     <div className={`${styles.performanceMetric} ${styles[`metric_${tone}`]}`}>
-      <Icon name={icon} />
       <span>{label}</span>
-      <strong>[ {value} ]</strong>
+      <strong>{value}</strong>
     </div>
   );
 }
@@ -660,13 +658,7 @@ type IconName =
   | "clipboard"
   | "trend"
   | "calendar"
-  | "notes"
-  | "up"
-  | "down"
-  | "percent"
-  | "thumbUp"
-  | "thumbDown"
-  | "star";
+  | "notes";
 
 function Icon({ name }: { name: IconName }) {
   const paths: Record<IconName, React.ReactNode> = {
@@ -678,12 +670,6 @@ function Icon({ name }: { name: IconName }) {
     trend: <path d="M3 18l6-6 4 3 8-9M16 6h5v5" />,
     calendar: <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M7 3v4M17 3v4M3 10h18M7 14h2M11 14h2M15 14h2M7 18h2M11 18h2" /></>,
     notes: <><rect x="5" y="4" width="13" height="17" rx="2" /><path d="M8 8h7M8 12h7M8 16h5M18 15l3 3-4 4" /></>,
-    up: <><circle cx="12" cy="12" r="9" /><path d="M12 17V7M8 11l4-4 4 4" /></>,
-    down: <><circle cx="12" cy="12" r="9" /><path d="M12 7v10M8 13l4 4 4-4" /></>,
-    percent: <><circle cx="8" cy="8" r="2" /><circle cx="16" cy="16" r="2" /><path d="M7 18L17 6" /></>,
-    thumbUp: <path d="M8 11l3-7 2 1v5h5a2 2 0 012 2l-2 7H8M4 10h4v10H4z" />,
-    thumbDown: <path d="M8 13l3 7 2-1v-5h5a2 2 0 002-2l-2-7H8M4 4h4v10H4z" />,
-    star: <path d="M12 3l2.7 5.5 6 .9-4.4 4.2 1 6-5.3-2.8-5.3 2.8 1-6-4.4-4.2 6-.9L12 3z" />,
   };
 
   return (
