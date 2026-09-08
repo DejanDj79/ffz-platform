@@ -20,6 +20,11 @@ export default async function ScoreboardOverlayPage({
         .scoreboard-overlay-root > div > section > section:nth-of-type(3) > article:nth-child(2) > div:first-of-type > div > span {
           font-size: calc(clamp(6px, .58vw, 10px) + 3px) !important;
         }
+
+        .scoreboard-overlay-root > div:has(> section img[alt="FFZ"]) {
+          align-items: center !important;
+          justify-content: center !important;
+        }
       `}</style>
     </div>
   );
