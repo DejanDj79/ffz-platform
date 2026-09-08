@@ -48,4 +48,6 @@ export type CreatorStorySuggestion = {
   keyMoments: string[];
   featuredTradeIds: string[];
   tone: "PROCESS" | "DISCIPLINE" | "RESULT" | "LESSON";
+  role: "PRIMARY" | "ALTERNATIVE" | "THREAD";
+  strength: "STRONG" | "SOLID" | "SUPPORTING";
 };
