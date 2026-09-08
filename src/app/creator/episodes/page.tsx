@@ -12,6 +12,7 @@ import { buildCreatorStorySuggestions } from "@/lib/creator/story-builder";
 import { CopyEpisodeBrief } from "./CopyEpisodeBrief";
 import { EpisodeDraftWorkspace } from "./EpisodeDraftWorkspace";
 import { EpisodeWorkflowNav } from "./EpisodeWorkflowNav";
+import { RecordingMode } from "./RecordingMode";
 import { ScriptBuilder } from "./ScriptBuilder";
 import { StoryBuilder } from "./StoryBuilder";
 import styles from "./EpisodeBuilder.module.css";
@@ -25,7 +26,7 @@ type SearchParams = Promise<{
   step?: string;
 }>;
 
-type EpisodeStep = "brief" | "story" | "script";
+type EpisodeStep = "brief" | "story" | "script" | "record";
 
 function dateInputValue(date: Date) {
   return date.toISOString().slice(0, 10);
@@ -124,7 +125,9 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
     ? "story"
     : requestedEpisode && params.step === "script" && requestedEpisode.storyAngle
       ? "script"
-      : "brief";
+      : requestedEpisode && params.step === "record" && requestedEpisode.script
+        ? "record"
+        : "brief";
   const filters = { from: safeFrom, to: safeTo, challengeId };
 
   const [snapshot, recentEpisodes, storySuggestions] = await Promise.all([
@@ -216,9 +219,11 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
           briefHref={episodeStepHref(requestedEpisode, "brief")}
           storyHref={episodeStepHref(requestedEpisode, "story")}
           scriptHref={episodeStepHref(requestedEpisode, "script")}
+          recordHref={episodeStepHref(requestedEpisode, "record")}
           activeStep={activeStep}
           storySaved={Boolean(requestedEpisode.storyAngle)}
           scriptSaved={Boolean(requestedEpisode.script)}
+          recorded={requestedEpisode.status === "RECORDED"}
         />
       )}
 
@@ -226,6 +231,8 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
         <StoryBuilder episode={requestedEpisode} suggestions={storySuggestions} />
       ) : activeStep === "script" && requestedEpisode && scriptDraft ? (
         <ScriptBuilder episode={requestedEpisode} draft={scriptDraft} />
+      ) : activeStep === "record" && requestedEpisode && requestedEpisode.script ? (
+        <RecordingMode episode={requestedEpisode} />
       ) : (
         <>
           <section className={styles.metricGrid}>
