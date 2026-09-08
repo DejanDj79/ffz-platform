@@ -7,10 +7,12 @@ import {
   listCreatorEpisodes,
 } from "@/lib/creator/episodes-repository";
 import type { CreatorEpisodeApiModel } from "@/lib/creator/episodes-types";
+import { buildCreatorScriptDraft } from "@/lib/creator/script-builder";
 import { buildCreatorStorySuggestions } from "@/lib/creator/story-builder";
 import { CopyEpisodeBrief } from "./CopyEpisodeBrief";
 import { EpisodeDraftWorkspace } from "./EpisodeDraftWorkspace";
 import { EpisodeWorkflowNav } from "./EpisodeWorkflowNav";
+import { ScriptBuilder } from "./ScriptBuilder";
 import { StoryBuilder } from "./StoryBuilder";
 import styles from "./EpisodeBuilder.module.css";
 
@@ -22,6 +24,8 @@ type SearchParams = Promise<{
   episode?: string;
   step?: string;
 }>;
+
+type EpisodeStep = "brief" | "story" | "script";
 
 function dateInputValue(date: Date) {
   return date.toISOString().slice(0, 10);
@@ -74,7 +78,7 @@ function pnlClass(value: number) {
   return "";
 }
 
-function episodeStepHref(episode: CreatorEpisodeApiModel, step: "brief" | "story") {
+function episodeStepHref(episode: CreatorEpisodeApiModel, step: EpisodeStep) {
   const params = new URLSearchParams({
     episode: episode.id,
     from: dateInputValue(new Date(episode.periodFrom)),
@@ -82,7 +86,7 @@ function episodeStepHref(episode: CreatorEpisodeApiModel, step: "brief" | "story
   });
   if (episode.challengeId) params.set("challenge", episode.challengeId);
   if (episode.source === "WEEKLY_REVIEW") params.set("source", "weekly-review");
-  if (step === "story") params.set("step", "story");
+  if (step !== "brief") params.set("step", step);
   return `/creator/episodes?${params.toString()}`;
 }
 
@@ -116,13 +120,17 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
   const challengeId = requestedEpisode
     ? requestedEpisode.challengeId
     : fromWeeklyReview ? null : params.challenge || null;
-  const activeStep = requestedEpisode && params.step === "story" ? "story" : "brief";
+  const activeStep: EpisodeStep = requestedEpisode && params.step === "story"
+    ? "story"
+    : requestedEpisode && params.step === "script" && requestedEpisode.storyAngle
+      ? "script"
+      : "brief";
   const filters = { from: safeFrom, to: safeTo, challengeId };
 
   const [snapshot, recentEpisodes, storySuggestions] = await Promise.all([
     buildEpisodeSnapshot(user.id, filters),
     listCreatorEpisodes(user.id, 6),
-    activeStep === "story"
+    activeStep === "story" || activeStep === "script"
       ? buildCreatorStorySuggestions(user.id, filters)
       : Promise.resolve([]),
   ]);
@@ -130,6 +138,10 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
   const savedEpisodes = requestedEpisode && !recentEpisodes.some((episode) => episode.id === requestedEpisode.id)
     ? [requestedEpisode, ...recentEpisodes].slice(0, 7)
     : recentEpisodes;
+
+  const scriptDraft = activeStep === "script" && requestedEpisode
+    ? buildCreatorScriptDraft(requestedEpisode, snapshot, storySuggestions)
+    : null;
 
   const challengePnl = snapshot.challenge
     ? snapshot.challenge.currentBalance - snapshot.challenge.startingBalance
@@ -203,13 +215,17 @@ export default async function CreatorEpisodesPage({ searchParams }: { searchPara
         <EpisodeWorkflowNav
           briefHref={episodeStepHref(requestedEpisode, "brief")}
           storyHref={episodeStepHref(requestedEpisode, "story")}
+          scriptHref={episodeStepHref(requestedEpisode, "script")}
           activeStep={activeStep}
           storySaved={Boolean(requestedEpisode.storyAngle)}
+          scriptSaved={Boolean(requestedEpisode.script)}
         />
       )}
 
       {activeStep === "story" && requestedEpisode ? (
         <StoryBuilder episode={requestedEpisode} suggestions={storySuggestions} />
+      ) : activeStep === "script" && requestedEpisode && scriptDraft ? (
+        <ScriptBuilder episode={requestedEpisode} draft={scriptDraft} />
       ) : (
         <>
           <section className={styles.metricGrid}>
