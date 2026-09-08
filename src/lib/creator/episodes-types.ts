@@ -23,6 +23,11 @@ export type CreatorEpisodeApiModel = {
   storyAngle: string | null;
   script: string | null;
   featuredTradeIds: string[];
+  publishTitle: string | null;
+  thumbnailText: string | null;
+  description: string | null;
+  chapters: string | null;
+  youtubeUrl: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -41,6 +46,11 @@ export type UpdateCreatorEpisodeInput = {
   script?: string | null;
   status?: CreatorEpisodeStatus;
   featuredTradeIds?: string[];
+  publishTitle?: string | null;
+  thumbnailText?: string | null;
+  description?: string | null;
+  chapters?: string | null;
+  youtubeUrl?: string | null;
 };
 
 export type CreatorStorySuggestion = {
@@ -67,4 +77,11 @@ export type CreatorScriptDraft = {
   sections: CreatorScriptSection[];
   totalMinutes: number;
   text: string;
+};
+
+export type CreatorPublishDraft = {
+  titleIdeas: string[];
+  thumbnailIdeas: string[];
+  description: string;
+  chapters: string;
 };
