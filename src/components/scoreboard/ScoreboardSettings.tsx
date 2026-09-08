@@ -356,7 +356,11 @@ export function ScoreboardSettings() {
           <div className={styles.panelHeader}>
             <div>
               <span>DISPLAY &amp; OBS</span>
-              <small>Refresh, visible metrics and the private Browser Source link.</small>
+              <small>
+                {settings.layout === "COMPACT"
+                  ? "Refresh, visible metrics and the private Browser Source link."
+                  : "Refresh and the private Browser Source link."}
+              </small>
             </div>
           </div>
 
@@ -385,21 +389,23 @@ export function ScoreboardSettings() {
               </button>
             </div>
 
-            <div className={styles.metrics}>
-              <span>VISIBLE METRICS</span>
-              <div>
-                {VISIBILITY_FIELDS.map((item) => (
-                  <label key={item.key}>
-                    <input
-                      type="checkbox"
-                      checked={settings[item.key]}
-                      onChange={(event) => patch(item.key, event.target.checked)}
-                    />
-                    <span>{item.label}</span>
-                  </label>
-                ))}
+            {settings.layout === "COMPACT" && (
+              <div className={styles.metrics}>
+                <span>VISIBLE METRICS</span>
+                <div>
+                  {VISIBILITY_FIELDS.map((item) => (
+                    <label key={item.key}>
+                      <input
+                        type="checkbox"
+                        checked={settings[item.key]}
+                        onChange={(event) => patch(item.key, event.target.checked)}
+                      />
+                      <span>{item.label}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             <div className={styles.obs}>
               <label>
