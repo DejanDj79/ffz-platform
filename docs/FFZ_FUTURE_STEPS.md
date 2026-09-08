@@ -1,6 +1,6 @@
 # FFZ Platform — Future Steps / Handoff
 
-_Last updated: 2026-09-07_
+_Last updated: 2026-09-08_
 
 Ovaj dokument je živi handoff/checklist za FFZ Platform. Kada završimo stavku, ažurirati je ovde i označiti kao završenu.
 
@@ -16,35 +16,9 @@ Ovaj dokument je živi handoff/checklist za FFZ Platform. Kada završimo stavku,
 
 ---
 
-# ACTIVE NEXT ROADMAP ITEM — Password recovery production verification
+# ACTIVE NEXT ROADMAP ITEM — Real-world workflow validation
 
-Status: **IMPLEMENTATION DONE / PR #57 MERGED — DEPLOY + REAL EMAIL TEST PENDING**
-
-PR #57 merged commit: `84325daba8c6d614d60d9a863a296717d9fcde42`.
-
-Completed:
-- Forgot password -> SMTP email -> one-time 30-minute reset link
-- hashed tokens, transactional password reset and session revocation
-- account-neutral responses, IP throttling and persistent per-account cooldown
-- auth buttons: 12px / 700 / 38px height; supplied logo at 70px
-- square transparent favicon that preserves logo proportions
-- production migration `0006_password_reset_tokens.sql`
-- future backups ignored; inspected historical backup contains no application data
-
-Validation:
-- 204 tests and production build passed locally
-- final FFZ CI #408 passed
-- user confirmed final auth forms and favicon on 2026-09-07
-- user confirmed Resend domain `ffz.app` is Verified and SMTP variables saved on server
-- configured sender: `FFZ <noreply@ffz.app>`; SMTP port 2587
-- production deployment and real reset email delivery are **not yet confirmed**
-
-Next: backup -> deploy main (runs migration) -> request reset for the user's own account -> verify receipt, password change, old-password rejection and single-use link.
-Setup: `docs/PASSWORD_RECOVERY.md`.
-
-## Next after password recovery — Real-world workflow validation
-
-Status: **QUEUED / FULL-WORKFLOW PREFLIGHT → REAL TRADING WEEK**
+Status: **ACTIVE / FULL-WORKFLOW PREFLIGHT → REAL TRADING WEEK**
 
 The feature roadmap and authenticated page-by-page polish pass are complete enough for real use. Do not add broad new product surface just to keep development moving.
 
@@ -76,7 +50,40 @@ During preflight and real use, capture only concrete friction such as:
 
 Fix proven friction with small focused PRs. Do not invent speculative features before real usage identifies a need.
 
----
+## Password recovery — DONE / MERGED / DEPLOYED
+
+PR #57 merged commit:
+
+```text
+84325daba8c6d614d60d9a863a296717d9fcde42
+```
+
+Completed:
+- Forgot password → Resend SMTP email → one-time 30-minute reset link
+- only token hashes are stored
+- password change, token consumption and existing-session revocation are transactional
+- neutral responses prevent account discovery
+- IP rate limit and persistent per-account cooldown
+- auth form button/logo polish and corrected proportional favicon
+- production migration `0006_password_reset_tokens.sql`
+- future backups ignored; inspected historical backup contains no application data
+
+Production verification completed 2026-09-08:
+- backup completed
+- latest `main` deployed
+- production migration completed
+- Resend domain `ffz.app` verified
+- sender `FFZ <noreply@ffz.app>` configured through Resend SMTP
+- real recovery email and full password-reset flow passed
+- user confirmed production behavior
+
+Validation:
+- FFZ CI #408 — PASSED
+- 204 tests — PASSED
+- production build — PASSED
+- local visual review — PASSED by user
+
+
 
 ## Local full-month workflow dataset — DONE / MERGED
 
@@ -872,11 +879,10 @@ YouTube:
 
 ## Recommended next order of work
 
-1. **Deploy merged PR #57 with a backup and migration, then verify real reset email delivery and password change**
-2. **Run the complete Trading Desk → Journal → Trade Review → Weekly Review → Episode workflow once with the merged August demo dataset and log only concrete friction**
-3. **Repeat the same workflow through a complete real trading week**
-4. **Fix proven friction with small focused PRs, prioritizing transitions and repeated manual work**
-5. **Resume Billing pre-launch / Founder Live Mode immediately after Lemon store activation**
+1. **Run the complete Trading Desk → Journal → Trade Review → Weekly Review → Episode workflow once with the merged August demo dataset and log only concrete friction**
+2. **Repeat the same workflow through a complete real trading week**
+3. **Fix proven friction with small focused PRs, prioritizing transitions and repeated manual work**
+4. **Resume Billing pre-launch / Founder Live Mode immediately after Lemon store activation**
 
 Completed immediately before this roadmap position:
 - [x] PR #34 — Weekly Review: Next Week Focus
@@ -892,6 +898,7 @@ Completed immediately before this roadmap position:
 - [x] PR #52 — Journal completed-trades-only workflow + Planned Trade result logging
 - [x] PR #53 — typography consistency polish + redundant helper cleanup
 - [x] PR #55 — authenticated sticky header toolbar + global LOG TRADE + account menu
+- [x] PR #57 — password recovery, Resend SMTP, auth polish and favicon
 
 Keep development driven by real usage and direct visual review. Do not add broad surface area just to make the product look larger.
 
