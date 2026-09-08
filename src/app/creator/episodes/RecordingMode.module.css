@@ -128,18 +128,6 @@
   letter-spacing: .06em;
 }
 
-.readingGuide {
-  position: absolute;
-  z-index: 3;
-  top: 44%;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  pointer-events: none;
-  background: linear-gradient(90deg, transparent, rgba(48,208,248,.58) 18%, rgba(48,208,248,.58) 82%, transparent);
-  box-shadow: 0 0 18px rgba(48,208,248,.14);
-}
-
 .scroller {
   position: absolute;
   inset: 49px 0 0;
