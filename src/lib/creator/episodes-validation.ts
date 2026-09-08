@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { CREATOR_EPISODE_SOURCES } from "./episodes-types";
+import {
+  CREATOR_EPISODE_SOURCES,
+  CREATOR_EPISODE_STATUSES,
+} from "./episodes-types";
 
 const isoDateTimeSchema = z.string().refine(
   (value) => !Number.isNaN(new Date(value).getTime()),
@@ -25,8 +28,13 @@ export const creatorEpisodeCreateSchema = z.object({
 
 export const creatorEpisodeUpdateSchema = z.object({
   storyAngle: z.string().trim().max(1000).nullable().optional(),
+  script: z.string().max(100000).nullable().optional(),
+  status: z.enum(CREATOR_EPISODE_STATUSES).optional(),
   featuredTradeIds: z.array(z.string().uuid()).max(20).optional(),
 }).refine(
-  (value) => value.storyAngle !== undefined || value.featuredTradeIds !== undefined,
+  (value) => value.storyAngle !== undefined
+    || value.script !== undefined
+    || value.status !== undefined
+    || value.featuredTradeIds !== undefined,
   "At least one episode field must be provided.",
 );
