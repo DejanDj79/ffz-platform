@@ -9,6 +9,8 @@ const isoDateTimeSchema = z.string().refine(
   "Invalid ISO date-time.",
 );
 
+const nullableTrimmedString = (max: number) => z.string().trim().max(max).nullable().optional();
+
 export const creatorEpisodeCreateSchema = z.object({
   challengeId: z.string().uuid().nullable(),
   title: z.string().trim().min(1).max(180),
@@ -27,14 +29,24 @@ export const creatorEpisodeCreateSchema = z.object({
 });
 
 export const creatorEpisodeUpdateSchema = z.object({
-  storyAngle: z.string().trim().max(1000).nullable().optional(),
+  storyAngle: nullableTrimmedString(1000),
   script: z.string().max(100000).nullable().optional(),
   status: z.enum(CREATOR_EPISODE_STATUSES).optional(),
   featuredTradeIds: z.array(z.string().uuid()).max(20).optional(),
+  publishTitle: nullableTrimmedString(180),
+  thumbnailText: nullableTrimmedString(120),
+  description: nullableTrimmedString(20000),
+  chapters: nullableTrimmedString(10000),
+  youtubeUrl: nullableTrimmedString(500),
 }).refine(
   (value) => value.storyAngle !== undefined
     || value.script !== undefined
     || value.status !== undefined
-    || value.featuredTradeIds !== undefined,
+    || value.featuredTradeIds !== undefined
+    || value.publishTitle !== undefined
+    || value.thumbnailText !== undefined
+    || value.description !== undefined
+    || value.chapters !== undefined
+    || value.youtubeUrl !== undefined,
   "At least one episode field must be provided.",
 );
