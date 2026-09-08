@@ -1,6 +1,8 @@
 import { listChallenges } from "@/lib/challenges/repository";
+import { readDisciplineReview } from "@/lib/journal/discipline";
 import { listTrades } from "@/lib/journal/repository";
 import { listLedgerEntries } from "@/lib/ledger/repository";
+import { getTradingGuardrailSettings } from "@/lib/trading/guardrails-repository";
 import { orderEpisodeTrades } from "./episode-trades";
 
 export type EpisodeBuilderFilters = {
@@ -16,10 +18,16 @@ type EpisodeTradeSummary = {
   id: string;
   instrument: string;
   direction: "LONG" | "SHORT";
+  openedAt: string;
   closedAt: string | null;
   netPnl: number;
   rMultiple: number | null;
+  initialRisk: number | null;
+  outcome: "WIN" | "LOSS" | "BREAKEVEN" | null;
   setup: string | null;
+  notes: string | null;
+  execution: "ON_PLAN" | "DEVIATED" | "UNPLANNED" | null;
+  mindset: "CALM" | "FOCUSED" | "FOMO" | "REVENGE" | "FEAR" | "FRUSTRATED" | "TIRED" | null;
   label: string;
 };
 
@@ -40,6 +48,11 @@ export type EpisodeSnapshot = {
   otherIncome: number;
   realMoneyNet: number;
   topSetup: string | null;
+  guardrails: {
+    maxDailyLosses: number | null;
+    maxTradesPerDay: number | null;
+    maxRiskPerTrade: number | null;
+  };
   episodeTrades: EpisodeTradeSummary[];
   talkingPoints: string[];
   brief: string;
@@ -81,16 +94,25 @@ function mostCommonSetup(trades: EpisodeTrade[]) {
 }
 
 function episodeTradeSummaries(trades: EpisodeTrade[]): EpisodeTradeSummary[] {
-  return orderEpisodeTrades(trades).map((trade, index) => ({
-    id: trade.id,
-    instrument: trade.instrument,
-    direction: trade.direction,
-    closedAt: trade.closedAt,
-    netPnl: trade.netPnl ?? 0,
-    rMultiple: trade.rMultiple,
-    setup: trade.setup,
-    label: `TRADE ${index + 1}`,
-  }));
+  return orderEpisodeTrades(trades).map((trade, index) => {
+    const review = readDisciplineReview(trade.tags);
+    return {
+      id: trade.id,
+      instrument: trade.instrument,
+      direction: trade.direction,
+      openedAt: trade.openedAt,
+      closedAt: trade.closedAt,
+      netPnl: trade.netPnl ?? 0,
+      rMultiple: trade.rMultiple,
+      initialRisk: trade.initialRisk,
+      outcome: trade.outcome,
+      setup: trade.setup,
+      notes: trade.notes,
+      execution: review.execution,
+      mindset: review.mindset,
+      label: `TRADE ${index + 1}`,
+    };
+  });
 }
 
 function tradeBriefLine(trade: EpisodeTradeSummary) {
@@ -103,10 +125,11 @@ export async function buildEpisodeSnapshot(
   userId: string,
   filters: EpisodeBuilderFilters,
 ): Promise<EpisodeSnapshot> {
-  const [allTrades, challenges, allLedger] = await Promise.all([
+  const [allTrades, challenges, allLedger, guardrailSettings] = await Promise.all([
     listTrades(userId),
     listChallenges(userId),
     listLedgerEntries(userId),
+    getTradingGuardrailSettings(userId),
   ]);
 
   const challenge = filters.challengeId
@@ -150,6 +173,17 @@ export async function buildEpisodeSnapshot(
   const realMoneyNet = payouts + otherIncome - costs;
   const topSetup = mostCommonSetup(trades);
   const episodeTrades = episodeTradeSummaries(trades);
+  const guardrails = {
+    maxDailyLosses: guardrailSettings.maxDailyLosses.enabled
+      ? guardrailSettings.maxDailyLosses.value
+      : null,
+    maxTradesPerDay: guardrailSettings.maxTradesPerDay.enabled
+      ? guardrailSettings.maxTradesPerDay.value
+      : null,
+    maxRiskPerTrade: guardrailSettings.maxRiskPerTrade.enabled
+      ? guardrailSettings.maxRiskPerTrade.value
+      : null,
+  };
 
   const rankedByPnl = [...trades]
     .filter((trade) => trade.netPnl != null)
@@ -225,6 +259,7 @@ export async function buildEpisodeSnapshot(
     otherIncome,
     realMoneyNet,
     topSetup,
+    guardrails,
     episodeTrades,
     talkingPoints,
     brief,
