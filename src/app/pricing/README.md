@@ -1,0 +1,1 @@
+This route is intentionally public so product reviewers and prospective customers can inspect FFZ pricing without an account. Keep plan names, prices and feature summaries synchronized with the authenticated `/upgrade` page.
