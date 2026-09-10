@@ -1,0 +1,1 @@
+The public legal pages are operational product copy, not a substitute for jurisdiction-specific legal advice. Review them whenever FFZ changes its operator identity, billing model, service providers, data practices, refund rules, or target markets.
