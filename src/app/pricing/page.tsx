@@ -123,9 +123,11 @@ export default function PricingPage() {
           <p>Trading involves risk. FFZ is a software tool, not financial advice.</p>
         </div>
         <div className={styles.footerLinks}>
-          <Link href="/login">Log in</Link>
-          <Link href="/register">Register</Link>
+          <Link href="/terms">Terms</Link>
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/refund">Refunds</Link>
           <Link href="/journey">Public Journey</Link>
+          <Link href="/login">Log in</Link>
         </div>
       </footer>
     </main>
