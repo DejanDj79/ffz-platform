@@ -7,8 +7,10 @@ import { AppShell } from "./AppShell";
 export function RouteShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const isPublicJourney = pathname === "/journey" || pathname.startsWith("/journey/");
+  const isPublicCommercePage = ["/pricing", "/terms", "/privacy", "/refund"]
+    .some((route) => pathname === route || pathname.startsWith(`${route}/`));
 
-  if (isPublicJourney) {
+  if (isPublicJourney || isPublicCommercePage) {
     return <>{children}</>;
   }
 

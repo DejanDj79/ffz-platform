@@ -563,6 +563,62 @@ export function AppShell({ children }: { children: ReactNode }) {
                     </span>
                   </Link>
 
+                  <div className={styles.accountMenuDivider} />
+
+                  <Link
+                    href="/pricing"
+                    className={styles.accountMenuItem}
+                    role="menuitem"
+                    onClick={() => setAccountMenuOpen(false)}
+                  >
+                    <span className={styles.accountMenuIcon}><Icon name="plan" /></span>
+                    <span>
+                      <strong>Pricing</strong>
+                      <small>Public plans and pricing</small>
+                    </span>
+                  </Link>
+
+                  <Link
+                    href="/terms"
+                    className={styles.accountMenuItem}
+                    role="menuitem"
+                    onClick={() => setAccountMenuOpen(false)}
+                  >
+                    <span className={styles.accountMenuIcon}><Icon name="journal" /></span>
+                    <span>
+                      <strong>Terms of Service</strong>
+                      <small>Terms for using FFZ</small>
+                    </span>
+                  </Link>
+
+                  <Link
+                    href="/privacy"
+                    className={styles.accountMenuItem}
+                    role="menuitem"
+                    onClick={() => setAccountMenuOpen(false)}
+                  >
+                    <span className={styles.accountMenuIcon}><Icon name="database" /></span>
+                    <span>
+                      <strong>Privacy Policy</strong>
+                      <small>How FFZ handles data</small>
+                    </span>
+                  </Link>
+
+                  <Link
+                    href="/refund"
+                    className={styles.accountMenuItem}
+                    role="menuitem"
+                    onClick={() => setAccountMenuOpen(false)}
+                  >
+                    <span className={styles.accountMenuIcon}><Icon name="review" /></span>
+                    <span>
+                      <strong>Refund Policy</strong>
+                      <small>Refund eligibility and requests</small>
+                    </span>
+                  </Link>
+
+                  <div className={styles.accountMenuDivider} />
+
                   <button className={styles.accountMenuItem} type="button" role="menuitem" onClick={() => void logout()}>
                     <span className={styles.accountMenuIcon}><Icon name="logout" /></span>
                     <span>
