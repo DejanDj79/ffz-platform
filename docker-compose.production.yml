@@ -80,6 +80,26 @@ services:
     networks:
       - backend
 
+  demo-reset:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: build
+    profiles:
+      - ops
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      FFZ_UPLOAD_DIR: /app/data/uploads
+    volumes:
+      - ffz_uploads:/app/data/uploads
+    entrypoint: ["./node_modules/.bin/tsx", "src/db/reset-demo-user.ts"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend
+
   backup-helper:
     image: alpine:3.21
     profiles:
