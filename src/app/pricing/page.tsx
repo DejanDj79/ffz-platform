@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { getCurrentUser } from "@/lib/auth/session";
 import styles from "./Pricing.module.css";
 
 export const metadata: Metadata = {
@@ -40,7 +41,10 @@ function FeatureList({ items }: { items: string[] }) {
   );
 }
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const user = await getCurrentUser();
+  const upgradeHref = user ? "/upgrade" : "/login?next=%2Fupgrade";
+
   return (
     <main className={styles.page}>
       <nav className={styles.nav}>
@@ -51,8 +55,14 @@ export default function PricingPage() {
         <div className={styles.navActions}>
           <Link href="/journey">JOURNEY</Link>
           <Link href="/tools/risk-calculator">RISK CALCULATOR</Link>
-          <Link href="/login">LOG IN</Link>
-          <Link className={styles.primaryNav} href="/register">START FREE</Link>
+          {user ? (
+            <Link className={styles.primaryNav} href="/dashboard">BACK TO PLATFORM</Link>
+          ) : (
+            <>
+              <Link href="/login">LOG IN</Link>
+              <Link className={styles.primaryNav} href="/register">START FREE</Link>
+            </>
+          )}
         </div>
       </nav>
 
@@ -74,7 +84,9 @@ export default function PricingPage() {
             <p>Core tools for risk planning, journaling and one active prop account.</p>
           </div>
           <FeatureList items={FREE_FEATURES} />
-          <Link className={styles.secondaryButton} href="/register">START FREE</Link>
+          <Link className={styles.secondaryButton} href={user ? "/dashboard" : "/register"}>
+            {user ? "BACK TO PLATFORM" : "START FREE"}
+          </Link>
         </article>
 
         <article className={`${styles.card} ${styles.proCard}`}>
@@ -89,7 +101,7 @@ export default function PricingPage() {
             <p>Yearly billing equals $8.25/month and saves about 36% versus monthly.</p>
           </div>
           <FeatureList items={PRO_FEATURES} />
-          <Link className={styles.primaryButton} href="/login?next=%2Fupgrade">CHOOSE PRO</Link>
+          <Link className={styles.primaryButton} href={upgradeHref}>CHOOSE PRO</Link>
         </article>
 
         <article className={`${styles.card} ${styles.founderCard}`}>
@@ -101,7 +113,7 @@ export default function PricingPage() {
             <p>Lifetime FFZ Pro access with one payment, available only while Founder spots remain.</p>
           </div>
           <FeatureList items={PRO_FEATURES} />
-          <Link className={styles.secondaryButton} href="/login?next=%2Fupgrade">VIEW FOUNDER OFFER</Link>
+          <Link className={styles.secondaryButton} href={upgradeHref}>VIEW FOUNDER OFFER</Link>
         </article>
       </section>
 
@@ -114,7 +126,9 @@ export default function PricingPage() {
             It does not provide brokerage services, trading signals, investment management or personalized financial advice.
           </p>
         </div>
-        <Link href="/register">CREATE FREE ACCOUNT</Link>
+        <Link href={user ? "/dashboard" : "/register"}>
+          {user ? "BACK TO PLATFORM" : "CREATE FREE ACCOUNT"}
+        </Link>
       </section>
 
       <footer className={styles.footer}>
@@ -127,7 +141,7 @@ export default function PricingPage() {
           <Link href="/privacy">Privacy</Link>
           <Link href="/refund">Refunds</Link>
           <Link href="/journey">Public Journey</Link>
-          <Link href="/login">Log in</Link>
+          <Link href={user ? "/dashboard" : "/login"}>{user ? "Back to platform" : "Log in"}</Link>
         </div>
       </footer>
     </main>

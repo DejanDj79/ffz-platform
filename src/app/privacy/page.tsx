@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { getCurrentUser } from "@/lib/auth/session";
 import styles from "../legal/LegalPage.module.css";
 
 export const metadata: Metadata = {
@@ -8,7 +9,9 @@ export const metadata: Metadata = {
   description: "How FFZ Platform collects, uses and protects personal information.",
 };
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const user = await getCurrentUser();
+
   return (
     <main className={styles.page}>
       <nav className={styles.nav}>
@@ -20,7 +23,7 @@ export default function PrivacyPage() {
           <Link href="/pricing">PRICING</Link>
           <Link href="/terms">TERMS</Link>
           <Link href="/refund">REFUNDS</Link>
-          <Link href="/login">LOG IN</Link>
+          <Link href={user ? "/dashboard" : "/login"}>{user ? "BACK TO PLATFORM" : "LOG IN"}</Link>
         </div>
       </nav>
 
@@ -226,6 +229,7 @@ export default function PrivacyPage() {
           <Link href="/pricing">Pricing</Link>
           <Link href="/terms">Terms</Link>
           <Link href="/refund">Refunds</Link>
+          <Link href={user ? "/dashboard" : "/login"}>{user ? "Back to platform" : "Log in"}</Link>
         </div>
       </footer>
     </main>
