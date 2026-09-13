@@ -28,15 +28,12 @@ function isProtectedPage(
     return false;
   }
 
-  return (
-    pathname === "/" ||
-    PROTECTED_PAGE_PREFIXES.some(
-      (prefix) =>
-        pathname === prefix ||
-        pathname.startsWith(
-          `${prefix}/`,
-        ),
-    )
+  return PROTECTED_PAGE_PREFIXES.some(
+    (prefix) =>
+      pathname === prefix ||
+      pathname.startsWith(
+        `${prefix}/`,
+      ),
   );
 }
 
