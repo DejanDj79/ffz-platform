@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
 import {
   getFounderBillingAvailability,
-  getLemonBillingAvailability,
+  getPaddleBillingAvailability,
+  getPaddleManagementAvailability,
 } from "@/lib/billing/availability";
 import { getFounderOfferState } from "@/lib/billing/founder-repository";
 import { getUserBillingState } from "@/lib/billing/repository";
@@ -83,20 +84,21 @@ export default async function UpgradePage({ searchParams }: UpgradePageProps) {
   }
 
   const isPro = user.plan === "PRO";
-  const billingAvailability = getLemonBillingAvailability();
+  const billingAvailability = getPaddleBillingAvailability();
   const founderAvailability = getFounderBillingAvailability();
+  const managementAvailability = getPaddleManagementAvailability();
   const founderOffer = await getFounderOfferState(user.id);
   const isFounder = founderOffer.userStatus === "PURCHASED";
   const billing = isPro ? await getUserBillingState(user.id) : null;
   const hasSubscription = Boolean(
-    billing?.provider === "LEMON_SQUEEZY" && billing.subscriptionId,
+    billing?.provider === "PADDLE" && billing.subscriptionId,
   );
-  const renewalLabel = billing?.status === "cancelled"
+  const renewalLabel = billing?.status === "canceled"
     ? formatDate(billing.endsAt)
     : formatDate(billing?.renewsAt ?? null);
-  const currentBillingInterval = billing?.variantId === process.env.LEMONSQUEEZY_MONTHLY_VARIANT_ID
+  const currentBillingInterval = billing?.variantId === process.env.PADDLE_MONTHLY_PRICE_ID
     ? "MONTHLY"
-    : billing?.variantId === process.env.LEMONSQUEEZY_ANNUAL_VARIANT_ID
+    : billing?.variantId === process.env.PADDLE_ANNUAL_PRICE_ID
       ? "ANNUAL"
       : null;
   const founderDisplayRemaining = founderOffer.remaining + (founderOffer.hasActiveReservation ? 1 : 0);
@@ -128,11 +130,11 @@ export default async function UpgradePage({ searchParams }: UpgradePageProps) {
           {billing?.status && <small>{billing.status.replaceAll("_", " ").toUpperCase()}</small>}
           {renewalLabel && (
             <small>
-              {billing?.status === "cancelled" ? "ACCESS UNTIL" : "NEXT BILLING"} {renewalLabel}
+              {billing?.status === "canceled" ? "ACCESS UNTIL" : "NEXT BILLING"} {renewalLabel}
             </small>
           )}
         </div>
-        <ManageSubscriptionButton />
+        {managementAvailability.available && <ManageSubscriptionButton />}
       </div>
     );
   }
