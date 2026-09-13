@@ -9,8 +9,21 @@ type BillingInterval = "MONTHLY" | "ANNUAL";
 type CheckoutKind = "success" | "founder-success";
 type AccessLabel = "FREE" | "PRO" | "FOUNDER" | "CREATOR";
 
+type PaddleCheckoutConfig = {
+  provider: "PADDLE";
+  clientToken: string;
+  environment: "sandbox" | "production";
+  priceId: string;
+  customerEmail: string;
+  successUrl: string;
+  customData: Record<string, string>;
+};
+
 type ApiResponse = {
-  data?: { url?: string };
+  data?: {
+    url?: string;
+    checkout?: PaddleCheckoutConfig;
+  };
   error?: string;
 };
 
@@ -21,18 +34,126 @@ type AuthResponse = {
   };
 };
 
-async function redirectFromApi(path: string, body?: object) {
+type PaddleSdk = {
+  Environment: {
+    set: (environment: "sandbox") => void;
+  };
+  Initialize: (options: { token: string }) => void;
+  Checkout: {
+    open: (options: {
+      items: Array<{ priceId: string; quantity: number }>;
+      customer: { email: string };
+      customData: Record<string, string>;
+      settings: {
+        displayMode: "overlay";
+        theme: "dark";
+        locale: "en";
+        allowLogout: boolean;
+        successUrl: string;
+      };
+    }) => void;
+  };
+};
+
+declare global {
+  interface Window {
+    Paddle?: PaddleSdk;
+    __ffzPaddleToken?: string;
+    __ffzPaddleEnvironment?: "sandbox" | "production";
+  }
+}
+
+let paddleScriptPromise: Promise<PaddleSdk> | null = null;
+
+function loadPaddleScript() {
+  if (window.Paddle) return Promise.resolve(window.Paddle);
+  if (paddleScriptPromise) return paddleScriptPromise;
+
+  paddleScriptPromise = new Promise<PaddleSdk>((resolve, reject) => {
+    const existing = document.querySelector<HTMLScriptElement>("script[data-ffz-paddle]");
+    if (existing) {
+      existing.addEventListener("load", () => {
+        if (window.Paddle) resolve(window.Paddle);
+        else reject(new Error("Paddle.js loaded without exposing the Paddle SDK."));
+      }, { once: true });
+      existing.addEventListener("error", () => reject(new Error("Unable to load Paddle.js.")), { once: true });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://cdn.paddle.com/paddle/v2/paddle.js";
+    script.async = true;
+    script.dataset.ffzPaddle = "true";
+    script.onload = () => {
+      if (window.Paddle) resolve(window.Paddle);
+      else reject(new Error("Paddle.js loaded without exposing the Paddle SDK."));
+    };
+    script.onerror = () => reject(new Error("Unable to load Paddle.js."));
+    document.head.appendChild(script);
+  });
+
+  return paddleScriptPromise;
+}
+
+async function getPaddle(checkout: PaddleCheckoutConfig) {
+  const paddle = await loadPaddleScript();
+
+  if (
+    window.__ffzPaddleToken &&
+    (window.__ffzPaddleToken !== checkout.clientToken ||
+      window.__ffzPaddleEnvironment !== checkout.environment)
+  ) {
+    throw new Error("Paddle billing configuration changed. Reload the page and try again.");
+  }
+
+  if (!window.__ffzPaddleToken) {
+    if (checkout.environment === "sandbox") {
+      paddle.Environment.set("sandbox");
+    }
+    paddle.Initialize({ token: checkout.clientToken });
+    window.__ffzPaddleToken = checkout.clientToken;
+    window.__ffzPaddleEnvironment = checkout.environment;
+  }
+
+  return paddle;
+}
+
+async function billingRequest(path: string, body?: object) {
   const response = await fetch(path, {
     method: "POST",
     headers: body ? { "Content-Type": "application/json" } : undefined,
     body: body ? JSON.stringify(body) : undefined,
   });
-
   const json = await response.json() as ApiResponse;
-  if (!response.ok || !json.data?.url) {
-    throw new Error(json.error || "Billing request failed.");
+  if (!response.ok) throw new Error(json.error || "Billing request failed.");
+  return json;
+}
+
+async function openPaddleFromApi(path: string, body?: object) {
+  const json = await billingRequest(path, body);
+  const checkout = json.data?.checkout;
+  if (!checkout || checkout.provider !== "PADDLE") {
+    throw new Error("Paddle checkout configuration is unavailable.");
   }
 
+  const paddle = await getPaddle(checkout);
+  paddle.Checkout.open({
+    items: [{ priceId: checkout.priceId, quantity: 1 }],
+    customer: { email: checkout.customerEmail },
+    customData: checkout.customData,
+    settings: {
+      displayMode: "overlay",
+      theme: "dark",
+      locale: "en",
+      allowLogout: false,
+      successUrl: checkout.successUrl,
+    },
+  });
+}
+
+async function redirectFromApi(path: string) {
+  const json = await billingRequest(path);
+  if (!json.data?.url) throw new Error(json.error || "Billing request failed.");
   window.location.assign(json.data.url);
 }
 
@@ -207,11 +328,12 @@ export function SubscribeAction({
     setError(null);
 
     try {
-      await redirectFromApi("/api/billing/checkout", {
+      await openPaddleFromApi("/api/billing/checkout", {
         interval,
         returnTo,
         feature,
       });
+      setLoading(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to start checkout.");
       setLoading(false);
@@ -237,7 +359,7 @@ export function SubscribeAction({
       {error && <p className={styles.billingError}>{error}</p>}
       <p className={styles.checkoutNote}>
         {available
-          ? "Secure checkout and subscription billing are handled by Lemon Squeezy."
+          ? "Secure checkout, tax and subscription billing are handled by Paddle."
           : "FFZ Pro subscriptions are being prepared and will be available soon."}
       </p>
     </div>
@@ -269,10 +391,11 @@ export function FounderAction({
     setError(null);
 
     try {
-      await redirectFromApi("/api/billing/founder-checkout", {
+      await openPaddleFromApi("/api/billing/founder-checkout", {
         returnTo,
         feature,
       });
+      setLoading(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to start Founder checkout.");
       setLoading(false);
@@ -302,8 +425,8 @@ export function FounderAction({
         {soldOut
           ? "All 150 Founder Trader spots have been claimed."
           : available
-            ? `${remaining} Founder spot${remaining === 1 ? "" : "s"} currently available. Secure one-time checkout is handled by Lemon Squeezy.`
-            : "Founder checkout will open when the one-time Lemon Squeezy product is configured."}
+            ? `${remaining} Founder spot${remaining === 1 ? "" : "s"} currently available. Secure one-time checkout is handled by Paddle.`
+            : "Founder checkout will open when the one-time Paddle product is configured."}
       </p>
       {available && !soldOut && hasSubscription && (
         <p className={styles.checkoutNote}>
