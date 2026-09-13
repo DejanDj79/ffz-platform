@@ -92,7 +92,10 @@ export function proxy(
   const { pathname } =
     request.nextUrl;
 
-  if (pathname === "/") {
+  if (
+    pathname === "/upgrade" &&
+    !hasSessionCookie(request)
+  ) {
     const pricingUrl =
       request.nextUrl.clone();
 
@@ -100,7 +103,7 @@ export function proxy(
     pricingUrl.search = "";
 
     return applySecurityHeaders(
-      NextResponse.redirect(pricingUrl, 307),
+      NextResponse.rewrite(pricingUrl),
     );
   }
 
