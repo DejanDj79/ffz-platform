@@ -30,6 +30,39 @@ function customUserId(payload: PaddleWebhookPayload) {
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
+function approvedFounderRefund(payload: PaddleWebhookPayload) {
+  const directFullRefund = paddleApprovedFullRefund(payload);
+  if (directFullRefund) return directFullRefund;
+
+  // Paddle Dashboard can represent a complete refund of our single Founder
+  // checkout item as a top-level `partial` adjustment whose item itself is
+  // `full`. Founder checkout contains exactly one purchasable transaction item,
+  // so a full adjustment of that item is a full Founder entitlement refund.
+  const data = payload.data as (typeof payload.data & {
+    items?: Array<{ type?: string }>;
+  }) | undefined;
+  const items = data?.items;
+  const itemLevelFullRefund =
+    data?.transaction_id &&
+    data.action === "refund" &&
+    data.status === "approved" &&
+    data.type === "partial" &&
+    Array.isArray(items) &&
+    items.some((item) => item.type === "full") &&
+    items.every((item) => item.type === "full" || item.type === "tax");
+
+  if (!itemLevelFullRefund || !data?.transaction_id) return null;
+
+  const rawUpdatedAt = data.updated_at ?? payload.occurred_at;
+  const parsedUpdatedAt = rawUpdatedAt ? new Date(rawUpdatedAt) : new Date();
+  const updatedAt = Number.isNaN(parsedUpdatedAt.getTime()) ? new Date() : parsedUpdatedAt;
+
+  return {
+    transactionId: data.transaction_id,
+    updatedAt,
+  };
+}
+
 export async function POST(request: Request) {
   try {
     const rawBody = await request.text();
@@ -120,7 +153,7 @@ export async function POST(request: Request) {
     }
 
     if (eventName === "adjustment.created" || eventName === "adjustment.updated") {
-      const refund = paddleApprovedFullRefund(payload);
+      const refund = approvedFounderRefund(payload);
       if (!refund) {
         return NextResponse.json({ ok: true, ignored: "not_approved_full_refund" });
       }
