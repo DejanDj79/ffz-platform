@@ -93,8 +93,9 @@ export default async function UpgradePage({ searchParams }: UpgradePageProps) {
   const hasSubscription = Boolean(
     billing?.provider === "PADDLE" && billing.subscriptionId,
   );
-  const renewalLabel = billing?.status === "canceled"
-    ? formatDate(billing.endsAt)
+  const cancellationScheduled = Boolean(billing?.endsAt);
+  const billingDateLabel = cancellationScheduled
+    ? formatDate(billing?.endsAt ?? null)
     : formatDate(billing?.renewsAt ?? null);
   const currentBillingInterval = billing?.variantId === process.env.PADDLE_MONTHLY_PRICE_ID
     ? "MONTHLY"
@@ -127,10 +128,14 @@ export default async function UpgradePage({ searchParams }: UpgradePageProps) {
         <div className={`${styles.planState} ${styles.active}`}>
           PRO ACTIVE
           {currentBillingInterval && <small>{currentBillingInterval}</small>}
-          {billing?.status && <small>{billing.status.replaceAll("_", " ").toUpperCase()}</small>}
-          {renewalLabel && (
+          {cancellationScheduled ? (
+            <small>CANCELLATION SCHEDULED</small>
+          ) : billing?.status ? (
+            <small>{billing.status.replaceAll("_", " ").toUpperCase()}</small>
+          ) : null}
+          {billingDateLabel && (
             <small>
-              {billing?.status === "canceled" ? "ACCESS UNTIL" : "NEXT BILLING"} {renewalLabel}
+              {cancellationScheduled ? "ACCESS UNTIL" : "NEXT BILLING"} {billingDateLabel}
             </small>
           )}
         </div>
