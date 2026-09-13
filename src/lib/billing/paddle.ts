@@ -46,6 +46,10 @@ type PaddlePrice = {
 
 type PaddleItem = {
   price?: PaddlePrice;
+  // Adjustment webhooks reuse `items` for adjustment items. Their `type`
+  // tells us whether the related transaction item was refunded in full,
+  // partially, as tax, or through proration.
+  type?: string;
 };
 
 type PaddleSubscriptionData = {
