@@ -92,6 +92,18 @@ export function proxy(
   const { pathname } =
     request.nextUrl;
 
+  if (pathname === "/") {
+    const pricingUrl =
+      request.nextUrl.clone();
+
+    pricingUrl.pathname = "/pricing";
+    pricingUrl.search = "";
+
+    return applySecurityHeaders(
+      NextResponse.redirect(pricingUrl, 307),
+    );
+  }
+
   if (
     isProtectedPage(pathname) &&
     !hasSessionCookie(request)
