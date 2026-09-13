@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 import { getFounderBillingAvailability } from "@/lib/billing/availability";
-import { completeFounderPurchase } from "@/lib/billing/founder-repository";
+import {
+  completeFounderPurchase,
+  refundFounderPurchase,
+} from "@/lib/billing/founder-repository";
 import {
   cancelPaddleSubscriptionAfterFounderPurchase,
   getPaddleConfig,
   isExpectedPaddleFounder,
   isExpectedPaddleSubscription,
+  isPaddleSubscriptionStatus,
+  paddleApprovedFullRefund,
   paddleFounderSnapshotFromWebhook,
   paddleSubscriptionSnapshotFromWebhook,
   verifyPaddleSignature,
@@ -111,6 +116,64 @@ export async function POST(request: Request) {
         applied: result.applied,
         reason: result.reason,
         ...("slotNo" in result ? { slotNo: result.slotNo } : {}),
+      });
+    }
+
+    if (eventName === "adjustment.created" || eventName === "adjustment.updated") {
+      const refund = paddleApprovedFullRefund(payload);
+      if (!refund) {
+        return NextResponse.json({ ok: true, ignored: "not_approved_full_refund" });
+      }
+
+      const result = await refundFounderPurchase({
+        orderId: refund.transactionId,
+        customerId: "",
+        storeId: "PADDLE",
+        productId: "",
+        variantId: "",
+        status: "refunded",
+        testMode: config.testMode,
+        createdAt: refund.updatedAt,
+        updatedAt: refund.updatedAt,
+        fullyRefunded: true,
+        userId: null,
+        slotNo: null,
+        reservationToken: null,
+      });
+
+      // Founder can be bought by an existing Pro subscriber. If Founder is later
+      // refunded, recompute access from the still-linked Paddle subscription so
+      // the user keeps paid Pro access until that subscription actually ends.
+      if ("userId" in result && result.userId) {
+        const billing = await getUserBillingState(result.userId);
+        if (
+          billing.provider === "PADDLE" &&
+          billing.subscriptionId &&
+          billing.customerId &&
+          billing.productId &&
+          billing.variantId &&
+          isPaddleSubscriptionStatus(billing.status)
+        ) {
+          await syncPaddleSubscription(result.userId, {
+            subscriptionId: billing.subscriptionId,
+            customerId: billing.customerId,
+            productId: billing.productId,
+            priceId: billing.variantId,
+            status: billing.status,
+            renewsAt: billing.renewsAt,
+            endsAt: billing.endsAt,
+            testMode: billing.testMode ?? config.testMode,
+            providerUpdatedAt: billing.providerUpdatedAt ?? refund.updatedAt,
+          });
+        }
+      }
+
+      return NextResponse.json({
+        ok: true,
+        event: eventName,
+        applied: result.applied,
+        reason: result.reason,
+        ...("plan" in result ? { plan: result.plan } : {}),
       });
     }
 
