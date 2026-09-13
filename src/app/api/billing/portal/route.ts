@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
-import { getLemonCustomerPortal } from "@/lib/billing/lemon";
+import { getPaddleCustomerPortal } from "@/lib/billing/paddle";
 import { getUserBillingState } from "@/lib/billing/repository";
 
 export const runtime = "nodejs";
@@ -14,14 +14,14 @@ export async function POST() {
     }
 
     const billing = await getUserBillingState(user.id);
-    if (billing.provider !== "LEMON_SQUEEZY" || !billing.subscriptionId) {
+    if (billing.provider !== "PADDLE" || !billing.customerId) {
       return NextResponse.json(
-        { error: "No Lemon Squeezy subscription is connected to this FFZ account." },
+        { error: "No Paddle subscription is connected to this FFZ account." },
         { status: 404 },
       );
     }
 
-    const url = await getLemonCustomerPortal(billing.subscriptionId);
+    const url = await getPaddleCustomerPortal(billing.customerId, billing.subscriptionId);
     return NextResponse.json({ data: { url } });
   } catch (error) {
     console.error("POST /api/billing/portal failed:", error);

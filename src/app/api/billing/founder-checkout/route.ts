@@ -1,15 +1,8 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getFounderBillingAvailability } from "@/lib/billing/availability";
-import {
-  createLemonFounderCheckout,
-  founderCheckoutExpiresAt,
-} from "@/lib/billing/founder";
-import {
-  attachFounderCheckoutUrl,
-  releaseFounderReservation,
-  reserveFounderSlot,
-} from "@/lib/billing/founder-repository";
+import { reserveFounderSlot } from "@/lib/billing/founder-repository";
+import { getPaddleConfig } from "@/lib/billing/paddle";
 import {
   safeFeatureName,
   safeInternalReturnPath,
@@ -49,11 +42,8 @@ export async function POST(request: Request) {
   const returnTo = safeInternalReturnPath(body.returnTo);
   const feature = safeFeatureName(body.feature);
 
-  let reservation: Awaited<ReturnType<typeof reserveFounderSlot>> | null = null;
-  let lemonCheckoutCreated = false;
-
   try {
-    reservation = await reserveFounderSlot(user.id);
+    const reservation = await reserveFounderSlot(user.id);
 
     if (reservation.kind === "PURCHASED") {
       return NextResponse.json(
@@ -79,79 +69,40 @@ export async function POST(request: Request) {
     if (reservation.kind === "PENDING") {
       return NextResponse.json(
         {
-          error: "A Founder checkout is already being prepared for this account. Please try again shortly.",
+          error: "A Founder checkout is already reserved for this account. Please try again after the reservation expires.",
           code: "FOUNDER_CHECKOUT_PENDING",
         },
         { status: 409 },
       );
     }
 
-    const checkoutExpiresAt = founderCheckoutExpiresAt(reservation.expiresAt);
-
-    if (reservation.checkoutUrl) {
-      if (checkoutExpiresAt.getTime() <= Date.now()) {
-        return NextResponse.json(
-          {
-            error: "Your previous Founder checkout just expired. Try again in a few minutes while FFZ finalizes the slot.",
-            code: "FOUNDER_CHECKOUT_FINALIZING",
-          },
-          { status: 409 },
-        );
-      }
-
-      return NextResponse.json({ data: { url: reservation.checkoutUrl } });
-    }
-
-    if (checkoutExpiresAt.getTime() <= Date.now()) {
-      await releaseFounderReservation({
-        userId: user.id,
-        slotNo: reservation.slotNo,
-        reservationToken: reservation.reservationToken,
-      });
-      return NextResponse.json(
-        { error: "Founder reservation expired. Please try again.", code: "FOUNDER_RESERVATION_EXPIRED" },
-        { status: 409 },
-      );
-    }
-
     const requestOrigin = request.headers.get("origin") || new URL(request.url).origin;
-    const redirectUrl = new URL("/upgrade", requestOrigin);
-    redirectUrl.searchParams.set("checkout", "founder-success");
-    if (returnTo) redirectUrl.searchParams.set("from", returnTo);
-    if (feature) redirectUrl.searchParams.set("feature", feature);
+    const successUrl = new URL("/upgrade", requestOrigin);
+    successUrl.searchParams.set("checkout", "founder-success");
+    if (returnTo) successUrl.searchParams.set("from", returnTo);
+    if (feature) successUrl.searchParams.set("feature", feature);
 
-    const checkout = await createLemonFounderCheckout({
-      userId: user.id,
-      email: user.email,
-      name: user.displayName,
-      slotNo: reservation.slotNo,
-      reservationToken: reservation.reservationToken,
-      expiresAt: checkoutExpiresAt,
-      redirectUrl: redirectUrl.toString(),
+    const config = getPaddleConfig({ requireWebhookSecret: true, requireFounder: true });
+
+    return NextResponse.json({
+      data: {
+        checkout: {
+          provider: "PADDLE",
+          clientToken: config.clientToken,
+          environment: config.environment,
+          priceId: config.founderPriceId,
+          customerEmail: user.email,
+          successUrl: successUrl.toString(),
+          customData: {
+            ffz_user_id: user.id,
+            ffz_plan: "FOUNDER",
+            founder_slot: String(reservation.slotNo),
+            founder_reservation_token: reservation.reservationToken,
+          },
+        },
+      },
     });
-    lemonCheckoutCreated = true;
-
-    const attached = await attachFounderCheckoutUrl({
-      userId: user.id,
-      slotNo: reservation.slotNo,
-      reservationToken: reservation.reservationToken,
-      checkoutUrl: checkout.url,
-    });
-
-    if (!attached) {
-      throw new Error("FOUNDER_RESERVATION_CHANGED");
-    }
-
-    return NextResponse.json({ data: { url: checkout.url } });
   } catch (error) {
-    if (reservation?.kind === "RESERVED" && !lemonCheckoutCreated) {
-      await releaseFounderReservation({
-        userId: user.id,
-        slotNo: reservation.slotNo,
-        reservationToken: reservation.reservationToken,
-      }).catch(() => undefined);
-    }
-
     console.error("POST /api/billing/founder-checkout failed:", error);
     return NextResponse.json(
       { error: "Unable to start Founder Trader checkout." },

@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
-import { getLemonBillingAvailability } from "@/lib/billing/availability";
+import { getPaddleBillingAvailability } from "@/lib/billing/availability";
 import {
-  createLemonCheckout,
+  getPaddleConfig,
+  priceIdForInterval,
   type BillingInterval,
-} from "@/lib/billing/lemon";
+} from "@/lib/billing/paddle";
 import {
   safeFeatureName,
   safeInternalReturnPath,
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const billingAvailability = getLemonBillingAvailability();
+    const billingAvailability = getPaddleBillingAvailability();
     if (!billingAvailability.available) {
       return NextResponse.json(
         {
@@ -57,20 +58,30 @@ export async function POST(request: Request) {
     const returnTo = safeInternalReturnPath(body.returnTo);
     const feature = safeFeatureName(body.feature);
     const requestOrigin = request.headers.get("origin") || new URL(request.url).origin;
-    const redirectUrl = new URL("/upgrade", requestOrigin);
-    redirectUrl.searchParams.set("checkout", "success");
-    if (returnTo) redirectUrl.searchParams.set("from", returnTo);
-    if (feature) redirectUrl.searchParams.set("feature", feature);
+    const successUrl = new URL("/upgrade", requestOrigin);
+    successUrl.searchParams.set("checkout", "success");
+    if (returnTo) successUrl.searchParams.set("from", returnTo);
+    if (feature) successUrl.searchParams.set("feature", feature);
 
-    const url = await createLemonCheckout({
-      userId: user.id,
-      email: user.email,
-      name: user.displayName,
-      interval: body.interval,
-      redirectUrl: redirectUrl.toString(),
+    const config = getPaddleConfig({ requireWebhookSecret: true });
+
+    return NextResponse.json({
+      data: {
+        checkout: {
+          provider: "PADDLE",
+          clientToken: config.clientToken,
+          environment: config.environment,
+          priceId: priceIdForInterval(body.interval, config),
+          customerEmail: user.email,
+          successUrl: successUrl.toString(),
+          customData: {
+            ffz_user_id: user.id,
+            ffz_plan: "PRO",
+            billing_interval: body.interval,
+          },
+        },
+      },
     });
-
-    return NextResponse.json({ data: { url } });
   } catch (error) {
     console.error("POST /api/billing/checkout failed:", error);
     return NextResponse.json(

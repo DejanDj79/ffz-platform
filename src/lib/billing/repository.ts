@@ -5,6 +5,10 @@ import {
   planForLemonStatus,
   type LemonSubscriptionSnapshot,
 } from "./lemon";
+import {
+  planForPaddleStatus,
+  type PaddleSubscriptionSnapshot,
+} from "./paddle";
 import { hasActiveFounderEntitlement } from "./founder-repository";
 
 export type BillingState = {
@@ -62,6 +66,63 @@ export async function findUserIdByProviderSubscriptionId(subscriptionId: string)
   return rows[0]?.userId ?? null;
 }
 
+export async function syncPaddleSubscription(
+  userId: string,
+  snapshot: PaddleSubscriptionSnapshot,
+) {
+  const current = await getUserBillingState(userId);
+
+  if (
+    current.providerUpdatedAt &&
+    current.providerUpdatedAt.getTime() > snapshot.providerUpdatedAt.getTime()
+  ) {
+    return { applied: false as const, plan: null };
+  }
+
+  const now = new Date();
+  const founder = await hasActiveFounderEntitlement(userId);
+  const plan = founder ? "PRO" : planForPaddleStatus(snapshot.status);
+
+  await db
+    .insert(userPlans)
+    .values({
+      userId,
+      plan,
+      billingProvider: "PADDLE",
+      providerCustomerId: snapshot.customerId,
+      providerSubscriptionId: snapshot.subscriptionId,
+      providerProductId: snapshot.productId,
+      providerVariantId: snapshot.priceId,
+      subscriptionStatus: snapshot.status,
+      subscriptionRenewsAt: snapshot.renewsAt,
+      subscriptionEndsAt: snapshot.endsAt,
+      subscriptionTestMode: snapshot.testMode,
+      providerUpdatedAt: snapshot.providerUpdatedAt,
+      updatedAt: now,
+    })
+    .onConflictDoUpdate({
+      target: userPlans.userId,
+      set: {
+        plan,
+        billingProvider: "PADDLE",
+        providerCustomerId: snapshot.customerId,
+        providerSubscriptionId: snapshot.subscriptionId,
+        providerProductId: snapshot.productId,
+        providerVariantId: snapshot.priceId,
+        subscriptionStatus: snapshot.status,
+        subscriptionRenewsAt: snapshot.renewsAt,
+        subscriptionEndsAt: snapshot.endsAt,
+        subscriptionTestMode: snapshot.testMode,
+        providerUpdatedAt: snapshot.providerUpdatedAt,
+        updatedAt: now,
+      },
+    });
+
+  return { applied: true as const, plan };
+}
+
+// Legacy Lemon Squeezy sync kept for rollback/reference while the Paddle
+// migration is being validated in sandbox.
 export async function syncLemonSubscription(
   userId: string,
   snapshot: LemonSubscriptionSnapshot,

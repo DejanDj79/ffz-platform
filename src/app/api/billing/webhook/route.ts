@@ -1,77 +1,102 @@
 import { NextResponse } from "next/server";
 import { getFounderBillingAvailability } from "@/lib/billing/availability";
 import {
-  cancelSubscriptionAfterFounderPurchase,
-  founderOrderSnapshotFromWebhook,
-  getFounderLemonConfig,
-  isExpectedFounderOrder,
-  type LemonOrderWebhookPayload,
-} from "@/lib/billing/founder";
-import {
   completeFounderPurchase,
   refundFounderPurchase,
 } from "@/lib/billing/founder-repository";
 import {
-  getLemonConfig,
-  isExpectedLemonSubscription,
-  normalizeLemonTestLifecycleEvent,
-  subscriptionSnapshotFromWebhook,
-  verifyLemonSignature,
-  type LemonWebhookPayload,
-} from "@/lib/billing/lemon";
+  cancelPaddleSubscriptionAfterFounderPurchase,
+  getPaddleConfig,
+  isExpectedPaddleFounder,
+  isExpectedPaddleSubscription,
+  isPaddleSubscriptionStatus,
+  paddleApprovedFullRefund,
+  paddleFounderSnapshotFromWebhook,
+  paddleSubscriptionSnapshotFromWebhook,
+  verifyPaddleSignature,
+  type PaddleWebhookPayload,
+} from "@/lib/billing/paddle";
 import {
   findUserIdByProviderSubscriptionId,
   getUserBillingState,
-  syncLemonSubscription,
+  syncPaddleSubscription,
 } from "@/lib/billing/repository";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+function customUserId(payload: PaddleWebhookPayload) {
+  const value = payload.data?.custom_data?.ffz_user_id;
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+function approvedFounderRefund(payload: PaddleWebhookPayload) {
+  const directFullRefund = paddleApprovedFullRefund(payload);
+  if (directFullRefund) return directFullRefund;
+
+  // Paddle Dashboard can represent a complete refund of our single Founder
+  // checkout item as a top-level `partial` adjustment whose item itself is
+  // `full`. Founder checkout contains exactly one purchasable transaction item,
+  // so a full adjustment of that item is a full Founder entitlement refund.
+  const data = payload.data;
+  const items = data?.items;
+  const itemLevelFullRefund =
+    data?.transaction_id &&
+    data.action === "refund" &&
+    data.status === "approved" &&
+    data.type === "partial" &&
+    Array.isArray(items) &&
+    items.some((item) => item.type === "full") &&
+    items.every((item) => item.type === "full" || item.type === "tax");
+
+  if (!itemLevelFullRefund || !data?.transaction_id) return null;
+
+  const rawUpdatedAt = data.updated_at ?? payload.occurred_at;
+  const parsedUpdatedAt = rawUpdatedAt ? new Date(rawUpdatedAt) : new Date();
+  const updatedAt = Number.isNaN(parsedUpdatedAt.getTime()) ? new Date() : parsedUpdatedAt;
+
+  return {
+    transactionId: data.transaction_id,
+    updatedAt,
+  };
+}
+
 export async function POST(request: Request) {
   try {
     const rawBody = await request.text();
-    const config = getLemonConfig({ requireWebhookSecret: true });
+    const config = getPaddleConfig({ requireWebhookSecret: true });
     const secret = config.webhookSecret as string;
 
-    if (!verifyLemonSignature(rawBody, request.headers.get("x-signature"), secret)) {
+    if (!verifyPaddleSignature(rawBody, request.headers.get("paddle-signature"), secret)) {
       return NextResponse.json({ error: "Invalid webhook signature." }, { status: 401 });
     }
 
-    const payload = JSON.parse(rawBody) as LemonWebhookPayload & LemonOrderWebhookPayload;
-    const eventName = payload.meta?.event_name ?? "";
+    const payload = JSON.parse(rawBody) as PaddleWebhookPayload;
+    const eventName = payload.event_type ?? "";
 
-    if (eventName.startsWith("subscription_")) {
-      const rawSnapshot = subscriptionSnapshotFromWebhook(payload);
-      if (!rawSnapshot) {
+    if (eventName.startsWith("subscription.")) {
+      const snapshot = paddleSubscriptionSnapshotFromWebhook(payload, config);
+      if (!snapshot) {
         return NextResponse.json({ ok: true, ignored: "payload_type" });
       }
 
-      if (!isExpectedLemonSubscription(rawSnapshot, config)) {
+      if (!isExpectedPaddleSubscription(snapshot, config)) {
         return NextResponse.json({ ok: true, ignored: "different_product_or_mode" });
       }
 
-      const lifecycle = normalizeLemonTestLifecycleEvent(eventName, rawSnapshot);
-      const snapshot = lifecycle.snapshot;
-
-      const customUserId = payload.meta?.custom_data?.user_id;
-      let userId = typeof customUserId === "string" ? customUserId : null;
-
+      let userId = customUserId(payload);
       if (!userId) {
         userId = await findUserIdByProviderSubscriptionId(snapshot.subscriptionId);
       }
 
-      // A direct Lemon store purchase does not contain our FFZ user ID. Do not
-      // guess by email; only FFZ-created checkouts are automatically entitled.
+      // Do not guess an FFZ account from customer email. Only subscriptions
+      // opened by FFZ (or already linked by subscription ID) get entitlement.
       if (!userId) {
-        console.warn("Lemon webhook could not be linked to an FFZ user:", snapshot.subscriptionId);
+        console.warn("Paddle webhook could not be linked to an FFZ user:", snapshot.subscriptionId);
         return NextResponse.json({ ok: true, ignored: "unlinked_subscription" });
       }
 
-      const result = await syncLemonSubscription(userId, snapshot, {
-        bypassStaleGuard: lifecycle.bypassStaleGuard,
-      });
-
+      const result = await syncPaddleSubscription(userId, snapshot);
       return NextResponse.json({
         ok: true,
         event: eventName,
@@ -81,34 +106,20 @@ export async function POST(request: Request) {
       });
     }
 
-    if (eventName === "order_created" || eventName === "order_refunded") {
+    if (eventName === "transaction.completed") {
       const founderAvailability = getFounderBillingAvailability();
       if (!founderAvailability.available) {
         return NextResponse.json({ ok: true, ignored: "founder_billing_unavailable" });
       }
 
-      const snapshot = founderOrderSnapshotFromWebhook(payload);
+      const founderConfig = getPaddleConfig({ requireWebhookSecret: true, requireFounder: true });
+      const snapshot = paddleFounderSnapshotFromWebhook(payload, founderConfig);
       if (!snapshot) {
-        return NextResponse.json({ ok: true, ignored: "payload_type" });
+        return NextResponse.json({ ok: true, ignored: "not_founder_transaction" });
       }
 
-      const founderConfig = getFounderLemonConfig();
-      if (!isExpectedFounderOrder(snapshot, founderConfig)) {
-        return NextResponse.json({ ok: true, ignored: "different_founder_variant_or_mode" });
-      }
-
-      if (eventName === "order_refunded") {
-        const result = await refundFounderPurchase(snapshot);
-        return NextResponse.json({
-          ok: true,
-          event: eventName,
-          applied: result.applied,
-          reason: result.reason,
-        });
-      }
-
-      if (snapshot.status !== "paid") {
-        return NextResponse.json({ ok: true, ignored: "order_not_paid" });
+      if (!isExpectedPaddleFounder(snapshot, founderConfig)) {
+        return NextResponse.json({ ok: true, ignored: "different_founder_price_or_mode" });
       }
 
       const result = await completeFounderPurchase(snapshot);
@@ -116,12 +127,17 @@ export async function POST(request: Request) {
       if ("userId" in result && result.userId) {
         const billing = await getUserBillingState(result.userId);
         if (
-          billing.provider === "LEMON_SQUEEZY" &&
+          billing.provider === "PADDLE" &&
           billing.subscriptionId &&
-          billing.status !== "cancelled" &&
-          billing.status !== "expired"
+          billing.status !== "canceled"
         ) {
-          await cancelSubscriptionAfterFounderPurchase(billing.subscriptionId);
+          if (founderConfig.apiKey) {
+            await cancelPaddleSubscriptionAfterFounderPurchase(billing.subscriptionId);
+          } else {
+            console.warn(
+              "Founder activated but PADDLE_API_KEY is not configured; existing Pro subscription was not scheduled for cancellation.",
+            );
+          }
         }
       }
 
@@ -130,7 +146,65 @@ export async function POST(request: Request) {
         event: eventName,
         applied: result.applied,
         reason: result.reason,
-        ...( "slotNo" in result ? { slotNo: result.slotNo } : {}),
+        ...("slotNo" in result ? { slotNo: result.slotNo } : {}),
+      });
+    }
+
+    if (eventName === "adjustment.created" || eventName === "adjustment.updated") {
+      const refund = approvedFounderRefund(payload);
+      if (!refund) {
+        return NextResponse.json({ ok: true, ignored: "not_approved_full_refund" });
+      }
+
+      const result = await refundFounderPurchase({
+        orderId: refund.transactionId,
+        customerId: "",
+        storeId: "PADDLE",
+        productId: "",
+        variantId: "",
+        status: "refunded",
+        testMode: config.testMode,
+        createdAt: refund.updatedAt,
+        updatedAt: refund.updatedAt,
+        fullyRefunded: true,
+        userId: null,
+        slotNo: null,
+        reservationToken: null,
+      });
+
+      // Founder can be bought by an existing Pro subscriber. If Founder is later
+      // refunded, recompute access from the still-linked Paddle subscription so
+      // the user keeps paid Pro access until that subscription actually ends.
+      if ("userId" in result && result.userId) {
+        const billing = await getUserBillingState(result.userId);
+        if (
+          billing.provider === "PADDLE" &&
+          billing.subscriptionId &&
+          billing.customerId &&
+          billing.productId &&
+          billing.variantId &&
+          isPaddleSubscriptionStatus(billing.status)
+        ) {
+          await syncPaddleSubscription(result.userId, {
+            subscriptionId: billing.subscriptionId,
+            customerId: billing.customerId,
+            productId: billing.productId,
+            priceId: billing.variantId,
+            status: billing.status,
+            renewsAt: billing.renewsAt,
+            endsAt: billing.endsAt,
+            testMode: billing.testMode ?? config.testMode,
+            providerUpdatedAt: billing.providerUpdatedAt ?? refund.updatedAt,
+          });
+        }
+      }
+
+      return NextResponse.json({
+        ok: true,
+        event: eventName,
+        applied: result.applied,
+        reason: result.reason,
+        ...("plan" in result ? { plan: result.plan } : {}),
       });
     }
 

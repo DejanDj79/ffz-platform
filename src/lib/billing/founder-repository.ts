@@ -106,10 +106,9 @@ export async function reserveFounderSlot(userId: string): Promise<FounderReserva
           throw new Error("FOUNDER_RESERVATION_INVALID");
         }
 
-        if (!existing.checkoutUrl) {
-          return { kind: "PENDING", slotNo: existing.slotNo };
-        }
-
+        // Paddle uses an overlay checkout and does not persist a reusable checkout URL.
+        // Reuse the same active reservation so a browser crash or closed overlay can
+        // safely reopen checkout instead of locking the user out until expiry.
         return {
           kind: "RESERVED",
           slotNo: existing.slotNo,

@@ -30,7 +30,7 @@ export default async function PrivacyPage() {
       <header className={styles.header}>
         <span className={styles.eyebrow}>LEGAL</span>
         <h1>Privacy Policy</h1>
-        <p>Effective date: September 11, 2026</p>
+        <p>Effective date: September 13, 2026</p>
       </header>
 
       <article className={styles.content}>
@@ -137,7 +137,7 @@ export default async function PrivacyPage() {
           <p>Categories of providers may include:</p>
           <ul>
             <li>hosting, database, networking and infrastructure providers;</li>
-            <li>Lemon Squeezy or another authorized billing provider for purchases and subscription management;</li>
+            <li>Paddle, our merchant-of-record and billing provider for purchases and subscription management;</li>
             <li>transactional email and email-routing providers; and</li>
             <li>professional advisers or authorities where disclosure is legally required.</li>
           </ul>

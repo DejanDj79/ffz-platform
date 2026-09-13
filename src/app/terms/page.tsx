@@ -30,7 +30,7 @@ export default async function TermsPage() {
       <header className={styles.header}>
         <span className={styles.eyebrow}>LEGAL</span>
         <h1>Terms of Service</h1>
-        <p>Effective date: September 11, 2026</p>
+        <p>Effective date: September 13, 2026</p>
       </header>
 
       <article className={styles.content}>
@@ -86,8 +86,9 @@ export default async function TermsPage() {
             Cancellation stops future renewals and does not normally end access before the already-paid period expires.
           </p>
           <p>
-            Payments may be processed by Lemon Squeezy or another authorized payment provider acting as merchant of
-            record or payment processor. Applicable taxes may be added or handled by the payment provider.
+            Payments for paid FFZ plans are processed by Paddle, which acts as merchant of record for those transactions.
+            Paddle handles checkout, payment processing, applicable taxes, invoices and related billing administration
+            according to its terms. FFZ may use another authorized payment provider in the future where appropriate.
           </p>
           <p>
             Founder access is a one-time purchase that provides lifetime FFZ Pro access while FFZ Platform continues to
