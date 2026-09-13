@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   isExpectedPaddleFounder,
   isExpectedPaddleSubscription,
+  paddleApprovedFullRefund,
   paddleFounderSnapshotFromWebhook,
   paddleSubscriptionSnapshotFromWebhook,
   planForPaddleStatus,
@@ -149,6 +150,25 @@ describe("Paddle billing", () => {
       reservationToken: "4c0f159f-0cf4-4bb7-95e4-f23bce43a0a2",
     });
     expect(isExpectedPaddleFounder(snapshot!, config)).toBe(true);
+  });
+
+  it("extracts a directly full approved Founder refund", () => {
+    const payload: PaddleWebhookPayload = {
+      event_type: "adjustment.updated",
+      occurred_at: "2026-09-13T12:30:00.000Z",
+      data: {
+        id: "adj_123",
+        action: "refund",
+        type: "full",
+        status: "approved",
+        transaction_id: "txn_founder",
+        updated_at: "2026-09-13T12:30:00.000Z",
+      },
+    };
+
+    expect(paddleApprovedFullRefund(payload)).toMatchObject({
+      transactionId: "txn_founder",
+    });
   });
 
   it("does not treat recurring completed transactions as Founder purchases", () => {
