@@ -38,9 +38,7 @@ function approvedFounderRefund(payload: PaddleWebhookPayload) {
   // checkout item as a top-level `partial` adjustment whose item itself is
   // `full`. Founder checkout contains exactly one purchasable transaction item,
   // so a full adjustment of that item is a full Founder entitlement refund.
-  const data = payload.data as (typeof payload.data & {
-    items?: Array<{ type?: string }>;
-  }) | undefined;
+  const data = payload.data;
   const items = data?.items;
   const itemLevelFullRefund =
     data?.transaction_id &&
