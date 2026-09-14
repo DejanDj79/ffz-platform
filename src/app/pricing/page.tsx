@@ -43,7 +43,18 @@ function FeatureList({ items }: { items: string[] }) {
 
 export default async function PricingPage() {
   const user = await getCurrentUser();
-  const upgradeHref = user ? "/upgrade" : "/login?next=%2Fupgrade";
+  const publicReviewMode = process.env.FFZ_PUBLIC_REVIEW_MODE === "true";
+  const upgradeHref = publicReviewMode
+    ? "/pricing"
+    : user
+      ? "/upgrade"
+      : "/login?next=%2Fupgrade";
+
+  const freeHref = publicReviewMode
+    ? "/pricing"
+    : user
+      ? "/dashboard"
+      : "/register";
 
   return (
     <main className={styles.page}>
@@ -55,7 +66,9 @@ export default async function PricingPage() {
         <div className={styles.navActions}>
           <Link href="/journey">JOURNEY</Link>
           <Link href="/tools/risk-calculator">RISK CALCULATOR</Link>
-          {user ? (
+          {publicReviewMode ? (
+            <Link className={styles.primaryNav} href="/pricing">VIEW PRICING</Link>
+          ) : user ? (
             <Link className={styles.primaryNav} href="/dashboard">BACK TO PLATFORM</Link>
           ) : (
             <>
@@ -84,8 +97,8 @@ export default async function PricingPage() {
             <p>Core tools for risk planning, journaling and one active prop account.</p>
           </div>
           <FeatureList items={FREE_FEATURES} />
-          <Link className={styles.secondaryButton} href={user ? "/dashboard" : "/register"}>
-            {user ? "BACK TO PLATFORM" : "START FREE"}
+          <Link className={styles.secondaryButton} href={freeHref}>
+            {publicReviewMode ? "VIEW PLANS" : user ? "BACK TO PLATFORM" : "START FREE"}
           </Link>
         </article>
 
@@ -126,8 +139,8 @@ export default async function PricingPage() {
             It does not provide brokerage services, trading signals, investment management or personalized financial advice.
           </p>
         </div>
-        <Link href={user ? "/dashboard" : "/register"}>
-          {user ? "BACK TO PLATFORM" : "CREATE FREE ACCOUNT"}
+        <Link href={freeHref}>
+          {publicReviewMode ? "VIEW PLANS" : user ? "BACK TO PLATFORM" : "CREATE FREE ACCOUNT"}
         </Link>
       </section>
 
@@ -141,7 +154,11 @@ export default async function PricingPage() {
           <Link href="/privacy">Privacy</Link>
           <Link href="/refund">Refunds</Link>
           <Link href="/journey">Public Journey</Link>
-          <Link href={user ? "/dashboard" : "/login"}>{user ? "Back to platform" : "Log in"}</Link>
+          {publicReviewMode ? (
+            <Link href="/pricing">Pricing</Link>
+          ) : (
+            <Link href={user ? "/dashboard" : "/login"}>{user ? "Back to platform" : "Log in"}</Link>
+          )}
         </div>
       </footer>
     </main>
