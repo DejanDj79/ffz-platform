@@ -11,7 +11,6 @@ const PUBLIC_PAGE_PATHS = new Set([
 ]);
 
 const REVIEW_MODE_REDIRECT_PATHS = new Set([
-  "/",
   "/login",
   "/register",
   "/forgot-password",
