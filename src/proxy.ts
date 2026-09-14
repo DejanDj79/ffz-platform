@@ -91,10 +91,17 @@ export function proxy(
 ) {
   const { pathname } =
     request.nextUrl;
+  const hasSession =
+    hasSessionCookie(request);
+  const publicReviewMode =
+    process.env.FFZ_PUBLIC_REVIEW_MODE === "true";
 
   if (
-    pathname === "/upgrade" &&
-    !hasSessionCookie(request)
+    !hasSession &&
+    (
+      pathname === "/upgrade" ||
+      (publicReviewMode && isProtectedPage(pathname))
+    )
   ) {
     const pricingUrl =
       request.nextUrl.clone();
@@ -109,7 +116,7 @@ export function proxy(
 
   if (
     isProtectedPage(pathname) &&
-    !hasSessionCookie(request)
+    !hasSession
   ) {
     const loginUrl =
       request.nextUrl.clone();
