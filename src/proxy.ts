@@ -10,6 +10,15 @@ const PUBLIC_PAGE_PATHS = new Set([
   "/tools/risk-calculator",
 ]);
 
+const REVIEW_MODE_REDIRECT_PATHS = new Set([
+  "/",
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/upgrade",
+]);
+
 const PROTECTED_PAGE_PREFIXES = [
   "/dashboard",
   "/tools",
@@ -97,11 +106,10 @@ export function proxy(
     process.env.FFZ_PUBLIC_REVIEW_MODE === "true";
 
   if (
-    !hasSession &&
     publicReviewMode &&
     (
-      pathname === "/upgrade" ||
-      isProtectedPage(pathname)
+      REVIEW_MODE_REDIRECT_PATHS.has(pathname) ||
+      (!hasSession && isProtectedPage(pathname))
     )
   ) {
     const pricingUrl =
