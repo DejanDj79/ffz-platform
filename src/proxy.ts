@@ -98,10 +98,26 @@ export function proxy(
 
   if (
     !hasSession &&
+    publicReviewMode &&
     (
       pathname === "/upgrade" ||
-      (publicReviewMode && isProtectedPage(pathname))
+      isProtectedPage(pathname)
     )
+  ) {
+    const pricingUrl =
+      request.nextUrl.clone();
+
+    pricingUrl.pathname = "/pricing";
+    pricingUrl.search = "";
+
+    return applySecurityHeaders(
+      NextResponse.redirect(pricingUrl, 307),
+    );
+  }
+
+  if (
+    !hasSession &&
+    pathname === "/upgrade"
   ) {
     const pricingUrl =
       request.nextUrl.clone();
