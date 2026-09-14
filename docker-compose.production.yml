@@ -31,6 +31,7 @@ services:
       FFZ_UPLOAD_DIR: /app/data/uploads
       AUTH_RATE_LIMIT_SALT: ${AUTH_RATE_LIMIT_SALT}
       FFZ_APP_URL: ${FFZ_APP_URL:-}
+      FFZ_PUBLIC_REVIEW_MODE: ${FFZ_PUBLIC_REVIEW_MODE:-false}
       SMTP_HOST: ${SMTP_HOST:-}
       SMTP_PORT: ${SMTP_PORT:-587}
       SMTP_USER: ${SMTP_USER:-}
