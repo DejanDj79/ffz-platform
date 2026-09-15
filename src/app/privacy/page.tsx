@@ -30,7 +30,7 @@ export default async function PrivacyPage() {
       <header className={styles.header}>
         <span className={styles.eyebrow}>LEGAL</span>
         <h1>Privacy Policy</h1>
-        <p>Effective date: September 13, 2026</p>
+        <p>Effective date: September 15, 2026</p>
       </header>
 
       <article className={styles.content}>
@@ -58,8 +58,8 @@ export default async function PrivacyPage() {
           <p>
             FFZ stores the information you choose to enter or import in order to use the product, which may include
             trading-account labels, prop-firm and challenge details, trade records, prices, position size, profit and
-            loss, risk values, setups, tags, journal notes, planned trades, reviews, guardrails, ledger entries, payouts,
-            costs and related workflow settings.
+            loss, risk values, setups, tags, journal notes, planned trades, reviews, user-defined rules, ledger entries,
+            payouts, costs and related workflow settings.
           </p>
 
           <h3>Files and attachments</h3>
@@ -137,7 +137,7 @@ export default async function PrivacyPage() {
           <p>Categories of providers may include:</p>
           <ul>
             <li>hosting, database, networking and infrastructure providers;</li>
-            <li>Paddle, our merchant-of-record and billing provider for purchases and subscription management;</li>
+            <li>FastSpring, our merchant-of-record and billing provider for purchases and subscription management;</li>
             <li>transactional email and email-routing providers; and</li>
             <li>professional advisers or authorities where disclosure is legally required.</li>
           </ul>
@@ -223,7 +223,7 @@ export default async function PrivacyPage() {
       <footer className={styles.footer}>
         <div>
           <strong>FUTURES FROM ZERO</strong>
-          <p>FFZ Platform · Software for managing your own trading process.</p>
+          <p>FFZ Platform · Journaling, analytics and account-tracking software.</p>
         </div>
         <div className={styles.footerLinks}>
           <Link href="/pricing">Pricing</Link>
