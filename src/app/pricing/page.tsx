@@ -7,28 +7,28 @@ import styles from "./Pricing.module.css";
 export const metadata: Metadata = {
   title: "Pricing | FFZ Platform",
   description:
-    "FFZ Platform pricing for futures trading journaling, risk management, prop challenge tracking and analytics.",
+    "FFZ Platform pricing for futures and prop-firm journaling, account tracking, risk calculation and performance analytics.",
 };
 
 const FREE_FEATURES = [
-  "Risk Calculator",
+  "User-defined Risk Calculator",
   "1 active Challenge / Funded account",
   "Manual Trade Journal",
   "Basic Journal Analytics",
   "Economic Calendar",
-  "Built-in prop firm rules",
+  "Prop-firm rule reference",
 ];
 
 const PRO_FEATURES = [
   "Unlimited Challenge / Funded accounts",
   "CSV trade import",
   "Journal → Challenge automatic sync",
-  "Setup Edge analytics",
+  "Setup performance analytics",
   "Time-of-day analytics",
-  "Personal Trading Guardrails",
-  "Economic-news lockout",
+  "User-defined rule reminders",
+  "Economic calendar planning controls",
   "Reusable custom prop rules",
-  "Prop Journey cost / payout analytics",
+  "Prop Journey cost / payout tracking",
 ];
 
 function FeatureList({ items }: { items: string[] }) {
@@ -81,10 +81,10 @@ export default async function PricingPage() {
 
       <section className={styles.hero}>
         <span className={styles.eyebrow}>FFZ PLATFORM PRICING</span>
-        <h1>A futures trading workflow built around process, risk and accountability.</h1>
+        <h1>A journaling, analytics and account-tracking workspace for futures and prop-firm traders.</h1>
         <p>
-          Use the core FFZ workflow for free, or unlock deeper prop challenge tracking,
-          automation, guardrails and analytics with Pro.
+          Use the core FFZ workflow for free, or unlock more account capacity, workflow automation,
+          user-defined rule reminders and performance analytics with Pro.
         </p>
       </section>
 
@@ -94,7 +94,7 @@ export default async function PricingPage() {
             <span>CORE</span>
             <h2>FREE</h2>
             <div className={styles.price}><strong>$0</strong><small>forever</small></div>
-            <p>Core tools for risk planning, journaling and one active prop account.</p>
+            <p>Core tools for risk calculation, journaling and one active prop account.</p>
           </div>
           <FeatureList items={FREE_FEATURES} />
           <Link className={styles.secondaryButton} href={freeHref}>
@@ -111,7 +111,7 @@ export default async function PricingPage() {
               <div><strong>$12.99</strong><small>/ month</small></div>
               <div><strong>$99</strong><small>/ year</small></div>
             </div>
-            <p>Yearly billing equals $8.25/month and saves about 36% versus monthly.</p>
+            <p>$99 is billed once per year, equivalent to $8.25/month and about 36% less than monthly billing.</p>
           </div>
           <FeatureList items={PRO_FEATURES} />
           <Link className={styles.primaryButton} href={upgradeHref}>CHOOSE PRO</Link>
@@ -133,10 +133,12 @@ export default async function PricingPage() {
       <section className={styles.note}>
         <div>
           <span>WHAT FFZ IS</span>
-          <h2>Software for managing your own trading process.</h2>
+          <h2>Productivity and analytics software for your own records and workflow.</h2>
           <p>
-            FFZ Platform provides journaling, analytics, risk calculation and prop challenge workflow tools.
-            It does not provide brokerage services, trading signals, investment management or personalized financial advice.
+            FFZ Platform provides journaling, performance analytics, user-defined risk calculations and prop-firm
+            account/challenge tracking. It does not connect to a broker or exchange, execute or route trades, provide
+            trading signals or strategies, provide personalized financial advice, manage accounts, copy trades or hold
+            customer funds.
           </p>
         </div>
         <Link href={freeHref}>
@@ -147,7 +149,7 @@ export default async function PricingPage() {
       <footer className={styles.footer}>
         <div>
           <strong>FUTURES FROM ZERO</strong>
-          <p>Trading involves risk. FFZ is a software tool, not financial advice.</p>
+          <p>Journaling, analytics and account-tracking software. Not financial advice.</p>
         </div>
         <div className={styles.footerLinks}>
           <Link href="/terms">Terms</Link>
