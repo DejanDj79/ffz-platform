@@ -2,8 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
 import {
-  getFounderBillingAvailability,
-  getPaddleBillingAvailability,
+  getFastSpringBillingAvailability,
+  getFastSpringFounderAvailability,
   getPaddleManagementAvailability,
 } from "@/lib/billing/availability";
 import { getFounderOfferState } from "@/lib/billing/founder-repository";
@@ -84,8 +84,8 @@ export default async function UpgradePage({ searchParams }: UpgradePageProps) {
   }
 
   const isPro = user.plan === "PRO";
-  const billingAvailability = getPaddleBillingAvailability();
-  const founderAvailability = getFounderBillingAvailability();
+  const billingAvailability = getFastSpringBillingAvailability();
+  const founderAvailability = getFastSpringFounderAvailability();
   const managementAvailability = getPaddleManagementAvailability();
   const founderOffer = await getFounderOfferState(user.id);
   const isFounder = founderOffer.userStatus === "PURCHASED";
