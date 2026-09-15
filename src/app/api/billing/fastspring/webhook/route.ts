@@ -4,6 +4,7 @@ import {
   refundFounderPurchase,
 } from "@/lib/billing/founder-repository";
 import {
+  cancelFastSpringSubscriptionAtPeriodEnd,
   fastSpringFounderOrderSnapshotFromEvent,
   fastSpringFounderRefundSnapshotFromEvent,
   fastSpringSubscriptionSnapshotFromEvent,
@@ -53,12 +54,41 @@ async function syncSubscriptionEvent(event: FastSpringWebhookEvent) {
   return result.applied ? `subscription_${snapshot.status}` : "stale_subscription_event";
 }
 
+async function scheduleExistingProCancellation(userId: string) {
+  const billing = await getUserBillingState(userId);
+  if (billing.provider !== "FASTSPRING" || !billing.subscriptionId) {
+    return "no_fastspring_subscription";
+  }
+
+  if (billing.status === "canceled" || billing.status === "deactivated") {
+    return "subscription_already_ending";
+  }
+
+  if (!isFastSpringSubscriptionStatus(billing.status)) {
+    return "subscription_status_not_cancelable";
+  }
+
+  await cancelFastSpringSubscriptionAtPeriodEnd(billing.subscriptionId);
+  return "subscription_cancellation_requested";
+}
+
 async function processCompletedOrder(event: FastSpringWebhookEvent) {
   const config = getFastSpringConfig();
 
   const founder = fastSpringFounderOrderSnapshotFromEvent(event, config);
   if (founder && isExpectedFastSpringFounder(founder, config)) {
     const result = await completeFounderPurchase(founder);
+
+    // Retrying an order webhook after a transient API failure is safe: the
+    // Founder purchase is idempotent, and already-processed results include
+    // the user id so the Pro cancellation can be retried independently.
+    if ("userId" in result && result.userId) {
+      const cancellation = await scheduleExistingProCancellation(result.userId);
+      return result.applied
+        ? `founder_activated_${cancellation}`
+        : `founder_${result.reason}_${cancellation}`;
+    }
+
     return result.applied ? "founder_activated" : `founder_${result.reason}`;
   }
 
