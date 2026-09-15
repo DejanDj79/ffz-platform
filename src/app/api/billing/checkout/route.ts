@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
-import { getPaddleBillingAvailability } from "@/lib/billing/availability";
+import { getFastSpringBillingAvailability } from "@/lib/billing/availability";
 import {
-  getPaddleConfig,
-  priceIdForInterval,
-  type BillingInterval,
-} from "@/lib/billing/paddle";
+  fastSpringProductPathForInterval,
+  getFastSpringConfig,
+  type FastSpringBillingInterval,
+} from "@/lib/billing/fastspring";
 import {
   safeFeatureName,
   safeInternalReturnPath,
@@ -14,7 +14,7 @@ import {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-function isBillingInterval(value: unknown): value is BillingInterval {
+function isBillingInterval(value: unknown): value is FastSpringBillingInterval {
   return value === "MONTHLY" || value === "ANNUAL";
 }
 
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const billingAvailability = getPaddleBillingAvailability();
+    const billingAvailability = getFastSpringBillingAvailability();
     if (!billingAvailability.available) {
       return NextResponse.json(
         {
@@ -57,27 +57,21 @@ export async function POST(request: Request) {
 
     const returnTo = safeInternalReturnPath(body.returnTo);
     const feature = safeFeatureName(body.feature);
-    const requestOrigin = request.headers.get("origin") || new URL(request.url).origin;
-    const successUrl = new URL("/upgrade", requestOrigin);
-    successUrl.searchParams.set("checkout", "success");
-    if (returnTo) successUrl.searchParams.set("from", returnTo);
-    if (feature) successUrl.searchParams.set("feature", feature);
-
-    const config = getPaddleConfig({ requireWebhookSecret: true });
+    const config = getFastSpringConfig();
 
     return NextResponse.json({
       data: {
         checkout: {
-          provider: "PADDLE",
-          clientToken: config.clientToken,
-          environment: config.environment,
-          priceId: priceIdForInterval(body.interval, config),
+          provider: "FASTSPRING",
+          productPath: fastSpringProductPathForInterval(body.interval, config),
           customerEmail: user.email,
-          successUrl: successUrl.toString(),
-          customData: {
+          testMode: config.testMode,
+          tags: {
             ffz_user_id: user.id,
             ffz_plan: "PRO",
             billing_interval: body.interval,
+            ...(returnTo ? { return_to: returnTo } : {}),
+            ...(feature ? { feature } : {}),
           },
         },
       },
