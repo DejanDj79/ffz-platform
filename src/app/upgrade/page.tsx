@@ -90,18 +90,25 @@ export default async function UpgradePage({ searchParams }: UpgradePageProps) {
   const founderOffer = await getFounderOfferState(user.id);
   const isFounder = founderOffer.userStatus === "PURCHASED";
   const billing = isPro ? await getUserBillingState(user.id) : null;
-  const hasSubscription = Boolean(
-    billing?.provider === "PADDLE" && billing.subscriptionId,
-  );
-  const cancellationScheduled = Boolean(billing?.endsAt);
+  const hasSubscription = Boolean(billing?.provider && billing.subscriptionId);
+  const cancellationScheduled = billing?.status === "canceled" || Boolean(billing?.endsAt);
   const billingDateLabel = cancellationScheduled
     ? formatDate(billing?.endsAt ?? null)
     : formatDate(billing?.renewsAt ?? null);
-  const currentBillingInterval = billing?.variantId === process.env.PADDLE_MONTHLY_PRICE_ID
-    ? "MONTHLY"
-    : billing?.variantId === process.env.PADDLE_ANNUAL_PRICE_ID
-      ? "ANNUAL"
+  const currentBillingInterval = billing?.provider === "FASTSPRING"
+    ? billing.variantId === process.env.FASTSPRING_PRO_MONTHLY_PATH
+      ? "MONTHLY"
+      : billing.variantId === process.env.FASTSPRING_PRO_YEARLY_PATH
+        ? "ANNUAL"
+        : null
+    : billing?.provider === "PADDLE"
+      ? billing.variantId === process.env.PADDLE_MONTHLY_PRICE_ID
+        ? "MONTHLY"
+        : billing.variantId === process.env.PADDLE_ANNUAL_PRICE_ID
+          ? "ANNUAL"
+          : null
       : null;
+  const canManageSubscription = billing?.provider === "PADDLE" && managementAvailability.available;
   const founderDisplayRemaining = founderOffer.remaining + (founderOffer.hasActiveReservation ? 1 : 0);
 
   function proState() {
@@ -139,7 +146,7 @@ export default async function UpgradePage({ searchParams }: UpgradePageProps) {
             </small>
           )}
         </div>
-        {managementAvailability.available && <ManageSubscriptionButton />}
+        {canManageSubscription && <ManageSubscriptionButton />}
       </div>
     );
   }
