@@ -30,7 +30,7 @@ export default async function TermsPage() {
       <header className={styles.header}>
         <span className={styles.eyebrow}>LEGAL</span>
         <h1>Terms of Service</h1>
-        <p>Effective date: September 13, 2026</p>
+        <p>Effective date: September 15, 2026</p>
       </header>
 
       <article className={styles.content}>
@@ -38,8 +38,9 @@ export default async function TermsPage() {
           <h2>1. About FFZ Platform</h2>
           <p>
             These Terms of Service govern your access to and use of FFZ Platform, operated by Dejan Djordjevic
-            ("FFZ", "we", "us" or "our"). FFZ Platform is a web-based software product for futures trading
-            journaling, risk calculation, prop-firm challenge tracking, analytics and related workflow tools.
+            ("FFZ", "we", "us" or "our"). FFZ Platform is a web-based software product for futures and prop-firm
+            journaling, user-defined risk calculation, account/challenge tracking, performance analytics and related
+            workflow tools.
           </p>
           <p>
             By creating an account, purchasing a paid plan or otherwise using FFZ Platform, you agree to these Terms.
@@ -60,13 +61,15 @@ export default async function TermsPage() {
         <section className={styles.section}>
           <h2>3. Software only — no financial services or advice</h2>
           <p>
-            FFZ Platform is a productivity, journaling, analytics and risk-management software tool. It is not a broker,
-            investment adviser, commodity trading adviser, prop firm, trading signal provider or money manager.
+            FFZ Platform is productivity, journaling and analytics software with user-defined risk-calculation and
+            account-tracking tools. It is not a broker, exchange, investment adviser, commodity trading adviser, prop
+            firm, trading signal provider or money manager.
           </p>
           <p>
-            We do not execute trades, hold or manage customer funds, provide personalized financial advice, guarantee
-            trading results, provide copy trading or make trading decisions for you. Any trading decision remains solely
-            your responsibility.
+            We do not connect users to brokerage or exchange execution, execute or route trades, hold or manage customer
+            funds, provide trading signals or strategies, provide personalized financial advice, guarantee trading
+            results, provide copy trading or make trading decisions for you. Any trading decision remains solely your
+            responsibility.
           </p>
           <div className={styles.callout}>
             Futures trading involves substantial risk and may result in losses. Historical or simulated results do not
@@ -86,9 +89,10 @@ export default async function TermsPage() {
             Cancellation stops future renewals and does not normally end access before the already-paid period expires.
           </p>
           <p>
-            Payments for paid FFZ plans are processed by Paddle, which acts as merchant of record for those transactions.
-            Paddle handles checkout, payment processing, applicable taxes, invoices and related billing administration
-            according to its terms. FFZ may use another authorized payment provider in the future where appropriate.
+            Payments for paid FFZ plans are processed by FastSpring, which acts as merchant of record for those
+            transactions. FastSpring handles checkout, payment processing, applicable taxes, invoices and related billing
+            administration according to its terms. FFZ may use another authorized payment provider in the future where
+            appropriate.
           </p>
           <p>
             Founder access is a one-time purchase that provides lifetime FFZ Pro access while FFZ Platform continues to
@@ -216,7 +220,7 @@ export default async function TermsPage() {
       <footer className={styles.footer}>
         <div>
           <strong>FUTURES FROM ZERO</strong>
-          <p>FFZ Platform · Software for managing your own trading process.</p>
+          <p>FFZ Platform · Journaling, analytics and account-tracking software.</p>
         </div>
         <div className={styles.footerLinks}>
           <Link href="/pricing">Pricing</Link>
