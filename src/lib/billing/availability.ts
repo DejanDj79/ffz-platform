@@ -24,6 +24,17 @@ const REQUIRED_PADDLE_MANAGEMENT_VARS = [
   "PADDLE_API_KEY",
 ] as const;
 
+const REQUIRED_FASTSPRING_BILLING_VARS = [
+  "NEXT_PUBLIC_FASTSPRING_STOREFRONT",
+  "FASTSPRING_PRO_MONTHLY_PATH",
+  "FASTSPRING_PRO_YEARLY_PATH",
+] as const;
+
+const REQUIRED_FASTSPRING_FOUNDER_VARS = [
+  "NEXT_PUBLIC_FASTSPRING_STOREFRONT",
+  "FASTSPRING_FOUNDER_PATH",
+] as const;
+
 type BillingEnv = Record<string, string | undefined>;
 
 export type BillingAvailability = {
@@ -64,6 +75,32 @@ function paddleAvailabilityFor(
   return { available: true, testMode, reason: "READY" };
 }
 
+function fastSpringAvailabilityFor(
+  requiredVars: readonly string[],
+  env: BillingEnv,
+): BillingAvailability {
+  const storefront = env.NEXT_PUBLIC_FASTSPRING_STOREFRONT?.trim() ?? "";
+  const testMode = storefront.includes(".test.onfastspring.com");
+
+  if (!configured(requiredVars, env)) {
+    return { available: false, testMode, reason: "MISSING_CONFIGURATION" };
+  }
+
+  return { available: true, testMode, reason: "READY" };
+}
+
+export function getFastSpringBillingAvailability(
+  env: BillingEnv = process.env,
+): BillingAvailability {
+  return fastSpringAvailabilityFor(REQUIRED_FASTSPRING_BILLING_VARS, env);
+}
+
+export function getFastSpringFounderAvailability(
+  env: BillingEnv = process.env,
+): BillingAvailability {
+  return fastSpringAvailabilityFor(REQUIRED_FASTSPRING_FOUNDER_VARS, env);
+}
+
 export function getPaddleBillingAvailability(
   env: BillingEnv = process.env,
   nodeEnv: string | undefined = process.env.NODE_ENV,
@@ -91,7 +128,7 @@ export function getPaddleManagementAvailability(
 }
 
 // Kept while the old Lemon Squeezy implementation remains in the repository
-// for reference/rollback. New FFZ checkout flows use Paddle.
+// for reference/rollback.
 export function getLemonBillingAvailability(
   env: BillingEnv = process.env,
   nodeEnv: string | undefined = process.env.NODE_ENV,
