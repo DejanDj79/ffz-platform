@@ -18,6 +18,11 @@ type FastSpringConfig = {
   testMode: boolean;
 };
 
+export type FastSpringApiCredentials = {
+  username: string;
+  password: string;
+};
+
 export type FastSpringWebhookEvent = {
   id?: string;
   live?: boolean;
@@ -77,6 +82,40 @@ export function getFastSpringConfig(): FastSpringConfig {
 
 export function getFastSpringWebhookSecret() {
   return required("FASTSPRING_WEBHOOK_SECRET", process.env.FASTSPRING_WEBHOOK_SECRET);
+}
+
+export function getFastSpringApiCredentials(): FastSpringApiCredentials {
+  return {
+    username: required("FASTSPRING_API_USERNAME", process.env.FASTSPRING_API_USERNAME),
+    password: required("FASTSPRING_API_PASSWORD", process.env.FASTSPRING_API_PASSWORD),
+  };
+}
+
+export async function cancelFastSpringSubscriptionAtPeriodEnd(
+  subscriptionId: string,
+  credentials = getFastSpringApiCredentials(),
+  request: typeof fetch = fetch,
+) {
+  const auth = Buffer.from(`${credentials.username}:${credentials.password}`, "utf8").toString("base64");
+  const response = await request(
+    `https://api.fastspring.com/subscriptions/${encodeURIComponent(subscriptionId)}?billingPeriod=1`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Basic ${auth}`,
+        "User-Agent": "FFZ Platform/1.0 (https://ffz.app)",
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    },
+  );
+
+  if (!response.ok) {
+    const detail = await response.text().catch(() => "");
+    throw new Error(
+      `FastSpring subscription cancellation failed (${response.status})${detail ? `: ${detail}` : ""}`,
+    );
+  }
 }
 
 export function fastSpringProductPathForInterval(
