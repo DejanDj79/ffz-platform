@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { League_Spartan } from "next/font/google";
+import Script from "next/script";
 import { RouteShell } from "@/components/shell/RouteShell";
 import "./globals.css";
 import "./ui-tweaks.css";
@@ -18,9 +19,20 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const fastSpringStorefront = process.env.NEXT_PUBLIC_FASTSPRING_STOREFRONT?.trim();
+
   return (
     <html lang="en">
       <body className={`${leagueSpartan.variable} ${leagueSpartan.className}`}>
+        {fastSpringStorefront ? (
+          <Script
+            id="fsc-api"
+            src="https://sbl.onfastspring.com/sbl/1.0.9/fastspring-builder.min.js"
+            type="text/javascript"
+            data-storefront={fastSpringStorefront}
+            strategy="beforeInteractive"
+          />
+        ) : null}
         <RouteShell>{children}</RouteShell>
       </body>
     </html>
