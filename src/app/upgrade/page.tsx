@@ -26,19 +26,19 @@ const FREE_FEATURES = [
   "Manual Trade Journal",
   "Basic Journal Analytics",
   "Economic Calendar",
-  "Built-in prop firm rules",
+  "Prop-firm rule reference",
 ];
 
 const PRO_FEATURES = [
   "Unlimited Challenge / Funded accounts",
   "CSV trade import",
   "Journal → Challenge automatic sync",
-  "Setup Edge analytics",
+  "Setup performance analytics",
   "Time-of-day analytics",
-  "Personal Trading Guardrails",
-  "Economic-news lockout",
+  "User-defined rule reminders",
+  "Economic calendar planning controls",
   "Reusable custom prop rules",
-  "Prop Journey cost / payout analytics",
+  "Prop Journey cost / payout tracking",
 ];
 
 function FeatureList({ items }: { items: string[] }) {
@@ -161,11 +161,11 @@ export default async function UpgradePage({ searchParams }: UpgradePageProps) {
 
       <section className={styles.hero}>
         <span className={styles.eyebrow}>FFZ PLANS</span>
-        <h1>Turn FFZ from a tracker into your prop trading operating system.</h1>
+        <h1>Choose the FFZ workspace that fits your journaling and account-tracking needs.</h1>
         <p>
-          Free keeps the core workflow useful. Pro removes account limits and unlocks automation,
-          guardrails and edge analytics. Founder Trader adds a limited lifetime option for the first
-          150 traders. Your existing data stays visible if your plan changes.
+          Free keeps the core workflow useful. Pro removes account limits and unlocks workflow automation,
+          user-defined rule reminders and deeper performance analytics. Founder Trader adds a limited lifetime
+          option for the first 150 traders. Your existing data stays visible if your plan changes.
         </p>
         <div className={styles.heroMeta}>
           <div className={styles.current}>
@@ -189,7 +189,7 @@ export default async function UpgradePage({ searchParams }: UpgradePageProps) {
               <strong>$0</strong>
               <small>forever</small>
             </div>
-            <p>Core prop tracking and journaling tools that stay useful without a subscription.</p>
+            <p>Core account tracking, risk calculation and journaling tools without a subscription.</p>
           </div>
           <FeatureList items={FREE_FEATURES} />
           <div className={styles.planState}>
@@ -203,10 +203,10 @@ export default async function UpgradePage({ searchParams }: UpgradePageProps) {
             <span className={styles.planKicker}>FULL WORKFLOW</span>
             <h2>PRO</h2>
             <div className={styles.priceRow}>
-              <strong>From $8.25</strong>
+              <strong>$12.99</strong>
               <small>/ month</small>
             </div>
-            <p>Choose monthly flexibility or save 36% with yearly billing.</p>
+            <p>Or $99 billed yearly ($8.25/month equivalent), saving about 36% versus monthly billing.</p>
           </div>
           <FeatureList items={PRO_FEATURES} />
           {proState()}
