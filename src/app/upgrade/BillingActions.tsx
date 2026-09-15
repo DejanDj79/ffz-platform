@@ -9,20 +9,18 @@ type BillingInterval = "MONTHLY" | "ANNUAL";
 type CheckoutKind = "success" | "founder-success";
 type AccessLabel = "FREE" | "PRO" | "FOUNDER" | "CREATOR";
 
-type PaddleCheckoutConfig = {
-  provider: "PADDLE";
-  clientToken: string;
-  environment: "sandbox" | "production";
-  priceId: string;
+type FastSpringCheckoutConfig = {
+  provider: "FASTSPRING";
+  productPath: string;
   customerEmail: string;
-  successUrl: string;
-  customData: Record<string, string>;
+  testMode: boolean;
+  tags: Record<string, string>;
 };
 
 type ApiResponse = {
   data?: {
     url?: string;
-    checkout?: PaddleCheckoutConfig;
+    checkout?: FastSpringCheckoutConfig;
   };
   error?: string;
 };
@@ -34,88 +32,45 @@ type AuthResponse = {
   };
 };
 
-type PaddleSdk = {
-  Environment: {
-    set: (environment: "sandbox") => void;
-  };
-  Initialize: (options: { token: string }) => void;
-  Checkout: {
-    open: (options: {
-      items: Array<{ priceId: string; quantity: number }>;
-      customer: { email: string };
-      customData: Record<string, string>;
-      settings: {
-        displayMode: "overlay";
-        theme: "dark";
-        locale: "en";
-        allowLogout: boolean;
-        successUrl: string;
-      };
-    }) => void;
+type FastSpringSession = {
+  reset: boolean;
+  products: Array<{ path: string; quantity: number }>;
+  paymentContact: { email: string };
+  tags: Record<string, string>;
+  checkout: boolean;
+};
+
+type FastSpringSdk = {
+  builder: {
+    push: (session: FastSpringSession) => void;
   };
 };
 
 declare global {
   interface Window {
-    Paddle?: PaddleSdk;
-    __ffzPaddleToken?: string;
-    __ffzPaddleEnvironment?: "sandbox" | "production";
+    fastspring?: FastSpringSdk;
   }
 }
 
-let paddleScriptPromise: Promise<PaddleSdk> | null = null;
+async function getFastSpring() {
+  if (window.fastspring?.builder) return window.fastspring;
 
-function loadPaddleScript() {
-  if (window.Paddle) return Promise.resolve(window.Paddle);
-  if (paddleScriptPromise) return paddleScriptPromise;
+  return new Promise<FastSpringSdk>((resolve, reject) => {
+    let attempts = 0;
+    const timer = window.setInterval(() => {
+      attempts += 1;
+      if (window.fastspring?.builder) {
+        window.clearInterval(timer);
+        resolve(window.fastspring);
+        return;
+      }
 
-  paddleScriptPromise = new Promise<PaddleSdk>((resolve, reject) => {
-    const existing = document.querySelector<HTMLScriptElement>("script[data-ffz-paddle]");
-    if (existing) {
-      existing.addEventListener("load", () => {
-        if (window.Paddle) resolve(window.Paddle);
-        else reject(new Error("Paddle.js loaded without exposing the Paddle SDK."));
-      }, { once: true });
-      existing.addEventListener("error", () => reject(new Error("Unable to load Paddle.js.")), { once: true });
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.src = "https://cdn.paddle.com/paddle/v2/paddle.js";
-    script.async = true;
-    script.dataset.ffzPaddle = "true";
-    script.onload = () => {
-      if (window.Paddle) resolve(window.Paddle);
-      else reject(new Error("Paddle.js loaded without exposing the Paddle SDK."));
-    };
-    script.onerror = () => reject(new Error("Unable to load Paddle.js."));
-    document.head.appendChild(script);
+      if (attempts >= 50) {
+        window.clearInterval(timer);
+        reject(new Error("FastSpring checkout did not load. Reload the page and try again."));
+      }
+    }, 100);
   });
-
-  return paddleScriptPromise;
-}
-
-async function getPaddle(checkout: PaddleCheckoutConfig) {
-  const paddle = await loadPaddleScript();
-
-  if (
-    window.__ffzPaddleToken &&
-    (window.__ffzPaddleToken !== checkout.clientToken ||
-      window.__ffzPaddleEnvironment !== checkout.environment)
-  ) {
-    throw new Error("Paddle billing configuration changed. Reload the page and try again.");
-  }
-
-  if (!window.__ffzPaddleToken) {
-    if (checkout.environment === "sandbox") {
-      paddle.Environment.set("sandbox");
-    }
-    paddle.Initialize({ token: checkout.clientToken });
-    window.__ffzPaddleToken = checkout.clientToken;
-    window.__ffzPaddleEnvironment = checkout.environment;
-  }
-
-  return paddle;
 }
 
 async function billingRequest(path: string, body?: object) {
@@ -129,25 +84,20 @@ async function billingRequest(path: string, body?: object) {
   return json;
 }
 
-async function openPaddleFromApi(path: string, body?: object) {
+async function openFastSpringFromApi(path: string, body?: object) {
   const json = await billingRequest(path, body);
   const checkout = json.data?.checkout;
-  if (!checkout || checkout.provider !== "PADDLE") {
-    throw new Error("Paddle checkout configuration is unavailable.");
+  if (!checkout || checkout.provider !== "FASTSPRING") {
+    throw new Error("FastSpring checkout configuration is unavailable.");
   }
 
-  const paddle = await getPaddle(checkout);
-  paddle.Checkout.open({
-    items: [{ priceId: checkout.priceId, quantity: 1 }],
-    customer: { email: checkout.customerEmail },
-    customData: checkout.customData,
-    settings: {
-      displayMode: "overlay",
-      theme: "dark",
-      locale: "en",
-      allowLogout: false,
-      successUrl: checkout.successUrl,
-    },
+  const fastSpring = await getFastSpring();
+  fastSpring.builder.push({
+    reset: true,
+    products: [{ path: checkout.productPath, quantity: 1 }],
+    paymentContact: { email: checkout.customerEmail },
+    tags: checkout.tags,
+    checkout: true,
   });
 }
 
@@ -328,7 +278,7 @@ export function SubscribeAction({
     setError(null);
 
     try {
-      await openPaddleFromApi("/api/billing/checkout", {
+      await openFastSpringFromApi("/api/billing/checkout", {
         interval,
         returnTo,
         feature,
@@ -359,7 +309,7 @@ export function SubscribeAction({
       {error && <p className={styles.billingError}>{error}</p>}
       <p className={styles.checkoutNote}>
         {available
-          ? "Secure checkout, tax and subscription billing are handled by Paddle."
+          ? "Secure checkout, tax and subscription billing are handled by FastSpring."
           : "FFZ Pro subscriptions are being prepared and will be available soon."}
       </p>
     </div>
@@ -391,7 +341,7 @@ export function FounderAction({
     setError(null);
 
     try {
-      await openPaddleFromApi("/api/billing/founder-checkout", {
+      await openFastSpringFromApi("/api/billing/founder-checkout", {
         returnTo,
         feature,
       });
@@ -425,8 +375,8 @@ export function FounderAction({
         {soldOut
           ? "All 150 Founder Trader spots have been claimed."
           : available
-            ? `${remaining} Founder spot${remaining === 1 ? "" : "s"} currently available. Secure one-time checkout is handled by Paddle.`
-            : "Founder checkout will open when the one-time Paddle product is configured."}
+            ? `${remaining} Founder spot${remaining === 1 ? "" : "s"} currently available. Secure one-time checkout is handled by FastSpring.`
+            : "Founder checkout will open when the one-time FastSpring product is configured."}
       </p>
       {available && !soldOut && hasSubscription && (
         <p className={styles.checkoutNote}>
