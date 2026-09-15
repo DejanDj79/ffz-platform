@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { describe, expect, it } from "vitest";
 import {
+  cancelFastSpringSubscriptionAtPeriodEnd,
   fastSpringFounderOrderSnapshotFromEvent,
   fastSpringFounderRefundSnapshotFromEvent,
   fastSpringSubscriptionSnapshotFromEvent,
@@ -39,6 +40,42 @@ describe("FastSpring billing", () => {
     expect(verifyFastSpringSignature(body, signature, "secret")).toBe(true);
     expect(verifyFastSpringSignature(body, "invalid", "secret")).toBe(false);
     expect(verifyFastSpringSignature(body, null, "secret")).toBe(false);
+  });
+
+  it("requests FastSpring subscription cancellation at the end of the paid period", async () => {
+    let requestedUrl = "";
+    let requestedInit: RequestInit | undefined;
+    const request = (async (input: string | URL | Request, init?: RequestInit) => {
+      requestedUrl = String(input);
+      requestedInit = init;
+      return new Response(null, { status: 200 });
+    }) as typeof fetch;
+
+    await cancelFastSpringSubscriptionAtPeriodEnd(
+      "sub_123/with-special",
+      { username: "api-user", password: "api-pass" },
+      request,
+    );
+
+    expect(requestedUrl).toBe(
+      "https://api.fastspring.com/subscriptions/sub_123%2Fwith-special?billingPeriod=1",
+    );
+    expect(requestedInit?.method).toBe("DELETE");
+    expect(requestedInit?.headers).toMatchObject({
+      Authorization: `Basic ${Buffer.from("api-user:api-pass").toString("base64")}`,
+      "User-Agent": "FFZ Platform/1.0 (https://ffz.app)",
+      "Content-Type": "application/json",
+    });
+  });
+
+  it("fails loudly when FastSpring rejects a subscription cancellation", async () => {
+    const request = (async () => new Response("denied", { status: 401 })) as typeof fetch;
+
+    await expect(cancelFastSpringSubscriptionAtPeriodEnd(
+      "sub_123",
+      { username: "bad", password: "credentials" },
+      request,
+    )).rejects.toThrow("FastSpring subscription cancellation failed (401): denied");
   });
 
   it("extracts an expanded subscription activation with FFZ order tags", () => {
