@@ -2,6 +2,10 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { userPlans } from "@/db/user-plans-schema";
 import {
+  planForFastSpringStatus,
+  type FastSpringSubscriptionSnapshot,
+} from "./fastspring";
+import {
   planForLemonStatus,
   type LemonSubscriptionSnapshot,
 } from "./lemon";
@@ -64,6 +68,62 @@ export async function findUserIdByProviderSubscriptionId(subscriptionId: string)
     .limit(1);
 
   return rows[0]?.userId ?? null;
+}
+
+export async function syncFastSpringSubscription(
+  userId: string,
+  snapshot: FastSpringSubscriptionSnapshot,
+) {
+  const current = await getUserBillingState(userId);
+
+  if (
+    current.provider === "FASTSPRING" &&
+    current.providerUpdatedAt &&
+    current.providerUpdatedAt.getTime() > snapshot.providerUpdatedAt.getTime()
+  ) {
+    return { applied: false as const, plan: null };
+  }
+
+  const now = new Date();
+  const founder = await hasActiveFounderEntitlement(userId);
+  const plan = founder ? "PRO" : planForFastSpringStatus(snapshot.status);
+
+  await db
+    .insert(userPlans)
+    .values({
+      userId,
+      plan,
+      billingProvider: "FASTSPRING",
+      providerCustomerId: snapshot.customerId,
+      providerSubscriptionId: snapshot.subscriptionId,
+      providerProductId: snapshot.productId,
+      providerVariantId: snapshot.productId,
+      subscriptionStatus: snapshot.status,
+      subscriptionRenewsAt: snapshot.renewsAt,
+      subscriptionEndsAt: snapshot.endsAt,
+      subscriptionTestMode: snapshot.testMode,
+      providerUpdatedAt: snapshot.providerUpdatedAt,
+      updatedAt: now,
+    })
+    .onConflictDoUpdate({
+      target: userPlans.userId,
+      set: {
+        plan,
+        billingProvider: "FASTSPRING",
+        providerCustomerId: snapshot.customerId,
+        providerSubscriptionId: snapshot.subscriptionId,
+        providerProductId: snapshot.productId,
+        providerVariantId: snapshot.productId,
+        subscriptionStatus: snapshot.status,
+        subscriptionRenewsAt: snapshot.renewsAt,
+        subscriptionEndsAt: snapshot.endsAt,
+        subscriptionTestMode: snapshot.testMode,
+        providerUpdatedAt: snapshot.providerUpdatedAt,
+        updatedAt: now,
+      },
+    });
+
+  return { applied: true as const, plan };
 }
 
 export async function syncPaddleSubscription(
