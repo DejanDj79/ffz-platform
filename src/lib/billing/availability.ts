@@ -1,3 +1,20 @@
+const REQUIRED_DODO_BILLING_VARS = [
+  "DODO_PAYMENTS_API_KEY",
+  "DODO_PAYMENTS_WEBHOOK_KEY",
+  "DODO_PRO_MONTHLY_PRODUCT_ID",
+  "DODO_PRO_ANNUAL_PRODUCT_ID",
+] as const;
+
+const REQUIRED_DODO_FOUNDER_VARS = [
+  "DODO_PAYMENTS_API_KEY",
+  "DODO_PAYMENTS_WEBHOOK_KEY",
+  "DODO_FOUNDER_PRODUCT_ID",
+] as const;
+
+const REQUIRED_DODO_MANAGEMENT_VARS = [
+  "DODO_PAYMENTS_API_KEY",
+] as const;
+
 const REQUIRED_LEMON_BILLING_VARS = [
   "LEMONSQUEEZY_API_KEY",
   "LEMONSQUEEZY_STORE_ID",
@@ -47,6 +64,39 @@ function configured(requiredVars: readonly string[], env: BillingEnv) {
   return requiredVars.every((name) => Boolean(env[name]?.trim()));
 }
 
+function dodoTestMode(env: BillingEnv) {
+  return (env.DODO_PAYMENTS_ENVIRONMENT ?? "test_mode").trim().toLowerCase() !== "live_mode";
+}
+
+function dodoAvailabilityFor(
+  requiredVars: readonly string[],
+  env: BillingEnv,
+): BillingAvailability {
+  const testMode = dodoTestMode(env);
+  if (!configured(requiredVars, env)) {
+    return { available: false, testMode, reason: "MISSING_CONFIGURATION" };
+  }
+  return { available: true, testMode, reason: "READY" };
+}
+
+export function getDodoBillingAvailability(
+  env: BillingEnv = process.env,
+): BillingAvailability {
+  return dodoAvailabilityFor(REQUIRED_DODO_BILLING_VARS, env);
+}
+
+export function getDodoFounderAvailability(
+  env: BillingEnv = process.env,
+): BillingAvailability {
+  return dodoAvailabilityFor(REQUIRED_DODO_FOUNDER_VARS, env);
+}
+
+export function getDodoManagementAvailability(
+  env: BillingEnv = process.env,
+): BillingAvailability {
+  return dodoAvailabilityFor(REQUIRED_DODO_MANAGEMENT_VARS, env);
+}
+
 function paddleTestMode(env: BillingEnv) {
   const mode = (env.PADDLE_ENVIRONMENT ?? "sandbox").trim().toLowerCase();
   return mode !== "production" && mode !== "live";
@@ -89,6 +139,8 @@ function fastSpringAvailabilityFor(
   return { available: true, testMode, reason: "READY" };
 }
 
+// Legacy provider availability helpers are retained for existing records and
+// rollback/reference while Dodo Payments is the active FFZ checkout provider.
 export function getFastSpringBillingAvailability(
   env: BillingEnv = process.env,
 ): BillingAvailability {
@@ -127,8 +179,6 @@ export function getPaddleManagementAvailability(
   return base;
 }
 
-// Kept while the old Lemon Squeezy implementation remains in the repository
-// for reference/rollback.
 export function getLemonBillingAvailability(
   env: BillingEnv = process.env,
   nodeEnv: string | undefined = process.env.NODE_ENV,
