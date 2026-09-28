@@ -70,8 +70,22 @@ export function dodoEnvironment(value = process.env.DODO_PAYMENTS_ENVIRONMENT): 
   return value?.trim().toLowerCase() === "live_mode" ? "live_mode" : "test_mode";
 }
 
-export function getDodoConfig(options: { requireWebhook?: boolean } = {}): DodoConfig {
+export function getDodoConfig(options: {
+  requireWebhook?: boolean;
+  requireSubscriptions?: boolean;
+  requireFounder?: boolean;
+} = {}): DodoConfig {
   const environment = dodoEnvironment();
+  const monthlyProductId = options.requireSubscriptions
+    ? required("DODO_PRO_MONTHLY_PRODUCT_ID", process.env.DODO_PRO_MONTHLY_PRODUCT_ID)
+    : process.env.DODO_PRO_MONTHLY_PRODUCT_ID?.trim() || "";
+  const annualProductId = options.requireSubscriptions
+    ? required("DODO_PRO_ANNUAL_PRODUCT_ID", process.env.DODO_PRO_ANNUAL_PRODUCT_ID)
+    : process.env.DODO_PRO_ANNUAL_PRODUCT_ID?.trim() || "";
+  const founderProductId = options.requireFounder
+    ? required("DODO_FOUNDER_PRODUCT_ID", process.env.DODO_FOUNDER_PRODUCT_ID)
+    : process.env.DODO_FOUNDER_PRODUCT_ID?.trim() || "";
+
   return {
     apiKey: required("DODO_PAYMENTS_API_KEY", process.env.DODO_PAYMENTS_API_KEY),
     webhookKey: options.requireWebhook
@@ -82,24 +96,15 @@ export function getDodoConfig(options: { requireWebhook?: boolean } = {}): DodoC
       ? "https://live.dodopayments.com"
       : "https://test.dodopayments.com",
     testMode: environment === "test_mode",
-    monthlyProductId: required(
-      "DODO_PRO_MONTHLY_PRODUCT_ID",
-      process.env.DODO_PRO_MONTHLY_PRODUCT_ID,
-    ),
-    annualProductId: required(
-      "DODO_PRO_ANNUAL_PRODUCT_ID",
-      process.env.DODO_PRO_ANNUAL_PRODUCT_ID,
-    ),
-    founderProductId: required(
-      "DODO_FOUNDER_PRODUCT_ID",
-      process.env.DODO_FOUNDER_PRODUCT_ID,
-    ),
+    monthlyProductId,
+    annualProductId,
+    founderProductId,
   };
 }
 
 export function dodoProductIdForInterval(
   interval: DodoBillingInterval,
-  config = getDodoConfig(),
+  config = getDodoConfig({ requireSubscriptions: true }),
 ) {
   return interval === "MONTHLY" ? config.monthlyProductId : config.annualProductId;
 }
