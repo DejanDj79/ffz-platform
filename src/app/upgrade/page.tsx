@@ -2,9 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
 import {
-  getFastSpringBillingAvailability,
-  getFastSpringFounderAvailability,
-  getPaddleManagementAvailability,
+  getDodoBillingAvailability,
+  getDodoFounderAvailability,
+  getDodoManagementAvailability,
 } from "@/lib/billing/availability";
 import { getFounderOfferState } from "@/lib/billing/founder-repository";
 import { getUserBillingState } from "@/lib/billing/repository";
@@ -84,31 +84,40 @@ export default async function UpgradePage({ searchParams }: UpgradePageProps) {
   }
 
   const isPro = user.plan === "PRO";
-  const billingAvailability = getFastSpringBillingAvailability();
-  const founderAvailability = getFastSpringFounderAvailability();
-  const managementAvailability = getPaddleManagementAvailability();
+  const billingAvailability = getDodoBillingAvailability();
+  const founderAvailability = getDodoFounderAvailability();
+  const managementAvailability = getDodoManagementAvailability();
   const founderOffer = await getFounderOfferState(user.id);
   const isFounder = founderOffer.userStatus === "PURCHASED";
   const billing = isPro ? await getUserBillingState(user.id) : null;
   const hasSubscription = Boolean(billing?.provider && billing.subscriptionId);
-  const cancellationScheduled = billing?.status === "canceled" || Boolean(billing?.endsAt);
+  const cancellationScheduled =
+    billing?.status === "canceled" ||
+    billing?.status === "cancelled" ||
+    Boolean(billing?.endsAt);
   const billingDateLabel = cancellationScheduled
     ? formatDate(billing?.endsAt ?? null)
     : formatDate(billing?.renewsAt ?? null);
-  const currentBillingInterval = billing?.provider === "FASTSPRING"
-    ? billing.variantId === process.env.FASTSPRING_PRO_MONTHLY_PATH
+  const currentBillingInterval = billing?.provider === "DODO"
+    ? billing.productId === process.env.DODO_PRO_MONTHLY_PRODUCT_ID
       ? "MONTHLY"
-      : billing.variantId === process.env.FASTSPRING_PRO_YEARLY_PATH
+      : billing.productId === process.env.DODO_PRO_ANNUAL_PRODUCT_ID
         ? "ANNUAL"
         : null
-    : billing?.provider === "PADDLE"
-      ? billing.variantId === process.env.PADDLE_MONTHLY_PRICE_ID
+    : billing?.provider === "FASTSPRING"
+      ? billing.variantId === process.env.FASTSPRING_PRO_MONTHLY_PATH
         ? "MONTHLY"
-        : billing.variantId === process.env.PADDLE_ANNUAL_PRICE_ID
+        : billing.variantId === process.env.FASTSPRING_PRO_YEARLY_PATH
           ? "ANNUAL"
           : null
-      : null;
-  const canManageSubscription = billing?.provider === "PADDLE" && managementAvailability.available;
+      : billing?.provider === "PADDLE"
+        ? billing.variantId === process.env.PADDLE_MONTHLY_PRICE_ID
+          ? "MONTHLY"
+          : billing.variantId === process.env.PADDLE_ANNUAL_PRICE_ID
+            ? "ANNUAL"
+            : null
+        : null;
+  const canManageSubscription = billing?.provider === "DODO" && managementAvailability.available;
   const founderDisplayRemaining = founderOffer.remaining + (founderOffer.hasActiveReservation ? 1 : 0);
 
   function proState() {
