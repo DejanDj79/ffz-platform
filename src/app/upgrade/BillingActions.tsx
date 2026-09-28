@@ -34,23 +34,6 @@ async function billingRequest(path: string, body?: object) {
   return json;
 }
 
-async function openFastSpringFromApi(path: string, body?: object) {
-  const json = await billingRequest(path, body);
-  const checkout = json.data?.checkout;
-  if (!checkout || checkout.provider !== "FASTSPRING") {
-    throw new Error("FastSpring checkout configuration is unavailable.");
-  }
-
-  const fastSpring = await getFastSpring();
-  fastSpring.builder.push({
-    reset: true,
-    products: [{ path: checkout.productPath, quantity: 1 }],
-    paymentContact: { email: checkout.customerEmail },
-    tags: checkout.tags,
-    checkout: true,
-  });
-}
-
 async function redirectFromApi(path: string, body?: object) {
   const json = await billingRequest(path, body);
   if (!json.data?.url) throw new Error(json.error || "Billing request failed.");
