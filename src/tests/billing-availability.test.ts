@@ -1,9 +1,60 @@
 import { describe, expect, it } from "vitest";
 import {
+  getDodoBillingAvailability,
+  getDodoFounderAvailability,
+  getDodoManagementAvailability,
   getFounderBillingAvailability,
   getPaddleBillingAvailability,
   getPaddleManagementAvailability,
 } from "@/lib/billing/availability";
+
+const dodoConfigured = {
+  DODO_PAYMENTS_API_KEY: "test_dodo_key",
+  DODO_PAYMENTS_WEBHOOK_KEY: "whsec_test",
+  DODO_PAYMENTS_ENVIRONMENT: "test_mode",
+  DODO_PRO_MONTHLY_PRODUCT_ID: "pdt_monthly",
+  DODO_PRO_ANNUAL_PRODUCT_ID: "pdt_annual",
+  DODO_FOUNDER_PRODUCT_ID: "pdt_founder",
+};
+
+describe("Dodo billing availability", () => {
+  it("requires API, webhook and recurring product configuration", () => {
+    expect(getDodoBillingAvailability({})).toEqual({
+      available: false,
+      testMode: true,
+      reason: "MISSING_CONFIGURATION",
+    });
+
+    expect(getDodoBillingAvailability(dodoConfigured)).toEqual({
+      available: true,
+      testMode: true,
+      reason: "READY",
+    });
+  });
+
+  it("tracks live mode without blocking test-mode validation", () => {
+    expect(getDodoBillingAvailability({
+      ...dodoConfigured,
+      DODO_PAYMENTS_ENVIRONMENT: "live_mode",
+    })).toEqual({
+      available: true,
+      testMode: false,
+      reason: "READY",
+    });
+  });
+
+  it("checks Founder and management configuration independently", () => {
+    expect(getDodoFounderAvailability({
+      DODO_PAYMENTS_API_KEY: "test_dodo_key",
+      DODO_PAYMENTS_WEBHOOK_KEY: "whsec_test",
+      DODO_FOUNDER_PRODUCT_ID: "pdt_founder",
+    }).available).toBe(true);
+
+    expect(getDodoManagementAvailability({
+      DODO_PAYMENTS_API_KEY: "test_dodo_key",
+    }).available).toBe(true);
+  });
+});
 
 const configured = {
   PADDLE_CLIENT_TOKEN: "test_ffz",
