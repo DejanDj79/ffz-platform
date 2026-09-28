@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
-import { getFastSpringFounderAvailability } from "@/lib/billing/availability";
-import { reserveFounderSlot } from "@/lib/billing/founder-repository";
-import { getFastSpringConfig } from "@/lib/billing/fastspring";
+import { getDodoFounderAvailability } from "@/lib/billing/availability";
+import {
+  attachFounderCheckoutUrl,
+  releaseFounderReservation,
+  reserveFounderSlot,
+} from "@/lib/billing/founder-repository";
+import {
+  createDodoCheckoutSession,
+  getDodoConfig,
+} from "@/lib/billing/dodo";
 import {
   safeFeatureName,
   safeInternalReturnPath,
@@ -10,6 +17,33 @@ import {
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+function appOrigin(request: Request) {
+  return (process.env.FFZ_APP_URL?.trim() || new URL(request.url).origin).replace(/\/$/, "");
+}
+
+function founderReturnUrl(
+  request: Request,
+  returnTo: string | null,
+  feature: string | null,
+) {
+  const query = new URLSearchParams({ checkout: "founder-success" });
+  if (returnTo) query.set("from", returnTo);
+  if (feature) query.set("feature", feature);
+  return `${appOrigin(request)}/upgrade?${query.toString()}`;
+}
+
+function founderCancelUrl(
+  request: Request,
+  returnTo: string | null,
+  feature: string | null,
+) {
+  const query = new URLSearchParams();
+  if (returnTo) query.set("from", returnTo);
+  if (feature) query.set("feature", feature);
+  const suffix = query.size > 0 ? `?${query.toString()}` : "";
+  return `${appOrigin(request)}/upgrade${suffix}`;
+}
 
 export async function POST(request: Request) {
   const user = await getCurrentUser();
@@ -24,7 +58,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const availability = getFastSpringFounderAvailability();
+  const availability = getDodoFounderAvailability();
   if (!availability.available) {
     return NextResponse.json(
       {
@@ -41,6 +75,15 @@ export async function POST(request: Request) {
   };
   const returnTo = safeInternalReturnPath(body.returnTo);
   const feature = safeFeatureName(body.feature);
+
+  let reserved:
+    | {
+        slotNo: number;
+        reservationToken: string;
+        expiresAt: Date;
+        checkoutUrl: string | null;
+      }
+    | null = null;
 
   try {
     const reservation = await reserveFounderSlot(user.id);
@@ -76,27 +119,51 @@ export async function POST(request: Request) {
       );
     }
 
-    const config = getFastSpringConfig();
+    reserved = reservation;
 
-    return NextResponse.json({
-      data: {
-        checkout: {
-          provider: "FASTSPRING",
-          productPath: config.founderProductPath,
-          customerEmail: user.email,
-          testMode: config.testMode,
-          tags: {
-            ffz_user_id: user.id,
-            ffz_plan: "FOUNDER",
-            founder_slot: String(reservation.slotNo),
-            founder_reservation_token: reservation.reservationToken,
-            ...(returnTo ? { return_to: returnTo } : {}),
-            ...(feature ? { feature } : {}),
-          },
-        },
+    if (reservation.checkoutUrl) {
+      return NextResponse.json({ data: { url: reservation.checkoutUrl } });
+    }
+
+    const config = getDodoConfig({ requireFounder: true });
+    const checkout = await createDodoCheckoutSession({
+      productId: config.founderProductId,
+      email: user.email,
+      returnUrl: founderReturnUrl(request, returnTo, feature),
+      cancelUrl: founderCancelUrl(request, returnTo, feature),
+      metadata: {
+        ffz_user_id: user.id,
+        ffz_plan: "FOUNDER",
+        founder_slot: String(reservation.slotNo),
+        founder_reservation_token: reservation.reservationToken,
+        ...(returnTo ? { return_to: returnTo } : {}),
+        ...(feature ? { feature } : {}),
       },
+    }, config);
+
+    const attached = await attachFounderCheckoutUrl({
+      userId: user.id,
+      slotNo: reservation.slotNo,
+      reservationToken: reservation.reservationToken,
+      checkoutUrl: checkout.url,
     });
+
+    if (!attached) {
+      throw new Error("Founder reservation changed before checkout could be attached.");
+    }
+
+    return NextResponse.json({ data: { url: checkout.url } });
   } catch (error) {
+    if (reserved) {
+      await releaseFounderReservation({
+        userId: user.id,
+        slotNo: reserved.slotNo,
+        reservationToken: reserved.reservationToken,
+      }).catch((releaseError) => {
+        console.error("Unable to release failed Founder reservation:", releaseError);
+      });
+    }
+
     console.error("POST /api/billing/founder-checkout failed:", error);
     return NextResponse.json(
       { error: "Unable to start Founder Trader checkout." },
