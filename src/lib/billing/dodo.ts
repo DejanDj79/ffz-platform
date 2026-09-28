@@ -464,7 +464,7 @@ export function dodoSubscriptionSnapshotFromWebhook(
 
 export function isExpectedDodoSubscription(
   snapshot: DodoSubscriptionSnapshot,
-  config = getDodoConfig(),
+  config = getDodoConfig({ requireSubscriptions: true }),
 ) {
   return snapshot.testMode === config.testMode && (
     snapshot.productId === config.monthlyProductId ||
@@ -474,7 +474,7 @@ export function isExpectedDodoSubscription(
 
 export function dodoFounderOrderSnapshotFromWebhook(
   payload: DodoWebhookPayload,
-  config = getDodoConfig(),
+  config = getDodoConfig({ requireFounder: true }),
 ): FounderOrderSnapshot | null {
   if (payload.type !== "payment.succeeded") return null;
 
@@ -508,7 +508,7 @@ export function dodoFounderOrderSnapshotFromWebhook(
 
 export function isExpectedDodoFounder(
   snapshot: FounderOrderSnapshot,
-  config = getDodoConfig(),
+  config = getDodoConfig({ requireFounder: true }),
 ) {
   return snapshot.storeId === "DODO" &&
     snapshot.productId === config.founderProductId &&
@@ -525,7 +525,7 @@ export function dodoFounderRefundPaymentId(payload: DodoWebhookPayload) {
 export function dodoFounderRefundSnapshotFromPayment(
   payload: DodoWebhookPayload,
   payment: DodoPaymentDetail,
-  config = getDodoConfig(),
+  config = getDodoConfig({ requireFounder: true }),
 ): FounderOrderSnapshot | null {
   const paymentId = dodoFounderRefundPaymentId(payload);
   if (!paymentId) return null;
