@@ -20,4 +20,4 @@ Refund policy summary:
 - Founder purchase: refundable within 14 days of the initial purchase
 - Recurring subscription renewals: generally non-refundable except where applicable law requires otherwise
 
-These pages are intended to support Lemon Squeezy product review and normal customer-facing transparency. Keep pricing and legal copy synchronized with the actual commercial model and billing behavior.
+These pages support payment-provider review and normal customer-facing transparency. Dodo Payments is the current merchant-of-record integration. Keep pricing and legal copy synchronized with the actual commercial model and billing behavior.
