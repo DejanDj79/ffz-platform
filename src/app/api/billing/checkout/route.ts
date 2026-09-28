@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
-import { getFastSpringBillingAvailability } from "@/lib/billing/availability";
+import { getDodoBillingAvailability } from "@/lib/billing/availability";
 import {
-  fastSpringProductPathForInterval,
-  getFastSpringConfig,
-  type FastSpringBillingInterval,
-} from "@/lib/billing/fastspring";
+  createDodoCheckoutSession,
+  dodoProductIdForInterval,
+  getDodoConfig,
+  type DodoBillingInterval,
+} from "@/lib/billing/dodo";
 import {
   safeFeatureName,
   safeInternalReturnPath,
@@ -14,8 +15,36 @@ import {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-function isBillingInterval(value: unknown): value is FastSpringBillingInterval {
+function isBillingInterval(value: unknown): value is DodoBillingInterval {
   return value === "MONTHLY" || value === "ANNUAL";
+}
+
+function appOrigin(request: Request) {
+  return (process.env.FFZ_APP_URL?.trim() || new URL(request.url).origin).replace(/\/$/, "");
+}
+
+function checkoutReturnUrl(
+  request: Request,
+  kind: "success" | "founder-success",
+  returnTo: string | null,
+  feature: string | null,
+) {
+  const query = new URLSearchParams({ checkout: kind });
+  if (returnTo) query.set("from", returnTo);
+  if (feature) query.set("feature", feature);
+  return `${appOrigin(request)}/upgrade?${query.toString()}`;
+}
+
+function checkoutCancelUrl(
+  request: Request,
+  returnTo: string | null,
+  feature: string | null,
+) {
+  const query = new URLSearchParams();
+  if (returnTo) query.set("from", returnTo);
+  if (feature) query.set("feature", feature);
+  const suffix = query.size > 0 ? `?${query.toString()}` : "";
+  return `${appOrigin(request)}/upgrade${suffix}`;
 }
 
 export async function POST(request: Request) {
@@ -32,7 +61,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const billingAvailability = getFastSpringBillingAvailability();
+    const billingAvailability = getDodoBillingAvailability();
     if (!billingAvailability.available) {
       return NextResponse.json(
         {
@@ -57,25 +86,22 @@ export async function POST(request: Request) {
 
     const returnTo = safeInternalReturnPath(body.returnTo);
     const feature = safeFeatureName(body.feature);
-    const config = getFastSpringConfig();
-
-    return NextResponse.json({
-      data: {
-        checkout: {
-          provider: "FASTSPRING",
-          productPath: fastSpringProductPathForInterval(body.interval, config),
-          customerEmail: user.email,
-          testMode: config.testMode,
-          tags: {
-            ffz_user_id: user.id,
-            ffz_plan: "PRO",
-            billing_interval: body.interval,
-            ...(returnTo ? { return_to: returnTo } : {}),
-            ...(feature ? { feature } : {}),
-          },
-        },
+    const config = getDodoConfig({ requireSubscriptions: true });
+    const checkout = await createDodoCheckoutSession({
+      productId: dodoProductIdForInterval(body.interval, config),
+      email: user.email,
+      returnUrl: checkoutReturnUrl(request, "success", returnTo, feature),
+      cancelUrl: checkoutCancelUrl(request, returnTo, feature),
+      metadata: {
+        ffz_user_id: user.id,
+        ffz_plan: "PRO",
+        billing_interval: body.interval,
+        ...(returnTo ? { return_to: returnTo } : {}),
+        ...(feature ? { feature } : {}),
       },
-    });
+    }, config);
+
+    return NextResponse.json({ data: { url: checkout.url } });
   } catch (error) {
     console.error("POST /api/billing/checkout failed:", error);
     return NextResponse.json(
