@@ -9,18 +9,9 @@ type BillingInterval = "MONTHLY" | "ANNUAL";
 type CheckoutKind = "success" | "founder-success";
 type AccessLabel = "FREE" | "PRO" | "FOUNDER" | "CREATOR";
 
-type FastSpringCheckoutConfig = {
-  provider: "FASTSPRING";
-  productPath: string;
-  customerEmail: string;
-  testMode: boolean;
-  tags: Record<string, string>;
-};
-
 type ApiResponse = {
   data?: {
     url?: string;
-    checkout?: FastSpringCheckoutConfig;
   };
   error?: string;
 };
@@ -31,47 +22,6 @@ type AuthResponse = {
     access?: AccessLabel;
   };
 };
-
-type FastSpringSession = {
-  reset: boolean;
-  products: Array<{ path: string; quantity: number }>;
-  paymentContact: { email: string };
-  tags: Record<string, string>;
-  checkout: boolean;
-};
-
-type FastSpringSdk = {
-  builder: {
-    push: (session: FastSpringSession) => void;
-  };
-};
-
-declare global {
-  interface Window {
-    fastspring?: FastSpringSdk;
-  }
-}
-
-async function getFastSpring() {
-  if (window.fastspring?.builder) return window.fastspring;
-
-  return new Promise<FastSpringSdk>((resolve, reject) => {
-    let attempts = 0;
-    const timer = window.setInterval(() => {
-      attempts += 1;
-      if (window.fastspring?.builder) {
-        window.clearInterval(timer);
-        resolve(window.fastspring);
-        return;
-      }
-
-      if (attempts >= 50) {
-        window.clearInterval(timer);
-        reject(new Error("FastSpring checkout did not load. Reload the page and try again."));
-      }
-    }, 100);
-  });
-}
 
 async function billingRequest(path: string, body?: object) {
   const response = await fetch(path, {
@@ -101,8 +51,8 @@ async function openFastSpringFromApi(path: string, body?: object) {
   });
 }
 
-async function redirectFromApi(path: string) {
-  const json = await billingRequest(path);
+async function redirectFromApi(path: string, body?: object) {
+  const json = await billingRequest(path, body);
   if (!json.data?.url) throw new Error(json.error || "Billing request failed.");
   window.location.assign(json.data.url);
 }
@@ -278,7 +228,7 @@ export function SubscribeAction({
     setError(null);
 
     try {
-      await openFastSpringFromApi("/api/billing/checkout", {
+      await redirectFromApi("/api/billing/checkout", {
         interval,
         returnTo,
         feature,
@@ -309,7 +259,7 @@ export function SubscribeAction({
       {error && <p className={styles.billingError}>{error}</p>}
       <p className={styles.checkoutNote}>
         {available
-          ? "Secure checkout, tax and subscription billing are handled by FastSpring."
+          ? "Secure checkout, tax and subscription billing are handled by Dodo Payments."
           : "FFZ Pro subscriptions are being prepared and will be available soon."}
       </p>
     </div>
@@ -341,7 +291,7 @@ export function FounderAction({
     setError(null);
 
     try {
-      await openFastSpringFromApi("/api/billing/founder-checkout", {
+      await redirectFromApi("/api/billing/founder-checkout", {
         returnTo,
         feature,
       });
@@ -375,8 +325,8 @@ export function FounderAction({
         {soldOut
           ? "All 150 Founder Trader spots have been claimed."
           : available
-            ? `${remaining} Founder spot${remaining === 1 ? "" : "s"} currently available. Secure one-time checkout is handled by FastSpring.`
-            : "Founder checkout will open when the one-time FastSpring product is configured."}
+            ? `${remaining} Founder spot${remaining === 1 ? "" : "s"} currently available. Secure one-time checkout is handled by Dodo Payments.`
+            : "Founder checkout will open when the one-time Dodo Payments product is configured."}
       </p>
       {available && !soldOut && hasSubscription && (
         <p className={styles.checkoutNote}>
