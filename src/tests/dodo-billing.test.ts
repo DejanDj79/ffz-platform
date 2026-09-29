@@ -237,6 +237,30 @@ describe("Dodo Payments billing", () => {
     });
   });
 
+  it("surfaces Dodo checkout validation details", async () => {
+    const request = (async () => Response.json({
+      detail: [
+        {
+          loc: ["body", "product_cart", 0, "product_id"],
+          msg: "Product not found in this environment",
+          type: "value_error",
+        },
+      ],
+    }, { status: 422 })) as typeof fetch;
+
+    await expect(createDodoCheckoutSession({
+      productId: "pdt_wrong_environment",
+      email: "demo@ffz.app",
+      returnUrl: "https://ffz.app/upgrade?checkout=success",
+      metadata: {
+        ffz_user_id: "user-123",
+        ffz_plan: "PRO",
+      },
+    }, config, request)).rejects.toThrow(
+      /Dodo Payments checkout creation failed \(422\).*Product not found in this environment/,
+    );
+  });
+
   it("creates a customer portal session and schedules cancellation at period end", async () => {
     const calls: Array<{ url: string; init?: RequestInit }> = [];
     const request = (async (input: string | URL | Request, init?: RequestInit) => {
