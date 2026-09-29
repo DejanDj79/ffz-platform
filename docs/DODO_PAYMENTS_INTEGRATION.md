@@ -9,12 +9,13 @@ This document tracks the current Dodo Payments integration status for FFZ Platfo
 - Dodo Payments merchant verification: **APPROVED**
 - Dodo dashboard indicates FFZ can receive payments.
 - Paid products exist in **Live Mode** and **Test Mode**.
-- Test-mode environment configuration has been added to FFZ.
+- FFZ production billing is now switched to **Dodo Live Mode**.
 - Dodo checkout, portal, subscription webhook and Founder webhook code is merged in `main`.
-- Dodo Test Mode webhook endpoint and signing secret are configured and real signed webhook processing is confirmed.
-- Monthly PRO checkout and activation are confirmed in Test Mode.
-- Annual PRO checkout and activation are confirmed in Test Mode.
+- Dodo Test Mode and Live Mode webhook endpoints/signing secrets are configured and real webhook processing is confirmed.
+- Monthly and Annual PRO checkout/activation are confirmed in Test Mode.
 - Dodo Customer Portal opens correctly for a subscribed user, and scheduled cancellation keeps PRO access through the paid period.
+- Live Mode checkout has been confirmed with a real card using a 100% discount code.
+- Live Customer Portal and Live subscription cancellation have been confirmed.
 - Existing Monthly PRO → Founder purchase is confirmed in Test Mode.
 - Full Founder refund is confirmed: Founder entitlement is revoked and the account correctly falls back to the still-linked PRO subscription.
 - Do not commit API keys, webhook secrets, or other credentials.
@@ -73,7 +74,7 @@ Values must remain outside Git.
 - `src/app/api/billing/portal/route.ts` creates Dodo Customer Portal sessions.
 - `src/app/upgrade/page.tsx` and `src/app/upgrade/BillingActions.tsx` use Dodo as the active billing provider.
 
-Legacy Lemon Squeezy, Paddle, and FastSpring code may remain temporarily for reference/rollback until Dodo test-mode validation is complete, but new checkout behavior should target Dodo.
+Legacy Lemon Squeezy, Paddle, and FastSpring code may remain temporarily for reference/rollback, but Dodo is now the active production billing provider.
 
 ## Test-mode checklist
 
@@ -90,13 +91,13 @@ Legacy Lemon Squeezy, Paddle, and FastSpring code may remain temporarily for ref
 - [x] Annual PRO test purchase activates PRO
 - [x] Dodo Customer Portal opens for a subscribed user
 - [x] Subscription cancellation preserves access until paid-period end
-- [ ] Expired/cancelled subscription eventually returns to FREE
+- [x] Expired/cancelled subscription eventually returns to FREE
 - [x] Existing PRO → Founder purchase works
 - [x] Founder purchase consumes exactly one FFZ Founder slot
 - [x] Full Founder refund revokes Founder entitlement and restores existing PRO access when applicable
-- [ ] Partial refund behavior verified
-- [ ] Founder sold-out behavior verified
-- [ ] Automated tests and FFZ CI pass
+- [x] Partial refund behavior verified
+- [x] Founder sold-out behavior verified
+- [x] Automated tests and FFZ CI pass
 
 ## Confirmed Test Mode lifecycle
 
@@ -114,34 +115,35 @@ The following end-to-end path has been exercised successfully against Dodo Test 
 
 An initial `insufficient funds in wallet` refund response cleared after waiting for Dodo Test Mode settlement/balance availability; no FFZ code change was required.
 
-## Remaining Test Mode validation
+## Test Mode validation status
 
-Annual PRO, Customer Portal, and scheduled cancellation through the paid-period end are now confirmed.
+The Test Mode billing checklist is complete, including subscription lifecycle, Founder lifecycle/refunds, sold-out behavior, and CI coverage.
 
-Still validate:
-
-- final downgrade to FREE after the subscription expires/cancels
-- partial Founder refund behavior
-- Founder sold-out behavior
-- automated tests / CI
-
-Do not put the signing secret in this document or commit it anywhere in Git.
+Do not put API keys or webhook signing secrets in this document or commit them anywhere in Git.
 
 ## Live-mode cutover
 
-Do not switch production billing to Dodo Live Mode until the remaining test-mode checklist passes.
+**COMPLETE — FFZ production billing is live on Dodo Payments.**
 
-At cutover, switch the following together:
+Production is configured with Live Mode values for:
 
 - Dodo API key
 - Dodo webhook signing key
 - Monthly Product ID
 - Annual Product ID
 - Founder Product ID
-- Dodo environment mode
+- `DODO_PAYMENTS_ENVIRONMENT=live_mode`
 
-Then repeat critical smoke tests for purchase, entitlement activation, cancellation/portal, Founder purchase, and refund handling.
+Live smoke tests completed:
+
+- Live checkout opens successfully from FFZ.
+- 100% discount-code checkout completed successfully with a real card.
+- Live billing webhook/customer linkage is functional.
+- Dodo Customer Portal opens for the live subscriber.
+- Subscription cancellation from the Customer Portal completes successfully.
+
+A previous Live checkout `422` was traced to incorrect Live product IDs, not to the discount-code feature. Correcting the Live product IDs resolved checkout creation.
 
 ## Current next step
 
-Validate the final subscription lifecycle transition from PRO to FREE after the paid period ends, then verify the remaining Founder edge cases.
+Billing is production-ready. The next billing-related work should be operational monitoring of early live transactions and, later, cleanup/removal of unused legacy provider code when rollback reference is no longer needed.
