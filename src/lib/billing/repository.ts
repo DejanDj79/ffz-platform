@@ -2,6 +2,10 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { userPlans } from "@/db/user-plans-schema";
 import {
+  planForDodoStatus,
+  type DodoSubscriptionSnapshot,
+} from "./dodo";
+import {
   planForFastSpringStatus,
   type FastSpringSubscriptionSnapshot,
 } from "./fastspring";
@@ -68,6 +72,62 @@ export async function findUserIdByProviderSubscriptionId(subscriptionId: string)
     .limit(1);
 
   return rows[0]?.userId ?? null;
+}
+
+export async function syncDodoSubscription(
+  userId: string,
+  snapshot: DodoSubscriptionSnapshot,
+) {
+  const current = await getUserBillingState(userId);
+
+  if (
+    current.provider === "DODO" &&
+    current.providerUpdatedAt &&
+    current.providerUpdatedAt.getTime() > snapshot.providerUpdatedAt.getTime()
+  ) {
+    return { applied: false as const, plan: null };
+  }
+
+  const now = new Date();
+  const founder = await hasActiveFounderEntitlement(userId);
+  const plan = founder ? "PRO" : planForDodoStatus(snapshot.status);
+
+  await db
+    .insert(userPlans)
+    .values({
+      userId,
+      plan,
+      billingProvider: "DODO",
+      providerCustomerId: snapshot.customerId,
+      providerSubscriptionId: snapshot.subscriptionId,
+      providerProductId: snapshot.productId,
+      providerVariantId: snapshot.productId,
+      subscriptionStatus: snapshot.status,
+      subscriptionRenewsAt: snapshot.renewsAt,
+      subscriptionEndsAt: snapshot.endsAt,
+      subscriptionTestMode: snapshot.testMode,
+      providerUpdatedAt: snapshot.providerUpdatedAt,
+      updatedAt: now,
+    })
+    .onConflictDoUpdate({
+      target: userPlans.userId,
+      set: {
+        plan,
+        billingProvider: "DODO",
+        providerCustomerId: snapshot.customerId,
+        providerSubscriptionId: snapshot.subscriptionId,
+        providerProductId: snapshot.productId,
+        providerVariantId: snapshot.productId,
+        subscriptionStatus: snapshot.status,
+        subscriptionRenewsAt: snapshot.renewsAt,
+        subscriptionEndsAt: snapshot.endsAt,
+        subscriptionTestMode: snapshot.testMode,
+        providerUpdatedAt: snapshot.providerUpdatedAt,
+        updatedAt: now,
+      },
+    });
+
+  return { applied: true as const, plan };
 }
 
 export async function syncFastSpringSubscription(
@@ -181,8 +241,7 @@ export async function syncPaddleSubscription(
   return { applied: true as const, plan };
 }
 
-// Legacy Lemon Squeezy sync kept for rollback/reference while the Paddle
-// migration is being validated in sandbox.
+// Legacy Lemon Squeezy sync kept for rollback/reference.
 export async function syncLemonSubscription(
   userId: string,
   snapshot: LemonSubscriptionSnapshot,

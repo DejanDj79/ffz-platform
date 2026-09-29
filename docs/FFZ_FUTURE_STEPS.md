@@ -533,39 +533,50 @@ Historical:
 - PR #20
 - commit `d0323177410ca656fd969c98a8ff7a04506738e7`
 
-## Founder Live Mode — BLOCKED / WAITING FOR LEMON STORE ACTIVATION
+## Dodo Payments billing integration — IN PROGRESS
 
-Do not change the working billing implementation while waiting.
+Dodo Payments merchant verification is approved and the FFZ paid products have been created.
 
-When Lemon activates the store:
-- create Live Founder variant: `Founder Trader`, `$199`, one-time
-- configure `LEMONSQUEEZY_FOUNDER_VARIANT_ID`
-- set `LEMONSQUEEZY_TEST_MODE=false`
-- verify live webhook at FFZ production domain
+Active commercial products:
+- `FFZ PRO Monthly` — `$12.99/month`
+- `FFZ PRO Annual` — `$99/year`
+- `FFZ Founder Trader` — `$199` one-time
 
-Required webhook events:
-- `order_created`
-- `order_refunded`
-- `subscription_created`
-- `subscription_updated`
-- `subscription_cancelled`
-- `subscription_expired`
+Integration target:
+- hosted Dodo checkout sessions
+- Dodo subscription lifecycle webhooks as the source of truth for PRO access
+- Dodo Customer Portal for subscription management
+- existing FFZ Founder reservation/cap logic retained
+- full Founder refunds revoke Founder entitlement
+- existing PRO subscriptions are scheduled to cancel at period end after Founder activation
 
-Live-launch smoke tests still required:
-- [ ] Live Founder variant created
-- [ ] Live Founder Variant ID added
-- [ ] Test Mode disabled
-- [ ] Live webhook URL verified
-- [ ] required webhook events selected
-- [ ] Founder purchase
+Required Dodo webhook events:
+- `subscription.active`
+- `subscription.updated`
+- `subscription.on_hold`
+- `subscription.paused`
+- `subscription.renewed`
+- `subscription.plan_changed`
+- `subscription.cancelled`
+- `subscription.failed`
+- `subscription.expired`
+- `payment.succeeded`
+- `refund.succeeded`
+
+Test-mode validation still required:
+- [ ] Test API key configured on FFZ
+- [ ] Test Monthly / Annual / Founder Product IDs configured
+- [ ] Test webhook endpoint created and secret configured
+- [ ] webhook signature test succeeds
 - [ ] Monthly PRO purchase
 - [ ] Annual PRO purchase
+- [ ] subscription cancellation / portal flow
 - [ ] existing PRO → Founder
-- [ ] full refund
-- [ ] partial refund
+- [ ] full Founder refund
+- [ ] partial Founder refund does not revoke lifetime access
 - [ ] SOLD OUT behavior
 
-Resume this immediately after Lemon store activation.
+After all test-mode checks pass, switch API key, webhook secret, product IDs and `DODO_PAYMENTS_ENVIRONMENT` together to Live Mode and repeat the critical purchase/cancellation/refund smoke tests.
 
 ---
 
@@ -695,7 +706,7 @@ Only after real usage identifies a need:
 3. **Fix the smallest high-value friction items, if any.**
 4. **Repeat the same operating loop through one complete real trading week.**
 5. **Use that real week to validate Story ranking, key-trade selection, teleprompter pacing, Publish output and Public Journey usefulness.**
-6. **Resume Founder/PRO Live Mode immediately after Lemon activates the store.**
+6. **Finish Dodo Payments test-mode validation, then switch the verified billing flow to Live Mode.**
 
 Do not start a new broad feature roadmap until steps 1–5 provide evidence that one is needed.
 

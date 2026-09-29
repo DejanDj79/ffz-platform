@@ -30,7 +30,7 @@ export default async function TermsPage() {
       <header className={styles.header}>
         <span className={styles.eyebrow}>LEGAL</span>
         <h1>Terms of Service</h1>
-        <p>Effective date: September 15, 2026</p>
+        <p>Effective date: September 28, 2026</p>
       </header>
 
       <article className={styles.content}>
@@ -89,8 +89,8 @@ export default async function TermsPage() {
             Cancellation stops future renewals and does not normally end access before the already-paid period expires.
           </p>
           <p>
-            Payments for paid FFZ plans are processed by FastSpring, which acts as merchant of record for those
-            transactions. FastSpring handles checkout, payment processing, applicable taxes, invoices and related billing
+            Payments for paid FFZ plans are processed by Dodo Payments, which acts as merchant of record for those
+            transactions. Dodo Payments handles checkout, payment processing, applicable taxes, invoices and related billing
             administration according to its terms. FFZ may use another authorized payment provider in the future where
             appropriate.
           </p>
