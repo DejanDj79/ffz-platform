@@ -230,6 +230,10 @@ describe("Dodo Payments billing", () => {
       product_cart: [{ product_id: "pdt_monthly", quantity: 1 }],
       customer: { email: "demo@ffz.app" },
       metadata: { ffz_user_id: "user-123", ffz_plan: "PRO" },
+      feature_flags: {
+        redirect_immediately: true,
+        allow_discount_code: true,
+      },
     });
   });
 
