@@ -13,6 +13,8 @@ This document tracks the current Dodo Payments integration status for FFZ Platfo
 - Dodo checkout, portal, subscription webhook and Founder webhook code is merged in `main`.
 - Dodo Test Mode webhook endpoint and signing secret are configured and real signed webhook processing is confirmed.
 - Monthly PRO checkout and activation are confirmed in Test Mode.
+- Annual PRO checkout and activation are confirmed in Test Mode.
+- Dodo Customer Portal opens correctly for a subscribed user, and scheduled cancellation keeps PRO access through the paid period.
 - Existing Monthly PRO → Founder purchase is confirmed in Test Mode.
 - Full Founder refund is confirmed: Founder entitlement is revoked and the account correctly falls back to the still-linked PRO subscription.
 - Do not commit API keys, webhook secrets, or other credentials.
@@ -85,9 +87,9 @@ Legacy Lemon Squeezy, Paddle, and FastSpring code may remain temporarily for ref
 - [x] Test webhook secret configured
 - [x] Webhook signature verification confirmed with real signed Dodo Test Mode deliveries
 - [x] Monthly PRO test purchase activates PRO
-- [ ] Annual PRO test purchase activates PRO
-- [ ] Dodo Customer Portal opens for a subscribed user
-- [ ] Subscription cancellation preserves access until paid-period end
+- [x] Annual PRO test purchase activates PRO
+- [x] Dodo Customer Portal opens for a subscribed user
+- [x] Subscription cancellation preserves access until paid-period end
 - [ ] Expired/cancelled subscription eventually returns to FREE
 - [x] Existing PRO → Founder purchase works
 - [ ] Founder purchase consumes exactly one FFZ Founder slot
@@ -114,12 +116,10 @@ An initial `insufficient funds in wallet` refund response cleared after waiting 
 
 ## Remaining Test Mode validation
 
-The next unchecked validation is **Annual PRO purchase**.
+Annual PRO, Customer Portal, and scheduled cancellation through the paid-period end are now confirmed.
 
-After that, validate:
+Still validate:
 
-- Dodo Customer Portal for a subscribed user
-- user-requested subscription cancellation and access through the paid-period end
 - final downgrade to FREE after the subscription expires/cancels
 - exact Founder slot consumption
 - partial Founder refund behavior
@@ -145,4 +145,4 @@ Then repeat critical smoke tests for purchase, entitlement activation, cancellat
 
 ## Current next step
 
-Run an **Annual PRO Test Mode purchase** with a suitable test account and confirm that the Dodo webhook activates PRO with the Annual product ID. Then validate Customer Portal and the normal subscription cancellation lifecycle.
+Validate the final subscription lifecycle transition from PRO to FREE after the paid period ends, then verify exact Founder slot consumption and the remaining Founder edge cases.
