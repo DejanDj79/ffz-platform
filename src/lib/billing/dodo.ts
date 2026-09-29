@@ -157,6 +157,7 @@ export async function createDodoCheckoutSession(
       metadata: input.metadata,
       feature_flags: {
         redirect_immediately: true,
+        allow_discount_code: true,
       },
     }),
   });
