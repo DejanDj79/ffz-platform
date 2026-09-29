@@ -11,7 +11,10 @@ This document tracks the current Dodo Payments integration status for FFZ Platfo
 - Paid products exist in **Live Mode** and **Test Mode**.
 - Test-mode environment configuration has been added to FFZ.
 - Dodo checkout, portal, subscription webhook and Founder webhook code is merged in `main`.
-- The next step is Test Mode webhook configuration in the Dodo dashboard, followed by end-to-end validation.
+- Dodo Test Mode webhook endpoint and signing secret are configured and real signed webhook processing is confirmed.
+- Monthly PRO checkout and activation are confirmed in Test Mode.
+- Existing Monthly PRO → Founder purchase is confirmed in Test Mode.
+- Full Founder refund is confirmed: Founder entitlement is revoked and the account correctly falls back to the still-linked PRO subscription.
 - Do not commit API keys, webhook secrets, or other credentials.
 
 ## FFZ commercial products
@@ -78,58 +81,56 @@ Legacy Lemon Squeezy, Paddle, and FastSpring code may remain temporarily for ref
 - [x] Test-mode FFZ environment configuration added
 - [x] Dodo checkout integration implemented
 - [x] Dodo webhook endpoint implemented
-- [ ] Test webhook endpoint created in Dodo dashboard
-- [ ] Test webhook secret configured
-- [ ] Webhook signature verification confirmed with a real signed Dodo Test Mode delivery
-- [ ] Monthly PRO test purchase activates PRO
+- [x] Test webhook endpoint created in Dodo dashboard
+- [x] Test webhook secret configured
+- [x] Webhook signature verification confirmed with real signed Dodo Test Mode deliveries
+- [x] Monthly PRO test purchase activates PRO
 - [ ] Annual PRO test purchase activates PRO
 - [ ] Dodo Customer Portal opens for a subscribed user
 - [ ] Subscription cancellation preserves access until paid-period end
 - [ ] Expired/cancelled subscription eventually returns to FREE
-- [ ] Existing PRO → Founder purchase works
+- [x] Existing PRO → Founder purchase works
 - [ ] Founder purchase consumes exactly one FFZ Founder slot
-- [ ] Full Founder refund revokes Founder entitlement
+- [x] Full Founder refund revokes Founder entitlement and restores existing PRO access when applicable
 - [ ] Partial refund behavior verified
 - [ ] Founder sold-out behavior verified
 - [ ] Automated tests and FFZ CI pass
 
-## Next manual Test Mode step
+## Confirmed Test Mode lifecycle
 
-Create a webhook endpoint in the **Dodo Test Mode** dashboard.
+The following end-to-end path has been exercised successfully against Dodo Test Mode:
 
-Endpoint URL:
+1. Purchase Monthly PRO.
+2. Dodo webhook activates PRO in FFZ.
+3. Purchase Founder while PRO is active.
+4. Founder entitlement activates successfully.
+5. Submit a full Founder refund in Dodo.
+6. Dodo sends the successful refund webhook.
+7. FFZ revokes Founder entitlement.
+8. Because the account still has a linked Dodo PRO subscription, FFZ restores the account to PRO instead of FREE.
+9. The Founder refund state/message is visible in FFZ.
 
-```text
-https://ffz.app/api/billing/webhook
-```
+An initial `insufficient funds in wallet` refund response cleared after waiting for Dodo Test Mode settlement/balance availability; no FFZ code change was required.
 
-Subscribe to the billing events FFZ currently handles or uses for lifecycle synchronization:
+## Remaining Test Mode validation
 
-- `subscription.active`
-- `subscription.updated`
-- `subscription.on_hold`
-- `subscription.paused`
-- `subscription.renewed`
-- `subscription.plan_changed`
-- `subscription.cancelled`
-- `subscription.failed`
-- `subscription.expired`
-- `payment.succeeded`
-- `refund.succeeded`
+The next unchecked validation is **Annual PRO purchase**.
 
-After creating the endpoint:
+After that, validate:
 
-1. Copy the Dodo signing secret (`whsec_...`).
-2. Configure it as `DODO_PAYMENTS_WEBHOOK_KEY` in the FFZ Test Mode deployment environment.
-3. Restart/redeploy FFZ if the environment requires it.
-4. Send a signed Test Mode webhook from Dodo.
-5. Confirm the endpoint returns a successful response and then mark signature verification complete.
+- Dodo Customer Portal for a subscribed user
+- user-requested subscription cancellation and access through the paid-period end
+- final downgrade to FREE after the subscription expires/cancels
+- exact Founder slot consumption
+- partial Founder refund behavior
+- Founder sold-out behavior
+- automated tests / CI
 
 Do not put the signing secret in this document or commit it anywhere in Git.
 
 ## Live-mode cutover
 
-Do not switch production billing to Dodo Live Mode until the test-mode checklist passes.
+Do not switch production billing to Dodo Live Mode until the remaining test-mode checklist passes.
 
 At cutover, switch the following together:
 
@@ -144,4 +145,4 @@ Then repeat critical smoke tests for purchase, entitlement activation, cancellat
 
 ## Current next step
 
-Create the Test Mode webhook endpoint in the Dodo dashboard at `https://ffz.app/api/billing/webhook`, copy its signing secret into `DODO_PAYMENTS_WEBHOOK_KEY`, then verify one real signed Test Mode delivery before starting the purchase smoke tests.
+Run an **Annual PRO Test Mode purchase** with a suitable test account and confirm that the Dodo webhook activates PRO with the Annual product ID. Then validate Customer Portal and the normal subscription cancellation lifecycle.
