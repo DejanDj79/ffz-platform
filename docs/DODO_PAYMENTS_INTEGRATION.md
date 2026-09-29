@@ -92,7 +92,7 @@ Legacy Lemon Squeezy, Paddle, and FastSpring code may remain temporarily for ref
 - [x] Subscription cancellation preserves access until paid-period end
 - [ ] Expired/cancelled subscription eventually returns to FREE
 - [x] Existing PRO → Founder purchase works
-- [ ] Founder purchase consumes exactly one FFZ Founder slot
+- [x] Founder purchase consumes exactly one FFZ Founder slot
 - [x] Full Founder refund revokes Founder entitlement and restores existing PRO access when applicable
 - [ ] Partial refund behavior verified
 - [ ] Founder sold-out behavior verified
@@ -121,7 +121,6 @@ Annual PRO, Customer Portal, and scheduled cancellation through the paid-period 
 Still validate:
 
 - final downgrade to FREE after the subscription expires/cancels
-- exact Founder slot consumption
 - partial Founder refund behavior
 - Founder sold-out behavior
 - automated tests / CI
@@ -145,4 +144,4 @@ Then repeat critical smoke tests for purchase, entitlement activation, cancellat
 
 ## Current next step
 
-Validate the final subscription lifecycle transition from PRO to FREE after the paid period ends, then verify exact Founder slot consumption and the remaining Founder edge cases.
+Validate the final subscription lifecycle transition from PRO to FREE after the paid period ends, then verify the remaining Founder edge cases.
