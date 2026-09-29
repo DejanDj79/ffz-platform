@@ -1,6 +1,6 @@
 # FFZ Platform — Future Steps / Handoff
 
-_Last updated: 2026-09-08_
+_Last updated: 2026-09-29_
 
 Ovaj dokument je živi handoff/checklist za FFZ Platform. Držati ga usklađenim sa stvarnim stanjem `main` grane i realnim načinom korišćenja aplikacije.
 
@@ -533,50 +533,35 @@ Historical:
 - PR #20
 - commit `d0323177410ca656fd969c98a8ff7a04506738e7`
 
-## Dodo Payments billing integration — IN PROGRESS
+## Dodo Payments billing integration — DONE / LIVE
 
-Dodo Payments merchant verification is approved and the FFZ paid products have been created.
+Dodo Payments is the active production billing provider for FFZ.
 
-Active commercial products:
+Production status:
+- merchant verification approved
+- Live Monthly / Annual / Founder products configured
+- Live API key / webhook signing key configured
+- `DODO_PAYMENTS_ENVIRONMENT=live_mode`
+- hosted checkout active
+- discount-code entry enabled on hosted checkout
+- Live checkout verified with a real card using a 100% discount code
+- Dodo Customer Portal verified
+- subscription cancellation verified
+- Test Mode Monthly / Annual / Founder lifecycle verified
+- Founder slot consumption / full refund / partial refund / sold-out behavior verified
+- FFZ CI passing for the current Dodo billing implementation
+
+Commercial products:
 - `FFZ PRO Monthly` — `$12.99/month`
 - `FFZ PRO Annual` — `$99/year`
 - `FFZ Founder Trader` — `$199` one-time
 
-Integration target:
-- hosted Dodo checkout sessions
-- Dodo subscription lifecycle webhooks as the source of truth for PRO access
-- Dodo Customer Portal for subscription management
-- existing FFZ Founder reservation/cap logic retained
-- full Founder refunds revoke Founder entitlement
-- existing PRO subscriptions are scheduled to cancel at period end after Founder activation
+Operational note:
+- Test and Live API keys, webhook secrets and product IDs are separate.
+- Production must keep all Dodo values in the same Live environment.
+- A Live checkout `422` encountered during cutover was caused by incorrect Live product IDs and was resolved after correcting them.
 
-Required Dodo webhook events:
-- `subscription.active`
-- `subscription.updated`
-- `subscription.on_hold`
-- `subscription.paused`
-- `subscription.renewed`
-- `subscription.plan_changed`
-- `subscription.cancelled`
-- `subscription.failed`
-- `subscription.expired`
-- `payment.succeeded`
-- `refund.succeeded`
-
-Test-mode validation still required:
-- [ ] Test API key configured on FFZ
-- [ ] Test Monthly / Annual / Founder Product IDs configured
-- [ ] Test webhook endpoint created and secret configured
-- [ ] webhook signature test succeeds
-- [ ] Monthly PRO purchase
-- [ ] Annual PRO purchase
-- [ ] subscription cancellation / portal flow
-- [ ] existing PRO → Founder
-- [ ] full Founder refund
-- [ ] partial Founder refund does not revoke lifetime access
-- [ ] SOLD OUT behavior
-
-After all test-mode checks pass, switch API key, webhook secret, product IDs and `DODO_PAYMENTS_ENVIRONMENT` together to Live Mode and repeat the critical purchase/cancellation/refund smoke tests.
+See `docs/DODO_PAYMENTS_INTEGRATION.md` for the detailed billing handoff.
 
 ---
 
@@ -706,9 +691,9 @@ Only after real usage identifies a need:
 3. **Fix the smallest high-value friction items, if any.**
 4. **Repeat the same operating loop through one complete real trading week.**
 5. **Use that real week to validate Story ranking, key-trade selection, teleprompter pacing, Publish output and Public Journey usefulness.**
-6. **Finish Dodo Payments test-mode validation, then switch the verified billing flow to Live Mode.**
+6. **Billing is complete/live; monitor early real transactions only for operational issues.**
 
-Do not start a new broad feature roadmap until steps 1–5 provide evidence that one is needed.
+Do not start a new broad feature roadmap until steps 1–5 provide evidence that one is needed. Billing is no longer a blocker.
 
 ## Recently completed before this roadmap position
 
