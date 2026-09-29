@@ -53,9 +53,9 @@ type DodoPortalResponse = {
 };
 
 type DodoApiError = {
-  message?: string;
-  error?: string;
-  detail?: string;
+  message?: unknown;
+  error?: unknown;
+  detail?: unknown;
 };
 
 type DodoPaymentDetail = Record<string, unknown>;
@@ -118,13 +118,28 @@ function dodoHeaders(apiKey: string) {
   };
 }
 
+function apiErrorValue(value: unknown) {
+  if (typeof value === "string" && value.trim()) return value.trim();
+  if (value === null || value === undefined) return null;
+
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+}
+
 async function apiError(response: Response, fallback: string) {
   const raw = await response.text().catch(() => "");
   if (!raw) return fallback;
 
   try {
     const parsed = JSON.parse(raw) as DodoApiError;
-    return parsed.detail || parsed.message || parsed.error || `${fallback}: ${raw}`;
+    const detail =
+      apiErrorValue(parsed.detail) ??
+      apiErrorValue(parsed.message) ??
+      apiErrorValue(parsed.error);
+    return detail ? `${fallback}: ${detail}` : `${fallback}: ${raw}`;
   } catch {
     return `${fallback}: ${raw}`;
   }
@@ -162,10 +177,11 @@ export async function createDodoCheckoutSession(
     }),
   });
 
+  const errorResponse = response.clone();
   const payload = await response.json().catch(() => ({})) as DodoCheckoutResponse;
   if (!response.ok || !payload.checkout_url) {
     throw new Error(await apiError(
-      response,
+      errorResponse,
       `Dodo Payments checkout creation failed (${response.status})`,
     ));
   }
